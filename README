@@ -1,1 +1,8 @@
-Wow, I can edit right from the web.
+First hacky version of the code is up. Live version running here:
+http://greendotblade2.cs.nyu.edu/seemenot
+
+To run the code yourself, I think you'll need a webserver because of file access control in Javascript. 
+I have a very simple PHP proxy to get around the restriction.
+
+One bug: I'm having trouble with base64 <-> hex conversions. Sometimes I end up with extra padding or 
+lose one character and I'm not sure why. This will cause the decryption to choke.
