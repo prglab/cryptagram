@@ -1,0 +1,70 @@
+body {
+	font: 12px arial;
+}
+
+p {
+	margin-top: 50px;
+}
+
+
+
+
+
+
+#main {
+	position: absolute;
+	width: 400px;
+	left: 50%;
+	margin-left: -200px;
+	padding-bottom: 50px;
+	
+}
+
+#imageURL {
+	width: 290px;
+	margin-right: 5px;
+}
+
+
+
+
+
+.imageScroll {
+	border: 2px solid blue;
+	height: 200px;
+	overflow-y: auto;	
+	padding: none;
+}
+
+.base64 {
+	border: 1px solid gray;
+	width: 400px;
+	height: 200px;
+	overflow-y: scroll;
+	word-wrap: break-word;
+} 
+
+.smallInput {
+	width: 30px;	
+}
+
+.controls {
+	position: relative;
+	height: 2em;
+}
+
+.controls .left {
+	text-align: left;
+	position: absolute;
+	left: 0px;
+	top: 5px;
+}
+
+.controls .right {
+	width: 100px;
+	text-align: right;
+	position: absolute;
+	right: 0px;
+	top: 5px;
+}
+
