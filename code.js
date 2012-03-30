@@ -18,8 +18,8 @@ function init() {
 	go();
 }
 
-// Start pipeline
-// go -> rescaleImage() -> 
+// Start pipeline. Each stage calls the next.
+// go -> rescaleImage -> imageToBase64 -> encryptBase64 -> encodeRGB -> extractRGB -> decryptBase64
 
 function go() {
 	
