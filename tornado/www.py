@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+import os
 import urllib
 import urllib2
 
@@ -29,6 +30,8 @@ class Application(tornado.web.Application):
     settings = dict(
       cookie_secret="32oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
       login_url="/auth/login",
+      template_path=os.path.join(os.path.dirname(__file__), "templates"),
+      static_path=os.path.join(os.path.dirname(__file__), "static"),
     )
     tornado.web.Application.__init__(self, handlers, **settings)
 
@@ -43,13 +46,12 @@ class BaseHandler(tornado.web.RequestHandler):
 class MainHandler(BaseHandler):
   @tornado.web.authenticated
   def get(self):
-    name = tornado.escape.xhtml_escape(self.current_user["name"])
-    self.write("Hello, " + name)
-    self.write("<br><br><a href=\"/auth/logout\">Log out</a>")
+    # name = tornado.escape.xhtml_escape(self.current_user["name"])
+    self.render("index.html")
 
 
 class GrabHandler(BaseHandler):
-  # @tornado.web.asynchronous
+  @tornado.web.authenticated
   def get(self, url):
     try:
       if not url.startswith('http://'):
@@ -57,9 +59,10 @@ class GrabHandler(BaseHandler):
 
       url = url.strip()
       url = url.replace('http://', '')
-      safe_url = urllib.quote_plus(url)
-      logging.info('safe_url: %s.' % 'http://' + safe_url)
-      self.write(urllib2.urlopen('http://' + safe_url).read())
+      safe_url = urllib.quote(url)
+      logging.info('safe_url: %s.' % ('http://' + safe_url))
+      image = urllib2.urlopen('http://' + safe_url).read()
+      self.write(image)
     except:
       raise tornado.web.HTTPError(404)
 
