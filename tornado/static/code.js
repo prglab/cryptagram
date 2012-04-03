@@ -1,4 +1,4 @@
-var proxyURL = "proxy.php?url=";
+var proxyURL = "grab/";
 var URIHeader = "data:image/jpeg;base64,";
 
 
@@ -9,10 +9,10 @@ var lookup;
 
 
 function init() {
-
 	// Create reverse associative array
 	lookup = new Array();
-	for (i = 0; i < hexValues.length; i++) {
+  hexValuesLength = hexValues.length;
+	for (i = 0; i < hexValuesLength; i++) {
 		lookup[hexValues[i]] = i;
 	}
 
@@ -21,14 +21,12 @@ function init() {
 
 
 function go() {
-
 	clear();
 	var src = document.getElementById("imageURL").value;
 	var proxySrc = proxyURL + src;
 	document.getElementById("imageOriginal").src = proxySrc;
 	rescaleImage();
 }
-
 
 
 
@@ -40,7 +38,8 @@ function clear() {
 	var divs = ["base64Input", "base64Encrypt", "base64Decode", "base64Decrypt"];
 
 	for (i = 0; i < images.length; i++) {
-		document.getElementById(images[i]).src = "pixel.gif";
+    // TODO(tierney): Any way to reference templated static url location?
+		document.getElementById(images[i]).src = "static/pixel.gif";
 	}
 
 	for (i = 0; i < divs.length; i++) {
