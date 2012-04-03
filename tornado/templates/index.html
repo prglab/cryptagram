@@ -1,0 +1,79 @@
+<html>
+<head>
+<title>SeeMeNot Demo</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<script type="text/javascript" src="code.js"></script>
+<script type="text/javascript" src="sjcl.js"></script>
+<script type="text/javascript" src="json2.js"></script>
+</head>
+
+<body onLoad="init();">
+<div id=main>
+
+<p>
+	<div class=controls>
+		Image <input type=text id=imageURL name=imageURL value="http://www.ianspiro.com/maple.jpg">
+		<input type=button value="Go" onClick="go()">
+	</div>
+	<div class=imageScroll><img id=imageOriginal></div>
+</p>
+
+<p>
+	<div class=controls>
+		Quality <input class=smallInput type=text value=".5" name=imageQuality id=imageQuality>
+		Scale <input class=smallInput type=text value=".5" name=imageScale id=imageScale>
+		<input type=button value="Go" onClick="go()">
+	</div>
+	<div class=imageScroll><img id=imageRescale></div>
+</p>
+
+<p>
+	<div class=controls>
+		<div id=base64Header class=left></div>
+		<div id=resizeSize class=right></div>
+	</div>
+	<div id=base64Input class=base64></div>
+</p>
+
+<p>
+	<div class=controls>
+		Password <input type=text name=password id=password value="helloworld">
+		<input type=button value="Go" onClick="go()">
+		<div id=encryptSize class=right></div>
+	</div>
+	<div id=base64Encrypt class=base64></div>
+</p>
+
+<p>
+	<div class=controls>
+		Width <input class=smallInput type=text value=720 name=RGBWidth id=RGBWidth>
+		Block <input class=smallInput type=text value=4 name=RGBBlock id=RGBBlock>
+		Quality <input class=smallInput type=text value=".5" name=RGBQuality id=RGBQuality>
+		<input type=button value="Go" onClick="go()">
+		<div id=RGBSize class=right></div>
+	</div>
+	<div class=imageScroll><img id=imageRGB></div>
+</p>
+
+<p>
+	<div class=controls>
+		<div id=matchRate class=right></div>
+	</div>
+	<div id=base64Decode class=base64></div>
+</p>
+
+<p>
+	<div class=controls>
+		Password <input type=text name=password2 id=password2 value="helloworld">
+		<input type=button value="Go" onClick="go()">
+	</div>
+	<div id=base64Decrypt class=base64></div>
+</p>
+
+<p>
+	<div class=imageScroll><img id=imageDecrypt></div>
+</p>
+
+</div>
+</body>
+</html>
