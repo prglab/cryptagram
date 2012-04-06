@@ -13,7 +13,7 @@ import os
 import sys
 import threading
 
-logging.basicConfig(filename='code.log', level=logging.DEBUG)
+logging.basicConfig(filename='code.log', level=logging.INFO)
 
 FLAGS = gflags.FLAGS
 gflags.DEFINE_multistring('image', None, 'image to encode and encrypt',
@@ -106,8 +106,9 @@ class SeeMeNotImage(threading.Thread):
 
   def encrypt(self, password):
     c = Cipher(password)
-    with open(self.image_path,'rb') as fh:
-      self.b64encrypted = c.encode(base64.b64encode(fh.read()))
+    # with open(self.image_path,'rb') as fh:
+    #   self.b64encrypted = c.encode(base64.b64encode(fh.read()))
+    self.b64encrypted = c.encode(base64.b64encode(self.bin_image))
     logging.debug('Encrypted b64: ' + self.b64encrypted)
 
     hex_data = binascii.hexlify(self.b64encrypted)
@@ -115,34 +116,43 @@ class SeeMeNotImage(threading.Thread):
 
     num_data = len(hex_data)
     width, length = self.image.size
-    TARGET_WIDTH = 720
+
+    width_power_2 = int(math.log(width, 2))
+    TARGET_WIDTH = 2 ** width_power_2
+    logging.info('Width: %d.' % TARGET_WIDTH)
 
     width = int(TARGET_WIDTH / (self.block_size * 2));
     height = int(math.ceil(num_data / width))
-
+    logging.info('Encrypted image (w x h): (%d x %d).' % (width, height))
+    logging.info('Expected image (w x h): (%d x %d).' % \
+                    (TARGET_WIDTH, height*self.block_size))
     self.rgb_image = Image.new('RGB', (width * self.block_size * 2,
-                                        height * self.block_size))
+                                       height * self.block_size))
 
     colors = [(255,255,255), (255,0,0), (0,255,0), (0,0,255)]
+    logging.info('Len of hex_data: %d' % num_data)
+    self.coords = []
+
     for i, hex_datum in enumerate(hex_data):
       hex_val = int(hex_datum, 16)
       base4_1 = int(hex_val / 4.0) # Implicit floor.
       base4_0 = int(hex_val - (base4_1 * 4))
       y_coord = int(i / width)
       x_coord = int(i - (y_coord * width))
-
       draw = ImageDraw.Draw(self.rgb_image)
 
       # base4_0
       base4_0_x = int(x_coord * self.block_size * 2)
       base4_0_y = int(y_coord * self.block_size)
+      self.coords.append((base4_0_x, base4_0_y))
       draw.rectangle([(base4_0_x, base4_0_y),
                       (base4_0_x + self.block_size, base4_0_y + self.block_size)],
                      fill=colors[base4_0])
 
       # base4_1
-      base4_1_x = (x_coord * self.block_size * 2) + self.block_size
-      base4_1_y = y_coord * self.block_size
+      base4_1_x = int((x_coord * self.block_size * 2) + self.block_size)
+      base4_1_y = int(y_coord * self.block_size)
+      self.coords.append((base4_1_x, base4_1_y))
       draw.rectangle([(base4_1_x, base4_1_y),
                       (base4_1_x + self.block_size, base4_1_y + self.block_size)],
                      fill=colors[base4_1])
@@ -157,6 +167,7 @@ class SeeMeNotImage(threading.Thread):
     im = Image.new('RGB', (width,height))
     hex_string = ''
     count = 0
+    self.extracted_coords = []
     # self.rgb_image.show()
     for y in range(0, height, self.block_size):
       for x in range(0, width, self.block_size * 2):
@@ -171,31 +182,34 @@ class SeeMeNotImage(threading.Thread):
         hex0 = self._get_wrgbk(block0)
         hex1 = self._get_wrgbk(block1)
 
+        self.extracted_coords.append((x, y))
+        self.extracted_coords.append((x + self.block_size, y))
+
+        # Found black, stop.
         if (hex0 == 4 or hex1 == 4):
+          logging.info('Done at (%d, %d).' % (x, y))
           break
 
         hex_num = hex0 + hex1 * 4
         hex_value = hex(hex_num).replace('0x','')
-
         hex_string += hex_value
         count += 1
+
+    coord_diff = [coord for coord in
+                  [orig for orig in self.coords
+                   if orig not in self.extracted_coords]]
+
+    logging.debug('Coord diff: %s.' % str(coord_diff))
+    logging.info('Extracted count: %d.' % count)
     logging.debug('Extracted hex_string: %s' % hex_string)
     errors = 0
 
-    hex_string += '466d732b77706e313239307166363336736a754f4b4a704f4b6c36507a7431544d484f4f5434706333546b584e2b3147583159552b676268723449486a2b38586f5a706a4c516865'
     self.extracted_encrypted_base64 = binascii.unhexlify(hex_string)
     logging.debug('Extracted encrypted b64: ' + self.extracted_encrypted_base64)
 
     original = self.b64encrypted
     print len(original)
     print len(self.extracted_encrypted_base64)
-    # if original != self.extracted_base64:
-    #   for i, orig_val in enumerate(original):
-    #     if orig_val != self.extracted_base64[i]:
-    #       errors += 1
-    # logging.debug('Number of errors: %d.' % errors)
-
-    # TODO(tierney): Check if how many bytes got messed up.
 
   def decrypt(self, password):
     c = Cipher(password)
@@ -235,7 +249,7 @@ def main(argv):
   decoded = c1.decode(encoded)
   print decoded
 
-  smni = SeeMeNotImage('red.jpg', 1, 100, 2)
+  smni = SeeMeNotImage('maple-small.jpg', 0.2, 100, 2)
   smni.start()
 
 if __name__ == '__main__':
