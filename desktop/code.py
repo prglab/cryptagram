@@ -13,6 +13,8 @@ import os
 import sys
 import threading
 
+logging.basicConfig(filename='code.log', level=logging.DEBUG)
+
 FLAGS = gflags.FLAGS
 gflags.DEFINE_multistring('image', None, 'image to encode and encrypt',
                           short_name = 'i')
@@ -56,10 +58,11 @@ class SeeMeNotImage(threading.Thread):
     upper_thresh = 150
     lower_thresh = 50
     count = 0
-    rt = 0
-    gt = 0
-    bt = 0
+    rt = 0.0
+    gt = 0.0
+    bt = 0.0
 
+    # logging.debug(str(list(block.getdata())))
     block_len = len(list(block.getdata()))
     for i in range(0, block_len, 4):
       rt += list(block.getdata())[i][0]
@@ -70,6 +73,7 @@ class SeeMeNotImage(threading.Thread):
     g = gt / count
     b = bt / count
 
+    # logging.debug('%(r)f %(g)f %(b)f' % locals())
     if (r > upper_thresh and b > upper_thresh and g > upper_thresh): return 0
     if (r < lower_thresh and g < lower_thresh and b < lower_thresh): return 4
 
@@ -96,21 +100,26 @@ class SeeMeNotImage(threading.Thread):
       image_path = fh.name + '.jpg'
       self.image.save(image_path)
     with open(image_path, 'rb') as fh:
-      self.b64_image = base64.b64encode(fh.read())
+      initial_data = fh.read()
+
+    self.bin_image = initial_data
 
   def encrypt(self, password):
     c = Cipher(password)
-    b64encoded = c.encode(self.b64_image)
+    self.b64encrypted = c.encode(self.bin_image)
+    # logging.debug(self.b64encrypted)
+
+    hex_data = binascii.hexlify(base64.b64decode(self.b64encrypted))
+    # logging.debug('Hex Data:' + hex_data)
+    num_data = len(hex_data)
 
     width, length = self.image.size
-    TARGET_WIDTH = width
+    TARGET_WIDTH = 720
 
-    hex_data = binascii.hexlify(base64.b64decode(b64encoded))
-    num_data = len(hex_data)
     width = int(TARGET_WIDTH / (self.block_size * 2));
     height = int(math.ceil(num_data / width))
 
-    self.rgb_image = Image.new('RGBA', (width * self.block_size * 2,
+    self.rgb_image = Image.new('RGB', (width * self.block_size * 2,
                                         height * self.block_size))
 
     colors = [(255,255,255), (255,0,0), (0,255,0), (0,0,255)]
@@ -134,13 +143,13 @@ class SeeMeNotImage(threading.Thread):
                      fill=colors[base4_1])
 
     filename = 'rgb.jpg'
-    self.rgb_image.save(filename)
+    self.rgb_image.save(filename, quality=100)
     return filename
 
   def extract_rgb(self):
-    # self.block_size
+    self.rgb_image = Image.open('rgb.jpg')
     width, height = self.rgb_image.size
-    im = Image.new('RGBA', (width,height))
+    im = Image.new('RGB', (width,height))
     hex_string = ''
     count = 0
     for y in range(0, height, self.block_size):
@@ -162,8 +171,26 @@ class SeeMeNotImage(threading.Thread):
         hex_string += hex_value
         count += 1
 
-    new_base64 = binascii.unhexlify(hex_string)
+    errors = 0
 
+    self.extracted_base64 = base64.b64encode(hex_string)
+    # self.extracted_base64 = hex_string.encode('base64')
+    original = self.b64encrypted
+    print len(original)
+    print len(self.extracted_base64)
+    # if original != self.extracted_base64:
+    #   for i, orig_val in enumerate(original):
+    #     if orig_val != self.extracted_base64[i]:
+    #       errors += 1
+    # logging.debug('Number of errors: %d.' % errors)
+
+    # TODO(tierney): Check if how many bytes got messed up.
+
+  def decrypt(self, password):
+    c = Cipher(password)
+    decrypted = c.decode(base64.b64decode(self.extracted_base64))
+    with open('decrypted.jpg', 'wb') as fh:
+      fh.write(decrypted)
 
 
   def run(self):
@@ -175,9 +202,10 @@ class SeeMeNotImage(threading.Thread):
     self.requality(self.quality)
 
     self.encode()
-    filename = self.encrypt('password')
+    filename = self.encrypt('helloworld')
 
     self.extract_rgb()
+    self.decrypt('helloworld')
 
 
 def main(argv):
@@ -195,7 +223,7 @@ def main(argv):
   decoded = c1.decode(encoded)
   print decoded
 
-  smni = SeeMeNotImage('maple.jpg', 1, 100, 1)
+  smni = SeeMeNotImage('maple.jpg', 1, 100, 2)
   smni.start()
 
 if __name__ == '__main__':

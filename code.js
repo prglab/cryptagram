@@ -96,6 +96,7 @@ function imageToBase64() {
 	// Need to split off the header since :; aren't valid base64
   var canvasDataParts = canvasData.split(",");
   document.getElementById("base64Header").innerHTML = canvasDataParts[0];
+  console.log(canvasDataParts[0]);
 	document.getElementById("base64Input").innerHTML = canvasDataParts[1];
   document.getElementById("resizeSize").innerHTML = canvasDataParts[1].length + " characters";
 
@@ -295,4 +296,3 @@ function hexToBase64(hex) {
 	var bits = sjcl.codec.hex.toBits(hex);
 	return sjcl.codec.base64.fromBits(bits);
 }
-
