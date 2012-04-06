@@ -25,6 +25,8 @@ gflags.DEFINE_integer('encrypted_image_quality', 100,
                       short_name = 'e')
 gflags.DEFINE_float('scale', 1, 'multiplicative rescale of image',
                     short_name = 's')
+gflags.DEFINE_boolean('enable_diff', False, 'slow diff coordinates image')
+
 
 class Cipher(object):
   # the block size for the cipher object; must be 16, 24, or 32 for AES
@@ -81,13 +83,19 @@ class SeeMeNotImage(threading.Thread):
     b = bt / count
 
     # logging.debug('%(r)f %(g)f %(b)f' % locals())
-    if (r > upper_thresh and b > upper_thresh and g > upper_thresh): return 0
-    if (r < lower_thresh and g < lower_thresh and b < lower_thresh): return 4
+    if (r > upper_thresh and b > upper_thresh and g > upper_thresh):
+      return 0
+    if (r < lower_thresh and g < lower_thresh and b < lower_thresh):
+      return 4
 
+    # Choose color based on largest value.
     if ( r > g and r > b): return 1
     if ( g > r and g > b): return 2
     if ( b > r and b > g): return 3
 
+    # Bad times...
+    logging.info('Did not match (%(r)f, %(g)f, %(b)f).' % locals())
+    if ( r == b ): return 2
     return -1
 
 
@@ -118,6 +126,7 @@ class SeeMeNotImage(threading.Thread):
     logging.debug('Encrypted b64: ' + self.b64encrypted)
 
     hex_data = binascii.hexlify(self.b64encrypted)
+    self.enc_orig_hex_data = hex_data
     logging.debug('Original encrypted hex Data: ' + hex_data)
 
     num_data = len(hex_data)
@@ -189,9 +198,6 @@ class SeeMeNotImage(threading.Thread):
         hex0 = self._get_wrgbk(block0)
         hex1 = self._get_wrgbk(block1)
 
-        self.extracted_coords.append((x, y))
-        self.extracted_coords.append((x + self.block_size, y))
-
         # Found black, stop.
         if (hex0 == 4 or hex1 == 4):
           logging.info('Done at (%d, %d).' % (x, y))
@@ -202,16 +208,38 @@ class SeeMeNotImage(threading.Thread):
         hex_string += hex_value
         count += 1
 
+        if count != len(hex_string):
+          print count, len(hex_string), hex_value, hex0, hex1
+          assert(False)
+
+        self.extracted_coords.append((x, y))
+        self.extracted_coords.append((x + self.block_size, y))
+
     # WARNING(tierney): Seriously time-consuming operation for larger
     # images. Use when stumped on small images.
-    # coord_diff = [coord for coord in
-    #               [orig for orig in self.coords
-    #                if orig not in self.extracted_coords]]
-    # logging.debug('Coord diff: %s.' % str(coord_diff))
+    if FLAGS.enable_diff:
+      logging.warning('Extremely slow comparison in progress.')
+      coord_diff = [coord for coord in
+                    [orig for orig in self.coords
+                     if orig not in self.extracted_coords]]
+      logging.info('Coord diff: %s.' % str(coord_diff))
 
-    logging.info('Extracted count: %d.' % count)
-    logging.debug('Extracted hex_string: %s' % hex_string)
+
+    assert(count == len(hex_string))
+
     errors = 0
+    logging.info('Original count: %d.' % len(self.enc_orig_hex_data))
+    for i, orig_hex in enumerate(self.enc_orig_hex_data):
+      if i >= len(hex_string):
+        break
+      if orig_hex != hex_string[i]:
+        logging.info('orig_hex vs hex_string[i]: %s %s' % (orig_hex, hex_string[i]))
+        errors += 1
+    logging.info('Errors: %d.' % errors)
+    logging.info('Extracted count: %d.' % count)
+    logging.info('Extraced len(hex_string): %d.' % len(hex_string))
+    logging.debug('Extracted hex_string: %s' % hex_string)
+
 
     self.extracted_encrypted_base64 = binascii.unhexlify(hex_string)
     logging.debug('Extracted encrypted b64: ' + self.extracted_encrypted_base64)
@@ -249,12 +277,6 @@ def main(argv):
   except gflags.FlagsError, e:
     print '%s\\nUsage: %s ARGS\\n%s' % (e, sys.argv[0], FLAGS)
     sys.exit(1)
-
-  # c = Cipher('this is my password')
-  # encoded = c.encode('this is my secret message')
-  # print encoded
-  # decoded = c.decode(encoded)
-  # print decoded
 
   smni = SeeMeNotImage(FLAGS.image, FLAGS.scale, 100, 2)
   smni.start()
