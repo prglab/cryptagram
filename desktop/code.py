@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+#
+# python code.py --encrypted_image_quality 90 --scale .5 --image ./maple.jpg
 
 from Crypto.Cipher import AES
 from PIL import Image, ImageDraw
@@ -16,8 +18,13 @@ import threading
 logging.basicConfig(filename='code.log', level=logging.INFO)
 
 FLAGS = gflags.FLAGS
-gflags.DEFINE_multistring('image', None, 'image to encode and encrypt',
+gflags.DEFINE_string('image', None, 'image to encode and encrypt',
                           short_name = 'i')
+gflags.DEFINE_integer('encrypted_image_quality', 100,
+                      'quality to save encrypted image in range (0,100]',
+                      short_name = 'e')
+gflags.DEFINE_float('scale', 1, 'multiplicative rescale of image',
+                    short_name = 's')
 
 class Cipher(object):
   # the block size for the cipher object; must be 16, 24, or 32 for AES
@@ -88,6 +95,7 @@ class SeeMeNotImage(threading.Thread):
     width, height = self.image.size
     self.image = self.image.resize(
       (int(width * self.scale), int(height * self.scale)))
+    logging.info('Rescaled image size: (%d x %d)' % self.image.size)
 
   def requality(self, quality):
     with NamedTemporaryFile() as fh:
@@ -106,8 +114,6 @@ class SeeMeNotImage(threading.Thread):
 
   def encrypt(self, password):
     c = Cipher(password)
-    # with open(self.image_path,'rb') as fh:
-    #   self.b64encrypted = c.encode(base64.b64encode(fh.read()))
     self.b64encrypted = c.encode(base64.b64encode(self.bin_image))
     logging.debug('Encrypted b64: ' + self.b64encrypted)
 
@@ -117,8 +123,8 @@ class SeeMeNotImage(threading.Thread):
     num_data = len(hex_data)
     width, length = self.image.size
 
-    width_power_2 = int(math.log(width, 2))
-    TARGET_WIDTH = 2 ** width_power_2
+    width_power_2 = int(math.ceil(math.log(width, 2)))
+    TARGET_WIDTH = 2 ** (width_power_2 + 1)
     logging.info('Width: %d.' % TARGET_WIDTH)
 
     width = int(TARGET_WIDTH / (self.block_size * 2));
@@ -158,7 +164,8 @@ class SeeMeNotImage(threading.Thread):
                      fill=colors[base4_1])
 
     filename = 'rgb.jpg'
-    self.rgb_image.save(filename, quality=100)
+    self.rgb_image.save('rgb-100.jpg', quality=100)
+    self.rgb_image.save(filename, quality=FLAGS.encrypted_image_quality)
     return filename
 
   def extract_rgb(self):
@@ -171,14 +178,14 @@ class SeeMeNotImage(threading.Thread):
     # self.rgb_image.show()
     for y in range(0, height, self.block_size):
       for x in range(0, width, self.block_size * 2):
-
         block0 = self.rgb_image.crop(
           (x, y, x + self.block_size, y + self.block_size))
         block1 = self.rgb_image.crop(
-          (x + self.block_size, y, x + (2 * self.block_size), y + self.block_size))
+          (x + self.block_size, y,
+           x + (2 * self.block_size), y + self.block_size))
 
-        block0.load()
-        block1.load()
+        # block0.load()
+        # block1.load()
         hex0 = self._get_wrgbk(block0)
         hex1 = self._get_wrgbk(block1)
 
@@ -195,11 +202,13 @@ class SeeMeNotImage(threading.Thread):
         hex_string += hex_value
         count += 1
 
-    coord_diff = [coord for coord in
-                  [orig for orig in self.coords
-                   if orig not in self.extracted_coords]]
+    # WARNING(tierney): Seriously time-consuming operation for larger
+    # images. Use when stumped on small images.
+    # coord_diff = [coord for coord in
+    #               [orig for orig in self.coords
+    #                if orig not in self.extracted_coords]]
+    # logging.debug('Coord diff: %s.' % str(coord_diff))
 
-    logging.debug('Coord diff: %s.' % str(coord_diff))
     logging.info('Extracted count: %d.' % count)
     logging.debug('Extracted hex_string: %s' % hex_string)
     errors = 0
@@ -241,15 +250,13 @@ def main(argv):
     print '%s\\nUsage: %s ARGS\\n%s' % (e, sys.argv[0], FLAGS)
     sys.exit(1)
 
-  c = Cipher('this is my password')
-  encoded = c.encode('this is my secret message')
-  print encoded
+  # c = Cipher('this is my password')
+  # encoded = c.encode('this is my secret message')
+  # print encoded
+  # decoded = c.decode(encoded)
+  # print decoded
 
-  c1 = Cipher('this is my password')
-  decoded = c1.decode(encoded)
-  print decoded
-
-  smni = SeeMeNotImage('maple-small.jpg', 0.2, 100, 2)
+  smni = SeeMeNotImage(FLAGS.image, FLAGS.scale, 100, 2)
   smni.start()
 
 if __name__ == '__main__':
