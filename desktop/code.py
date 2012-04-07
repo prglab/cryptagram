@@ -173,7 +173,6 @@ class SeeMeNotImage(threading.Thread):
                      fill=colors[base4_1])
 
     filename = 'rgb.jpg'
-    self.rgb_image.save('rgb-100.jpg', quality=100)
     self.rgb_image.save(filename, quality=FLAGS.encrypted_image_quality)
     return filename
 
