@@ -14,6 +14,8 @@ import math
 import os
 import sys
 import threading
+from pixeling import Pixeling
+import numpy
 
 logging.basicConfig(filename='code.log', level=logging.INFO)
 
@@ -130,29 +132,36 @@ class SeeMeNotImage(threading.Thread):
     logging.debug('Original encrypted hex Data: ' + hex_data)
 
     num_data = len(hex_data)
+    logging.info('Num data: %d.' % num_data)
     width, length = self.image.size
 
     width_power_2 = int(math.ceil(math.log(width, 2)))
     TARGET_WIDTH = 2 ** (width_power_2 + 1)
     logging.info('Width: %d.' % TARGET_WIDTH)
 
-    width = int(TARGET_WIDTH / (self.block_size * 2));
-    height = int(math.ceil(num_data / width))
+    width = int(TARGET_WIDTH / (self.block_size * 2.))
+    height = int(math.ceil(num_data / (1. * width)))
     logging.info('Encrypted image (w x h): (%d x %d).' % (width, height))
     logging.info('Expected image (w x h): (%d x %d).' % \
                     (TARGET_WIDTH, height*self.block_size))
-    self.rgb_image = Image.new('RGB', (width * self.block_size * 2,
-                                       height * self.block_size))
+
+    # Create the base for the encrypted image.
+    rgb_image_width = width * self.block_size * 2
+    rgb_image_height = height * self.block_size
+
+    self.rgb_image = Image.new('RGB', (rgb_image_width, rgb_image_height))
+    self.rgb_pixeling_in = Pixeling(rgb_image_width, rgb_image_height)
 
     colors = [(255,255,255), (255,0,0), (0,255,0), (0,0,255)]
     logging.info('Len of hex_data: %d' % num_data)
     self.coords = []
 
     for i, hex_datum in enumerate(hex_data):
+      #logging.info('hex_datum (%d): %s.' % (i, hex_datum))
       hex_val = int(hex_datum, 16)
       base4_1 = int(hex_val / 4.0) # Implicit floor.
       base4_0 = int(hex_val - (base4_1 * 4))
-      y_coord = int(i / width)
+      y_coord = int(i / (1. * width))
       x_coord = int(i - (y_coord * width))
       draw = ImageDraw.Draw(self.rgb_image)
 
@@ -160,17 +169,21 @@ class SeeMeNotImage(threading.Thread):
       base4_0_x = int(x_coord * self.block_size * 2)
       base4_0_y = int(y_coord * self.block_size)
       self.coords.append((base4_0_x, base4_0_y))
-      draw.rectangle([(base4_0_x, base4_0_y),
-                      (base4_0_x + self.block_size, base4_0_y + self.block_size)],
-                     fill=colors[base4_0])
+      base4_0_rectangle = \
+          [(base4_0_x, base4_0_y),
+           (base4_0_x + self.block_size, base4_0_y + self.block_size)]
+      draw.rectangle(base4_0_rectangle, fill=colors[base4_0])
+      self.rgb_pixeling_in.fill_rectangle(base4_0_rectangle)
 
       # base4_1
       base4_1_x = int((x_coord * self.block_size * 2) + self.block_size)
       base4_1_y = int(y_coord * self.block_size)
       self.coords.append((base4_1_x, base4_1_y))
-      draw.rectangle([(base4_1_x, base4_1_y),
-                      (base4_1_x + self.block_size, base4_1_y + self.block_size)],
-                     fill=colors[base4_1])
+      base4_1_rectangle = \
+        [(base4_1_x, base4_1_y),
+         (base4_1_x + self.block_size, base4_1_y + self.block_size)]
+      draw.rectangle(base4_1_rectangle, fill=colors[base4_1])
+      self.rgb_pixeling_in.fill_rectangle(base4_1_rectangle)
 
     filename = 'rgb.jpg'
     self.rgb_image.save(filename, quality=FLAGS.encrypted_image_quality)
@@ -179,7 +192,12 @@ class SeeMeNotImage(threading.Thread):
   def extract_rgb(self):
     self.rgb_image = Image.open('rgb.jpg')
     width, height = self.rgb_image.size
+
+    # Reconstruct image.
     im = Image.new('RGB', (width,height))
+    self.rgb_pixeling_out_cropped = Pixeling(width, height)
+    self.rgb_pixeling_out_translated = Pixeling(width, height)
+
     hex_string = ''
     count = 0
     self.extracted_coords = []
@@ -192,8 +210,13 @@ class SeeMeNotImage(threading.Thread):
           (x + self.block_size, y,
            x + (2 * self.block_size), y + self.block_size))
 
-        # block0.load()
-        # block1.load()
+        # Cropped pixels.
+        self.rgb_pixeling_out_cropped.fill_rectangle(
+          [(x, y), (x + self.block_size, y + self.block_size)])
+        self.rgb_pixeling_out_cropped.fill_rectangle(
+          [(x + self.block_size, y),
+           (x + (2 * self.block_size), y + self.block_size)])
+
         hex0 = self._get_wrgbk(block0)
         hex1 = self._get_wrgbk(block1)
 
@@ -201,6 +224,13 @@ class SeeMeNotImage(threading.Thread):
         if (hex0 == 4 or hex1 == 4):
           logging.info('Done at (%d, %d).' % (x, y))
           break
+
+        # Actually assigned a value.
+        self.rgb_pixeling_out_translated.fill_rectangle(
+          [(x, y), (x + self.block_size, y + self.block_size)])
+        self.rgb_pixeling_out_translated.fill_rectangle(
+          [(x + self.block_size, y),
+           (x + (2 * self.block_size), y + self.block_size)])
 
         hex_num = hex0 + hex1 * 4
         hex_value = hex(hex_num).replace('0x','')
