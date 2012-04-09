@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #
 # python code.py --encrypted_image_quality 90 --scale .5 --image ./maple.jpg
+# python code.py --image ./maple.jpg --encrypted_image_quality 100 --scale 1 --block_size 2 --ecc
 
 from Crypto.Cipher import AES
 from PIL import Image, ImageDraw
@@ -14,8 +15,10 @@ import math
 import os
 import sys
 import threading
+import rs
 
-logging.basicConfig(filename='code.log', level=logging.INFO)
+logging.basicConfig(filename='code.log', level=logging.INFO,
+                    format = '%(asctime)-15s %(levelname)s %(module)s %(lineno)d %(message)s')
 
 FLAGS = gflags.FLAGS
 gflags.DEFINE_string('image', None, 'image to encode and encrypt',
@@ -23,10 +26,17 @@ gflags.DEFINE_string('image', None, 'image to encode and encrypt',
 gflags.DEFINE_integer('encrypted_image_quality', 100,
                       'quality to save encrypted image in range (0,100]',
                       short_name = 'e')
+gflags.DEFINE_integer('block_size', 2, 'block size to use', short_name = 'b')
 gflags.DEFINE_float('scale', 1, 'multiplicative rescale of image',
                     short_name = 's')
+gflags.DEFINE_integer('maxdim', 2048,
+                      'maximum dimension for uploaded encrypted image',
+                      short_name = 'm')
 gflags.DEFINE_boolean('enable_diff', False, 'slow diff coordinates image')
+gflags.DEFINE_boolean('ecc', False, 'Use ECC encoding.')
 
+ECC_N = 255
+ECC_K = 239
 
 class Cipher(object):
   # the block size for the cipher object; must be 16, 24, or 32 for AES
@@ -42,6 +52,8 @@ class Cipher(object):
     self.cipher = AES.new(secret)
 
   def _pad(self, s):
+    if len(s) == self.BLOCK_SIZE:
+      return s
     return s + (self.BLOCK_SIZE - len(s) % self.BLOCK_SIZE) * self.PADDING
 
   def encode(self, message):
@@ -49,6 +61,53 @@ class Cipher(object):
 
   def decode(self, encoded):
     return self.cipher.decrypt(base64.b64decode(encoded)).rstrip(self.PADDING)
+
+
+class ECCoder(object):
+  PADDING = '}'
+
+  def __init__(self, n, k):
+    self.codeword_length = n
+    self.message_byte_length = k
+    self.coder = rs.RSCoder(self.codeword_length, self.message_byte_length)
+
+  def _pad(self, s):
+    if len(s) == self.message_byte_length:
+      return s
+    return s + (self.message_byte_length - len(s) % self.message_byte_length) * self.PADDING
+
+  def _chunk(self, message, encode):
+    if encode:
+      chunk_length = self.message_byte_length
+    else:
+      chunk_length = self.codeword_length
+
+    chunked = [message[i:i+chunk_length] for
+               i in range(0, len(message), chunk_length)]
+
+    for i, chunk in enumerate(chunked):
+      if encode:
+        chunked[i] = self._pad(chunk)
+      else:
+        chunked[i] = chunk
+
+    return tuple(chunked)
+
+  def encode(self, message):
+    blocks = self._chunk(message, True)
+    encoded = ''
+    for block in blocks:
+      encoded += self.coder.encode(block)
+
+    return encoded
+
+  def decode(self, message):
+    blocks = self._chunk(message, False)
+    decoded = ''
+    for block in blocks:
+      decoded += self.coder.decode(block).rstrip(self.PADDING)
+
+    return decoded
 
 
 class SeeMeNotImage(threading.Thread):
@@ -94,10 +153,8 @@ class SeeMeNotImage(threading.Thread):
     if ( b > r and b > g): return 3
 
     # Bad times...
-    logging.info('Did not match (%(r)f, %(g)f, %(b)f).' % locals())
-    if ( r == b ): return 2
-    return -1
-
+    #logging.info('No match (%(r)f, %(g)f, %(b)f).' % locals())
+    return 0 # -1
 
   def rescale(self):
     width, height = self.image.size
@@ -117,22 +174,35 @@ class SeeMeNotImage(threading.Thread):
       self.image.save(image_path)
     with open(image_path, 'rb') as fh:
       initial_data = fh.read()
+      self.num_raw_bytes = fh.tell()
+      logging.info('Image raw byte size: %d.' % self.num_raw_bytes)
 
     self.bin_image = initial_data
 
   def encrypt(self, password):
+    # Base64 of the encrypted image data.
     c = Cipher(password)
     self.b64encrypted = c.encode(base64.b64encode(self.bin_image))
     logging.debug('Encrypted b64: ' + self.b64encrypted)
+    logging.info('Length of b64encoded: %d.' % len(self.b64encrypted))
+    to_hexify = self.b64encrypted
 
-    hex_data = binascii.hexlify(self.b64encrypted)
+    # ECC encode to hex_string.
+    if FLAGS.ecc:
+      logging.info('ECCoder called (len: %d).' % len(self.b64encrypted))
+      coder = ECCoder(ECC_N, ECC_K)
+      encoded = coder.encode(self.b64encrypted)
+      logging.info('ECCoder encoded (len: %d).' % len(encoded))
+      to_hexify = encoded
+
+    # Hexified data for encoding in the uploaded image.
+    hex_data = binascii.hexlify(to_hexify)
     self.enc_orig_hex_data = hex_data
-    logging.debug('Original encrypted hex Data: ' + hex_data)
-
     num_data = len(hex_data)
-    logging.info('Num data: %d.' % num_data)
-    width, length = self.image.size
+    logging.debug('Original encrypted hex Data: ' + hex_data)
+    logging.info('Len of hex_data: %d' % num_data)
 
+    width, length = self.image.size
     width_power_2 = int(math.ceil(math.log(width, 2)))
     TARGET_WIDTH = 2 ** (width_power_2 + 1)
     logging.info('Width: %d.' % TARGET_WIDTH)
@@ -148,9 +218,7 @@ class SeeMeNotImage(threading.Thread):
     rgb_image_height = height * self.block_size
 
     self.rgb_image = Image.new('RGB', (rgb_image_width, rgb_image_height))
-
     colors = [(255,255,255), (255,0,0), (0,255,0), (0,0,255)]
-    logging.info('Len of hex_data: %d' % num_data)
     self.coords = []
 
     for i, hex_datum in enumerate(hex_data):
@@ -193,7 +261,6 @@ class SeeMeNotImage(threading.Thread):
 
     hex_string = ''
     count = 0
-    self.extracted_coords = []
     # self.rgb_image.show()
     for y in range(0, height, self.block_size):
       for x in range(0, width, self.block_size * 2):
@@ -208,10 +275,13 @@ class SeeMeNotImage(threading.Thread):
 
         # Found black, stop.
         if (hex0 == 4 or hex1 == 4):
-          logging.info('Done at (%d, %d).' % (x, y))
-          break
+          #logging.info('Supposedly done at (%d, %d).' % (x, y))
+          if (x == width or y == height):
+            logging.info('Actually done at (%d, %d).' % (x, y))
+            break
 
-        hex_num = hex0 + hex1 * 4
+        # TODO(tierney): Gracefully deal with rounding (instead of %).
+        hex_num = (hex0 + hex1 * 4) % 16
         hex_value = hex(hex_num).replace('0x','')
         hex_string += hex_value
         count += 1
@@ -219,19 +289,6 @@ class SeeMeNotImage(threading.Thread):
         if count != len(hex_string):
           print count, len(hex_string), hex_value, hex0, hex1
           assert(False)
-
-        self.extracted_coords.append((x, y))
-        self.extracted_coords.append((x + self.block_size, y))
-
-    # WARNING(tierney): Seriously time-consuming operation for larger
-    # images. Use when stumped on small images.
-    if FLAGS.enable_diff:
-      logging.warning('Extremely slow comparison in progress.')
-      coord_diff = [coord for coord in
-                    [orig for orig in self.coords
-                     if orig not in self.extracted_coords]]
-      logging.info('Coord diff: %s.' % str(coord_diff))
-
 
     assert(count == len(hex_string))
 
@@ -241,24 +298,31 @@ class SeeMeNotImage(threading.Thread):
       if i >= len(hex_string):
         break
       if orig_hex != hex_string[i]:
-        logging.info('orig_hex vs hex_string[i]: %s %s' % (orig_hex, hex_string[i]))
+        #logging.info('orig_hex vs hex_string[i]: %s %s' % (orig_hex, hex_string[i]))
         errors += 1
     logging.info('Errors: %d.' % errors)
     logging.info('Extracted count: %d.' % count)
-    logging.info('Extraced len(hex_string): %d.' % len(hex_string))
+    logging.info('Extracted len(hex_string): %d.' % len(hex_string))
     logging.debug('Extracted hex_string: %s' % hex_string)
 
+    self.extracted_base64 = binascii.unhexlify(hex_string)
+    self.decoded = self.extracted_base64
+    logging.debug('Extracted encrypted b64: ' + self.extracted_base64)
 
-    self.extracted_encrypted_base64 = binascii.unhexlify(hex_string)
-    logging.debug('Extracted encrypted b64: ' + self.extracted_encrypted_base64)
+    # ECC decode.
+    if FLAGS.ecc:
+      logging.info('ECCoder decoder called (len %d).' % len(self.extracted_base64))
+      coder = ECCoder(ECC_N, ECC_K)
+      self.decoded = coder.decode(self.extracted_base64)
+      logging.info('ECCoder decoded (len: %d).' % len(self.decoded))
 
     original = self.b64encrypted
     print len(original)
-    print len(self.extracted_encrypted_base64)
+    print len(self.extracted_base64)
 
   def decrypt(self, password):
     c = Cipher(password)
-    decrypted = c.decode(self.extracted_encrypted_base64)
+    decrypted = c.decode(self.decoded)
     to_write = base64.b64decode(decrypted)
     with open('decrypted.jpg', 'wb') as fh:
       fh.write(to_write)
@@ -286,7 +350,7 @@ def main(argv):
     print '%s\\nUsage: %s ARGS\\n%s' % (e, sys.argv[0], FLAGS)
     sys.exit(1)
 
-  smni = SeeMeNotImage(FLAGS.image, FLAGS.scale, 100, 2)
+  smni = SeeMeNotImage(FLAGS.image, FLAGS.scale, 100, FLAGS.block_size)
   smni.start()
 
 if __name__ == '__main__':
