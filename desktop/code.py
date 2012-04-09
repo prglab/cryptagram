@@ -7,6 +7,7 @@ from Crypto.Cipher import AES
 from PIL import Image, ImageDraw
 from tempfile import NamedTemporaryFile
 import PIL
+import Queue
 import base64
 import binascii
 import gflags
@@ -15,6 +16,7 @@ import math
 import os
 import sys
 import threading
+import time
 import rs
 
 logging.basicConfig(filename='code.log', level=logging.INFO,
@@ -22,7 +24,7 @@ logging.basicConfig(filename='code.log', level=logging.INFO,
 
 FLAGS = gflags.FLAGS
 gflags.DEFINE_string('image', None, 'image to encode and encrypt',
-                          short_name = 'i')
+                     short_name = 'i')
 gflags.DEFINE_integer('encrypted_image_quality', 100,
                       'quality to save encrypted image in range (0,100]',
                       short_name = 'e')
@@ -33,10 +35,14 @@ gflags.DEFINE_integer('maxdim', 2048,
                       'maximum dimension for uploaded encrypted image',
                       short_name = 'm')
 gflags.DEFINE_boolean('enable_diff', False, 'slow diff coordinates image')
-gflags.DEFINE_boolean('ecc', False, 'Use ECC encoding.')
+gflags.DEFINE_string('password', None, 'Password to encrypt image with.', short_name = 'p')
 
-ECC_N = 255
-ECC_K = 239
+gflags.DEFINE_boolean('ecc', False, 'Use ECC encoding.')
+gflags.DEFINE_integer('ecc_n', 255, 'codeword length', short_name = 'n')
+gflags.DEFINE_integer('ecc_k', 239, 'message byte length', short_name = 'k')
+
+gflags.MarkFlagAsRequired('password')
+
 
 class Cipher(object):
   # the block size for the cipher object; must be 16, 24, or 32 for AES
@@ -61,6 +67,30 @@ class Cipher(object):
 
   def decode(self, encoded):
     return self.cipher.decrypt(base64.b64decode(encoded)).rstrip(self.PADDING)
+
+
+class ECCodeRunner(threading.Thread):
+  def __init__(self, coder, in_queue, out_queue):
+    self.coder = coder
+    self.in_queue = out_queue
+    self.out_queue = out_queue
+    self.done = False
+    threading.Thread.__init__(self)
+
+  def run(self):
+    while True:
+      try:
+        order, encode, block = self.in_queue.get_nowait()
+      except:
+        self.done = True
+        return
+      if encode:
+        coded_block = self.coder.encode(block)
+      else:
+        coded_block = self.coder.decode(block).rstrip(self.PADDING)
+
+      self.out_queue.put((order, coded_block))
+      self.in_queue.task_done()
 
 
 class ECCoder(object):
@@ -96,9 +126,33 @@ class ECCoder(object):
   def encode(self, message):
     blocks = self._chunk(message, True)
     encoded = ''
+
+    # to_encode = [(i, True, block) for i, block in enumerate(blocks)]
+    # to_encode_queue = Queue.Queue()
+    # for item in to_encode:
+    #   to_encode_queue.put(item)
+    # encoded_queue = Queue.Queue()
+
+    # NUM_THREADS = 10
+    # threads = [ECCodeRunner(self.coder, to_encode_queue, encoded_queue)
+    #            for i in range(NUM_THREADS)]
+    # started = [t.start() for t in threads]
+    # while True:
+    #   if False not in [t.done for t in threads]:
+    #     break
+    #   time.sleep(1)
+
+    # encoded = []
+    # while True:
+    #   try:
+    #     encoded.append(self.out_queue.get_nowait())
+    #   except:
+    #     break
+    # encoded.sort()
+    # encoded = ''.join([e[1] for e in encoded])
+
     for block in blocks:
       encoded += self.coder.encode(block)
-
     return encoded
 
   def decode(self, message):
@@ -106,7 +160,6 @@ class ECCoder(object):
     decoded = ''
     for block in blocks:
       decoded += self.coder.decode(block).rstrip(self.PADDING)
-
     return decoded
 
 
@@ -153,11 +206,14 @@ class SeeMeNotImage(threading.Thread):
     if ( b > r and b > g): return 3
 
     # Bad times...
-    #logging.info('No match (%(r)f, %(g)f, %(b)f).' % locals())
+    logging.info('No match (%(r)f, %(g)f, %(b)f).' % locals())
     return 0 # -1
 
   def rescale(self):
     width, height = self.image.size
+
+    # scale = ((2048 * 2048) / 5.) / (width * height)
+
     self.image = self.image.resize(
       (int(width * self.scale), int(height * self.scale)))
     logging.info('Rescaled image size: (%d x %d)' % self.image.size)
@@ -190,7 +246,7 @@ class SeeMeNotImage(threading.Thread):
     # ECC encode to hex_string.
     if FLAGS.ecc:
       logging.info('ECCoder called (len: %d).' % len(self.b64encrypted))
-      coder = ECCoder(ECC_N, ECC_K)
+      coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k)
       encoded = coder.encode(self.b64encrypted)
       logging.info('ECCoder encoded (len: %d).' % len(encoded))
       to_hexify = encoded
@@ -312,7 +368,7 @@ class SeeMeNotImage(threading.Thread):
     # ECC decode.
     if FLAGS.ecc:
       logging.info('ECCoder decoder called (len %d).' % len(self.extracted_base64))
-      coder = ECCoder(ECC_N, ECC_K)
+      coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k)
       self.decoded = coder.decode(self.extracted_base64)
       logging.info('ECCoder decoded (len: %d).' % len(self.decoded))
 
@@ -337,10 +393,10 @@ class SeeMeNotImage(threading.Thread):
     self.requality(self.quality)
 
     self.encode()
-    filename = self.encrypt('helloworld')
+    filename = self.encrypt(FLAGS.password)
 
     self.extract_rgb()
-    self.decrypt('helloworld')
+    self.decrypt(FLAGS.password)
 
 
 def main(argv):
