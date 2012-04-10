@@ -73,6 +73,9 @@ class Cipher(object):
     except ValueError, e:
       logging.error('Encoded string wrong length (%d): %s.' % \
                       (len(encoded), str(e)))
+    except TypeError, e:
+      logging.error('Incorrect padding (%d): %s.' % (len(encoded), str(e)))
+    return ''
 
 
 class ECCodeRunner(threading.Thread):
@@ -382,6 +385,9 @@ class SeeMeNotImage(threading.Thread):
   def decrypt(self, password):
     c = Cipher(password)
     decrypted = c.decode(self.decoded)
+    if not decrypted:
+      logging.error('Did not decode properly.')
+      return
     to_write = base64.b64decode(decrypted)
     with open('decrypted.jpg', 'wb') as fh:
       fh.write(to_write)
