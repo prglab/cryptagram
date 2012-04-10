@@ -232,7 +232,7 @@ class SeeMeNotImage(threading.Thread):
     if ( b > r and b > g): return 3
 
     # Bad times...
-    logging.info('No match (%(r).0f, %(g).0f, %(b).0f).' % locals())
+    logging.debug('No match (%(r).0f, %(g).0f, %(b).0f).' % locals())
     return -1
 
   def rescale(self):
@@ -273,10 +273,11 @@ class SeeMeNotImage(threading.Thread):
 
     # ECC encode to hex_string.
     if FLAGS.ecc:
-      logging.info('ECCoder called (len: %d).' % len(self.b64encrypted))
+      logging.info('ECCoder encoding input length:  %d.' % \
+                     len(self.b64encrypted))
       coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k)
       encoded = coder.encode(self.b64encrypted)
-      logging.info('ECCoder encoded (len: %d).' % len(encoded))
+      logging.info('ECCoder encoding output length: %d.' % len(encoded))
       to_hexify = encoded
 
     # Hexified data for encoding in the uploaded image.
@@ -359,8 +360,8 @@ class SeeMeNotImage(threading.Thread):
         hex0 = self._get_wrgbk(block0)
         hex1 = self._get_wrgbk(block1)
         if hex0 < 0 or hex1 < 0:
-          logging.info('Trouble at (%(x)4d,%(y)4d) hex0: '\
-                         '%(hex0)d hex1: %(hex1)d.' % locals())
+          logging.info('Ambiguous block at (%(x)4d,%(y)4d) hex0: '\
+                         '%(hex0)2d hex1: %(hex1)2d.' % locals())
 
         # Found black, stop.
         if (hex0 == 4 or hex1 == 4):
@@ -382,16 +383,16 @@ class SeeMeNotImage(threading.Thread):
     assert(count == len(hex_string))
 
     errors = 0
-    logging.info('Original count: %d.' % len(self.enc_orig_hex_data))
+    logging.info('Length of hex_data (original): %d.' % \
+                   len(self.enc_orig_hex_data))
     for i, orig_hex in enumerate(self.enc_orig_hex_data):
       if i >= len(hex_string):
         break
       if orig_hex != hex_string[i]:
         #logging.info('orig_hex vs hex_string[i]: %s %s' % (orig_hex, hex_string[i]))
         errors += 1
-    logging.info('Errors: %d.' % errors)
-    logging.info('Extracted count: %d.' % count)
-    logging.info('Extracted len(hex_string): %d.' % len(hex_string))
+    logging.info('Length of hex_data (extracted): %d.' % len(hex_string))
+    logging.info('Number of hex_data errors: %d.' % errors)
     logging.debug('Extracted hex_string: %s' % hex_string)
 
     try:
@@ -406,10 +407,11 @@ class SeeMeNotImage(threading.Thread):
 
     # ECC decode.
     if FLAGS.ecc:
-      logging.info('ECCoder decoder called (len %d).' % len(self.extracted_base64))
+      logging.info('ECCoder decoding input length:  %d.' % \
+                     len(self.extracted_base64))
       coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k)
       self.decoded = coder.decode(self.extracted_base64)
-      logging.info('ECCoder decoded (len: %d).' % len(self.decoded))
+      logging.info('ECCoder decoding output length: %d.' % len(self.decoded))
 
     original = self.b64encrypted
 
@@ -439,8 +441,10 @@ class SeeMeNotImage(threading.Thread):
 
     self.extract_rgb()
 
-    if self.decrypt(FLAGS.password): print 'Success'
-    else: print 'Failure'
+    if self.decrypt(FLAGS.password):
+      logging.info('Success.')
+    else:
+      logging.warning('Failure.')
     return
 
 def main(argv):
