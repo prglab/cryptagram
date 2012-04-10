@@ -263,7 +263,7 @@ class SeeMeNotImage(threading.Thread):
     self.enc_orig_hex_data = hex_data
     num_data = len(hex_data)
     logging.debug('Original encrypted hex Data: ' + hex_data)
-    logging.info('Len of hex_data: %d' % num_data)
+    logging.info('Length of hex_data: %d' % num_data)
 
     width, length = self.image.size
     width_power_2 = int(math.ceil(math.log(width, 2)))
@@ -312,6 +312,8 @@ class SeeMeNotImage(threading.Thread):
       draw.rectangle(base4_1_rectangle, fill=colors[base4_1])
 
     filename = 'rgb.jpg'
+    logging.info('Saving %s (quality: %d).' % \
+                   (filename, FLAGS.encrypted_image_quality))
     self.rgb_image.save(filename, quality=FLAGS.encrypted_image_quality)
     return filename
 
@@ -369,6 +371,7 @@ class SeeMeNotImage(threading.Thread):
     logging.debug('Extracted hex_string: %s' % hex_string)
 
     try:
+      # TODO(tierney): Different behavior on a Mac?
       self.extracted_base64 = binascii.unhexlify(hex_string)
     except Exception, e:
       logging.error('Unhexlify failure: %s.' % str(e))
