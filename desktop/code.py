@@ -72,8 +72,7 @@ class Cipher(object):
       b64decoded = base64.b64decode(encoded)
       logging.info('b64decoded len: %d.' % len(b64decoded))
     except TypeError, e:
-      logging.error('Incorrect padding (%d, %d): %s.' %
-                    (len(encoded), len(b64decoded), str(e)))
+      logging.error('Incorrect padding (%d): %s.' % (len(encoded), str(e)))
       return ''
 
     try:
