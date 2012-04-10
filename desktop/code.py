@@ -397,7 +397,7 @@ def main(argv):
   try:
     argv = FLAGS(argv)  # parse flags
   except gflags.FlagsError, e:
-    print '%s\\nUsage: %s ARGS\\n%s' % (e, sys.argv[0], FLAGS)
+    print '%s\nUsage: %s ARGS\n%s' % (e, sys.argv[0], FLAGS)
     sys.exit(1)
 
   smni = SeeMeNotImage(FLAGS.image, FLAGS.scale, 100, FLAGS.block_size)
