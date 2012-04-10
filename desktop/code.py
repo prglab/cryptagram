@@ -365,11 +365,11 @@ class SeeMeNotImage(threading.Thread):
           (x + self.block_size, y,
            x + (2 * self.block_size), y + self.block_size))
 
-        block_fh.write('%d, %d, %s\n' % (x, y, str(list(block0.getdata()))))
-        block_fh.write('%d, %d, %s\n' % (x + self.block_size, y, str(list(block1.getdata()))))
-
         hex0 = self._get_wrgbk(block0)
         hex1 = self._get_wrgbk(block1)
+
+        block_fh.write('%d, %d, %d\n' % (x, y, hex0))
+        block_fh.write('%d, %d, %s\n' % (x + self.block_size, y, hex0))
 
         if hex0 < 0 or hex1 < 0:
           logging.info('Ambiguous block at (%(x)4d,%(y)4d) hex0: '\
