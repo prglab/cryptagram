@@ -26,8 +26,13 @@ logging.basicConfig(filename='code.log', level=logging.INFO,
 FLAGS = gflags.FLAGS
 gflags.DEFINE_string('image', None, 'image to encode and encrypt',
                      short_name = 'i')
-gflags.DEFINE_integer('encrypted_image_quality', 100,
-                      'quality to save encrypted image in range (0,100]',
+
+# The image quality, on a scale from 1 (worst) to 95 (best). The default is
+# 75. Values above 95 should be avoided; 100 completely disables the JPEG
+# quantization stage.
+gflags.DEFINE_integer('encrypted_image_quality', 95,
+                      'quality to save encrypted image in range (0,95]. '\
+                        '100 disables quantization',
                       short_name = 'e')
 gflags.DEFINE_integer('block_size', 2, 'block size to use', short_name = 'b')
 gflags.DEFINE_float('scale', 1, 'multiplicative rescale of image',
@@ -36,12 +41,15 @@ gflags.DEFINE_integer('maxdim', 2048,
                       'maximum dimension for uploaded encrypted image',
                       short_name = 'm')
 gflags.DEFINE_boolean('enable_diff', False, 'slow diff coordinates image')
-gflags.DEFINE_string('password', None, 'Password to encrypt image with.', short_name = 'p')
+gflags.DEFINE_string('password', None, 'Password to encrypt image with.',
+                     short_name = 'p')
 gflags.DEFINE_integer('threads', 5, 'number of threads', short_name = 't')
 
 gflags.DEFINE_boolean('ecc', False, 'Use ECC encoding.')
 gflags.DEFINE_integer('ecc_n', 255, 'codeword length', short_name = 'n')
 gflags.DEFINE_integer('ecc_k', 223, 'message byte length', short_name = 'k')
+
+
 
 gflags.MarkFlagAsRequired('password')
 
@@ -251,11 +259,11 @@ class SeeMeNotImage(threading.Thread):
       self.image = Image.open(self.image_path)
 
   def encode(self):
-    image_path = self.image_path
-    # with NamedTemporaryFile() as fh:
-    #   image_path = fh.name + '.jpg'
-    #   logging.info('Temporary file at %s.' % image_path)
-    #   self.image.save(image_path, quality=100)
+    # image_path = self.image_path
+    with NamedTemporaryFile() as fh:
+      image_path = fh.name + '.jpg'
+      logging.info('Temporary file at %s.' % image_path)
+      self.image.save(image_path, quality=100)
 
     with open(image_path, 'rb') as fh:
       initial_data = fh.read()
@@ -442,13 +450,13 @@ class SeeMeNotImage(threading.Thread):
   def run(self):
     logging.info('-' * 20)
     logging.info('Working on %s.' % self.image_path)
+
     # Open the image.
     self.image = Image.open(self.image_path)
 
     # Re{scale,quality} image.
-
-    # self.rescale()
-    # self.requality(self.quality)
+    self.rescale()
+    self.requality(self.quality)
 
     self.encode()
     filename = self.encrypt(FLAGS.password)
