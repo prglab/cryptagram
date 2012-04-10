@@ -43,13 +43,25 @@ gflags.DEFINE_integer('maxdim', 2048,
 gflags.DEFINE_boolean('enable_diff', False, 'slow diff coordinates image')
 gflags.DEFINE_string('password', None, 'Password to encrypt image with.',
                      short_name = 'p')
-gflags.DEFINE_integer('threads', 5, 'number of threads', short_name = 't')
+gflags.DEFINE_integer('threads', 1, 'number of threads', short_name = 't')
+gflags.DEFINE_boolean('extra_logs', False, 'write extra logs')
 
 gflags.DEFINE_boolean('ecc', False, 'Use ECC encoding.')
-gflags.DEFINE_integer('ecc_n', 255, 'codeword length', short_name = 'n')
-gflags.DEFINE_integer('ecc_k', 223, 'message byte length', short_name = 'k')
+gflags.DEFINE_integer('ecc_n', 128, 'codeword length', short_name = 'n')
+gflags.DEFINE_integer('ecc_k', 64, 'message byte length', short_name = 'k')
 
-
+gflags.RegisterValidator('encrypted_image_quality',
+                         lambda x: x > 0 and x <= 95,
+                         message = 'jpeg quality range',
+                         flag_values=FLAGS)
+gflags.RegisterValidator('scale', lambda x: x > 0,
+                         message = 'image scaling fraction', flag_values=FLAGS)
+gflags.RegisterValidator('ecc_n', lambda x: x <= 255 and x > FLAGS.ecc_k,
+                         message = 'Reed Solomon boundaries',
+                         flag_values = FLAGS)
+gflags.RegisterValidator('ecc_k', lambda x: x > 0,
+                         message = 'Reed Solomon boundaries',
+                         flag_values = FLAGS)
 
 gflags.MarkFlagAsRequired('password')
 
@@ -295,9 +307,10 @@ class SeeMeNotImage(threading.Thread):
     num_data = len(hex_data)
     logging.debug('Original encrypted hex Data: ' + hex_data)
 
-    with open('hex_data.log', 'w') as _:
-      for i in range(0, len(hex_data), 80):
-        _.write(hex_data[i:min(i+80, len(hex_data))] + '\n')
+    if FLAGS.extra_logs:
+      with open('hex_data.log', 'w') as _:
+        for i in range(0, len(hex_data), 80):
+          _.write(hex_data[i:min(i+80, len(hex_data))] + '\n')
 
     # NOTE(tierney): Same up to here
     logging.info('Length of hex_data: %d' % num_data)
@@ -364,7 +377,9 @@ class SeeMeNotImage(threading.Thread):
     hex_string = ''
     count = 0
     # self.rgb_image.show()
-    block_fh = open('blocks.log', 'w')
+
+    if FLAGS.extra_logs:
+      block_fh = open('blocks.log', 'w')
     for y in range(0, height, self.block_size):
       for x in range(0, width, self.block_size * 2):
         block0 = self.rgb_image.crop(
@@ -376,8 +391,9 @@ class SeeMeNotImage(threading.Thread):
         hex0 = self._get_wrgbk(block0)
         hex1 = self._get_wrgbk(block1)
 
-        block_fh.write('%d, %d, %d\n' % (x, y, hex0))
-        block_fh.write('%d, %d, %s\n' % (x + self.block_size, y, hex0))
+        if FLAGS.extra_logs:
+          block_fh.write('%d, %d, %d\n' % (x, y, hex0))
+          block_fh.write('%d, %d, %s\n' % (x + self.block_size, y, hex0))
 
         if hex0 < 0 or hex1 < 0:
           logging.info('Ambiguous block at (%(x)4d,%(y)4d) hex0: '\
@@ -399,7 +415,9 @@ class SeeMeNotImage(threading.Thread):
         if count != len(hex_string):
           print count, len(hex_string), hex_value, hex0, hex1
           assert(False)
-    block_fh.close()
+
+    if FLAGS.extra_logs:
+      block_fh.close()
 
     assert(count == len(hex_string))
 
