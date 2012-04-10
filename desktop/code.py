@@ -332,7 +332,6 @@ class SeeMeNotImage(threading.Thread):
 
     self.rgb_image = Image.new('RGB', (rgb_image_width, rgb_image_height))
     colors = [(255,255,255), (255,0,0), (0,255,0), (0,0,255)]
-    self.coords = []
 
     for i, hex_datum in enumerate(hex_data):
       #logging.info('hex_datum (%d): %s.' % (i, hex_datum))
@@ -346,7 +345,6 @@ class SeeMeNotImage(threading.Thread):
       # base4_0
       base4_0_x = int(x_coord * self.block_size * 2)
       base4_0_y = int(y_coord * self.block_size)
-      self.coords.append((base4_0_x, base4_0_y))
       base4_0_rectangle = \
           [(base4_0_x, base4_0_y),
            (base4_0_x + self.block_size, base4_0_y + self.block_size)]
@@ -355,7 +353,6 @@ class SeeMeNotImage(threading.Thread):
       # base4_1
       base4_1_x = int((x_coord * self.block_size * 2) + self.block_size)
       base4_1_y = int(y_coord * self.block_size)
-      self.coords.append((base4_1_x, base4_1_y))
       base4_1_rectangle = \
         [(base4_1_x, base4_1_y),
          (base4_1_x + self.block_size, base4_1_y + self.block_size)]
