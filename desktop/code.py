@@ -285,6 +285,9 @@ class SeeMeNotImage(threading.Thread):
     self.enc_orig_hex_data = hex_data
     num_data = len(hex_data)
     logging.debug('Original encrypted hex Data: ' + hex_data)
+    with open('hex_data.log', 'w') as _:
+      _.write(hex_data)
+
     logging.info('Length of hex_data: %d' % num_data)
 
     width, length = self.image.size
