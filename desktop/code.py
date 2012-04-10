@@ -76,7 +76,8 @@ class Cipher(object):
       logging.error('Encoded string wrong length (%d, %d): %s.' % \
                       (len(encoded), len(b64decoded), str(e)))
     except TypeError, e:
-      logging.error('Incorrect padding (%d): %s.' % (len(encoded), str(e)))
+      logging.error('Incorrect padding (%d, %d): %s.' %
+                    (len(encoded), len(b64decoded), str(e)))
     return ''
 
 
@@ -99,6 +100,7 @@ class ECCodeRunner(threading.Thread):
       self.out_queue.put((order, coded_block))
     return
 
+
 class ECCoder(object):
   PADDING = '}'
 
@@ -110,7 +112,8 @@ class ECCoder(object):
   def _pad(self, s):
     if len(s) == self.message_byte_length:
       return s
-    return s + (self.message_byte_length - len(s) % self.message_byte_length) * self.PADDING
+    return s + (self.message_byte_length - len(s) \
+                  % self.message_byte_length) * self.PADDING
 
   def _chunk(self, message, encode):
     if encode:
@@ -209,7 +212,7 @@ class SeeMeNotImage(threading.Thread):
     if ( b > r and b > g): return 3
 
     # Bad times...
-    logging.info('No match (%(r)f, %(g)f, %(b)f).' % locals())
+    logging.info('No match (%(r).0f, %(g).0f, %(b).0f).' % locals())
     return -1
 
   def rescale(self):
