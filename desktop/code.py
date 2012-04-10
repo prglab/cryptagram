@@ -69,7 +69,9 @@ class Cipher(object):
 
   def decode(self, encoded):
     try:
+      print encoded
       b64decoded = base64.b64decode(encoded)
+      logging.info('b64decoded len: %d.' % len(b64decoded))
       return self.cipher.decrypt(b64decoded).rstrip(self.PADDING)
     except ValueError, e:
       logging.error('Encoded string wrong length (%d, %d): %s.' % \
