@@ -210,11 +210,12 @@ class SeeMeNotImage(threading.Thread):
     bt = 0.0
 
     # logging.debug(str(list(block.getdata())))
-    block_len = len(list(block.getdata()))
+    block_data = list(block.getdata())
+    block_len = len(block_data)
     for i in range(0, block_len, 4):
-      rt += list(block.getdata())[i][0]
-      gt += list(block.getdata())[i][1]
-      bt += list(block.getdata())[i][2]
+      rt += block_data[i][0]
+      gt += block_data[i][1]
+      bt += block_data[i][2]
       count += 1
     r = rt / count
     g = gt / count
@@ -290,6 +291,7 @@ class SeeMeNotImage(threading.Thread):
       for i in range(0, len(hex_data), 80):
         _.write(hex_data[i:min(i+80, len(hex_data))] + '\n')
 
+    # NOTE(tierney): Same up to here
     logging.info('Length of hex_data: %d' % num_data)
 
     width, length = self.image.size
@@ -354,6 +356,7 @@ class SeeMeNotImage(threading.Thread):
     hex_string = ''
     count = 0
     # self.rgb_image.show()
+    block_fh = open('blocks.log', 'w')
     for y in range(0, height, self.block_size):
       for x in range(0, width, self.block_size * 2):
         block0 = self.rgb_image.crop(
@@ -362,8 +365,12 @@ class SeeMeNotImage(threading.Thread):
           (x + self.block_size, y,
            x + (2 * self.block_size), y + self.block_size))
 
+        block_fh.write('%d, %d, %s\n' % (x, y, str(list(block0.getdata()))))
+        block_fh.write('%d, %d, %s\n' % (x + self.block_size, y, str(list(block1.getdata()))))
+
         hex0 = self._get_wrgbk(block0)
         hex1 = self._get_wrgbk(block1)
+
         if hex0 < 0 or hex1 < 0:
           logging.info('Ambiguous block at (%(x)4d,%(y)4d) hex0: '\
                          '%(hex0)2d hex1: %(hex1)2d.' % locals())
@@ -384,6 +391,7 @@ class SeeMeNotImage(threading.Thread):
         if count != len(hex_string):
           print count, len(hex_string), hex_value, hex0, hex1
           assert(False)
+    block_fh.close()
 
     assert(count == len(hex_string))
 
