@@ -20,7 +20,8 @@ import time
 import rs
 
 logging.basicConfig(filename='code.log', level=logging.INFO,
-                    format = '%(asctime)-15s %(levelname)s %(module)s %(lineno)d %(message)s')
+                    format = '%(asctime)-15s %(levelname)s %(module)s '\
+                      '%(threadName)10s %(lineno)4d %(message)s')
 
 FLAGS = gflags.FLAGS
 gflags.DEFINE_string('image', None, 'image to encode and encrypt',
@@ -36,10 +37,11 @@ gflags.DEFINE_integer('maxdim', 2048,
                       short_name = 'm')
 gflags.DEFINE_boolean('enable_diff', False, 'slow diff coordinates image')
 gflags.DEFINE_string('password', None, 'Password to encrypt image with.', short_name = 'p')
+gflags.DEFINE_integer('threads', 5, 'number of threads', short_name = 't')
 
 gflags.DEFINE_boolean('ecc', False, 'Use ECC encoding.')
 gflags.DEFINE_integer('ecc_n', 255, 'codeword length', short_name = 'n')
-gflags.DEFINE_integer('ecc_k', 239, 'message byte length', short_name = 'k')
+gflags.DEFINE_integer('ecc_k', 223, 'message byte length', short_name = 'k')
 
 gflags.MarkFlagAsRequired('password')
 
@@ -70,27 +72,22 @@ class Cipher(object):
 
 
 class ECCodeRunner(threading.Thread):
+  PADDING = '}'
+
   def __init__(self, coder, in_queue, out_queue):
     self.coder = coder
-    self.in_queue = out_queue
+    self.in_queue = in_queue
     self.out_queue = out_queue
-    self.done = False
     threading.Thread.__init__(self)
 
   def run(self):
-    while True:
-      try:
-        order, encode, block = self.in_queue.get_nowait()
-      except:
-        self.done = True
-        return
+    for order, encode, block in self.in_queue:
+      logging.info('%s %d.' % ('Encoding' if encode else 'Decoding', order))
       if encode:
         coded_block = self.coder.encode(block)
       else:
         coded_block = self.coder.decode(block).rstrip(self.PADDING)
-
-      self.out_queue.put((order, coded_block))
-      self.in_queue.task_done()
+      self.out_queue.append((order, coded_block))
 
 
 class ECCoder(object):
@@ -123,44 +120,37 @@ class ECCoder(object):
 
     return tuple(chunked)
 
+  def _threaded_coder(self, message, to_encode):
+    blocks = self._chunk(message, to_encode)
+    to_code = [(i, to_encode, block) for i, block in enumerate(blocks)]
+    num_blocks = int(math.ceil(len(to_code) / (1. * FLAGS.threads)))
+
+    to_code_list = [to_code[i:i+num_blocks] for i in
+                    range(0, len(to_code), num_blocks)]
+    coded_queue = [list() for i in range(FLAGS.threads)]
+
+    threads = []
+    for i in range(FLAGS.threads):
+      new_encoder = rs.RSCoder(self.codeword_length, self.message_byte_length)
+      threads.append(ECCodeRunner(new_encoder, to_code_list[i], coded_queue[i]))
+
+    [t.start() for t in threads]
+    [t.join() for t in threads]
+
+    coded_list = []
+    # print coded_queue
+    for dequeued in coded_queue:
+      coded_list += dequeued
+    coded_list.sort()
+
+    thread_coded = ''.join([e[1] for e in coded_list])
+    return thread_coded
+
   def encode(self, message):
-    blocks = self._chunk(message, True)
-    encoded = ''
-
-    # to_encode = [(i, True, block) for i, block in enumerate(blocks)]
-    # to_encode_queue = Queue.Queue()
-    # for item in to_encode:
-    #   to_encode_queue.put(item)
-    # encoded_queue = Queue.Queue()
-
-    # NUM_THREADS = 10
-    # threads = [ECCodeRunner(self.coder, to_encode_queue, encoded_queue)
-    #            for i in range(NUM_THREADS)]
-    # started = [t.start() for t in threads]
-    # while True:
-    #   if False not in [t.done for t in threads]:
-    #     break
-    #   time.sleep(1)
-
-    # encoded = []
-    # while True:
-    #   try:
-    #     encoded.append(self.out_queue.get_nowait())
-    #   except:
-    #     break
-    # encoded.sort()
-    # encoded = ''.join([e[1] for e in encoded])
-
-    for block in blocks:
-      encoded += self.coder.encode(block)
-    return encoded
+    return self._threaded_coder(message, True)
 
   def decode(self, message):
-    blocks = self._chunk(message, False)
-    decoded = ''
-    for block in blocks:
-      decoded += self.coder.decode(block).rstrip(self.PADDING)
-    return decoded
+    return self._threaded_coder(message, False)
 
 
 class SeeMeNotImage(threading.Thread):
