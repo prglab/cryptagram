@@ -82,12 +82,12 @@ class ECCodeRunner(threading.Thread):
 
   def run(self):
     for order, encode, block in self.in_queue:
-      logging.info('%s %d.' % ('Encoding' if encode else 'Decoding', order))
+      #logging.info('%s %d.' % ('Encoding' if encode else 'Decoding', order))
       if encode:
         coded_block = self.coder.encode(block)
       else:
         coded_block = self.coder.decode(block).rstrip(self.PADDING)
-      self.out_queue.append((order, coded_block))
+      self.out_queue.put((order, coded_block))
 
 
 class ECCoder(object):
@@ -127,20 +127,24 @@ class ECCoder(object):
 
     to_code_list = [to_code[i:i+num_blocks] for i in
                     range(0, len(to_code), num_blocks)]
-    coded_queue = [list() for i in range(FLAGS.threads)]
 
+    coded_queue = Queue.Queue()
     threads = []
     for i in range(FLAGS.threads):
       new_encoder = rs.RSCoder(self.codeword_length, self.message_byte_length)
-      threads.append(ECCodeRunner(new_encoder, to_code_list[i], coded_queue[i]))
+      threads.append(ECCodeRunner(new_encoder, to_code_list[i], coded_queue))
 
     [t.start() for t in threads]
     [t.join() for t in threads]
 
     coded_list = []
     # print coded_queue
-    for dequeued in coded_queue:
-      coded_list += dequeued
+    while True:
+      try:
+        dequeued = coded_queue.get_nowait()
+      except:
+        break
+      coded_list.append(dequeued)
     coded_list.sort()
 
     thread_coded = ''.join([e[1] for e in coded_list])
