@@ -1,4 +1,4 @@
 README for
 
 Required Packages:
- pip install zfec
+ pip install -U pycrypto PIL python-gflags
