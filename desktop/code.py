@@ -71,14 +71,17 @@ class Cipher(object):
     try:
       b64decoded = base64.b64decode(encoded)
       logging.info('b64decoded len: %d.' % len(b64decoded))
+    except TypeError, e:
+      logging.error('Incorrect padding (%d, %d): %s.' %
+                    (len(encoded), len(b64decoded), str(e)))
+      return ''
+
+    try:
       return self.cipher.decrypt(b64decoded).rstrip(self.PADDING)
     except ValueError, e:
       logging.error('Encoded string wrong length (%d, %d): %s.' % \
                       (len(encoded), len(b64decoded), str(e)))
-    except TypeError, e:
-      logging.error('Incorrect padding (%d, %d): %s.' %
-                    (len(encoded), len(b64decoded), str(e)))
-    return ''
+      return ''
 
 
 class ECCodeRunner(threading.Thread):
