@@ -253,7 +253,7 @@ class SeeMeNotImage(threading.Thread):
     with NamedTemporaryFile() as fh:
       image_path = fh.name + '.jpg'
       logging.info('Temporary file at %s.' % image_path)
-      self.image.save(image_path)
+      self.image.save(image_path, quality=100)
     with open(image_path, 'rb') as fh:
       initial_data = fh.read()
       self.num_raw_bytes = fh.tell()
