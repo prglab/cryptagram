@@ -250,10 +250,12 @@ class SeeMeNotImage(threading.Thread):
       self.image = Image.open(self.image_path)
 
   def encode(self):
-    with NamedTemporaryFile() as fh:
-      image_path = fh.name + '.jpg'
-      logging.info('Temporary file at %s.' % image_path)
-      self.image.save(image_path, quality=100)
+    image_path = self.image_path
+    # with NamedTemporaryFile() as fh:
+    #   image_path = fh.name + '.jpg'
+    #   logging.info('Temporary file at %s.' % image_path)
+    #   self.image.save(image_path, quality=100)
+
     with open(image_path, 'rb') as fh:
       initial_data = fh.read()
       self.num_raw_bytes = fh.tell()
@@ -436,8 +438,9 @@ class SeeMeNotImage(threading.Thread):
     self.image = Image.open(self.image_path)
 
     # Re{scale,quality} image.
-    self.rescale()
-    self.requality(self.quality)
+
+    # self.rescale()
+    # self.requality(self.quality)
 
     self.encode()
     filename = self.encrypt(FLAGS.password)
