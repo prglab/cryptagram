@@ -29,6 +29,7 @@ if sys.platform in ['linux2', 'win32']:
         executables = [Executable("code.py", base=base)])
 
 # Build on Mac OS X.
+# python setup.py py2app --no-strip -g -O0
 APP = ['code.py']
 DATA_FILES = []
 OPTIONS = {'argv_emulation': True}
