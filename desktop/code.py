@@ -368,7 +368,7 @@ class SeeMeNotImage(threading.Thread):
 
         # Found black, stop.
         if (hex0 == 4 or hex1 == 4):
-          #logging.info('Supposedly done at (%d, %d).' % (x, y))
+          logging.info('Supposedly done at (%d, %d).' % (x, y))
           if (x == width or y == height):
             logging.info('Actually done at (%d, %d).' % (x, y))
             break
