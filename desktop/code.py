@@ -68,7 +68,11 @@ class Cipher(object):
     return base64.b64encode(self.cipher.encrypt(self._pad(message)))
 
   def decode(self, encoded):
-    return self.cipher.decrypt(base64.b64decode(encoded)).rstrip(self.PADDING)
+    try:
+      return self.cipher.decrypt(base64.b64decode(encoded)).rstrip(self.PADDING)
+    except ValueError, e:
+      logging.error('Encoded string wrong length (%d): %s.' % \
+                      (len(encoded), str(e)))
 
 
 class ECCodeRunner(threading.Thread):
@@ -355,7 +359,12 @@ class SeeMeNotImage(threading.Thread):
     logging.info('Extracted len(hex_string): %d.' % len(hex_string))
     logging.debug('Extracted hex_string: %s' % hex_string)
 
-    self.extracted_base64 = binascii.unhexlify(hex_string)
+    try:
+      self.extracted_base64 = binascii.unhexlify(hex_string)
+    except Exception, e:
+      logging.error('Unhexlify failure: %s.' % str(e))
+      raise
+
     self.decoded = self.extracted_base64
     logging.debug('Extracted encrypted b64: ' + self.extracted_base64)
 
