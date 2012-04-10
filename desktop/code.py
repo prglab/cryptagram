@@ -425,6 +425,8 @@ class SeeMeNotImage(threading.Thread):
     return True
 
   def run(self):
+    logging.info('-' * 20)
+    logging.info('Working on %s.' % self.image_path)
     # Open the image.
     self.image = Image.open(self.image_path)
 
