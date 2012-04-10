@@ -69,14 +69,12 @@ class Cipher(object):
 
   def decode(self, encoded):
     try:
-      print encoded
       b64decoded = base64.b64decode(encoded)
       logging.info('b64decoded len: %d.' % len(b64decoded))
       return self.cipher.decrypt(b64decoded).rstrip(self.PADDING)
     except ValueError, e:
       logging.error('Encoded string wrong length (%d, %d): %s.' % \
                       (len(encoded), len(b64decoded), str(e)))
-      print encoded
     except TypeError, e:
       logging.error('Incorrect padding (%d): %s.' % (len(encoded), str(e)))
     return ''
@@ -212,7 +210,7 @@ class SeeMeNotImage(threading.Thread):
 
     # Bad times...
     logging.info('No match (%(r)f, %(g)f, %(b)f).' % locals())
-    return 0 # -1
+    return -1
 
   def rescale(self):
     width, height = self.image.size
@@ -337,6 +335,9 @@ class SeeMeNotImage(threading.Thread):
 
         hex0 = self._get_wrgbk(block0)
         hex1 = self._get_wrgbk(block1)
+        if hex0 < 0 or hex1 < 0:
+          logging.info('Trouble at (%(x)4d,%(y)4d) hex0: '\
+                         '%(hex0)d hex1: %(hex1)d.' % locals())
 
         # Found black, stop.
         if (hex0 == 4 or hex1 == 4):
