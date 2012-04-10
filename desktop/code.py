@@ -21,7 +21,7 @@ import rs
 
 logging.basicConfig(filename='code.log', level=logging.INFO,
                     format = '%(asctime)-15s %(levelname)s %(module)s '\
-                      '%(threadName)10s %(lineno)4d %(message)s')
+                      '%(threadName)10s %(thread)16d %(lineno)4d %(message)s')
 
 FLAGS = gflags.FLAGS
 gflags.DEFINE_string('image', None, 'image to encode and encrypt',
@@ -88,7 +88,7 @@ class ECCodeRunner(threading.Thread):
       else:
         coded_block = self.coder.decode(block).rstrip(self.PADDING)
       self.out_queue.put((order, coded_block))
-
+    return
 
 class ECCoder(object):
   PADDING = '}'
@@ -391,7 +391,7 @@ class SeeMeNotImage(threading.Thread):
 
     self.extract_rgb()
     self.decrypt(FLAGS.password)
-
+    return
 
 def main(argv):
   try:
