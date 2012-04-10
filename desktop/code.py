@@ -20,7 +20,7 @@ import time
 import rs
 
 logging.basicConfig(filename='code.log', level=logging.INFO,
-                    format = '%(asctime)-15s %(levelname)s %(module)s '\
+                    format = '%(asctime)-15s %(levelname)8s %(module)s '\
                       '%(threadName)10s %(thread)16d %(lineno)4d %(message)s')
 
 FLAGS = gflags.FLAGS
@@ -222,12 +222,14 @@ class SeeMeNotImage(threading.Thread):
   def requality(self, quality):
     with NamedTemporaryFile() as fh:
       self.image_path = fh.name + '.jpg'
+      logging.info('Temporary file at %s.' % self.image_path)
       self.image.save(self.image_path, quality=quality)
       self.image = Image.open(self.image_path)
 
   def encode(self):
     with NamedTemporaryFile() as fh:
       image_path = fh.name + '.jpg'
+      logging.info('Temporary file at %s.' % image_path)
       self.image.save(image_path)
     with open(image_path, 'rb') as fh:
       initial_data = fh.read()
