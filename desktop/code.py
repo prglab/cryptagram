@@ -106,9 +106,10 @@ class ECCodeRunner(threading.Thread):
 class ECCoder(object):
   PADDING = '}'
 
-  def __init__(self, n, k):
+  def __init__(self, n, k, threaded=False):
     self.codeword_length = n
     self.message_byte_length = k
+    self.threaded = threaded
     self.coder = rs.RSCoder(self.codeword_length, self.message_byte_length)
 
   def _pad(self, s):
@@ -164,11 +165,28 @@ class ECCoder(object):
     thread_coded = ''.join([e[1] for e in coded_list])
     return thread_coded
 
+  def _single_coder(self, message, to_encode):
+    blocks = self._chunk(message, to_encode)
+    coded = ''
+    for block in blocks:
+      if to_encode:
+        coded_block = self.coder.encode(block)
+      else:
+        coded_block = self.coder.decode(block).rstrip(self.PADDING)
+      coded += coded_block
+    return coded
+
   def encode(self, message):
-    return self._threaded_coder(message, True)
+    if self.threaded:
+      return self._threaded_coder(message, True)
+    else:
+      return self._single_coder(message, True)
 
   def decode(self, message):
-    return self._threaded_coder(message, False)
+    if self.threaded:
+      return self._threaded_coder(message, False)
+    else:
+      return self._single_coder(message, False)
 
 
 class SeeMeNotImage(threading.Thread):
