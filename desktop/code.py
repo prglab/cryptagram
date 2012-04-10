@@ -381,19 +381,17 @@ class SeeMeNotImage(threading.Thread):
       logging.info('ECCoder decoded (len: %d).' % len(self.decoded))
 
     original = self.b64encrypted
-    print len(original)
-    print len(self.extracted_base64)
 
   def decrypt(self, password):
     c = Cipher(password)
     decrypted = c.decode(self.decoded)
     if not decrypted:
       logging.error('Did not decode properly.')
-      return
+      return False
     to_write = base64.b64decode(decrypted)
     with open('decrypted.jpg', 'wb') as fh:
       fh.write(to_write)
-
+    return True
 
   def run(self):
     # Open the image.
@@ -407,7 +405,9 @@ class SeeMeNotImage(threading.Thread):
     filename = self.encrypt(FLAGS.password)
 
     self.extract_rgb()
-    self.decrypt(FLAGS.password)
+
+    if self.decrypt(FLAGS.password): print 'Success'
+    else: print 'Failure'
     return
 
 def main(argv):
