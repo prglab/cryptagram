@@ -237,9 +237,7 @@ class SeeMeNotImage(threading.Thread):
 
   def rescale(self):
     width, height = self.image.size
-
     # scale = ((2048 * 2048) / 5.) / (width * height)
-
     self.image = self.image.resize(
       (int(width * self.scale), int(height * self.scale)))
     logging.info('Rescaled image size: (%d x %d)' % self.image.size)
@@ -285,8 +283,10 @@ class SeeMeNotImage(threading.Thread):
     self.enc_orig_hex_data = hex_data
     num_data = len(hex_data)
     logging.debug('Original encrypted hex Data: ' + hex_data)
+
     with open('hex_data.log', 'w') as _:
-      _.write(hex_data)
+      for i in range(0, len(hex_data), 80):
+        _.write(hex_data[i:min(i+80, len(hex_data))] + '\n')
 
     logging.info('Length of hex_data: %d' % num_data)
 
