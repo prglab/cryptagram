@@ -126,10 +126,10 @@ class ECCodeRunner(threading.Thread):
 class ECCoder(object):
   PADDING = '}'
 
-  def __init__(self, n, k, threaded=False):
+  def __init__(self, n, k, num_threads=1):
     self.codeword_length = n
     self.message_byte_length = k
-    self.threaded = threaded
+    self.num_threads = num_threads
     self.coder = rs.RSCoder(self.codeword_length, self.message_byte_length)
 
   def _pad(self, s):
@@ -158,7 +158,7 @@ class ECCoder(object):
   def _threaded_coder(self, message, to_encode):
     blocks = self._chunk(message, to_encode)
     to_code = [(i, to_encode, block) for i, block in enumerate(blocks)]
-    num_blocks = int(math.ceil(len(to_code) / (1. * FLAGS.threads)))
+    num_blocks = int(math.ceil(len(to_code) / (1. * self.num_threads)))
 
     to_code_list = [to_code[i:i+num_blocks] for i in
                     range(0, len(to_code), num_blocks)]
@@ -197,13 +197,13 @@ class ECCoder(object):
     return coded
 
   def encode(self, message):
-    if self.threaded:
+    if self.num_threads > 1:
       return self._threaded_coder(message, True)
     else:
       return self._single_coder(message, True)
 
   def decode(self, message):
-    if self.threaded:
+    if self.num_threads > 1:
       return self._threaded_coder(message, False)
     else:
       return self._single_coder(message, False)
@@ -296,7 +296,7 @@ class SeeMeNotImage(threading.Thread):
     if FLAGS.ecc:
       logging.info('ECCoder encoding input length:  %d.' % \
                      len(self.b64encrypted))
-      coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k, True)
+      coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k, FLAGS.threads)
       encoded = coder.encode(self.b64encrypted)
       logging.info('ECCoder encoding output length: %d.' % len(encoded))
       to_hexify = encoded
@@ -443,7 +443,7 @@ class SeeMeNotImage(threading.Thread):
     if FLAGS.ecc:
       logging.info('ECCoder decoding input length:  %d.' % \
                      len(self.extracted_base64))
-      coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k, True)
+      coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k, FLAGS.threads)
       self.decoded = coder.decode(self.extracted_base64)
       logging.info('ECCoder decoding output length: %d.' % len(self.decoded))
 
