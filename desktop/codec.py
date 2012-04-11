@@ -133,9 +133,9 @@ class JpegEncryptionCodec(object):
 
       base4_1 = int(hex_val / 4.0)
       base4_0 = int(hex_val - (base4_1 * 4))
-      logging.info(
-        'Inputted (%2d, %2d) hex_val base4_0 base4_1 %2d %2d %2d.' % \
-          (x_coord, y_coord, hex_val, base4_0, base4_1))
+      # logging.info(
+      #   'Inputted (%2d, %2d) hex_val base4_0 base4_1 %2d %2d %2d.' % \
+      #     (x_coord, y_coord, hex_val, base4_0, base4_1))
 
       base4_0_x = int(x_coord * self.block_size * 2)
       base4_0_y = int(y_coord * self.block_size)
@@ -146,7 +146,7 @@ class JpegEncryptionCodec(object):
       base4_0_fill = self._THRESHOLDS[shex(base4_0)]
       base4_0_value = color_space_transform(
         (base4_0_fill, base4_0_fill, base4_0_fill))
-      print base4_0_rectangle, base4_0_value
+      #print base4_0_rectangle, base4_0_value
       draw.rectangle(base4_0_rectangle, fill=base4_0_value)
 
       base4_1_x = int((x_coord * self.block_size * 2) + self.block_size)
@@ -158,7 +158,7 @@ class JpegEncryptionCodec(object):
       base4_1_fill = self._THRESHOLDS[shex(base4_1)]
       base4_1_value = color_space_transform(
         (base4_1_fill, base4_1_fill, base4_1_fill))
-      print base4_1_rectangle, base4_1_value
+      #print base4_1_rectangle, base4_1_value
       draw.rectangle(base4_1_rectangle, fill=base4_1_value)
     image.load()
     return image
@@ -181,7 +181,7 @@ class JpegEncryptionCodec(object):
 
     keys = sorted(self._INV_THRESHOLDS.keys())
     ret = int(self._INV_THRESHOLDS.get(keys[bsearch(keys, lum)]))
-    print 'Decoded', lum, keys, ret
+    logging.debug('Decoded %.2f %s %d ' % (lum, str(keys), ret))
     return ret
 
   def decode(self, rgb_image):
@@ -190,6 +190,7 @@ class JpegEncryptionCodec(object):
     image = rgb_image.convert('YCbCr')
     extracted_hex = ''
     count = 0
+    supposed_dones = 0
     for y in range(0, height, self.block_size):
       for x in range(0, width, self.block_size * 2):
 
@@ -203,37 +204,42 @@ class JpegEncryptionCodec(object):
         base4_1 = self._decode_block(block1)
 
         if (base4_0 == 0 or base4_1 == 0):
-          logging.info('Supposedly done at (%d, %d).' % (x, y))
+          supposed_dones += 1
+          # logging.info('Supposedly done at (%d, %d).' % (x, y))
           if (x == width or y == height):
             logging.info('Actually done at (%d, %d).' % (x, y))
             break
 
         hex_num = (base4_0 + base4_1 * 4) % 16
         # if hex_num != hex_num % 16:
-        logging.info('Block0 %s' % str(list(block0.getdata())))
-        logging.info('Block1 %s' % str(list(block1.getdata())))
-        logging.info(
-          'Extracted (%2d, %2d) hex_num base4_0 base4_1 %2d %2d %2d' % \
-            (x, y, hex_num, base4_0, base4_1))
+        # logging.info('Block0 %s' % str(list(block0.getdata())))
+        # logging.info('Block1 %s' % str(list(block1.getdata())))
+        # logging.info(
+        #   'Extracted (%2d, %2d) hex_num base4_0 base4_1 %2d %2d %2d' % \
+        #     (x, y, hex_num, base4_0, base4_1))
 
         hex_value = hex(hex_num).replace('0x','')
         extracted_hex += hex_value
         count += 1
-
+    logging.info('Supposed dones: %d.' % supposed_dones)
     return extracted_hex
 
 
 def main():
-  LEN = 4
+  LEN = 10000
+  block_size = 1
+
   # generate random bytes.
-  s = 'abcd' # randstr(LEN)
+  s = randstr(LEN)
 
   # generate random b64, hex.
   b64s = base64.b64encode(s)
+
+  # TODO(tierney): ECC.
+
   hexs = binascii.hexlify(b64s)
 
   # encode image.
-  block_size = 2
   codec = JpegEncryptionCodec(block_size)
   image = codec.encode(hexs)
 
@@ -246,9 +252,9 @@ def main():
   # decode image.
   extracted_hexs = codec.decode(read_im)
   errors = 0
-  print hexs
-  print
-  print extracted_hexs
+  # print hexs
+  # print
+  # print extracted_hexs
   for i, hex_val in enumerate(hexs):
     if hex_val != extracted_hexs[i]:
       errors += 1
@@ -256,6 +262,9 @@ def main():
 
   # unhex, unb64...
   extracted_b64s = binascii.unhexlify(extracted_hexs)
+
+  # TODO(tierney): un-ECC.
+
   extracted_s = base64.b64decode(extracted_b64s)
 
   # compare bytes.
