@@ -2,16 +2,108 @@ var URIHeader = "data:image/jpeg;base64,";
 var colors = ['#FFFFFF',  '#FF0000', '#00FF00', '#0000FF'];	
 var hexValues = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];	
 var lookup;
-var blockSize = 2;
+var blockSize = 4;
 
 
+ 
+ function createRequest() {
+    var oHTTP = null;
+    if (window.XMLHttpRequest) {
+      oHTTP = new XMLHttpRequest();
+      oHTTP.responseType = "arraybuffer";  
 
-function getImageInfoHandler(url) {
-  return function() {
-    var imageinfo = ImageInfo.getAllFields(url);
-   	console.log(imageinfo);
-  };
-};
+    } else if (window.ActiveXObject) {
+      oHTTP = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    return oHTTP;
+  }
+  
+  
+function arrayBufferDataUri(raw) {
+   var base64 = ''
+   var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+  
+   var bytes = new Uint8Array(raw)
+   var byteLength = bytes.byteLength
+   var byteRemainder = byteLength % 3
+   var mainLength = byteLength - byteRemainder
+  
+   var a, b, c, d
+   var chunk
+  
+   // Main loop deals with bytes in chunks of 3
+   for (var i = 0; i < mainLength; i = i + 3) {
+    // Combine the three bytes into a single integer
+    chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]
+  
+    // Use bitmasks to extract 6-bit segments from the triplet
+    a = (chunk & 16515072) >> 18 // 16515072 = (2^6 - 1) << 18
+    b = (chunk & 258048) >> 12 // 258048   = (2^6 - 1) << 12
+    c = (chunk & 4032) >> 6 // 4032     = (2^6 - 1) << 6
+    d = chunk & 63 // 63       = 2^6 - 1
+    // Convert the raw binary segments to the appropriate ASCII encoding
+    base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d]
+   }
+  
+   // Deal with the remaining bytes and padding
+   if (byteRemainder == 1) {
+    chunk = bytes[mainLength]
+  
+    a = (chunk & 252) >> 2 // 252 = (2^6 - 1) << 2
+    // Set the 4 least significant bits to zero
+    b = (chunk & 3) << 4 // 3   = 2^2 - 1
+    base64 += encodings[a] + encodings[b] + '=='
+   } else if (byteRemainder == 2) {
+    chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1]
+  
+    a = (chunk & 16128) >> 8 // 16128 = (2^6 - 1) << 8
+    b = (chunk & 1008) >> 4 // 1008  = (2^6 - 1) << 4
+    // Set the 2 least significant bits to zero
+    c = (chunk & 15) << 2 // 15    = 2^4 - 1
+    base64 += encodings[a] + encodings[b] + encodings[c] + '='
+   }
+  
+   return "data:image/jpeg;base64," + base64
+}
+  
+  
+function getImageBinary(src, container) {
+
+    var oHTTP = createRequest();
+	oHTTP.onreadystatechange = function() {
+            if (oHTTP.readyState == 4) {
+              if (oHTTP.status == "200" || oHTTP.status == "206") {
+                
+					var arrayBuffer = oHTTP.response;   
+                    var b64 = arrayBufferDataUri(arrayBuffer);
+    				var img = document.createElement("img");
+    				img.style.display = "none";
+    				img.src = b64;
+    				container.parentNode.appendChild(img);
+    				extractRGB(src, container, img);
+  
+              } else {
+                
+              }
+              oHTTP = null;
+            }
+          };
+      
+      /*if (src.search("fbcdn.net") && src.search("_n.jpg")) {
+            	
+      	var parts = src.split("/");
+      	var fileName = parts[5];
+      	var originalImage = fileName.substring(0,fileName.length - 5) + "o.jpg";
+      	newURL = parts[0] + "/" + parts[1] + "/" + parts[2] + "/" + parts[3] + "/" + originalImage;
+      	src = newURL;
+      	
+      }*/
+      
+	oHTTP.open("GET", src, true);
+	if (oHTTP.overrideMimeType) oHTTP.overrideMimeType('text/plain; charset=x-user-defined');
+	oHTTP.send(null);
+	
+}
 
 
 
@@ -21,23 +113,21 @@ function getImageInfoHandler(url) {
 // just the src of the image. We loop over all images in the current DOM and
 // if the target src matches, we apply the RGB extraction.
 
+var lastReplace = "";
+
+
 function replaceImageBySrc(src) {
 	
 	init();
 	var elements = document.getElementsByTagName('img');
-
+	
 	for (i = 0; i < elements.length; i++) {
 		if (elements[i].src == src) {
-			//extractRGB(src, elements[i]);
-			
-			ImageInfo.loadInfo(src, getImageInfoHandler(src));
-			
-			
-			
-			
+			if (lastReplace == src) continue;
+			getImageBinary(src, elements[i]);
+			lastReplace = src;			
 		}
 	}
-	
 }
 
 
@@ -67,16 +157,14 @@ function init() {
 // March over the RGB image extracting each pair of blocks.
 // Estimate the block colors and convert these into a hex value
 
-function extractRGB(src, container) {
-	
-	console.log(src);
-	
+function extractRGB(src, container, newImg) {
+		
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
     var img = new Image();
 	
   	img.onload = function(){
-					
+				
 	    canvas.width = img.width;
 	    canvas.height = img.height;
 	    ctx.drawImage(img,0,0);
@@ -84,9 +172,9 @@ function extractRGB(src, container) {
 	    var hexString = "";
 	    var block0;
 	    var block1;
-	
+
 	    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;   	  	    	
-    	    	
+    	   
 	    for (y = 0; y < img.height; y+= blockSize) {
 		for (x = 0; x < img.width; x+= (blockSize * 2)) {
 
@@ -106,15 +194,18 @@ function extractRGB(src, container) {
 	    var newBase64 = hexToBase64(hexString);
     	
 	    // Unpack 3 JSON components with fixed length and positions in the string
-	    var iv = newBase64.substring(0,22);
-	    var salt = newBase64.substring(22,33);
-	    var ct = newBase64.substring(33,newBase64.length); 
+	    
+	    var pad = 3;
+	    
+	    var iv = newBase64.substring(0+pad,22+pad);
+	    var salt = newBase64.substring(22+pad,33+pad);
+	    var ct = newBase64.substring(33+pad,newBase64.length); 
 	    var obj = new Object();
 	    obj.iv = iv;
 	    obj.salt = salt;
 	    obj.ct = ct;
 	    var base64Decode = JSON.stringify(obj);
-	    var password = prompt("Enter password for\n"+src,"helloworld");        	
+	    var password = prompt("Enter password for\n"+src,"helloworld");     
 	    var decrypted = sjcl.decrypt(password, base64Decode);
 		
 	    var url = self.location.href;
@@ -124,9 +215,10 @@ function extractRGB(src, container) {
 			self.location.href = URIHeader + decrypted;
 	    } else {
 			container.src = URIHeader + decrypted;
-	    }
+		}
 	};
-    img.src = src;
+	//img.crossOrigin = "use-credentials";
+    img.src = newImg.src;
 }
 
 

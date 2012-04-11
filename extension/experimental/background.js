@@ -28,8 +28,6 @@ function getClickHandler() {
 
 chrome.tabs.onUpdated.addListener(function(tabId, info) {
     if (info.status=="complete") {
-   	chrome.tabs.executeScript(null, {file: "binaryajax.js"});
-	chrome.tabs.executeScript(null, {file: "imageinfo.js"});
 	chrome.tabs.executeScript(null, {file: "sjcl.js"});
 	chrome.tabs.executeScript(null, {file: "seemenot.js"});
     }
