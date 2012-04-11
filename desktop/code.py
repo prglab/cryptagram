@@ -333,6 +333,7 @@ class SeeMeNotImage(threading.Thread):
     self.rgb_image = Image.new('RGB', (rgb_image_width, rgb_image_height))
     colors = [(255,255,255), (255,0,0), (0,255,0), (0,0,255)]
 
+    draw = ImageDraw.Draw(self.rgb_image)
     for i, hex_datum in enumerate(hex_data):
       #logging.info('hex_datum (%d): %s.' % (i, hex_datum))
       hex_val = int(hex_datum, 16)
@@ -340,7 +341,6 @@ class SeeMeNotImage(threading.Thread):
       base4_0 = int(hex_val - (base4_1 * 4))
       y_coord = int(i / (1. * width))
       x_coord = int(i - (y_coord * width))
-      draw = ImageDraw.Draw(self.rgb_image)
 
       # base4_0
       base4_0_x = int(x_coord * self.block_size * 2)
