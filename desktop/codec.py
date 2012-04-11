@@ -1,18 +1,31 @@
 #!/usr/bin/env python
 
+from ECCoder import ECCoder
 from PIL import Image,ImageDraw
-import math
-import random
-import binascii
 import base64
+import binascii
+import gflags
 import itertools
 import logging
+import math
+import random
 import sys
 
-logging.basicConfig(stream=sys.stdout,
+logging.basicConfig(filename='codec.log',
                     level=logging.INFO,
                     format = '%(asctime)-15s %(levelname)8s %(module)s '\
                       '%(threadName)10s %(thread)16d %(lineno)4d %(message)s')
+
+FLAGS = gflags.FLAGS
+gflags.DEFINE_integer('encrypted_image_quality', 95,
+                      'quality to save encrypted image in range (0,95]. '\
+                        '100 disables quantization',
+                      short_name = 'e')
+gflags.DEFINE_integer('block_size', 2, 'block size to use', short_name = 'b')
+gflags.DEFINE_integer('data_size', 1000, 'data size to use', short_name = 'd')
+# gflags.DEFINE_boolean('ecc', False, 'Use ECC encoding.')
+gflags.DEFINE_integer('ecc_n', 128, 'codeword length', short_name = 'n')
+gflags.DEFINE_integer('ecc_k', 64, 'message byte length', short_name = 'k')
 
 def randstr(n):
   return ''.join(map(chr, map(random.randrange, [0]*n, [127]*n)))
@@ -221,53 +234,66 @@ class JpegEncryptionCodec(object):
         hex_value = hex(hex_num).replace('0x','')
         extracted_hex += hex_value
         count += 1
-    logging.info('Supposed dones: %d.' % supposed_dones)
+    # logging.info('Supposed dones: %d.' % supposed_dones)
     return extracted_hex
 
 
-def main():
-  LEN = 10000
-  block_size = 1
+def main(argv):
+  try:
+    argv = FLAGS(argv)  # parse flags
+  except gflags.FlagsError, e:
+    print '%s\nUsage: %s ARGS\n%s' % (e, sys.argv[0], FLAGS)
+    sys.exit(1)
 
   # generate random bytes.
-  s = randstr(LEN)
+  s = randstr(FLAGS.data_size)
 
   # generate random b64, hex.
   b64s = base64.b64encode(s)
+  # print b64s
 
-  # TODO(tierney): ECC.
-
-  hexs = binascii.hexlify(b64s)
+  coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k)
+  ecc = coder.encode(b64s)
+  hexs = binascii.hexlify(ecc)
 
   # encode image.
-  codec = JpegEncryptionCodec(block_size)
+  codec = JpegEncryptionCodec(FLAGS.block_size)
   image = codec.encode(hexs)
 
   # save image.
-  image.save('test.jpg', quality=95)
+  image.save('test.jpg', quality=FLAGS.encrypted_image_quality)
 
   # read image.
   read_im = Image.open('test.jpg')
 
   # decode image.
   extracted_hexs = codec.decode(read_im)
+
   errors = 0
   # print hexs
   # print
   # print extracted_hexs
-  for i, hex_val in enumerate(hexs):
-    if hex_val != extracted_hexs[i]:
-      errors += 1
-  print 'Errors:', errors, len(hexs)
+  # for i, hex_val in enumerate(hexs):
+  #   if hex_val != extracted_hexs[i]:
+  #     errors += 1
+  # print 'Errors:', errors, len(hexs)
 
   # unhex, unb64...
   extracted_b64s = binascii.unhexlify(extracted_hexs)
+  extracted_bin = coder.decode(extracted_b64s)
 
   # TODO(tierney): un-ECC.
+  result = (b64s == extracted_bin)
+  logging.info('%d %d %d %d %d' % (FLAGS.ecc_n, FLAGS.ecc_k,
+                                   FLAGS.encrypted_image_quality,
+                                   FLAGS.block_size, result))
 
-  extracted_s = base64.b64decode(extracted_b64s)
+  try:
+    extracted_s = base64.b64decode(extracted_bin)
+  except TypeError, e:
+    pass
 
   # compare bytes.
 
 if __name__ == '__main__':
-  main()
+  main(sys.argv)
