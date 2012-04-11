@@ -296,7 +296,7 @@ class SeeMeNotImage(threading.Thread):
     if FLAGS.ecc:
       logging.info('ECCoder encoding input length:  %d.' % \
                      len(self.b64encrypted))
-      coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k)
+      coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k, True)
       encoded = coder.encode(self.b64encrypted)
       logging.info('ECCoder encoding output length: %d.' % len(encoded))
       to_hexify = encoded
@@ -312,9 +312,7 @@ class SeeMeNotImage(threading.Thread):
         for i in range(0, len(hex_data), 80):
           _.write(hex_data[i:min(i+80, len(hex_data))] + '\n')
 
-    # NOTE(tierney): Same up to here
     logging.info('Length of hex_data: %d' % num_data)
-
     width, length = self.image.size
     width_power_2 = int(math.ceil(math.log(width, 2)))
     TARGET_WIDTH = 2 ** (width_power_2 + 1)
@@ -445,7 +443,7 @@ class SeeMeNotImage(threading.Thread):
     if FLAGS.ecc:
       logging.info('ECCoder decoding input length:  %d.' % \
                      len(self.extracted_base64))
-      coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k)
+      coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k, True)
       self.decoded = coder.decode(self.extracted_base64)
       logging.info('ECCoder decoding output length: %d.' % len(self.decoded))
 
