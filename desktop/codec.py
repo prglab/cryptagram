@@ -146,7 +146,6 @@ class JpegEncryptionCodec(object):
 
       index = base64chars.find(b64_datum)
       if index < 0:
-        logging.info('non-b64 Symbol %s found.' % b64_datum)
         self.nonb64count += 1
         continue
 
