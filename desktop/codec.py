@@ -95,7 +95,8 @@ def color_space_transform(triplet, from_rgb=True):
   else:
     luminance, chroma_blue, chroma_red = triplet
     red = luminance + 1.402 * (chroma_red - 128)
-    green = luminance - 0.34414 * (chroma_blue - 128) - 0.71414 * (chroma_red - 128)
+    green = luminance - 0.34414 * (chroma_blue - 128) - 0.71414 * \
+        (chroma_red - 128)
     blue = luminance + 1.772 * (chroma_blue - 128)
     return tuple(map(int, (red, green, blue)))
 
@@ -358,6 +359,7 @@ def main(argv):
 
   coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k)
   ecc = coder.encode(b64s)
+  print base64.b64encode(ecc)
   hexs = binascii.hexlify(ecc)
 
   # encode image.
