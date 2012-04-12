@@ -27,6 +27,10 @@ def main():
 #print discretize(35, 235, 3)
 main()
 
+# Data shape.
+shape = [[1, 0, 0],
+         [1, 1, 0]]
+
 def datum_to_block_vals(datum, datum_type):
   if 'b64' == datum_type:
     index = base64chars.find(b64_datum)
