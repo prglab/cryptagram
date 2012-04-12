@@ -1,4 +1,4 @@
-Develop a module that receives
+* Develop a module that receives
 
 o typed data
 o color space
@@ -6,3 +6,10 @@ o color space discretization
 o block size OR expected subsampling
 
 Due to subsampling, we should build blocks vertically.
+
+ o Captures the #blocks, block shape, and block position.
+
+[[1 2 2],
+ [1 0 2]]
+
+
