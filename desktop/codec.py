@@ -145,7 +145,9 @@ class JpegEncryptionCodec(object):
     _ratio = int(math.ceil((expanded_data_length / (1. * MULTIPLIER)) ** .5))
     new_image_width = _width * _ratio
     _new_image_height = int(math.ceil(expanded_data_length / (1. * new_image_width)))
-    new_image_height = _new_image_height if _new_image_height % 2 == 0 else _new_image_height + 1
+    new_image_height = _new_image_height
+    if _new_image_height % 2 != 0:
+      new_image_height = _new_image_height + 1
 
     width = int(new_image_width / (1. * self.block_width * NUM_BLOCKS))
     height = int(math.ceil(expanded_data_length / (1. * width)))
@@ -393,12 +395,13 @@ def main(argv):
 
   # generate random b64, hex.
   b64s = base64.b64encode(s)
-
+  print 'Compare:', b64s
   coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k)
-  # ecc = coder.encode(b64s)
-  # print b64s
-  # print ecc
-  # print base64.b64encode(ecc)
+  ecc = coder.encode(b64s)
+  print coder.decode(ecc)
+  print
+  ecc64s = base64.b64encode(ecc)
+  print ecc64s
 
   # hexs = binascii.hexlify(ecc)
 
@@ -406,18 +409,21 @@ def main(argv):
   codec = JpegEncryptionCodec(
     FLAGS.block_size, FLAGS.block_width, FLAGS.block_height)
 
-  image = codec.encode_base64(b64s)
+  # image = codec.encode_base64(b64s)
+  image = codec.encode_base64(ecc64s)
   image.save('test_b64.jpg', quality=FLAGS.encrypted_image_quality)
   read_im = Image.open('test_b64.jpg')
   print
 
-  extracted_b64s = codec.decode_base64(read_im)
-
-  print b64s
+  extracted_eccb64s = codec.decode_base64(read_im)
+  ecc = base64.b64decode(extracted_eccb64s)
+  print 'Extracted:', extracted_eccb64s
+  b64s = coder.decode(ecc)
+  print 'Compare:', b64s
   print len(b64s)
+
   # print base64.b64encode(ecc)
-  print extracted_b64s
-  print len(extracted_b64s)
+  # print len(extracted_b64s)
 
   # extracted_bin = coder.decode(extracted_b64s)
   # print codec.decode_base64(read_im)
