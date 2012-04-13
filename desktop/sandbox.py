@@ -16,46 +16,34 @@ def discretize(low, high, num_units, reverse=True, hex_key=True):
 
   return ret, reverse_ret
 
-def main():
-  channel_ranges = {'Y'  : [35, 235, 9],
-                    'Cb' : [35, 235, 4],
-                    'Cr' : [35, 235, 4]
-                    }
-  for cr in channel_ranges:
-    print cr, discretize(*channel_ranges.get(cr))
-
 #print discretize(35, 235, 3)
-#main()
 
 class BaseN(object):
-  def __init__(self, base, data_range, num_blocks):
+  def __init__(self, base, num_units):
     self.base = base
-    self.data_range = data_range
-    self.num_blocks = num_blocks
+    self.num_units = num_units
 
   def encode(self, int_val):
-    if int_val not in self.data_range: return None
+    if int_val not in range(self.base ** self.num_units):
+      return None
+
     ret_vals = []
     accum = 0
-    for i in range(self.num_blocks-1, -1, -1):
+    for i in range(self.num_units-1, -1, -1):
       _ = int((int_val - accum) / (1. * (self.base ** i)))
       accum += (_ * (self.base ** i))
       ret_vals.append(_)
-    print ret_vals
+    return ret_vals
 
-  def decode(self):
-    pass
+  def decode(self, shape_vals):
+    if type(shape_vals) != list or len(shape_vals) != self.num_units:
+      return None
 
-b = BaseN(8, range(64), 3)
-b.encode(63)
-
-b = BaseN(10, range(2 ** 16), 3)
-b.encode(63)
-
-
-def foo(base, base_range, num_blocks):
-  # base in [16, 64]
-  pass
+    ret_val = 0
+    shape_vals.reverse() # Descending to ascending.
+    for i, val in enumerate(shape_vals):
+      ret_val += val * (self.base ** i)
+    return ret_val
 
 
 class Block(object):
@@ -96,14 +84,42 @@ class Block(object):
         self._index_map[index].append((x,y))
     print str(self._index_map)
 
-# Data shape.
-shape = [[1, 2],
-         [1, 2]]
 
-b = Block(shape)
-b.analyze()
-print b.get_num_blocks()
-print b.get_block_coords(1)
+def main():
+  # Data shape.
+  shape = [[1, 2],
+           [1, 2]]
+
+  b = Block(shape)
+  b.analyze()
+
+  DISCRETIZING_UNITS = 4
+  NUM_BASE_UNITS = b.get_num_blocks()
+
+  b = BaseN(DISCRETIZING_UNITS, NUM_BASE_UNITS)
+  enc = b.encode(13)
+  print enc
+  print b.decode(enc)
+
+  channel_ranges = {
+    'Y'  : [35, 235, DISCRETIZING_UNITS + 1],
+    'Cb' : [35, 235, 4],
+    'Cr' : [35, 235, 4]
+    }
+
+  return
+
+  for cr in channel_ranges:
+    ret, rev_ret = discretize(*channel_ranges.get(cr))
+    print cr
+    for r in sorted(ret):
+      print '  %3s : %3d' % (r, ret.get(r))
+    print
+    for r in sorted(rev_ret, reverse=True):
+      print '  %3d : %3s' % (r, rev_ret.get(r))
+
+
+main()
 
 
 def datum_to_block_vals(datum, datum_type):
