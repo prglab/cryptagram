@@ -27,6 +27,8 @@ class BaseN(object):
     if int_val not in range(self.base ** self.num_units):
       return None
 
+    # TODO(tierney): Memoized version.
+
     ret_vals = []
     accum = 0
     for i in range(self.num_units-1, -1, -1):
@@ -38,6 +40,8 @@ class BaseN(object):
   def decode(self, shape_vals):
     if type(shape_vals) != list or len(shape_vals) != self.num_units:
       return None
+
+    # TODO(tierney): Memoized version.
 
     ret_val = 0
     shape_vals.reverse() # Descending to ascending.
@@ -96,13 +100,19 @@ def main():
   DISCRETIZING_UNITS = 4
   NUM_BASE_UNITS = b.get_num_blocks()
 
-  b = BaseN(DISCRETIZING_UNITS, NUM_BASE_UNITS)
-  enc = b.encode(13)
+  base4 = BaseN(DISCRETIZING_UNITS, NUM_BASE_UNITS)
+  enc = base4.encode(13)
   print enc
-  print b.decode(enc)
+  print base4.decode(enc)
 
   channel_ranges = {
     'Y'  : [35, 235, DISCRETIZING_UNITS + 1],
+    'Cb' : [35, 235, 4],
+    'Cr' : [35, 235, 4]
+    }
+
+  channel_ranges = {
+    'Y'  : ([35, 235, DISCRETIZING_UNITS + 1], base4.encode),
     'Cb' : [35, 235, 4],
     'Cr' : [35, 235, 4]
     }
