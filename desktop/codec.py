@@ -133,10 +133,10 @@ class JpegEncryptionCodec(object):
 
   def encode_base64(self, b64_data):
     target_width = int(math.ceil(math.sqrt(len(b64_data))))
-    width = int(target_width / (self.block_size * 2.))
+    width = int(target_width / (self.block_width * 2.))
     height = int(math.ceil(len(b64_data) / (1. * width)))
-    new_image_width = width * self.block_size * 2
-    new_image_height = height * self.block_size
+    new_image_width = width * self.block_width * 2
+    new_image_height = height * self.block_height
 
     image = Image.new('YCbCr', (new_image_width, new_image_height))
     draw = ImageDraw.Draw(image)
@@ -152,9 +152,6 @@ class JpegEncryptionCodec(object):
 
       octal_val = '%02s' % (oct(index)[1:])
       base4_0, base4_1 = list(octal_val.replace(' ','0'))
-      logging.info(
-        'Inputted (%2d, %2d) octal_val base4_0 base4_1 %2s %2s %2s.' % \
-          (x_coord, y_coord, octal_val, base4_0, base4_1))
 
       # print  b64_datum, base4_0, base4_1, index
       base4_0_x = int(x_coord * self.block_width * 2)
@@ -164,7 +161,7 @@ class JpegEncryptionCodec(object):
            (base4_0_x + self.block_width, base4_0_y + self.block_height)]
       base4_0_fill = self._EIGHT_THRESHOLDS[base4_0]
       base4_0_value = color_space_transform(
-        (base4_0_fill, base4_0_fill, base4_0_fill), False)
+        (base4_0_fill, base4_0_fill, base4_0_fill), True)
       draw.rectangle(base4_0_rectangle, fill=base4_0_value)
 
       base4_1_x = int((x_coord * self.block_width * 2) + self.block_width)
@@ -175,9 +172,13 @@ class JpegEncryptionCodec(object):
 
       base4_1_fill = self._EIGHT_THRESHOLDS[base4_1]
       base4_1_value = color_space_transform(
-        (base4_1_fill, base4_1_fill, base4_1_fill), False)
+        (base4_1_fill, base4_1_fill, base4_1_fill), True)
       #print base4_1_rectangle, base4_1_value
       draw.rectangle(base4_1_rectangle, fill=base4_1_value)
+
+      logging.info(
+        'Inputted (%2d, %2d) octal_val base4_0 base4_1 %2s %2s %2s FILL %d %d.' % \
+          (x_coord, y_coord, octal_val, base4_0, base4_1, base4_0_fill, base4_1_fill))
 
     image.load()
     return image
@@ -198,7 +199,7 @@ class JpegEncryptionCodec(object):
 
     keys = sorted(self._INV_EIGHT_THRESHOLDS.keys())
     ret = int(self._INV_EIGHT_THRESHOLDS.get(keys[bsearch(keys, lum)]))
-    #logging.info('Decoded %.2f %s %d ' % (lum, str(keys), ret))
+    logging.info('Decoded %.2f %s %d ' % (lum, str(keys), ret))
     return ret
 
 
@@ -224,7 +225,7 @@ class JpegEncryptionCodec(object):
           if (x == width or y == height):
             logging.info('Actually done at (%d, %d).' % (x, y))
             break
-        index = int('%d%d' % (base4_0-1, base4_1-1), 8)
+        index = int('%d%d' % (base4_0, base4_1), 8)
         logging.info(
           'Extracted (%2d, %2d) base4_0 base4_1 %2d %2d (%d)' % \
             (x, y, base4_0, base4_1, index))
