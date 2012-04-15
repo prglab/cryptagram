@@ -50,43 +50,6 @@ class BaseN(object):
     return ret_val
 
 
-class Block(object):
-  _analyzed = False
-  _index_map = {}
-
-  def __init__(self, shape):
-    self.shape = shape
-
-  def get_num_blocks(self):
-    # Count the number of distinct blocks, ignoring zero-valued blocks.
-    self.analyze()
-    shapes = self._index_map.keys()
-    # Remove zero if we have blocks that were entered as such.
-    if 0 in shapes:
-      shapes.remove(0)
-    return len(shapes)
-
-  def get_all_blocks(self):
-    self.analyze()
-    return self._index_map
-
-  def get_block_coords(self, index):
-    self.analyze()
-    return self._index_map.get(index)
-
-  def analyze(self):
-    if not self._analyzed:
-      self._analyze()
-      self._analyzed = True
-    return self._analyzed
-
-  def _analyze(self):
-    for y, row in enumerate(self.shape):
-      for x, index in enumerate(row):
-        if index not in self._index_map:
-          self._index_map[index] = []
-        self._index_map[index].append((x,y))
-    print str(self._index_map)
 
 
 def main():

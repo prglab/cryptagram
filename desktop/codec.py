@@ -138,12 +138,12 @@ class JpegEncryptionCodec(object):
     SIZE_OF_BLOCKS = self.block_width * self.block_height # assume rectangle for now.
     expanded_data_length = len(b64_data) * NUM_BLOCKS * SIZE_OF_BLOCKS
 
-    _width = 16
-    _height = 9
+    _width = 1.3
+    _height = 1.
 
     MULTIPLIER = _width * _height
     _ratio = int(math.ceil((expanded_data_length / (1. * MULTIPLIER)) ** .5))
-    new_image_width = _width * _ratio
+    new_image_width = int(_width * _ratio) if int(_width * _ratio) == 0 else int(_width * _ratio) - 1
     _new_image_height = int(math.ceil(expanded_data_length / (1. * new_image_width)))
     new_image_height = _new_image_height
     if _new_image_height % 2 != 0:
@@ -240,8 +240,9 @@ class JpegEncryptionCodec(object):
     extracted_b64 = ''
     count = 0
     supposed_dones = 0
+    NUM_BLOCKS = 2
     for y in range(0, height, self.block_height):
-      for x in range(0, width, self.block_width * 2):
+      for x in range(0, width, self.block_width * NUM_BLOCKS):
         block0_rect = (x, y, x + self.block_width, y + self.block_height)
         # logging.info('block0_rect %s.' % str(block0_rect))
         block0 = image.crop(block0_rect)
@@ -369,12 +370,6 @@ class JpegEncryptionCodec(object):
             break
 
         hex_num = (base4_0 + base4_1 * 4) % 16
-        # if hex_num != hex_num % 16:
-        # logging.info('Block0 %s' % str(list(block0.getdata())))
-        # logging.info('Block1 %s' % str(list(block1.getdata())))
-        # logging.info(
-        #   'Extracted (%2d, %2d) hex_num base4_0 base4_1 %2d %2d %2d' % \
-        #     (x, y, hex_num, base4_0, base4_1))
 
         hex_value = hex(hex_num).replace('0x','')
         extracted_hex += hex_value
@@ -391,39 +386,45 @@ def main(argv):
 
   # generate random bytes.
   s = randstr(FLAGS.data_size)
-  s = 'a' * FLAGS.data_size
+  # s = 'a' * FLAGS.data_size
+  logging.info('Data size (orig): %d.' % FLAGS.data_size)
 
-  # generate random b64, hex.
-  b64s = base64.b64encode(s)
-  print 'Compare:', b64s
   coder = ECCoder(FLAGS.ecc_n, FLAGS.ecc_k)
-  ecc = coder.encode(b64s)
-  print coder.decode(ecc)
-  print
+  ecc = coder.encode(s)
   ecc64s = base64.b64encode(ecc)
-  print ecc64s
+  logging.info('Data size (eccs): %d.' % len(ecc64s))
 
-  # hexs = binascii.hexlify(ecc)
-
-  # encode image.
+  # # encode image.
   codec = JpegEncryptionCodec(
     FLAGS.block_size, FLAGS.block_width, FLAGS.block_height)
 
-  # image = codec.encode_base64(b64s)
   image = codec.encode_base64(ecc64s)
   image.save('test_b64.jpg', quality=FLAGS.encrypted_image_quality)
-  read_im = Image.open('test_b64.jpg')
-  print
 
+  read_im = Image.open('test_b64.jpg')
   extracted_eccb64s = codec.decode_base64(read_im)
   ecc = base64.b64decode(extracted_eccb64s)
-  print 'Extracted:', extracted_eccb64s
-  b64s = coder.decode(ecc)
-  print 'Compare:', b64s
-  print len(b64s)
+  ext_s = coder.decode(ecc)
+  with open('string_org.dat','w') as fh:
+    b64_org = base64.b64encode(s)
+    for i in range(0, len(b64_org), 80):
+      fh.write(b64_org[i:i+80] + '\n')
+  with open('string_ext.dat','w') as fh:
+    b64_ext = base64.b64encode(ext_s)
+    for i in range(0, len(b64_ext), 80):
+      fh.write(b64_ext[i:i+80] + '\n')
 
-  # print base64.b64encode(ecc)
-  # print len(extracted_b64s)
+  print len(s)
+  print len(ext_s)
+  errors = 0
+  for i, val in enumerate(ext_s):
+    if i >= len(s) - 1:
+      errors += (len(ext_s) - len(s))
+      break
+    if val != s[i]:
+      errors += 1
+  print 'Errors', errors
+  # print len(b64s)
 
   # extracted_bin = coder.decode(extracted_b64s)
   # print codec.decode_base64(read_im)
