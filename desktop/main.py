@@ -15,6 +15,10 @@ from PIL import Image
 from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
 import gflags
 
+logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                    format = '%(asctime)-15s %(levelname)8s %(module)s '\
+                      '%(threadName)10s %(thread)16d %(lineno)4d %(message)s')
+
 FLAGS = gflags.FLAGS
 gflags.DEFINE_float('hw_ratio', 1.33, 'height/width ratio', short_name = 'r')
 gflags.DEFINE_integer('quality', 95,
@@ -37,8 +41,8 @@ def main(argv):
     print '%s\nUsage: %s ARGS\n%s' % (e, sys.argv[0], FLAGS)
     sys.exit(1)
 
-  ss = SymbolShape([[1, 1, 1, 1, 2, 2, 2, 2],
-                    [1, 1, 1, 1, 2, 2, 2, 2]])
+  ss = SymbolShape([[1, 1, 1, 2, 2, 2],
+                    [1, 1, 1, 2, 2, 2]])
   codec = Codec(ss, FLAGS.hw_ratio, Base64MessageSymbolCoder(),
                 Base64SymbolSignalCoder())
 
@@ -46,12 +50,12 @@ def main(argv):
   quality = FLAGS.quality
 
   data = randb64s(length)
-  #print ''.join(data)
   im = codec.encode(data)
   im.save('test.jpg',quality=quality)
   with open('test.jpg') as fh:
     fh.read()
-    print fh.tell(), fh.tell() / float(length)
+    logging.info('Encrypted image size: %d bytes.' % fh.tell())
+    logging.info('Encrypted image data expansion %.2f.' % (fh.tell() / float(length)))
 
   read_back_image = Image.open('test.jpg')
   extracted_data = codec.decode(read_back_image)
@@ -59,7 +63,11 @@ def main(argv):
   for i, datum in enumerate(data[:min(len(data), len(extracted_data))]):
     if datum != extracted_data[i]:
       errors += 1
+  if len(extracted_data) > len(data):
+    errors += len(extracted_data) - len(data)
   print 'Errors:', errors
+  #print LD(''.join(data), extracted_data)
+
 
 if __name__=='__main__':
   main(sys.argv)
