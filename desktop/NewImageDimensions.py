@@ -1,8 +1,6 @@
 #!/usr/bin/env python
-
 from math import ceil
 class NewImageDimensions(object):
-  # Instantiate object. Expected to have set hw_ratio
   symbol_height = None
   symbol_width = None
   _epsilon = .1
@@ -14,12 +12,19 @@ class NewImageDimensions(object):
 
   def _round_up(self, val):
     return int(ceil(val))
+
   def _round_down(self, val):
     return int(val)
 
   def _calculate_symbol_dims(self):
-    # xw = sqrt( ((r +- e)*bh*s) / bw )
-    # xh = S / xw
+    # TODO(tierney): The full solution to the problem of calculating symbol
+    # dimensions appears to be a quadratically constrained linear program. While
+    # these roundings and methods are suboptimal, in practice, things seem to be
+    # good enough for now. Improvements welcome :)
+
+    # Rounding basedon the following:
+    #   xw = sqrt( ((r +- e)*bh*s) / bw )
+    #   xh = S / xw
 
     # Plus calculations.
     num_symbols_wide = (((self.hw_ratio + self._epsilon) * \
@@ -39,6 +44,7 @@ class NewImageDimensions(object):
     minus_sym_width = self._round_up(num_symbols_wide)
     minus_sym_height = self._round_up(num_symbols_high)
 
+    # Optimize for minimizing blank panels.
     plus_diff = plus_sym_width - \
         (plus_sym_height - self.data_len % plus_sym_width)
     minus_diff = minus_sym_width - \
