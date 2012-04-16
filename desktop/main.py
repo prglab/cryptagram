@@ -26,9 +26,10 @@ gflags.DEFINE_integer('quality', 95,
                         '100 disables quantization',
                       short_name = 'q')
 gflags.DEFINE_integer('data_length', 16, 'data size to use', short_name = 'l')
-
 gflags.DEFINE_integer('ecc_n', 128, 'codeword length', short_name = 'n')
 gflags.DEFINE_integer('ecc_k', 64, 'message byte length', short_name = 'k')
+
+gflags.DEFINE_string('image', None, 'path to input image', short_name = 'i')
 
 def randb64s(n):
   values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
