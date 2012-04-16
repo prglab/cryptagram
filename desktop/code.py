@@ -4,7 +4,7 @@
 # python code.py --image ./maple.jpg --encrypted_image_quality 100 --scale 1 --block_size 2 --ecc
 
 from ECCoder import ECCoder
-from Crypto.Cipher import AES
+from Cipher import Cipher
 from PIL import Image, ImageDraw
 from tempfile import NamedTemporaryFile
 import PIL
@@ -64,44 +64,6 @@ gflags.RegisterValidator('ecc_k', lambda x: x > 0,
                          flag_values = FLAGS)
 
 gflags.MarkFlagAsRequired('password')
-
-
-class Cipher(object):
-  # the block size for the cipher object; must be 16, 24, or 32 for AES
-  BLOCK_SIZE = 32
-
-  # the character used for padding--with a block cipher such as AES, the value
-  # you encrypt must be a multiple of BLOCK_SIZE in length.  This character is
-  # used to ensure that your value is always a multiple of BLOCK_SIZE
-  PADDING = '{'
-
-  def __init__(self, password):
-    secret = self._pad(password)
-    self.cipher = AES.new(secret)
-
-  def _pad(self, s):
-    if len(s) == self.BLOCK_SIZE:
-      return s
-    return s + (self.BLOCK_SIZE - len(s) % self.BLOCK_SIZE) * self.PADDING
-
-  def encode(self, message):
-    return base64.b64encode(self.cipher.encrypt(self._pad(message)))
-
-  def decode(self, encoded):
-    try:
-      b64decoded = base64.b64decode(encoded)
-      logging.info('b64decoded len: %d.' % len(b64decoded))
-    except TypeError, e:
-      logging.error('Incorrect padding (%d): %s.' % (len(encoded), str(e)))
-      return ''
-
-    try:
-      return self.cipher.decrypt(b64decoded).rstrip(self.PADDING)
-    except ValueError, e:
-      logging.error('Encoded string wrong length (%d, %d): %s.' % \
-                      (len(encoded), len(b64decoded), str(e)))
-      return ''
-
 
 class SeeMeNotImage(threading.Thread):
   image = None
