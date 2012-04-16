@@ -1,15 +1,6 @@
-* Develop a module that receives
-
-o typed data
-o color space
-o color space discretization
-o block size OR expected subsampling
-
-Due to subsampling, we should build blocks vertically.
-
- o Captures the #blocks, block shape, and block position.
-
-[[1 2 2],
- [1 0 2]]
-
-
+o Add encrypt, decrypt features to main.
+o Implement image processing from main.
+o Automatically choose optimal resize/recompression value for given jpeg images.
+o Drag and drop...
+  o multiple image paths from CLI main.
+  o GUIed version.
