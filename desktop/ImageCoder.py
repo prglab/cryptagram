@@ -3,16 +3,16 @@ from util import bsearch, average
 
 class SymbolSignalCoder(object):
   thresholds = {}
-  def symbol_to_fill(self, symbol_val):
+  def symbol_to_signal(self, symbol_val):
     pass
-  def fill_to_symbol(self, values):
+  def signal_to_symbol(self, values):
     pass
 
 class MessageSymbolCoder(object):
   encoding = None
-  def encoding_to_shapes(self, index):
+  def message_to_symbol(self, index):
     pass
-  def shapes_to_encoding(self, values):
+  def symbol_to_message(self, values):
     pass
 
 class Base64SymbolSignalCoder(SymbolSignalCoder):
@@ -30,10 +30,10 @@ class Base64SymbolSignalCoder(SymbolSignalCoder):
 
   _inv_thresholds = dict((v,k) for k, v in thresholds.iteritems())
 
-  def symbol_to_fill(self, symbol_val):
+  def symbol_to_signal(self, symbol_val):
     return self.thresholds[symbol_val]
 
-  def fill_to_symbol(self, values):
+  def signal_to_symbol(self, values):
     ret = []
     for sym_i in values:
       sym_values = values.get(sym_i)
@@ -47,12 +47,12 @@ class Base64MessageSymbolCoder(MessageSymbolCoder):
   encoding = 'base64'
   values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
-  def encoding_to_shapes(self, char):
+  def message_to_symbol(self, char):
     index = self.values.find(char)
     octal_val = '%02s' % oct(index)[1:]
     return list(octal_val.replace(' ','0'))
 
-  def shapes_to_encoding(self, values):
+  def symbol_to_message(self, values):
     assert len(values) == 2
     if values[0] == 8 or values[1] == 8:
       return ''

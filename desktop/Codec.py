@@ -4,12 +4,12 @@ from NewImageDimensions import NewImageDimensions
 from PIL import Image
 
 class Codec(object):
-  def __init__(self, symbol_shape, original_hw_ratio, encoding_shape_translator,
-               symbol_fill_translator):
+  def __init__(self, symbol_shape, original_hw_ratio, message_symbol_coder,
+               symbol_signal_coder):
     self.symbol_shape = symbol_shape
     self.original_hw_ratio = original_hw_ratio
-    self.encoding_shape_translator = encoding_shape_translator
-    self.symbol_fill_translator = symbol_fill_translator
+    self.message_symbol_coder = message_symbol_coder
+    self.symbol_signal_coder = symbol_signal_coder
 
   def encode(self, data):
     data_len = len(data)
@@ -29,14 +29,14 @@ class Codec(object):
     for i, datum in enumerate(data):
       y_coord = int(i / float(new_image_symbol_width))
       x_coord = int(i - (y_coord * new_image_symbol_width))
-      symbol_values = self.encoding_shape_translator.encoding_to_shapes(datum)
+      symbol_values = self.message_symbol_coder.message_to_symbol(datum)
       assert (len(symbol_values) == self.symbol_shape.get_num_symbol_shapes())
 
       base_x = x_coord * shape_width
       base_y = y_coord * shape_height
 
       for sym_i, symbol_val in enumerate(symbol_values):
-        fill = self.symbol_fill_translator.symbol_to_fill(symbol_val)
+        fill = self.symbol_signal_coder.symbol_to_signal(symbol_val)
         coords = self.symbol_shape.get_symbol_shape_coords(sym_i + 1)
         for x,y in coords:
           pixel[base_x + x, base_y + y] = (fill, fill, fill)
@@ -58,7 +58,7 @@ class Codec(object):
           for x,y in coords:
             values[symbol_val][(x,y)] = pixels[x_coord + x, y_coord + y]
 
-        extracted_datum = self.encoding_shape_translator.shapes_to_encoding(
-          self.symbol_fill_translator.fill_to_symbol(values))
+        extracted_datum = self.message_symbol_coder.symbol_to_message(
+          self.symbol_signal_coder.signal_to_symbol(values))
         extracted_data += extracted_datum
     return extracted_data
