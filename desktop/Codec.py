@@ -18,6 +18,7 @@ class Codec(object):
 
   def set_wh_ratio(self, wh_ratio):
     assert wh_ratio > 0
+    logging.info('New wh ratio: %.2f.' % wh_ratio)
     self.wh_ratio = wh_ratio
 
   def get_prospective_image_dimensions(self, data):
