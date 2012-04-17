@@ -62,12 +62,9 @@ class Encrypt(object):
     with open(image_path, 'rb') as fh:
       raw_image_file_data = fh.read()
     base64_image_file_data = base64.b64encode(raw_image_file_data)
-
-    # Remove base64 artifacts.
-    base64_image_file_data = base64_image_file_data.replace('=','')
     encrypted_data = self.cipher.encode(base64_image_file_data)
+    # Remove base64 artifacts.
     return encrypted_data.replace('=','')
-    # return encrypted_data
 
   def _reduce_image_quality(self, image_path):
     im = Image.open(image_path)
@@ -83,6 +80,9 @@ class Encrypt(object):
       new_image_path = fh.name + '.jpg'
       im = im.resize((int(width * scale), int(height * scale)))
       width, height = im.size
+      # Update codec with the new width, height ratio.
+      self.codec.set_wh_ratio(width / float(height))
+
       im.save(new_image_path, quality=77)
     return new_image_path
 
@@ -101,17 +101,19 @@ class Encrypt(object):
         encrypted_data)
       if width <= dimension_limit and height <= dimension_limit:
         break
-      logging.info('Dimensions too large (w: %d, h: %d). Requality to '\
-                     'reduce data size.' % (width, height))
+      logging.info('Dimensions too large (w: %d, h: %d).' % (width, height))
 
       # Strategies to reduce raw bytes that we need to encrypt: requality,
       # rescale.
       if requality_count < requality_limit:
+        logging.info('Requality image.')
         _image_path = self._reduce_image_quality(_image_path)
         requality_count += 1
       else:
-        _image_path = self._reduce_image_size(_image_path, 0.9)
         rescale_count += 1
+        logging.info('Rescale with original image.')
+        _image_path = self._reduce_image_size(self.image_path,
+                                              1.0-(0.1 * rescale_count))
     return encrypted_data
 
   def encrypt(self):
@@ -130,8 +132,12 @@ def main(argv):
     print '%s\nUsage: %s ARGS\n%s' % (e, sys.argv[0], FLAGS)
     sys.exit(1)
 
+  four_square = SymbolShape([[1, 1, 1, 1, 2, 2, 2, 2],
+                             [1, 1, 1, 1, 2, 2, 2, 2],
+                             [1, 1, 1, 1, 2, 2, 2, 2],
+                             [1, 1, 1, 1, 2, 2, 2, 2]])
+
   three_square = SymbolShape([[1, 1, 1, 2, 2, 2],
-                              [1, 1, 1, 2, 2, 2],
                               [1, 1, 1, 2, 2, 2],
                               [1, 1, 1, 2, 2, 2]])
 
@@ -140,7 +146,10 @@ def main(argv):
 
   two_square = SymbolShape([[1, 1, 2, 2],
                             [1, 1, 2, 2]])
-  ss = two_square
+
+  one_square = SymbolShape([[1, 2]])
+
+  ss = four_square
 
   wh_ratio = FLAGS.wh_ratio
   length = FLAGS.data_length
@@ -167,7 +176,6 @@ def main(argv):
 
     crypto = Encrypt(FLAGS.image, codec, cipher)
     encrypted_data = crypto.upload_encrypt()
-
     logging.info('Encrypted data length: %d.' % len(encrypted_data))
     im = codec.encode(encrypted_data)
 
@@ -198,32 +206,34 @@ def main(argv):
 
   binary_decoding = codec.decode(read_back_image)
 
+  if FLAGS.encrypt and FLAGS.decrypt:
+    logging.info('Byte for byte diff: %d.' % \
+                   byte_for_byte_compare(encrypted_data, binary_decoding))
+
   # Required "un"-filtering to base64 data.
   def _base64_pad(s):
     mod = len(s) % 4
     if mod == 0: return s
     return s + (4 - mod) * '='
-  padded_decoding = _base64_pad(binary_decoding)
 
+  padded_decoding = _base64_pad(binary_decoding)
   decrypted_decoded = cipher.decode(padded_decoding)
   extracted_data = base64.b64decode(decrypted_decoded)
+
   if FLAGS.image and FLAGS.decrypt:
     with open(FLAGS.decrypt, 'wb') as fh:
       fh.write(extracted_data)
     logging.info('Saved decrypted file: %s.' % FLAGS.decrypt)
 
-  if not FLAGS.encrypt or not FLAGS.decrypt:
-    return
 
-  print orig_data == extracted_data
+def byte_for_byte_compare(a, b):
   errors = 0
-  for i, datum in enumerate(orig_data[:min(len(orig_data),
-                                           len(extracted_data))]):
-    if datum != extracted_data[i]:
+  for i, datum in enumerate(a[:min(len(a), len(b))]):
+    if datum != b[i]:
       errors += 1
-  if len(extracted_data) > len(orig_data):
-    errors += len(extracted_data) - len(orig_data)
-  print 'Errors:', errors
+  if len(b) > len(a):
+    errors += len(b) - len(a)
+  return errors
 
 if __name__=='__main__':
   main(sys.argv)
