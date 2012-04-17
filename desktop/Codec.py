@@ -1,4 +1,4 @@
-#!/usr/bin/en python
+#!/usr/bin/env python
 import logging
 from NewImageDimensions import NewImageDimensions
 from PIL import Image
