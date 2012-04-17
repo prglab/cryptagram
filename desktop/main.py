@@ -66,7 +66,8 @@ class Encrypt(object):
     # Remove base64 artifacts.
     base64_image_file_data = base64_image_file_data.replace('=','')
     encrypted_data = self.cipher.encode(base64_image_file_data)
-    return encrypted_data
+    return encrypted_data.replace('=','')
+    # return encrypted_data
 
   def _reduce_image_quality(self, image_path):
     im = Image.open(image_path)
@@ -79,15 +80,22 @@ class Encrypt(object):
     im = Image.open(image_path)
     width, height = im.size
     with NamedTemporaryFile() as fh:
-
       new_image_path = fh.name + '.jpg'
+      im = im.resize((int(width * scale), int(height * scale)))
+      width, height = im.size
       im.save(new_image_path, quality=77)
     return new_image_path
 
-
   def upload_encrypt(self, dimension_limit = 2048):
     _image_path = self.image_path
+    requality_limit = 1
+    requality_count = 0
+    rescale_count = 0
+    logging.info('Encrypting image: %s.' % _image_path)
     while True:
+      _ = Image.open(_image_path)
+      _w, _h = _.size
+      logging.info('Cleartext image dimensions: (%d, %d).' % (_w, _h))
       encrypted_data = self._image_path_to_encrypted_data(_image_path)
       width, height = self.codec.get_prospective_image_dimensions(
         encrypted_data)
@@ -95,9 +103,15 @@ class Encrypt(object):
         break
       logging.info('Dimensions too large (w: %d, h: %d). Requality to '\
                      'reduce data size.' % (width, height))
-      # TODO(tierney): Strategy: Requality at most four times, then resort to
-      # resizing the requalitied image.
-      _image_path = self._reduce_image_quality(_image_path)
+
+      # Strategies to reduce raw bytes that we need to encrypt: requality,
+      # rescale.
+      if requality_count < requality_limit:
+        _image_path = self._reduce_image_quality(_image_path)
+        requality_count += 1
+      else:
+        _image_path = self._reduce_image_size(_image_path, 0.9)
+        rescale_count += 1
     return encrypted_data
 
   def encrypt(self):
@@ -105,7 +119,6 @@ class Encrypt(object):
     with open(self.image_path, 'rb') as fh:
       raw_image_file_data = fh.read()
     base64_image_file_data = base64.b64encode(raw_image_file_data)
-    base64_image_file_data = base64_image_file_data.replace('=','')
     encrypted_data = cipher.encode(base64_image_file_data)
     width, length = self.codec.get_prospective_image_dimensions()
 
