@@ -1,0 +1,18 @@
+{
+  "name" : "SeeMeNot Decoder",
+  "version" : "0.1",
+  "description" : "Decrypt SeeMeNot images",
+  "background" : {  	 
+	"matches": ["http://*/"],
+  	"scripts": ["background.js"] },
+  "permissions" : [
+    "contextMenus",
+    "tabs",
+    "http://*/"
+   ],
+  "minimum_chrome_version" : "6.0.0.0",
+  "icons" : {
+    "16" : "icon.png"
+   },
+  "manifest_version": 2
+}
