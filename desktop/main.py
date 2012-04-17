@@ -7,12 +7,12 @@
 
 import base64
 import numpy
-import random
 import sys
 import logging
 from tempfile import NamedTemporaryFile
 from Cipher import Cipher
-from SymbolShape import SymbolShape
+from SymbolShape import SymbolShape, four_square, three_square, two_square, \
+    one_square, two_by_four
 from Codec import Codec
 from PIL import Image
 from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
@@ -25,15 +25,14 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO,
 FLAGS = gflags.FLAGS
 gflags.DEFINE_float('wh_ratio', 1.33, 'height/width ratio', short_name = 'r')
 gflags.DEFINE_integer('quality', 95,
-                      'quality to save encrypted image in range (0,95]. '\
-                        '100 disables quantization',
+                      'quality to save encrypted image in range (0,95]. ',
                       short_name = 'q')
-gflags.DEFINE_integer('data_length', 16, 'data size to use', short_name = 'l')
 gflags.DEFINE_integer('ecc_n', 128, 'codeword length', short_name = 'n')
 gflags.DEFINE_integer('ecc_k', 64, 'message byte length', short_name = 'k')
 gflags.DEFINE_string('password', None, 'Password to encrypt image with.',
                      short_name = 'p')
-
+gflags.DEFINE_string('symbol_shape', 'two_by_four', 'symbol shape to use',
+                     short_name ='s')
 gflags.DEFINE_string('image', None, 'path to input image', short_name = 'i')
 gflags.DEFINE_string('encrypt', None, 'encrypted image output filename',
                      short_name = 'e')
@@ -42,12 +41,13 @@ gflags.DEFINE_string('decrypt', None, 'decrypted image output filename',
 
 gflags.MarkFlagAsRequired('password')
 
-def randstr(n):
-  return ''.join(map(chr, map(random.randrange, [0]*n, [127]*n)))
-
-def randb64s(n):
-  values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-  return ''.join([values[i] for i in map(random.randrange,[0]*n,[63]*n)])
+_AVAILABLE_SHAPES = {
+  'four_square' : four_square,
+  'three_square': three_square,
+  'two_square' : two_square,
+  'one_square' : one_square,
+  'two_by_four' : two_by_four,
+}
 
 class Encrypt(object):
   def __init__(self, image_path, codec, cipher):
@@ -132,31 +132,13 @@ def main(argv):
     print '%s\nUsage: %s ARGS\n%s' % (e, sys.argv[0], FLAGS)
     sys.exit(1)
 
-  four_square = SymbolShape([[1, 1, 1, 1, 2, 2, 2, 2],
-                             [1, 1, 1, 1, 2, 2, 2, 2],
-                             [1, 1, 1, 1, 2, 2, 2, 2],
-                             [1, 1, 1, 1, 2, 2, 2, 2]])
-
-  three_square = SymbolShape([[1, 1, 1, 2, 2, 2],
-                              [1, 1, 1, 2, 2, 2],
-                              [1, 1, 1, 2, 2, 2]])
-
-  two_by_fours = SymbolShape([[1, 1, 1, 1, 2, 2, 2, 2],
-                              [1, 1, 1, 1, 2, 2, 2, 2]])
-
-  two_square = SymbolShape([[1, 1, 2, 2],
-                            [1, 1, 2, 2]])
-
-  one_square = SymbolShape([[1, 2]])
-
-  ss = four_square
+  symbol_shape = _AVAILABLE_SHAPES[FLAGS.symbol_shape]
 
   wh_ratio = FLAGS.wh_ratio
-  length = FLAGS.data_length
   quality = FLAGS.quality
 
   cipher = Cipher(FLAGS.password)
-  codec = Codec(ss, wh_ratio, Base64MessageSymbolCoder(),
+  codec = Codec(symbol_shape, wh_ratio, Base64MessageSymbolCoder(),
                 Base64SymbolSignalCoder())
 
   if FLAGS.image and FLAGS.encrypt:
@@ -201,7 +183,7 @@ def main(argv):
     read_back_image = Image.open(FLAGS.image)
     _width, _height = read_back_image.size
     wh_ratio = _width / float(_height)
-    codec = Codec(ss, wh_ratio, Base64MessageSymbolCoder(),
+    codec = Codec(symbol_shape, wh_ratio, Base64MessageSymbolCoder(),
                   Base64SymbolSignalCoder())
 
   binary_decoding = codec.decode(read_back_image)

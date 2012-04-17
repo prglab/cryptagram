@@ -68,3 +68,19 @@ class SymbolShape(object):
         self._index_map[index].add((x,y))
 
 
+four_square = SymbolShape([[1, 1, 1, 1, 2, 2, 2, 2],
+                           [1, 1, 1, 1, 2, 2, 2, 2],
+                           [1, 1, 1, 1, 2, 2, 2, 2],
+                           [1, 1, 1, 1, 2, 2, 2, 2]])
+
+three_square = SymbolShape([[1, 1, 1, 2, 2, 2],
+                            [1, 1, 1, 2, 2, 2],
+                            [1, 1, 1, 2, 2, 2]])
+
+two_by_four = SymbolShape([[1, 1, 1, 1, 2, 2, 2, 2],
+                           [1, 1, 1, 1, 2, 2, 2, 2]])
+
+two_square = SymbolShape([[1, 1, 2, 2],
+                          [1, 1, 2, 2]])
+
+one_square = SymbolShape([[1, 2]])
