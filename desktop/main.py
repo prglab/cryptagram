@@ -10,6 +10,7 @@ import numpy
 import random
 import sys
 import logging
+from tempfile import NamedTemporaryFile
 from Cipher import Cipher
 from SymbolShape import SymbolShape
 from Codec import Codec
@@ -48,6 +49,67 @@ def randb64s(n):
   values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
   return ''.join([values[i] for i in map(random.randrange,[0]*n,[63]*n)])
 
+class Encrypt(object):
+  def __init__(self, image_path, codec, cipher):
+    self.image_path = image_path
+    self.codec = codec
+    self.cipher = cipher
+
+  def _adjust_for_limit(self, dimension_limit):
+    pass
+
+  def _image_path_to_encrypted_data(self, image_path):
+    with open(image_path, 'rb') as fh:
+      raw_image_file_data = fh.read()
+    base64_image_file_data = base64.b64encode(raw_image_file_data)
+
+    # Remove base64 artifacts.
+    base64_image_file_data = base64_image_file_data.replace('=','')
+    encrypted_data = self.cipher.encode(base64_image_file_data)
+    return encrypted_data
+
+  def _reduce_image_quality(self, image_path):
+    im = Image.open(image_path)
+    with NamedTemporaryFile() as fh:
+      new_image_path = fh.name + '.jpg'
+      im.save(new_image_path, quality=77)
+    return new_image_path
+
+  def _reduce_image_size(self, image_path, scale):
+    im = Image.open(image_path)
+    width, height = im.size
+    with NamedTemporaryFile() as fh:
+
+      new_image_path = fh.name + '.jpg'
+      im.save(new_image_path, quality=77)
+    return new_image_path
+
+
+  def upload_encrypt(self, dimension_limit = 2048):
+    _image_path = self.image_path
+    while True:
+      encrypted_data = self._image_path_to_encrypted_data(_image_path)
+      width, height = self.codec.get_prospective_image_dimensions(
+        encrypted_data)
+      if width <= dimension_limit and height <= dimension_limit:
+        break
+      logging.info('Dimensions too large (w: %d, h: %d). Requality to '\
+                     'reduce data size.' % (width, height))
+      # TODO(tierney): Strategy: Requality at most four times, then resort to
+      # resizing the requalitied image.
+      _image_path = self._reduce_image_quality(_image_path)
+    return encrypted_data
+
+  def encrypt(self):
+    image = Image.open(self.image_path)
+    with open(self.image_path, 'rb') as fh:
+      raw_image_file_data = fh.read()
+    base64_image_file_data = base64.b64encode(raw_image_file_data)
+    base64_image_file_data = base64_image_file_data.replace('=','')
+    encrypted_data = cipher.encode(base64_image_file_data)
+    width, length = self.codec.get_prospective_image_dimensions()
+
+
 def main(argv):
   try:
     argv = FLAGS(argv)  # parse flags
@@ -55,39 +117,47 @@ def main(argv):
     print '%s\nUsage: %s ARGS\n%s' % (e, sys.argv[0], FLAGS)
     sys.exit(1)
 
-  ss = SymbolShape([[1, 1, 1, 1, 2, 2, 2, 2],
-                    [1, 1, 1, 1, 2, 2, 2, 2]])
+  three_square = SymbolShape([[1, 1, 1, 2, 2, 2],
+                              [1, 1, 1, 2, 2, 2],
+                              [1, 1, 1, 2, 2, 2],
+                              [1, 1, 1, 2, 2, 2]])
+
+  two_by_fours = SymbolShape([[1, 1, 1, 1, 2, 2, 2, 2],
+                              [1, 1, 1, 1, 2, 2, 2, 2]])
+
+  two_square = SymbolShape([[1, 1, 2, 2],
+                            [1, 1, 2, 2]])
+  ss = two_square
+
   wh_ratio = FLAGS.wh_ratio
   length = FLAGS.data_length
   quality = FLAGS.quality
 
   cipher = Cipher(FLAGS.password)
-
-  # Get data.
-  orig_data = randstr(int(length * .75))
+  codec = Codec(ss, wh_ratio, Base64MessageSymbolCoder(),
+                Base64SymbolSignalCoder())
 
   if FLAGS.image and FLAGS.encrypt:
-    logging.info('Opening image to encrypt: %s.' % FLAGS.image)
+    logging.info('Image to encrypt: %s.' % FLAGS.image)
+
+    # Update codec based on wh_ratio from given image.
     _image = Image.open(FLAGS.image)
     _width, _height = _image.size
     wh_ratio = _width / float(_height)
+    codec.set_wh_ratio(wh_ratio)
+
+    # Determine file size.
     with open(FLAGS.image,'rb') as fh:
       orig_data = fh.read()
       length = fh.tell()
       logging.info('Image filesize: %d bytes.' % length)
 
-  b64data = base64.b64encode(orig_data)
-  codec = Codec(ss, wh_ratio, Base64MessageSymbolCoder(),
-                Base64SymbolSignalCoder())
+    crypto = Encrypt(FLAGS.image, codec, cipher)
+    encrypted_data = crypto.upload_encrypt()
 
-  if FLAGS.encrypt:
-    data = cipher.encode(b64data)
-    # Required filtering on base64 data.
-    data = data.replace('=','')
-    logging.info('Data length: %d.' % len(data))
-    im = codec.encode(data)
+    logging.info('Encrypted data length: %d.' % len(encrypted_data))
+    im = codec.encode(encrypted_data)
 
-  if FLAGS.image and FLAGS.encrypt:
     logging.info('Saving encrypted jpeg with quality %d.' % quality)
     im.save(FLAGS.encrypt, quality=quality)
     with open(FLAGS.encrypt) as fh:

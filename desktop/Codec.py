@@ -4,19 +4,23 @@ from NewImageDimensions import NewImageDimensions
 from PIL import Image
 
 class Codec(object):
-  def __init__(self, symbol_shape, original_hw_ratio, message_symbol_coder,
+  def __init__(self, symbol_shape, wh_ratio, message_symbol_coder,
                symbol_signal_coder):
     self.symbol_shape = symbol_shape
-    self.original_hw_ratio = original_hw_ratio
+    self.wh_ratio = wh_ratio
     self.message_symbol_coder = message_symbol_coder
     self.symbol_signal_coder = symbol_signal_coder
 
   def _new_image_dimensions(self, data):
     data_len = len(data)
     self.new_image_dimensions = NewImageDimensions(
-      self.original_hw_ratio, data_len, self.symbol_shape)
+      self.wh_ratio, data_len, self.symbol_shape)
 
-  def check_dimensions(self, data):
+  def set_wh_ratio(self, wh_ratio):
+    assert wh_ratio > 0
+    self.wh_ratio = wh_ratio
+
+  def get_prospective_image_dimensions(self, data):
     self._new_image_dimensions(data)
     return self.new_image_dimensions.get_image_dimensions()
 
