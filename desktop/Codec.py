@@ -11,10 +11,17 @@ class Codec(object):
     self.message_symbol_coder = message_symbol_coder
     self.symbol_signal_coder = symbol_signal_coder
 
-  def encode(self, data):
+  def _new_image_dimensions(self, data):
     data_len = len(data)
     self.new_image_dimensions = NewImageDimensions(
       self.original_hw_ratio, data_len, self.symbol_shape)
+
+  def check_dimensions(self, data):
+    self._new_image_dimensions(data)
+    return self.new_image_dimensions.get_image_dimensions()
+
+  def encode(self, data):
+    self._new_image_dimensions(data)
 
     new_image_width, new_image_height = \
         self.new_image_dimensions.get_image_dimensions()
