@@ -1,0 +1,6 @@
+o Add encrypt, decrypt features to main.
+o Implement image processing from main.
+o Automatically choose optimal resize/recompression value for given jpeg images.
+o Drag and drop...
+  o multiple image paths from CLI main.
+  o GUIed version.
