@@ -10,7 +10,9 @@ import numpy
 import sys
 import logging
 from tempfile import NamedTemporaryFile
-from Cipher import Cipher
+from Cipher import V8Cipher as Cipher
+from json import JSONEncoder, JSONDecoder
+
 from SymbolShape import SymbolShape, four_square, three_square, two_square, \
     one_square, two_by_four
 from Codec import Codec
@@ -63,8 +65,15 @@ class Encrypt(object):
       raw_image_file_data = fh.read()
     base64_image_file_data = base64.b64encode(raw_image_file_data)
     encrypted_data = self.cipher.encode(base64_image_file_data)
+
+    print encrypted_data
+
+    # TODO(tierney): Strictly using V8Cipher in this code.
+    encrypted_data = encrypted_data['iv'] + encrypted_data['salt'] + \
+        encrypted_data['ct']
+
     # Remove base64 artifacts.
-    return encrypted_data.replace('=','')
+    return encrypted_data #.replace('=','')
 
   def _reduce_image_quality(self, image_path):
     im = Image.open(image_path)
@@ -198,8 +207,17 @@ def main(argv):
     if mod == 0: return s
     return s + (4 - mod) * '='
 
-  padded_decoding = _base64_pad(binary_decoding)
-  decrypted_decoded = cipher.decode(padded_decoding)
+  # padded_decoding = _base64_pad(binary_decoding)
+  _pad = 3
+
+  _iv = binary_decoding[0:22]
+  _salt = binary_decoding[22:33]
+  _ct = binary_decoding[33:]
+  decoded = {'iv': _iv, 'salt': _salt, 'ct': _ct}
+  print decoded
+  json_str = JSONEncoder().encode(decoded)
+
+  decrypted_decoded = cipher.decode(json_str)
   extracted_data = base64.b64decode(decrypted_decoded)
 
   if FLAGS.image and FLAGS.decrypt:
