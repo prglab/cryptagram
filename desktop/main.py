@@ -66,8 +66,6 @@ class Encrypt(object):
     base64_image_file_data = base64.b64encode(raw_image_file_data)
     encrypted_data = self.cipher.encode(base64_image_file_data)
 
-    print encrypted_data
-
     # TODO(tierney): Strictly using V8Cipher in this code.
     encrypted_data = encrypted_data['iv'] + encrypted_data['salt'] + \
         encrypted_data['ct']
@@ -214,7 +212,6 @@ def main(argv):
   _salt = binary_decoding[22:33]
   _ct = binary_decoding[33:]
   decoded = {'iv': _iv, 'salt': _salt, 'ct': _ct}
-  print decoded
   json_str = JSONEncoder().encode(decoded)
 
   decrypted_decoded = cipher.decode(json_str)
