@@ -1,0 +1,31 @@
+{
+  "name": "Chrome Pyjamas",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description": "The first extension that I made.",
+  "background": {
+      "matches": ["http://*/"],
+      "page": "SeeMeNot.html"
+  },
+  "content_scripts" : [
+    {
+      "matches": ["http://*/*",
+                  "http://*/"],
+      "js": [
+        "contentscript.js",
+        "sjcl.js"
+      ]
+    }
+  ],
+  "permissions": [
+    "contextMenus",
+    "tabs",
+    "http://*/",
+    "http://api.flikr.com/*"
+  ],
+  "web_accessible_resources": [
+    "SeeMeNot.safari.cache.html",
+    "SeeMeNot.nocache.html",
+    "history.html"
+  ]
+}
