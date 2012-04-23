@@ -10,13 +10,13 @@ all:
 	python post-process-pyjsbuild-html.py output/SeeMeNot.safari.cache.html
 	python post-process-pyjsbuild-html.py output/history.html
 
-	@echo
-	@echo Beautifying javascript for debugging.
-	for js_file in output/*.js;	\
-	do \
-		js-beautify -s 2 -j -o $$js_file.tmp $$js_file; \
-		mv $$js_file.tmp $$js_file; \
-	done
+	# @echo
+	# @echo Beautifying javascript for debugging.
+	# for js_file in output/*.js;	\
+	# do \
+	# 	js-beautify -s 2 -j -o $$js_file.tmp $$js_file; \
+	# 	mv $$js_file.tmp $$js_file; \
+	# done
 
 	@echo
 	@echo Copying extension-related files.
