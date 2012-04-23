@@ -14,7 +14,7 @@ from Cipher import V8Cipher as Cipher
 from json import JSONEncoder, JSONDecoder
 
 from SymbolShape import SymbolShape, four_square, three_square, two_square, \
-    one_square, two_by_four, two_by_three
+    one_square, two_by_four, two_by_three, two_by_one
 from Codec import Codec
 from PIL import Image
 from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
@@ -50,6 +50,7 @@ _AVAILABLE_SHAPES = {
   'one_square' : one_square,
   'two_by_four' : two_by_four,
   'two_by_three' : two_by_three,
+  'two_by_one' : two_by_one,
 }
 
 class Encrypt(object):
@@ -121,7 +122,7 @@ class Encrypt(object):
         rescale_count += 1
         logging.info('Rescale with original image.')
         _image_path = self._reduce_image_size(self.image_path,
-                                              1.0-(0.1 * rescale_count))
+                                              1.0-(0.05 * rescale_count))
     return encrypted_data
 
   def encrypt(self):
