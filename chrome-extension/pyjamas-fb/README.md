@@ -12,4 +12,4 @@ To clean up (remove) built files:
 
 * js-beautify (https://github.com/einars/js-beautify)
 * pyjamas (http://pyjs.org/)
-
+* pyv8 (http://code.google.com/p/pyv8/)
