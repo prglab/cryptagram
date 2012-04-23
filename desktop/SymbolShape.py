@@ -80,6 +80,9 @@ three_square = SymbolShape([[1, 1, 1, 2, 2, 2],
 two_by_four = SymbolShape([[1, 1, 1, 1, 2, 2, 2, 2],
                            [1, 1, 1, 1, 2, 2, 2, 2]])
 
+two_by_three = SymbolShape([[1, 1, 1, 2, 2, 2],
+                            [1, 1, 1, 2, 2, 2]])
+
 two_square = SymbolShape([[1, 1, 2, 2],
                           [1, 1, 2, 2]])
 
