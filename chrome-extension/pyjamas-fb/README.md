@@ -2,11 +2,11 @@
 
 To build the extension:
 
-  make
+    make
 
 To clean up (remove) built files:
 
-  make clean
+    make clean
 
 ## Requirements ##
 
