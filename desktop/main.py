@@ -14,7 +14,7 @@ from Cipher import V8Cipher as Cipher
 from json import JSONEncoder, JSONDecoder
 
 from SymbolShape import SymbolShape, four_square, three_square, two_square, \
-    one_square, two_by_four
+    one_square, two_by_four, two_by_three
 from Codec import Codec
 from PIL import Image
 from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
@@ -49,6 +49,7 @@ _AVAILABLE_SHAPES = {
   'two_square' : two_square,
   'one_square' : one_square,
   'two_by_four' : two_by_four,
+  'two_by_three' : two_by_three,
 }
 
 class Encrypt(object):
