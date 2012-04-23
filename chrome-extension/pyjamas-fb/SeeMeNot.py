@@ -76,7 +76,7 @@ function mylocalfunction(window) {
             var datalength = imageData.data.length;
 
             @{{imageDataArray}} = new Array();
-            for (var j = 0; j < datalength; j++) {
+            for (var j = 0; j < datalength / 4; j++) {
               @{{imageDataArray}}.push(imageData.data[j]);
             }
           }
@@ -108,7 +108,7 @@ function mylocalfunction(window) {
           red, green, blue, white = (
             imageDataArray.pop(), imageDataArray.pop(), imageDataArray.pop(),
             imageDataArray.pop())
-          pixels[_h].append((red, green, blue))
+          pixels[_h].append(red)
 
       print 'Pixel matrix set.'
       shape_width, shape_height = self.symbol_shape.get_shape_size()
