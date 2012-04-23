@@ -113,9 +113,11 @@ function mylocalfunction(window) {
       print 'Pixel matrix set.'
       shape_width, shape_height = self.symbol_shape.get_shape_size()
       extracted_data = ''
+      values = {}
       for y_coord in range(0, height, shape_height):
         for x_coord in range(0, width, shape_width):
-          values = {}
+          values.clear()
+
           for symbol_val in range(self.symbol_shape.get_num_symbol_shapes()):
             coords = self.symbol_shape.get_symbol_shape_coords(symbol_val+1)
             values[symbol_val] = {}
