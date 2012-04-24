@@ -2,7 +2,7 @@
 // item to getClickHandler
 
 chrome.contextMenus.create({
-    "title" : "Decrypt SeeMeNot",
+    "title" : "Decrypt Image",
     "type" : "normal",
     "contexts" : ["image"],
     "onclick" : getClickHandler()
