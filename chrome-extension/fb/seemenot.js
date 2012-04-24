@@ -1,13 +1,8 @@
 var URIHeader = "data:image/jpeg;base64,";
-var colors = ['#FFFFFF',  '#FF0000', '#00FF00', '#0000FF'];	
-
-var hexValues = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];	
-var lookup;
 var base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
 var blockSize = 2;
 
- 
+
  function createRequest() {
     var oHTTP = null;
     if (window.XMLHttpRequest) {
@@ -69,6 +64,64 @@ function arrayBufferDataUri(raw) {
 }
   
   
+  
+// Super hacks to fix various URLs for higher res images  
+function fixURL(URL) {
+	
+	 // Facebook
+	 if (URL.search("fbcdn.net") != -1) {
+	 	
+	 	// Already fullsize URL, just return
+	 	if (URL.search("_o.jpg") != -1) return URL;
+	
+		var FBURLParts = URL.split("/");
+		var FBFilename = FBURLParts[FBURLParts.length-1];
+		var FBFilenameParts = FBFilename.split("_");
+		var FBFileID = FBFilenameParts[1];
+		var FBAName = "pic_" + FBFileID;
+		var projectorA = document.getElementById(FBAName);
+		
+		// In projector mode
+		if (projectorA) {
+			
+			var ajax = projectorA.getAttribute("ajaxify");
+			
+			// Ajaxify parameter contains the full src, but escaped
+			if (ajax) {
+				var ajaxParts = ajax.split("&");
+				var escapedSrc = ajaxParts[3];
+				var escapedURL = escapedSrc.substring(4,escapedSrc.length);
+				var fullURL = unescape(escapedURL);
+				return fullURL;
+			}
+			
+		// Regular image page	
+		} else {
+			
+			var elements = document.getElementsByClassName('fbPhotosPhotoActionsItem');
+				
+			for (i = 0; i < elements.length; i++) {
+				var currentRef = elements[i].href;
+				if (currentRef.search("_o.jpg") != -1) {
+					return currentRef;
+				}	
+			}
+		}
+    }
+    
+    
+    // Google+
+    if (URL.search("googleusercontent.com") != -1) {
+    	GURLParts = URL.split("/");
+    	GURLParts[7] = "s0";
+    	return GURLParts.join("/");
+    }
+  
+    // Default is to keep it the same    
+	return URL;
+}  
+  
+  
 function getImageBinary(src, container) {
 
     var oHTTP = createRequest();
@@ -90,20 +143,14 @@ function getImageBinary(src, container) {
               oHTTP = null;
             }
           };
-      
-      // Need to swap for the full size image URL on Facebook
-      /*if (src.search("fbcdn.net") && src.search("_o.jpg")==-1) {
-       	var originalImage = src.substring(0,src.length - 5) + "o.jpg";
-      	src = originalImage;
-      }*/      
+       
+    src = fixURL(src);
       
 	oHTTP.open("GET", src, true);
 	if (oHTTP.overrideMimeType) oHTTP.overrideMimeType('text/plain; charset=x-user-defined');
 	oHTTP.send(null);
 	
 }
-
-
 
 
 
@@ -115,9 +162,10 @@ var lastReplace = "";
 
 
 function replaceImageBySrc(src) {
-	
+		
 	init();
 	var elements = document.getElementsByTagName('img');
+	
 	
 	for (i = 0; i < elements.length; i++) {
 		if (elements[i].src == src) {
@@ -133,7 +181,7 @@ function replaceImageBySrc(src) {
 
 chrome.extension.onRequest.addListener(
     function(request, sender, sendResponse) {
-  
+        
 	if (request.decodeURL) {
 	    replaceImageBySrc(request.decodeURL);
 	}
@@ -141,14 +189,8 @@ chrome.extension.onRequest.addListener(
     
     
 function init() {
+	
 
-    if (lookup != null) return;
-
-    // Create reverse associative array
-    lookup = new Array();
-    for (i = 0; i < hexValues.length; i++) {
-	lookup[hexValues[i]] = i;
-    }	
 }
 
 
