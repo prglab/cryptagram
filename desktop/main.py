@@ -17,8 +17,8 @@ from Tkinter import *
 from PIL import Image
 
 logging.basicConfig(level=logging.INFO,
-                    stream = sys.stdout,
-                    #filename='py2app.tierney.log',
+                    #stream = sys.stdout,
+                    filename='py2app.tierney.log',
                     format = '%(asctime)-15s %(levelname)8s %(module)10s '\
                       '%(threadName)10s %(thread)16d %(lineno)4d %(message)s')
 
@@ -107,7 +107,8 @@ class GuiCodec(object):
           errors += 1
         logging.info('Completed.')
 
-    self.status_bar.set('Done (%d %s).' % (errors, 'error' if errors == 1 else 'errors'))
+    self.status_bar.set('Done (%d %s).' % \
+                          (errors, 'error' if errors == 1 else 'errors'))
     logging.info('Done so quitting.')
 
 
