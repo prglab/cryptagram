@@ -1,12 +1,20 @@
 #!/usr/bin/env python
 import os
 import logging
+import shlex
+import subprocess
 import sys
 import time
 import threading
 
+from Cipher import V8Cipher as Cipher
+from Codec import Codec
+from SymbolShape import two_square
+from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
+from Encryptor import Encrypt
 import Tkinter as tk
 from Tkinter import *
+from PIL import Image
 
 logging.basicConfig(level=logging.INFO,
                     stream = sys.stdout,
@@ -31,10 +39,8 @@ class StatusBar(tk.Frame):
   def clear(self):
     self.variable.set('')
 
-class Codec(threading.Thread):
+class GuiCodec(object):
   def __init__(self, parent_frame, passed_values, status_bar):
-    threading.Thread.__init__(self)
-    self.daemon = True
     self.parent_frame = parent_frame
     self.passed_values = passed_values
     self.status_bar = status_bar
@@ -44,6 +50,41 @@ class Codec(threading.Thread):
     logging.info('Set password %s' % password)
     self.password = password
 
+  def _encrypt(self, image_path):
+    # Update codec based on wh_ratio from given image.
+    try:
+      _image = Image.open(image_path)
+    except IOError, e:
+      logging.error(str(e))
+      return -1
+    _width, _height = _image.size
+    wh_ratio = _width / float(_height)
+    codec = Codec(two_square, wh_ratio, Base64MessageSymbolCoder(),
+                  Base64SymbolSignalCoder())
+
+    # Determine file size.
+    with open(image_path, 'rb') as fh:
+      orig_data = fh.read()
+      length = fh.tell()
+      logging.info('Image filesize: %d bytes.' % length)
+
+    cipher = Cipher(self.password)
+    crypto = Encrypt(image_path, codec, cipher)
+    try:
+      encrypted_data = crypto.upload_encrypt()
+    except IOError, e:
+      logging.error(str(e))
+      return -1
+
+    logging.info('Encrypted data length: %d.' % len(encrypted_data))
+    im = codec.encode(encrypted_data)
+
+    quality = 95
+    logging.info('Saving encrypted jpeg with quality %d.' % quality)
+    with open(image_path + '.encrypted.jpg', 'w') as out_file:
+      im.save(out_file, quality=quality)
+    return 0
+
   def run(self):
     while True:
       if self.password:
@@ -52,15 +93,23 @@ class Codec(threading.Thread):
       time.sleep(1)
 
     logging.info('Got password')
+    errors = 0
     for passed_value in self.passed_values:
       if os.path.isdir(passed_value):
         self.status_bar.set(passed_value)
         logging.info('Treat %s like a directory.' % passed_value)
       else:
-        self.status_bar.set(passed_value)
-        logging.info('Treat %s like a file.' % passed_value)
+        self.status_bar.set('Encrypting %s...' % passed_value)
+        self.status_bar.update()
+        logging.info('Encrypting %s.' % passed_value)
+        ret = self._encrypt(passed_value)
+        if ret != 0:
+          errors += 1
+        logging.info('Completed.')
+
+    self.status_bar.set('Done (%d %s).' % (errors, 'error' if errors == 1 else 'errors'))
     logging.info('Done so quitting.')
-    self.parent_frame.done()
+
 
 class Application(Frame):
   def __init__(self, master=None, passed_values=None):
@@ -115,11 +164,9 @@ class Application(Frame):
   def print_contents(self, event):
     self.password = self.contents.get()
     logging.info("hi. contents of entry is now ----> %s" % self.password)
+    self.codec = GuiCodec(self, self.passed_values, self.sb)
     self.codec.set_password(self.password)
-
-  def codec_start(self):
-    self.codec = Codec(self, self.passed_values, self.sb)
-    self.codec.start()
+    self.codec.run()
 
   def done(self):
     logging.info('Done called')
@@ -138,7 +185,6 @@ def main(argv):
   root.geometry("%dx%d+%d+%d" % (rootsize + (x, y)))
 
   app = Application(master=root, passed_values = passed_values)
-  app.codec_start()
   app.mainloop()
   root.destroy()
 

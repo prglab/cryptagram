@@ -6,7 +6,6 @@
 # the last row will be unrecoverable especially if resizing is involved.
 
 import base64
-import numpy
 import sys
 import logging
 import os
@@ -14,6 +13,7 @@ from tempfile import NamedTemporaryFile
 from Cipher import V8Cipher as Cipher
 from json import JSONEncoder, JSONDecoder
 
+from Encryptor import Encrypt
 from SymbolShape import SymbolShape, four_square, three_square, two_square, \
     one_square, two_by_four, two_by_three, two_by_one
 from Codec import Codec
@@ -26,15 +26,12 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                       '%(threadName)10s %(thread)16d %(lineno)4d %(message)s')
 
 FLAGS = gflags.FLAGS
-gflags.DEFINE_float('wh_ratio', 1.33, 'height/width ratio', short_name = 'r')
 gflags.DEFINE_integer('quality', 95,
                       'quality to save encrypted image in range (0,95]. ',
                       short_name = 'q')
-gflags.DEFINE_integer('ecc_n', 128, 'codeword length', short_name = 'n')
-gflags.DEFINE_integer('ecc_k', 64, 'message byte length', short_name = 'k')
 gflags.DEFINE_string('password', None, 'Password to encrypt image with.',
                      short_name = 'p')
-gflags.DEFINE_string('symbol_shape', 'two_by_four', 'symbol shape to use',
+gflags.DEFINE_string('symbol_shape', 'two_square', 'symbol shape to use',
                      short_name ='s')
 gflags.DEFINE_string('image', None, 'path to input image', short_name = 'i')
 gflags.DEFINE_string('encrypt', None, 'encrypted image output filename',
@@ -54,99 +51,6 @@ _AVAILABLE_SHAPES = {
   'two_by_one' : two_by_one,
 }
 
-class Encrypt(object):
-  def __init__(self, image_path, codec, cipher):
-    self.image_path = image_path
-    self.codec = codec
-    self.cipher = cipher
-
-  def _adjust_for_limit(self, dimension_limit):
-    pass
-
-  def _image_path_to_encrypted_data(self, image_path):
-    with open(image_path, 'rb') as fh:
-      raw_image_file_data = fh.read()
-    base64_image_file_data = base64.b64encode(raw_image_file_data)
-    encrypted_data = self.cipher.encode(base64_image_file_data)
-
-    # TODO(tierney): Strictly using V8Cipher in this code.
-    encrypted_data = encrypted_data['iv'] + encrypted_data['salt'] + \
-        encrypted_data['ct']
-
-    # Remove base64 artifacts.
-    return encrypted_data #.replace('=','')
-
-  def _reduce_image_quality(self, image_path):
-    im = Image.open(image_path)
-    with NamedTemporaryFile() as fh:
-      new_image_path = fh.name + '.jpg'
-      im.save(new_image_path, quality=77)
-    return new_image_path
-
-  def _reduce_image_size(self, image_path, scale):
-    im = Image.open(image_path)
-    width, height = im.size
-    with NamedTemporaryFile() as fh:
-      new_image_path = fh.name + '.jpg'
-      im = im.resize((int(width * scale), int(height * scale)))
-      width, height = im.size
-      # Update codec with the new width, height ratio.
-      self.codec.set_wh_ratio(width / float(height))
-
-      im.save(new_image_path, quality=77)
-    return new_image_path
-
-  def upload_encrypt(self, dimension_limit = 2048):
-    _image_path = self.image_path
-    requality_limit = 1
-    requality_count = 0
-    rescale_count = 0
-    logging.info('Encrypting image: %s.' % _image_path)
-    while True:
-      _ = Image.open(_image_path)
-      _w, _h = _.size
-      logging.info('Cleartext image dimensions: (%d, %d).' % (_w, _h))
-      encrypted_data = self._image_path_to_encrypted_data(_image_path)
-      width, height = self.codec.get_prospective_image_dimensions(
-        encrypted_data)
-      if width <= dimension_limit and height <= dimension_limit:
-        break
-      logging.info('Dimensions too large (w: %d, h: %d).' % (width, height))
-
-      # Strategies to reduce raw bytes that we need to encrypt: requality,
-      # rescale.
-      if requality_count < requality_limit:
-        logging.info('Requality image.')
-        _image_path = self._reduce_image_quality(_image_path)
-        requality_count += 1
-      else:
-        rescale_count += 1
-        logging.info('Rescale with original image.')
-        _image_path = self._reduce_image_size(self.image_path,
-                                              1.0-(0.05 * rescale_count))
-    return encrypted_data
-
-  def encrypt(self):
-    image = Image.open(self.image_path)
-    with open(self.image_path, 'rb') as fh:
-      raw_image_file_data = fh.read()
-    base64_image_file_data = base64.b64encode(raw_image_file_data)
-    encrypted_data = cipher.encode(base64_image_file_data)
-    width, length = self.codec.get_prospective_image_dimensions()
-
-
-
-# def main(argv):
-#   logging.info(argv)
-
-#   passed_values = argv[1:]
-#   for passed_value in passed_values:
-#     if os.path.isdir(passed_value):
-#       logging.info('Treat %s like a directory.' % passed_value)
-#     else:
-#       logging.info('Treat %s like a file.' % passed_value)
-
-
 def main(argv):
   try:
     argv = FLAGS(argv)  # parse flags
@@ -155,13 +59,8 @@ def main(argv):
     sys.exit(1)
 
   symbol_shape = _AVAILABLE_SHAPES[FLAGS.symbol_shape]
-
-  wh_ratio = FLAGS.wh_ratio
   quality = FLAGS.quality
-
   cipher = Cipher(FLAGS.password)
-  codec = Codec(symbol_shape, wh_ratio, Base64MessageSymbolCoder(),
-                Base64SymbolSignalCoder())
 
   if FLAGS.image and FLAGS.encrypt:
     logging.info('Image to encrypt: %s.' % FLAGS.image)
@@ -170,7 +69,8 @@ def main(argv):
     _image = Image.open(FLAGS.image)
     _width, _height = _image.size
     wh_ratio = _width / float(_height)
-    codec.set_wh_ratio(wh_ratio)
+    codec = Codec(symbol_shape, wh_ratio, Base64MessageSymbolCoder(),
+                  Base64SymbolSignalCoder())
 
     # Determine file size.
     with open(FLAGS.image,'rb') as fh:
@@ -184,7 +84,9 @@ def main(argv):
     im = codec.encode(encrypted_data)
 
     logging.info('Saving encrypted jpeg with quality %d.' % quality)
-    im.save(FLAGS.encrypt, quality=quality)
+    with open(FLAGS.encrypt, 'w') as out_file:
+      im.save(out_file, quality=quality)
+
     with open(FLAGS.encrypt) as fh:
       fh.read()
       logging.info('Encrypted image size: %d bytes.' % fh.tell())
