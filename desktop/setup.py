@@ -14,11 +14,10 @@ if sys.platform == "win32":
 if sys.platform in ['linux2', 'win32']:
   from cx_Freeze import setup, Executable
   copyDependentFiles = True
-  includes = ['Crypto','gflags','PIL']
+  includes = ['Crypto','gflags','PIL','PyV8', 'Tkinter','encodings']
 
   # Dependencies are automatically detected, but it might need fine tuning.
   build_exe_options = {"packages": ["os"],
-                       "excludes": ["tkinter"],
                        "includes": includes
                        }
 
