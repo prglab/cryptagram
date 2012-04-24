@@ -33,8 +33,8 @@ if sys.platform in ['linux2', 'win32']:
 APP = ['SeeMeNot.py']
 DATA_FILES = []
 OPTIONS = {'argv_emulation': True,
-           'iconfile': '/Users/tierney/repos/dnd/wxmac.icns',
-           'plist':{'CFBundleIconFile':'wxmac.icns'},
+           'iconfile': 'icon.icns',
+           'plist':{'CFBundleIconFile':'icon.icns'},
            }
 
 if sys.platform == 'darwin':
