@@ -32,7 +32,10 @@ if sys.platform in ['linux2', 'win32']:
 # python setup.py py2app --no-strip -g -O0
 APP = ['SeeMeNot.py']
 DATA_FILES = []
-OPTIONS = {'argv_emulation': True}
+OPTIONS = {'argv_emulation': True,
+           'iconfile': '/Users/tierney/repos/dnd/wxmac.icns',
+           'plist':{'CFBundleIconFile':'wxmac.icns'},
+           }
 
 if sys.platform == 'darwin':
   setup(
