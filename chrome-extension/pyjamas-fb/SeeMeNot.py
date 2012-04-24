@@ -131,13 +131,11 @@ function mylocalfunction(window) {
             _avg = int(_vals / float(_num_vals))
             JS("@{{_symbol_val}} = @{{lookup}}[@{{_avg}}]")
             _symbol.append(int(_symbol_val))
-          #_symbol.reverse()
-          extracted_datum = self.message_symbol_coder.symbol_to_message(_symbol)
 
+          extracted_datum = self.message_symbol_coder.symbol_to_message(_symbol)
           extracted_data += extracted_datum
 
       extracted_data = _base64_pad(extracted_data)
-      print extracted_data[:20]
 
       print 'Submitting extracted_data.'
       if not extracted_data in self.decoded:
