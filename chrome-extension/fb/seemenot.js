@@ -1,9 +1,11 @@
 var URIHeader = "data:image/jpeg;base64,";
 var colors = ['#FFFFFF',  '#FF0000', '#00FF00', '#0000FF'];	
+
 var hexValues = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];	
 var lookup;
-var blockSize = 4;
+var base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
+var blockSize = 2;
 
  
  function createRequest() {
@@ -89,15 +91,11 @@ function getImageBinary(src, container) {
             }
           };
       
-      /*if (src.search("fbcdn.net") && src.search("_n.jpg")) {
-            	
-      	var parts = src.split("/");
-      	var fileName = parts[5];
-      	var originalImage = fileName.substring(0,fileName.length - 5) + "o.jpg";
-      	newURL = parts[0] + "/" + parts[1] + "/" + parts[2] + "/" + parts[3] + "/" + originalImage;
-      	src = newURL;
-      	
-      }*/
+      // Need to swap for the full size image URL on Facebook
+      /*if (src.search("fbcdn.net") && src.search("_o.jpg")==-1) {
+       	var originalImage = src.substring(0,src.length - 5) + "o.jpg";
+      	src = originalImage;
+      }*/      
       
 	oHTTP.open("GET", src, true);
 	if (oHTTP.overrideMimeType) oHTTP.overrideMimeType('text/plain; charset=x-user-defined');
@@ -168,34 +166,33 @@ function extractRGB(src, container, newImg) {
 	    canvas.width = img.width;
 	    canvas.height = img.height;
 	    ctx.drawImage(img,0,0);
-	    var count = 0;
-	    var hexString = "";
-	    var block0;
-	    var block1;
+		var count = 0;
+		var newBase64 = "";
+		var block0;
+		var block1;
 
-	    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;   	  	    	
+		var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;   	  	    	
     	   
-	    for (y = 0; y < img.height; y+= blockSize) {
-		for (x = 0; x < img.width; x+= (blockSize * 2)) {
-
-		    hex0 = getWRGBK(imageData, img.width, x, y, blockSize, blockSize);
-		    hex1 = getWRGBK(imageData, img.width, x + blockSize, y, blockSize, blockSize);
+		for (y = 0; y < img.height; y+= blockSize) {
+			for (x = 0; x < img.width; x+= (blockSize * 2)) {
+				
+				base8_0 = getBase8Value(imageData, img.width, x, y, blockSize, blockSize);
+				base8_1 = getBase8Value(imageData, img.width, x + blockSize, y, blockSize, blockSize);
     			
-		    // Found black, stop
-		    if (hex0 == 4 || hex1 == 4) break;	
+				// Found black, stop
+				if (base8_0 == -1 || base8_1 == -1) break;	
 		    
-		    hexNum = hex0 + hex1 * 4;
-		    hex = hexValues[hexNum];    			    			
-		    hexString += hex;
-		    count++;
-		}
+				base64Num = base8_0 * 8 + base8_1 ;
+				base64 = base64Values.charAt(base64Num);    			    			
+				newBase64 += base64;
+				count++;
+			}
    	    }
-
-	    var newBase64 = hexToBase64(hexString);
     	
+    	    	
 	    // Unpack 3 JSON components with fixed length and positions in the string
 	    
-	    var pad = 3;
+	    var pad = 0;
 	    
 	    var iv = newBase64.substring(0+pad,22+pad);
 	    var salt = newBase64.substring(22+pad,33+pad);
@@ -217,9 +214,48 @@ function extractRGB(src, container, newImg) {
 			container.src = URIHeader + decrypted;
 		}
 	};
-	//img.crossOrigin = "use-credentials";
+
     img.src = newImg.src;
 }
+
+
+
+// Takes the average over some block of pixels
+//
+//  -1 is black
+// 	0-7 are decoded base8 values. 0 is white, 7 dark gray, etc
+
+function getBase8Value(block, width, x, y, blockW, blockH) {
+
+    var count = 0.0;
+    var rt = 0.0;
+    var gt = 0.0;
+    var bt = 0.0;
+	
+	var vt = 0.0;
+	
+    for (i = 0; i < blockW; i++) {
+		for (j = 0; j < blockH; j++) {
+			
+	   		base = (y + j) * width + (x + i);
+	    
+	    	//Use green to estimate the value
+	    	vt += block[4*base + 1];
+	    
+	    	count++;
+		}
+    }
+	
+    v = vt / count;
+	
+  	var bin = Math.floor((v + 3.0) / 28.0)
+	
+	if (bin == 0) return -1;
+	
+	return (8 - bin);  	
+}
+
+
 
 
 
