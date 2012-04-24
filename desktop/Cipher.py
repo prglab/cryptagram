@@ -3,12 +3,10 @@ import logging
 import PyV8
 from json import JSONEncoder, JSONDecoder
 
-
 class V8Cipher(PyV8.JSClass):
   sjcljs = 'sjcl.js'
 
   def __init__(self, password):
-
     self.password = password
     PyV8.JSClass.__init__(self)
 
