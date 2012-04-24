@@ -65,17 +65,16 @@ function arrayBufferDataUri(raw) {
   
   
   
-// Super hacks to fix various URLs to get at higher res images  
+// Super hacks to fix various URLs for higher res images  
 function fixURL(URL) {
 	
 	 // Facebook
-	 if (URL.search("fbcdn.net")) {
+	 if (URL.search("fbcdn.net") != -1) {
 	 	
 	 	// Already fullsize URL, just return
 	 	if (URL.search("_o.jpg") != -1) return URL;
 	
 		var FBURLParts = URL.split("/");
-		
 		var FBFilename = FBURLParts[FBURLParts.length-1];
 		var FBFilenameParts = FBFilename.split("_");
 		var FBFileID = FBFilenameParts[1];
@@ -87,6 +86,7 @@ function fixURL(URL) {
 			
 			var ajax = projectorA.getAttribute("ajaxify");
 			
+			// Ajaxify parameter contains the full src, but escaped
 			if (ajax) {
 				var ajaxParts = ajax.split("&");
 				var escapedSrc = ajaxParts[3];
@@ -95,10 +95,11 @@ function fixURL(URL) {
 				return fullURL;
 			}
 			
+		// Regular image page	
 		} else {
 			
 			var elements = document.getElementsByClassName('fbPhotosPhotoActionsItem');
-						
+				
 			for (i = 0; i < elements.length; i++) {
 				var currentRef = elements[i].href;
 				if (currentRef.search("_o.jpg") != -1) {
@@ -106,7 +107,17 @@ function fixURL(URL) {
 				}	
 			}
 		}
-    }  
+    }
+    
+    
+    // Google+
+    if (URL.search("googleusercontent.com") != -1) {
+    	GURLParts = URL.split("/");
+    	GURLParts[7] = "s0";
+    	return GURLParts.join("/");
+    }
+  
+    // Default is to keep it the same    
 	return URL;
 }  
   
@@ -132,8 +143,7 @@ function getImageBinary(src, container) {
               oHTTP = null;
             }
           };
-      
-      
+       
     src = fixURL(src);
       
 	oHTTP.open("GET", src, true);
