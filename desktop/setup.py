@@ -26,11 +26,11 @@ if sys.platform in ['linux2', 'win32']:
         version = "0.1",
         description = "SeeMeNot: truly private, shareable photos.",
         options = {"build_exe": build_exe_options},
-        executables = [Executable("main.py", base=base)])
+        executables = [Executable("SeeMeNot.py", base=base)])
 
 # Build on Mac OS X.
 # python setup.py py2app --no-strip -g -O0
-APP = ['main.py']
+APP = ['SeeMeNot.py']
 DATA_FILES = []
 OPTIONS = {'argv_emulation': True}
 
