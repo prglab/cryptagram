@@ -217,6 +217,8 @@ def main(argv):
   json_str = JSONEncoder().encode(decoded)
 
   decrypted_decoded = cipher.decode(json_str)
+  # with open('decrypted.base64.txt', 'w') as fh:
+  #   fh.write(decrypted_decoded)
   extracted_data = base64.b64decode(decrypted_decoded)
 
   if FLAGS.image and FLAGS.decrypt:
