@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+# User-friendly SeeMeNot application code. Supports Drag and Drop.
+
 import os
 import logging
 import shlex
