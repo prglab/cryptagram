@@ -9,6 +9,7 @@ import base64
 import numpy
 import sys
 import logging
+import os
 from tempfile import NamedTemporaryFile
 from Cipher import V8Cipher as Cipher
 from json import JSONEncoder, JSONDecoder
@@ -134,6 +135,18 @@ class Encrypt(object):
     width, length = self.codec.get_prospective_image_dimensions()
 
 
+
+# def main(argv):
+#   logging.info(argv)
+
+#   passed_values = argv[1:]
+#   for passed_value in passed_values:
+#     if os.path.isdir(passed_value):
+#       logging.info('Treat %s like a directory.' % passed_value)
+#     else:
+#       logging.info('Treat %s like a file.' % passed_value)
+
+
 def main(argv):
   try:
     argv = FLAGS(argv)  # parse flags
@@ -217,6 +230,8 @@ def main(argv):
   json_str = JSONEncoder().encode(decoded)
 
   decrypted_decoded = cipher.decode(json_str)
+  # with open('decrypted.base64.txt', 'w') as fh:
+  #   fh.write(decrypted_decoded)
   extracted_data = base64.b64decode(decrypted_decoded)
 
   if FLAGS.image and FLAGS.decrypt:
