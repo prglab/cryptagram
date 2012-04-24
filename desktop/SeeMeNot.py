@@ -1,155 +1,193 @@
 #!/usr/bin/env python
-
-# TODO(tierney): Last row repair. Instead of writing black, we probably want to
-# write an average of the preceeding rows in the block of 8 (due to the JPEG
-# DCT). Of course, we must find a way to reengineer this application. Notably,
-# the last row will be unrecoverable especially if resizing is involved.
-
-import base64
-import sys
-import logging
 import os
-from tempfile import NamedTemporaryFile
+import logging
+import shlex
+import subprocess
+import sys
+import time
+import threading
+
 from Cipher import V8Cipher as Cipher
-from json import JSONEncoder, JSONDecoder
-
-from Encryptor import Encrypt
-from SymbolShape import SymbolShape, four_square, three_square, two_square, \
-    one_square, two_by_four, two_by_three, two_by_one
 from Codec import Codec
-from PIL import Image
+from SymbolShape import two_square
 from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
-import gflags
+from Encryptor import Encrypt
+import Tkinter as tk
+from Tkinter import *
+from PIL import Image
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+logging.basicConfig(level=logging.INFO,
+                    #stream = sys.stdout,
+                    filename='py2app.tierney.log',
                     format = '%(asctime)-15s %(levelname)8s %(module)10s '\
                       '%(threadName)10s %(thread)16d %(lineno)4d %(message)s')
 
-FLAGS = gflags.FLAGS
-gflags.DEFINE_integer('quality', 95,
-                      'quality to save encrypted image in range (0,95]. ',
-                      short_name = 'q')
-gflags.DEFINE_string('password', None, 'Password to encrypt image with.',
-                     short_name = 'p')
-gflags.DEFINE_string('symbol_shape', 'two_square', 'symbol shape to use',
-                     short_name ='s')
-gflags.DEFINE_string('image', None, 'path to input image', short_name = 'i')
-gflags.DEFINE_string('encrypt', None, 'encrypted image output filename',
-                     short_name = 'e')
-gflags.DEFINE_string('decrypt', None, 'decrypted image output filename',
-                      short_name = 'd')
+class StatusBar(tk.Frame):
+  def __init__(self, master):
+    tk.Frame.__init__(self, master)
+    self.variable=tk.StringVar()
+    self.label=tk.Label(self, bd=1, anchor=tk.W,
+                        textvariable=self.variable,
+                        font=('arial',12,'normal'))
+    self.variable.set('Status Bar')
+    self.label.pack(fill="both", expand="yes")
+    self.pack()
 
-gflags.MarkFlagAsRequired('password')
+  def set(self, set_string):
+    self.variable.set(set_string)
 
-_AVAILABLE_SHAPES = {
-  'four_square' : four_square,
-  'three_square': three_square,
-  'two_square' : two_square,
-  'one_square' : one_square,
-  'two_by_four' : two_by_four,
-  'two_by_three' : two_by_three,
-  'two_by_one' : two_by_one,
-}
+  def clear(self):
+    self.variable.set('')
 
-def main(argv):
-  try:
-    argv = FLAGS(argv)  # parse flags
-  except gflags.FlagsError, e:
-    print '%s\nUsage: %s ARGS\n%s' % (e, sys.argv[0], FLAGS)
-    sys.exit(1)
+class GuiCodec(object):
+  def __init__(self, parent_frame, passed_values, status_bar):
+    self.parent_frame = parent_frame
+    self.passed_values = passed_values
+    self.status_bar = status_bar
+    self.password = None
 
-  symbol_shape = _AVAILABLE_SHAPES[FLAGS.symbol_shape]
-  quality = FLAGS.quality
-  cipher = Cipher(FLAGS.password)
+  def set_password(self, password):
+    logging.info('Set password %s' % password)
+    self.password = password
 
-  if FLAGS.image and FLAGS.encrypt:
-    logging.info('Image to encrypt: %s.' % FLAGS.image)
-
+  def _encrypt(self, image_path):
     # Update codec based on wh_ratio from given image.
-    _image = Image.open(FLAGS.image)
+    try:
+      _image = Image.open(image_path)
+    except IOError, e:
+      logging.error(str(e))
+      return -1
     _width, _height = _image.size
     wh_ratio = _width / float(_height)
-    codec = Codec(symbol_shape, wh_ratio, Base64MessageSymbolCoder(),
+    codec = Codec(two_square, wh_ratio, Base64MessageSymbolCoder(),
                   Base64SymbolSignalCoder())
 
     # Determine file size.
-    with open(FLAGS.image,'rb') as fh:
+    with open(image_path, 'rb') as fh:
       orig_data = fh.read()
       length = fh.tell()
       logging.info('Image filesize: %d bytes.' % length)
 
-    crypto = Encrypt(FLAGS.image, codec, cipher)
-    encrypted_data = crypto.upload_encrypt()
+    cipher = Cipher(self.password)
+    crypto = Encrypt(image_path, codec, cipher)
+    try:
+      encrypted_data = crypto.upload_encrypt()
+    except IOError, e:
+      logging.error(str(e))
+      return -1
+
     logging.info('Encrypted data length: %d.' % len(encrypted_data))
     im = codec.encode(encrypted_data)
 
+    quality = 95
     logging.info('Saving encrypted jpeg with quality %d.' % quality)
-    with open(FLAGS.encrypt, 'w') as out_file:
+    with open(image_path + '.encrypted.jpg', 'w') as out_file:
       im.save(out_file, quality=quality)
+    return 0
 
-    with open(FLAGS.encrypt) as fh:
-      fh.read()
-      logging.info('Encrypted image size: %d bytes.' % fh.tell())
-      logging.info('Encrypted image data expansion %.2f.' % \
-                     (fh.tell() / float(length)))
+  def run(self):
+    while True:
+      if self.password:
+        break
+      logging.info('Waiting for password')
+      time.sleep(1)
 
-  if not FLAGS.decrypt:
-    return
+    logging.info('Got password')
+    errors = 0
+    for passed_value in self.passed_values:
+      if os.path.isdir(passed_value):
+        self.status_bar.set(passed_value)
+        logging.info('Treat %s like a directory.' % passed_value)
+      else:
+        self.status_bar.set('Encrypting %s...' % passed_value)
+        self.status_bar.update()
+        logging.info('Encrypting %s.' % passed_value)
+        ret = self._encrypt(passed_value)
+        if ret != 0:
+          errors += 1
+        logging.info('Completed.')
 
-  if FLAGS.image and FLAGS.encrypt and FLAGS.decrypt:
-    read_back_image = Image.open(FLAGS.encrypt)
-  elif FLAGS.image and not FLAGS.encrypt and FLAGS.decrypt:
-    logging.info('Reading message we did not encrypt.')
-    with open(FLAGS.image, 'rb') as fh:
-      fh.read()
-      logging.info('Encrypted image filesize: %d.' % fh.tell())
-
-    read_back_image = Image.open(FLAGS.image)
-    _width, _height = read_back_image.size
-    wh_ratio = _width / float(_height)
-    codec = Codec(symbol_shape, wh_ratio, Base64MessageSymbolCoder(),
-                  Base64SymbolSignalCoder())
-
-  binary_decoding = codec.decode(read_back_image)
-
-  if FLAGS.encrypt and FLAGS.decrypt:
-    logging.info('Byte for byte diff: %d.' % \
-                   byte_for_byte_compare(encrypted_data, binary_decoding))
-
-  # Required "un"-filtering to base64 data.
-  def _base64_pad(s):
-    mod = len(s) % 4
-    if mod == 0: return s
-    return s + (4 - mod) * '='
-
-  # padded_decoding = _base64_pad(binary_decoding)
-  _pad = 3
-
-  _iv = binary_decoding[0:22]
-  _salt = binary_decoding[22:33]
-  _ct = binary_decoding[33:]
-  decoded = {'iv': _iv, 'salt': _salt, 'ct': _ct}
-  json_str = JSONEncoder().encode(decoded)
-
-  decrypted_decoded = cipher.decode(json_str)
-  # with open('decrypted.base64.txt', 'w') as fh:
-  #   fh.write(decrypted_decoded)
-  extracted_data = base64.b64decode(decrypted_decoded)
-
-  if FLAGS.image and FLAGS.decrypt:
-    with open(FLAGS.decrypt, 'wb') as fh:
-      fh.write(extracted_data)
-    logging.info('Saved decrypted file: %s.' % FLAGS.decrypt)
+    self.status_bar.set('Done (%d %s).' % \
+                          (errors, 'error' if errors == 1 else 'errors'))
+    logging.info('Done so quitting.')
 
 
-def byte_for_byte_compare(a, b):
-  errors = 0
-  for i, datum in enumerate(a[:min(len(a), len(b))]):
-    if datum != b[i]:
-      errors += 1
-  if len(b) > len(a):
-    errors += len(b) - len(a)
-  return errors
+class Application(Frame):
+  def __init__(self, master=None, passed_values=None):
+    self.passed_values = passed_values
+    self.password = None
+
+    Frame.__init__(self, master)
+
+    labelframe = LabelFrame(master, text="Password for Photos")
+    labelframe.pack(fill="both", expand="yes")
+
+    self.contents = Entry(labelframe)
+    self.contents.pack(fill='both', expand='yes')
+    self.contentstext = StringVar()
+    self.contentstext.set("Type password here. Hit Enter.")
+    self.contents["textvariable"] = self.contentstext
+    self.contents.bind('<Key-Return>', self.print_contents)
+
+    status_frame = LabelFrame(master, text="Status")
+    status_frame.pack(fill="both", expand="yes")
+    self.sb = StatusBar(status_frame)
+    self.sb.pack()
+    self.sb.clear()
+
+    # Should allow for both selecting files to encrypt and drag and drop.
+    self.sb.set('Multiple lines\nWaiting for password...')
+
+    self.pack()
+    self.createWidgets()
+
+  def say_hi(self):
+    print "hi there, everyone!"
+
+  def createWidgets(self):
+    self.hi_there = Button(self)
+    self.hi_there["text"] = "Choose Files"
+    self.hi_there["command"] = self.say_hi
+    self.hi_there.pack({"side": "left"})
+
+    self.hi_there2 = Button(self)
+    self.hi_there2["text"] = "Choose Folder"
+    self.hi_there2["command"] = self.say_hi
+    self.hi_there2.pack({"side": "left"})
+
+    self.QUIT = Button(self)
+    self.QUIT["text"] = "Quit"
+    self.QUIT["fg"]   = "red"
+    self.QUIT["command"] =  self.quit
+
+    self.QUIT.pack({"side": "left"})
+
+  def print_contents(self, event):
+    self.password = self.contents.get()
+    logging.info("hi. contents of entry is now ----> %s" % self.password)
+    self.codec = GuiCodec(self, self.passed_values, self.sb)
+    self.codec.set_password(self.password)
+    self.codec.run()
+
+  def done(self):
+    logging.info('Done called')
+
+def main(argv):
+  logging.info(argv)
+
+  passed_values = argv[1:]
+
+  root = Tk()
+  w = root.winfo_screenwidth()
+  h = root.winfo_screenheight()
+  rootsize = (400, 150) # tuple(int(_) for _ in root.geometry().split('+')[0].split('x'))
+  x = w/2 - rootsize[0]/2
+  y = h/2 - rootsize[1]/2
+  root.geometry("%dx%d+%d+%d" % (rootsize + (x, y)))
+
+  app = Application(master=root, passed_values = passed_values)
+  app.mainloop()
+  root.destroy()
 
 if __name__=='__main__':
   main(sys.argv)
