@@ -8,7 +8,6 @@ import shlex
 import subprocess
 import sys
 import time
-import threading
 
 from Cipher import V8Cipher as Cipher
 from Codec import Codec
@@ -18,12 +17,13 @@ from Encryptor import Encrypt
 import Tkinter as tk
 from Tkinter import *
 from PIL import Image
+from encodings import hex_codec
 
 logging.basicConfig(level=logging.INFO,
                     #stream = sys.stdout,
                     filename='py2app.tierney.log',
                     format = '%(asctime)-15s %(levelname)8s %(module)10s '\
-                      '%(threadName)10s %(thread)16d %(lineno)4d %(message)s')
+                      '%(lineno)4d %(message)s')
 
 class StatusBar(tk.Frame):
   def __init__(self, master):
