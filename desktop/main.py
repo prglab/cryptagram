@@ -9,6 +9,7 @@ import base64
 import numpy
 import sys
 import logging
+import os
 from tempfile import NamedTemporaryFile
 from Cipher import V8Cipher as Cipher
 from json import JSONEncoder, JSONDecoder
@@ -132,6 +133,18 @@ class Encrypt(object):
     base64_image_file_data = base64.b64encode(raw_image_file_data)
     encrypted_data = cipher.encode(base64_image_file_data)
     width, length = self.codec.get_prospective_image_dimensions()
+
+
+
+# def main(argv):
+#   logging.info(argv)
+
+#   passed_values = argv[1:]
+#   for passed_value in passed_values:
+#     if os.path.isdir(passed_value):
+#       logging.info('Treat %s like a directory.' % passed_value)
+#     else:
+#       logging.info('Treat %s like a file.' % passed_value)
 
 
 def main(argv):
