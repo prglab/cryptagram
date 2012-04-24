@@ -23,7 +23,7 @@ if sys.platform in ['linux2', 'win32']:
 
   setup(name = "SeeMeNot",
         version = "0.1",
-        description = "SeeMeNot: truly private, shareable photos.",
+        description = "SeeMeNot: private, shareable photos.",
         options = {"build_exe": build_exe_options},
         executables = [Executable("SeeMeNot.py", base=base)])
 
