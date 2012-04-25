@@ -1,23 +1,19 @@
 #!/usr/bin/env python
-from hashlib import sha256
+
 import base64
 import sys
 import logging
 import os
 from tempfile import NamedTemporaryFile
+from json import JSONEncoder
 from PIL import Image
+from util import sha256hash
 
 class Encrypt(object):
   def __init__(self, image_path, codec, cipher):
     self.image_path = image_path
     self.codec = codec
     self.cipher = cipher
-
-  def _hash(self, to_hash):
-    integrity_hash = sha256()
-    integrity_hash.update(encrypted_data)
-    integrity_check_value = integrity_hash.hexdigest()
-    return integrity_check_value
 
   def _image_path_to_encrypted_data(self, image_path):
     logging.info('Reading raw image data.')
@@ -32,9 +28,9 @@ class Encrypt(object):
     # (in the case of V8Cipher, this includes the jsonified data).
     if self.cipher.__class__.__name__ == 'V8Cipher':
       str_encrypted_data = JSONEncoder().encode(encrypted_data)
-      integrity_check_value = self._hash(str_encrypted_data)
+      integrity_check_value = sha256hash(str_encrypted_data)
     else:
-      integrity_check_value = self._hash(encrypted_data)
+      integrity_check_value = sha256hash(encrypted_data)
 
     # For V8Cipher, we have to tease apart the JSON in order to set the
     # encrypted_data string correctly.
