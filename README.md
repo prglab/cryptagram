@@ -1,4 +1,4 @@
-# README for SeeMeNot #
+# README for Cryptogram #
 
 JPEG cryptography for privacy in social networks.
 
