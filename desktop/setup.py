@@ -30,10 +30,11 @@ if sys.platform in ['linux2', 'win32']:
 # Build on Mac OS X.
 # python setup.py py2app --no-strip -g -O0
 APP = ['SeeMeNot.py']
-DATA_FILES = []
+DATA_FILES = ['sjcl.js']
 OPTIONS = {'argv_emulation': True,
            'iconfile': 'icon.icns',
            'plist':{'CFBundleIconFile':'icon.icns'},
+           'includes':['Tkinter','PyV8'],
            }
 
 if sys.platform == 'darwin':
@@ -41,4 +42,4 @@ if sys.platform == 'darwin':
     app=APP,
     data_files=DATA_FILES,
     options={'py2app': OPTIONS},
-    setup_requires=['py2app','pycrypto','python-gflags','PIL','PyV8'])
+    setup_requires=['py2app'])

@@ -2,6 +2,8 @@
 
 # User-friendly SeeMeNot application code. Supports Drag and Drop.
 
+import Tkinter as tk
+from Tkinter import *
 import os
 import logging
 import shlex
@@ -15,15 +17,13 @@ from Codec import Codec
 from SymbolShape import two_square
 from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
 from Encryptor import Encrypt
-import Tkinter as tk
-from Tkinter import *
 from PIL import Image
 from encodings import hex_codec
 
 logging.basicConfig(level=logging.INFO,
                     #stream = sys.stdout,
                     filename='py2app.tierney.log',
-                    format = '%(asctime)-15s %(levelname)8s %(module)10s '\
+                    format = '%(asctime)-15s %(levelname)8s %(module)20s '\
                       '%(lineno)4d %(message)s')
 
 class StatusBar(tk.Frame):
@@ -85,8 +85,12 @@ class GuiCodec(object):
 
     quality = 95
     logging.info('Saving encrypted jpeg with quality %d.' % quality)
-    with open(image_path + '.encrypted.jpg', 'w') as out_file:
-      im.save(out_file, quality=quality)
+    try:
+      with open(image_path + '.encrypted.jpg', 'w') as out_file:
+        im.save(out_file, quality=quality)
+    except Exception, e:
+      logging.error(str(e))
+      return -1
     return 0
 
   def run(self):
@@ -103,7 +107,7 @@ class GuiCodec(object):
         self.status_bar.set(passed_value)
         logging.info('Treat %s like a directory.' % passed_value)
       else:
-        self.status_bar.set('Encrypting %s...' % passed_value)
+        self.status_bar.set('Encrypting %s...' % os.path.basename(passed_value))
         self.status_bar.update()
         logging.info('Encrypting %s.' % passed_value)
         ret = self._encrypt(passed_value)
@@ -131,7 +135,12 @@ class Application(Frame):
     self.contentstext = StringVar()
     self.contentstext.set("Type password here. Hit Enter.")
     self.contents["textvariable"] = self.contentstext
-    self.contents.bind('<Key-Return>', self.print_contents)
+    self.contents.bind('<Key-Return>', self.begin_encryption)
+
+    self.submit = Button(labelframe)
+    self.submit['text'] = 'Start encryption with password above.'
+    self.submit['command'] = self.begin_encryption
+    self.submit.pack()
 
     status_frame = LabelFrame(master, text="Status")
     status_frame.pack(fill="both", expand="yes")
@@ -140,7 +149,7 @@ class Application(Frame):
     self.sb.clear()
 
     # Should allow for both selecting files to encrypt and drag and drop.
-    self.sb.set('Multiple lines\nWaiting for password...')
+    self.sb.set('Waiting for password...')
 
     self.pack()
     self.createWidgets()
@@ -161,14 +170,14 @@ class Application(Frame):
 
     self.QUIT = Button(self)
     self.QUIT["text"] = "Quit"
-    self.QUIT["fg"]   = "red"
+    # self.QUIT["fg"]   = "red"
     self.QUIT["command"] =  self.quit
 
     self.QUIT.pack({"side": "left"})
 
-  def print_contents(self, event):
+  def begin_encryption(self, event):
     self.password = self.contents.get()
-    logging.info("hi. contents of entry is now ----> %s" % self.password)
+    logging.info("Password entered")
     self.codec = GuiCodec(self, self.passed_values, self.sb)
     self.codec.set_password(self.password)
     self.codec.run()
@@ -182,9 +191,10 @@ def main(argv):
   passed_values = argv[1:]
 
   root = Tk()
+  root.title('CryptoSam Image Converter')
   w = root.winfo_screenwidth()
   h = root.winfo_screenheight()
-  rootsize = (400, 150) # tuple(int(_) for _ in root.geometry().split('+')[0].split('x'))
+  rootsize = (500, 160) # tuple(int(_) for _ in root.geometry().split('+')[0].split('x'))
   x = w/2 - rootsize[0]/2
   y = h/2 - rootsize[1]/2
   root.geometry("%dx%d+%d+%d" % (rootsize + (x, y)))
