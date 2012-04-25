@@ -29,11 +29,14 @@ if sys.platform in ['linux2', 'win32']:
 
 # Build on Mac OS X.
 # python setup.py py2app --no-strip -g -O0
-APP = ['Cryptogram.py']
+APP = ['CryptogramGUI.py']
 DATA_FILES = ['sjcl.js']
 OPTIONS = {'argv_emulation': True,
            'iconfile': 'icon.icns',
-           'plist':{'CFBundleIconFile':'icon.icns'},
+           'plist':
+             {'CFBundleName': 'Cryptogram',
+              'CFBundleIconFile':'icon.icns'
+              },
            'includes':['Tkinter','PyV8'],
            }
 
