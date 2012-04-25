@@ -1,4 +1,4 @@
-# README for SeeMeNot Desktop App #
+# README for Cryptogram Desktop App #
 
 ### CLI ###
    python main.py
