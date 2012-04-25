@@ -104,7 +104,10 @@ function fixURL(URL) {
 				var currentRef = elements[i].href;
 				if (currentRef.search("_o.jpg") != -1) {
 					return currentRef;
-				}	
+				}
+				if (currentRef.search("_n.jpg") != -1) {
+					return currentRef;
+				}
 			}
 		}
     }
