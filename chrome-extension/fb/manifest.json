@@ -1,7 +1,7 @@
 {
-  "name" : "SeeMeNot Decoder",
+  "name" : "Cryptogram Decoder",
   "version" : "0.1",
-  "description" : "Decrypt SeeMeNot Images",
+  "description" : "Decrypt Cryptogram Images",
   "background" : {  	 
 	"matches": ["http://*/"],
   	"scripts": ["background.js"] },
