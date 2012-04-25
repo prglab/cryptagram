@@ -34,6 +34,7 @@ DATA_FILES = []
 OPTIONS = {'argv_emulation': True,
            'iconfile': 'icon.icns',
            'plist':{'CFBundleIconFile':'icon.icns'},
+           'includes':['Tkinter','PyV8'],
            }
 
 if sys.platform == 'darwin':
@@ -41,4 +42,4 @@ if sys.platform == 'darwin':
     app=APP,
     data_files=DATA_FILES,
     options={'py2app': OPTIONS},
-    setup_requires=['py2app','pycrypto','python-gflags','PIL','Tkinter','PyV8'])
+    setup_requires=['py2app'])

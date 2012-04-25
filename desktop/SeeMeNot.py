@@ -2,6 +2,8 @@
 
 # User-friendly SeeMeNot application code. Supports Drag and Drop.
 
+import Tkinter as tk
+from Tkinter import *
 import os
 import logging
 import shlex
@@ -15,8 +17,6 @@ from Codec import Codec
 from SymbolShape import two_square
 from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
 from Encryptor import Encrypt
-import Tkinter as tk
-from Tkinter import *
 from PIL import Image
 from encodings import hex_codec
 
@@ -135,7 +135,12 @@ class Application(Frame):
     self.contentstext = StringVar()
     self.contentstext.set("Type password here. Hit Enter.")
     self.contents["textvariable"] = self.contentstext
-    self.contents.bind('<Key-Return>', self.print_contents)
+    self.contents.bind('<Key-Return>', self.begin_encryption)
+
+    self.submit = Button(labelframe)
+    self.submit['text'] = 'Start encryption with password above.'
+    self.submit['command'] = self.begin_encryption
+    self.submit.pack()
 
     status_frame = LabelFrame(master, text="Status")
     status_frame.pack(fill="both", expand="yes")
@@ -144,7 +149,7 @@ class Application(Frame):
     self.sb.clear()
 
     # Should allow for both selecting files to encrypt and drag and drop.
-    self.sb.set('Multiple lines\nWaiting for password...')
+    self.sb.set('Waiting for password...')
 
     self.pack()
     self.createWidgets()
@@ -165,14 +170,14 @@ class Application(Frame):
 
     self.QUIT = Button(self)
     self.QUIT["text"] = "Quit"
-    self.QUIT["fg"]   = "red"
+    # self.QUIT["fg"]   = "red"
     self.QUIT["command"] =  self.quit
 
     self.QUIT.pack({"side": "left"})
 
-  def print_contents(self, event):
+  def begin_encryption(self, event):
     self.password = self.contents.get()
-    logging.info("hi. contents of entry is now ----> %s" % self.password)
+    logging.info("Password entered")
     self.codec = GuiCodec(self, self.passed_values, self.sb)
     self.codec.set_password(self.password)
     self.codec.run()
@@ -186,9 +191,10 @@ def main(argv):
   passed_values = argv[1:]
 
   root = Tk()
+  root.title('CryptoSam Image Converter')
   w = root.winfo_screenwidth()
   h = root.winfo_screenheight()
-  rootsize = (400, 150) # tuple(int(_) for _ in root.geometry().split('+')[0].split('x'))
+  rootsize = (500, 160) # tuple(int(_) for _ in root.geometry().split('+')[0].split('x'))
   x = w/2 - rootsize[0]/2
   y = h/2 - rootsize[1]/2
   root.geometry("%dx%d+%d+%d" % (rootsize + (x, y)))
