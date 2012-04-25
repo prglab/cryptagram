@@ -1,5 +1,7 @@
 #!/usr/bin/env python
+from hashlib import sha256
 import math
+
 def bsearch(a, x, lo=0, hi=None):
   if hi is None:
     hi = len(a)-1
@@ -38,3 +40,9 @@ def average(iterable):
   if len(iterable) == 0:
     return 0
   return sum([float(i) for i in iterable]) / len(iterable)
+
+def sha256hash(to_hash):
+  integrity_hash = sha256()
+  integrity_hash.update(to_hash)
+  integrity_check_value = integrity_hash.hexdigest()
+  return integrity_check_value
