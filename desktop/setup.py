@@ -1,5 +1,5 @@
 """
-SeeMeNot Desktop setup.py script.
+Cryptogram Desktop setup.py script.
 """
 import sys
 from setuptools import setup
@@ -21,15 +21,15 @@ if sys.platform in ['linux2', 'win32']:
                        "includes": includes
                        }
 
-  setup(name = "SeeMeNot",
+  setup(name = "Cryptogram",
         version = "0.1",
-        description = "SeeMeNot: private, shareable photos.",
+        description = "Cryptogram: private, shareable photos.",
         options = {"build_exe": build_exe_options},
-        executables = [Executable("SeeMeNot.py", base=base)])
+        executables = [Executable("Cryptogram.py", base=base)])
 
 # Build on Mac OS X.
 # python setup.py py2app --no-strip -g -O0
-APP = ['SeeMeNot.py']
+APP = ['Cryptogram.py']
 DATA_FILES = ['sjcl.js']
 OPTIONS = {'argv_emulation': True,
            'iconfile': 'icon.icns',
