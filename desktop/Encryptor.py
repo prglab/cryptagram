@@ -23,8 +23,9 @@ class Encrypt(object):
     encrypted_data = self.cipher.encode(base64_image_file_data)
 
     # TODO(tierney): Strictly using V8Cipher in this code.
-    # encrypted_data = encrypted_data['iv'] + encrypted_data['salt'] + \
-    #     encrypted_data['ct']
+    if self.cipher.__class__.__name__ == 'V8Cipher':
+      encrypted_data = encrypted_data['iv'] + encrypted_data['salt'] + \
+          encrypted_data['ct']
 
     # Remove base64 artifacts.
     logging.info('Returning encrypted data.')
