@@ -12,6 +12,7 @@ import os
 from tempfile import NamedTemporaryFile
 from Cipher import V8Cipher as Cipher
 from json import JSONEncoder, JSONDecoder
+from util import sha256hash
 
 from Encryptor import Encrypt
 from SymbolShape import SymbolShape, four_square, three_square, two_square, \
@@ -123,17 +124,20 @@ def main(argv):
     return s + (4 - mod) * '='
 
   # padded_decoding = _base64_pad(binary_decoding)
-  _pad = 3
-
-  _iv = binary_decoding[0:22]
-  _salt = binary_decoding[22:33]
-  _ct = binary_decoding[33:]
+  _integrity_check = binary_decoding[0:64]
+  _iv = binary_decoding[64:86]
+  _salt = binary_decoding[86:97]
+  _ct = binary_decoding[97:]
   decoded = {'iv': _iv, 'salt': _salt, 'ct': _ct}
   json_str = JSONEncoder().encode(decoded)
+  integrity_check_value = sha256hash(json_str)
+
+  if _integrity_check != integrity_check_value:
+    logging.warning('Integrity check mismatch')
+  else:
+    logging.info('Integrity check passed.')
 
   decrypted_decoded = cipher.decode(json_str)
-  # with open('decrypted.base64.txt', 'w') as fh:
-  #   fh.write(decrypted_decoded)
   extracted_data = base64.b64decode(decrypted_decoded)
 
   if FLAGS.image and FLAGS.decrypt:
