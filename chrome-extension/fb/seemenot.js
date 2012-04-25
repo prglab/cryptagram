@@ -2,6 +2,7 @@ var URIHeader = "data:image/jpeg;base64,";
 var base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 var blockSize = 2;
 
+var inited = 1;
 
  function createRequest() {
     var oHTTP = null;
@@ -125,7 +126,7 @@ function fixURL(URL) {
 }  
   
   
-function getImageBinary(src, container) {
+function getImageBinary(src, container, password) {
 
     var oHTTP = createRequest();
 	oHTTP.onreadystatechange = function() {
@@ -138,7 +139,7 @@ function getImageBinary(src, container) {
     				img.style.display = "none";
     				img.src = b64;
     				container.parentNode.appendChild(img);
-    				extractRGB(src, container, img);
+    				extractBase64(src, container, img, password);
   
               } else {
                 
@@ -164,7 +165,7 @@ function getImageBinary(src, container) {
 var lastReplace = "";
 
 
-function replaceImageBySrc(src) {
+function replaceImageBySrc(src, password) {
 		
 	init();
 	var elements = document.getElementsByTagName('img');
@@ -173,34 +174,54 @@ function replaceImageBySrc(src) {
 	for (i = 0; i < elements.length; i++) {
 		if (elements[i].src == src) {
 			if (lastReplace == src) continue;
-			getImageBinary(src, elements[i]);
+			getImageBinary(src, elements[i], password);
 			lastReplace = src;			
 		}
 	}
 }
 
 
-// Listener to handle the decodeURL message
+var callback;
 
-chrome.extension.onRequest.addListener(
+// Listener to handle the decodeURL message
+// Have to check if it's already been added. Hack?
+
+if (!chrome.extension.onRequest.hasListeners()) {
+
+	chrome.extension.onRequest.addListener(
+
     function(request, sender, sendResponse) {
         
-	if (request.decodeURL) {
-	    replaceImageBySrc(request.decodeURL);
+    if (request.getImages) {
+   		var imgs = document.getElementsByTagName('img');
+   		
+   		var elements = new Array;
+   		
+   		for (i = 0; i < imgs.length; i++) {
+			elements.push(imgs[i].src);
+		}
+		sendResponse({images:elements});
+	}
+      
+	if (request.decodeURL && request.password) {
+	    replaceImageBySrc(request.decodeURL, request.password);
+	    callback = sendResponse;
 	}
     });
+}
     
-    
+
+
 function init() {
 	
 
 }
 
 
-// March over the RGB image extracting each pair of blocks.
-// Estimate the block colors and convert these into a hex value
+// March over the image extracting each pair of blocks.
+// Estimate the block colors and convert these into a base64 value
 
-function extractRGB(src, container, newImg) {
+function extractBase64(src, container, newImg, password) {
 		
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
@@ -231,9 +252,9 @@ function extractRGB(src, container, newImg) {
 				base64 = base64Values.charAt(base64Num);    			    			
 				newBase64 += base64;
 				count++;
-			}
-   	    }
-    	
+			}	
+		}
+   	        	
     	    	
 	    // Unpack 3 JSON components with fixed length and positions in the string
 	    
@@ -247,9 +268,11 @@ function extractRGB(src, container, newImg) {
 	    obj.salt = salt;
 	    obj.ct = ct;
 	    var base64Decode = JSON.stringify(obj);
-	    var password = prompt("Enter password for\n"+src,"helloworld");     
+	    //var password = prompt("Enter password for\n"+src,"helloworld");     
 	    var decrypted = sjcl.decrypt(password, base64Decode);
 		
+	    if (callback) callback({outcome: "success"});
+	    
 	    var url = self.location.href;
 	    var suffix = url.substring(url.length - 3, url.length);
 		
