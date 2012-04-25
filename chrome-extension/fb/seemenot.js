@@ -2,8 +2,6 @@ var URIHeader = "data:image/jpeg;base64,";
 var base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 var blockSize = 2;
 
-var inited = 1;
-
  function createRequest() {
     var oHTTP = null;
     if (window.XMLHttpRequest) {
