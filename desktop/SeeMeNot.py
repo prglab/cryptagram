@@ -11,8 +11,8 @@ import subprocess
 import sys
 import time
 
-# from Cipher import V8Cipher as Cipher
-from PyCryptoCipher import PyCryptoCipher as Cipher
+from Cipher import V8Cipher as Cipher
+# from PyCryptoCipher import PyCryptoCipher as Cipher
 from Codec import Codec
 from SymbolShape import two_square
 from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
@@ -107,7 +107,7 @@ class GuiCodec(object):
         self.status_bar.set(passed_value)
         logging.info('Treat %s like a directory.' % passed_value)
       else:
-        self.status_bar.set('Encrypting %s...' % passed_value)
+        self.status_bar.set('Encrypting %s...' % os.path.basename(passed_value))
         self.status_bar.update()
         logging.info('Encrypting %s.' % passed_value)
         ret = self._encrypt(passed_value)
