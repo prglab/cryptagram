@@ -26,6 +26,7 @@ class Codec(object):
     return self.new_image_dimensions.get_image_dimensions()
 
   def encode(self, data):
+    logging.info('Encoding data.')
     self._new_image_dimensions(data)
 
     new_image_width, new_image_height = \
@@ -33,6 +34,8 @@ class Codec(object):
     new_image_symbol_width, new_image_symbol_height = \
         self.new_image_dimensions.get_image_symbol_dimensions()
 
+    logging.info('Creating new image to set pixels (%d, %d).' % \
+                   (new_image_width, new_image_height))
     new_image = Image.new('RGB', (new_image_width, new_image_height))
     logging.info('Image dimensions: width (%d) height (%d).' % \
                    (new_image_width, new_image_height))

@@ -23,7 +23,7 @@ from encodings import hex_codec
 logging.basicConfig(level=logging.INFO,
                     #stream = sys.stdout,
                     filename='py2app.tierney.log',
-                    format = '%(asctime)-15s %(levelname)8s %(module)10s '\
+                    format = '%(asctime)-15s %(levelname)8s %(module)20s '\
                       '%(lineno)4d %(message)s')
 
 class StatusBar(tk.Frame):
@@ -85,8 +85,12 @@ class GuiCodec(object):
 
     quality = 95
     logging.info('Saving encrypted jpeg with quality %d.' % quality)
-    with open(image_path + '.encrypted.jpg', 'w') as out_file:
-      im.save(out_file, quality=quality)
+    try:
+      with open(image_path + '.encrypted.jpg', 'w') as out_file:
+        im.save(out_file, quality=quality)
+    except Exception, e:
+      logging.error(str(e))
+      return -1
     return 0
 
   def run(self):
