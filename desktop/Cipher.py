@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import logging
 import PyV8
-from json import JSONEncoder, JSONDecoder
+from json import JSONDecoder
 
 class V8Cipher(PyV8.JSClass):
   sjcljs = 'sjcl.js'
@@ -26,5 +26,3 @@ class V8Cipher(PyV8.JSClass):
         ctxt.eval(fh.read())
         resp = ctxt.eval('sjcl.decrypt("%s", \'%s\')' % (self.password, json_str))
     return resp
-
-

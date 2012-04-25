@@ -5,7 +5,9 @@ import sys
 import logging
 import os
 from tempfile import NamedTemporaryFile
+from json import JSONEncoder
 from PIL import Image
+from util import sha256hash
 
 class Encrypt(object):
   def __init__(self, image_path, codec, cipher):
@@ -22,12 +24,23 @@ class Encrypt(object):
     logging.info('Cipher encoding data.')
     encrypted_data = self.cipher.encode(base64_image_file_data)
 
-    # TODO(tierney): Strictly using V8Cipher in this code.
+    # Compute integrity check on the encrypted data, which should be base64
+    # (in the case of V8Cipher, this includes the jsonified data).
     if self.cipher.__class__.__name__ == 'V8Cipher':
-      encrypted_data = encrypted_data['iv'] + encrypted_data['salt'] + \
+      str_encrypted_data = JSONEncoder().encode(encrypted_data)
+      integrity_check_value = sha256hash(str_encrypted_data)
+    else:
+      integrity_check_value = sha256hash(encrypted_data)
+
+    # For V8Cipher, we have to tease apart the JSON in order to set the
+    # encrypted_data string correctly.
+    if self.cipher.__class__.__name__ == 'V8Cipher':
+      encrypted_data = \
+          integrity_check_value + \
+          encrypted_data['iv'] + \
+          encrypted_data['salt'] + \
           encrypted_data['ct']
 
-    # Remove base64 artifacts.
     logging.info('Returning encrypted data.')
     return encrypted_data
 
