@@ -11,8 +11,7 @@ import subprocess
 import sys
 import time
 
-from Cipher import V8Cipher as Cipher
-# from PyCryptoCipher import PyCryptoCipher as Cipher
+from Cipher.PyV8Cipher import V8Cipher as Cipher
 from Codec import Codec
 from SymbolShape import two_square
 from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
