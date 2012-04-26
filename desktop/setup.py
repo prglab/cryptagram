@@ -30,7 +30,7 @@ if sys.platform in ['linux2', 'win32']:
 # Build on Mac OS X.
 # python setup.py py2app --no-strip -g -O0
 APP = ['CryptogramGUI.py']
-DATA_FILES = ['sjcl.js']
+DATA_FILES = ['Cipher/sjcl.js']
 OPTIONS = {'argv_emulation': True,
            'iconfile': 'icon.icns',
            'plist':
