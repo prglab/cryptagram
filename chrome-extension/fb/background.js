@@ -16,16 +16,17 @@ function getClickHandler() {
 
     return function(info, tab) {
 		
-	chrome.tabs.getSelected(null, function(tab) {
+		chrome.tabs.getSelected(null, function(tab) {
 		
 		var password = localStorage['password.' + info.srcUrl];
 		if (!password) {
 			password = prompt("Enter password for\n"+info.srcUrl,"helloworld");     
 		}
-		chrome.tabs.sendRequest(tab.id, {"decodeURL":info.srcUrl, "password":password}, function(response) {
+		chrome.tabs.sendRequest(tab.id, {"decodeURL":info.srcUrl}, function(response) {
 	    	
 	    if (response.outcome == "success") {
-	    	localStorage['password.' + info.srcUrl] = password;
+	    	alert("Success");
+	    	//localStorage['password.' + info.srcUrl] = password;
 	    }
 	    	
 	    });
@@ -45,11 +46,11 @@ chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
     if (info.status=="complete") {
     	    
 		chrome.tabs.executeScript(null, {file: "sjcl.js"});
-		chrome.tabs.executeScript(null, {file: "seemenot.js"});
+		chrome.tabs.executeScript(null, {file: "cryptogram.js"});
 				
 		if (tab.url != lastCheck) {
     		lastCheck = tab.url;
-    		checkForSavedPasswords(tab.id);
+    		//checkForSavedPasswords(tab.id);
        	} 
 		
 		
