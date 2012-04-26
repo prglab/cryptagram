@@ -10,7 +10,7 @@ import sys
 import logging
 import os
 from tempfile import NamedTemporaryFile
-from Cipher import V8Cipher as Cipher
+from Cipher.PyV8Cipher import V8Cipher as Cipher
 from json import JSONEncoder, JSONDecoder
 from util import sha256hash
 
@@ -128,7 +128,7 @@ def main(argv):
   _iv = binary_decoding[64:86]
   _salt = binary_decoding[86:97]
   _ct = binary_decoding[97:]
-  decoded = {'iv': _iv, 'salt': _salt, 'ct': _ct}
+  decoded = {'iv':_iv, 'salt':_salt, 'ct':_ct}
   json_str = JSONEncoder().encode(decoded)
   integrity_check_value = sha256hash(json_str)
 
