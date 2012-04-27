@@ -10,7 +10,7 @@ import sys
 import logging
 import os
 from tempfile import NamedTemporaryFile
-from Cipher import V8Cipher as Cipher
+from Cipher.PyV8Cipher import V8Cipher as Cipher
 from json import JSONEncoder, JSONDecoder
 from util import sha256hash
 
@@ -125,12 +125,16 @@ def main(argv):
 
   # padded_decoding = _base64_pad(binary_decoding)
   _integrity_check = binary_decoding[0:64]
+  _to_check = binary_decoding[64:]
   _iv = binary_decoding[64:86]
   _salt = binary_decoding[86:97]
   _ct = binary_decoding[97:]
   decoded = {'iv': _iv, 'salt': _salt, 'ct': _ct}
   json_str = JSONEncoder().encode(decoded)
-  integrity_check_value = sha256hash(json_str)
+  integrity_check_value = sha256hash(_to_check)
+
+  logging.info('Extracted integrity check: %s.' % _integrity_check)
+  logging.info('Calculated integrity check: %s.' % integrity_check_value)
 
   if _integrity_check != integrity_check_value:
     logging.warning('Integrity check mismatch')

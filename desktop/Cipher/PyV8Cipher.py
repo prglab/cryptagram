@@ -4,7 +4,7 @@ import PyV8
 from json import JSONDecoder
 
 class V8Cipher(PyV8.JSClass):
-  sjcljs = 'sjcl.js'
+  sjcljs = 'Cipher/sjcl.js'
 
   def __init__(self, password):
     self.password = password
