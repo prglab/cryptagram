@@ -17,15 +17,15 @@ class MessageSymbolCoder(object):
 
 class Base64SymbolSignalCoder(SymbolSignalCoder):
   thresholds = { # Well, nine (we add one for "black").
-    '0': 235,
-    '1': 207,
-    '2': 179,
-    '3': 151,
-    '4': 123,
-    '5': 95,
-    '6': 67,
-    '7': 39,
-    '8': 11,
+    '0': 238,
+    '1': 210,
+    '2': 182,
+    '3': 154,
+    '4': 126,
+    '5': 98,
+    '6': 70,
+    '7': 42,
+    '8': 14,
     }
 
   _inv_thresholds = dict((v,k) for k, v in thresholds.iteritems())
