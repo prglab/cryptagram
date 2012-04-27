@@ -176,15 +176,23 @@ cryptogram.decoder.decodeDataToContainer = function(data, container) {
     var iv = newBase64.substring(64,64+22);
     var salt = newBase64.substring(64+22,64+33);
     var ct = newBase64.substring(64+33,newBase64.length);
+    var full = newBase64.substring(64,newBase64.length);
+    
     var obj = new Object();
     obj.iv = iv;
     obj.salt = salt;
     obj.ct = ct;
     var base64Decode = JSON.stringify(obj);
     
-    
-    console.log("Ignoring Checksum: \n " + sjcl.hash.sha256.hash(base64Decode));
-
+	var bits = sjcl.hash.sha256.hash(full);
+	var hexHash = sjcl.codec.hex.fromBits(bits);
+	
+	if (hexHash != check) {
+		console.log("Checksum failed. Image is corrupted.");
+	}	else {
+		console.log("Checksum passed.");
+	}
+		
     var decrypted = sjcl.decrypt("helloworld", base64Decode);
     
     console.log("Decrypted " + decrypted.length + " Base64 characters:\n \"" + decrypted.substring(0,100) + "…\"");
