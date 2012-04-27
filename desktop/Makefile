@@ -3,6 +3,8 @@ all:
 
 mac:
 	python setup.py py2app --no-strip
+	cp -r static dist/Cryptogram.app/Contents/Resources/
+	cp -r templates dist/Cryptogram.app/Contents/Resources/
 
 linux:
 	python setup.py build
