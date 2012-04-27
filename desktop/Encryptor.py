@@ -27,8 +27,13 @@ class Encrypt(object):
     # Compute integrity check on the encrypted data, which should be base64
     # (in the case of V8Cipher, this includes the jsonified data).
     if self.cipher.__class__.__name__ == 'V8Cipher':
-      str_encrypted_data = JSONEncoder().encode(encrypted_data)
-      integrity_check_value = sha256hash(str_encrypted_data)
+      _to_hash = \
+          encrypted_data['iv'] + \
+          encrypted_data['salt'] + \
+          encrypted_data['ct']
+      logging.info('Integrity hash input: %s.' % _to_hash[:32])
+      integrity_check_value = sha256hash(_to_hash)
+      logging.info('Integrity hash value: %s.' % integrity_check_value)
     else:
       integrity_check_value = sha256hash(encrypted_data)
 
