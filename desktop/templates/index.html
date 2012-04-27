@@ -1,0 +1,38 @@
+<html>
+	<head>
+		<script type="text/javascript">
+function checkPass() {
+	var pass1 = document.forms['input']['password'].value;
+	var pass2 = document.forms['input']['verify_password'].value;
+
+	if(pass1 != pass2) {
+    var response = document.getElementById('response');
+		response.innerHTML = "Passwords did not Match!";
+    return false;
+	}
+  return true;
+}
+</script>
+
+<link rel="stylesheet" href="screen.css" type="text/css" media="screen, projection">
+<link rel="stylesheet" href="print.css" type="text/css" media="print">
+<!--[if lt IE 8]>
+  <link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection">
+<![endif]-->
+
+	</head>
+	<body>
+
+	<div id=response></div>
+	<form name="input" action="password" method="post" onsubmit="checkPass()">
+		Password: <input type="password" name="password" /> <br />
+		Verify Password: <input type="password" name="verify_password" />
+		<input type="submit" value="Start encrypting" />
+	</form>
+
+	<form name="quitform" action="exit" method="get">
+		<input type="submit" value="Exit" />
+	</form>
+
+	</body>
+</html>
