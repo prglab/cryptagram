@@ -31,7 +31,9 @@ class Encrypt(object):
           encrypted_data['iv'] + \
           encrypted_data['salt'] + \
           encrypted_data['ct']
+      logging.info('Integrity hash input: %s.' % _to_hash[:32])
       integrity_check_value = sha256hash(_to_hash)
+      logging.info('Integrity hash value: %s.' % integrity_check_value)
     else:
       integrity_check_value = sha256hash(encrypted_data)
 
