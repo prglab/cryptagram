@@ -129,7 +129,7 @@ def main(argv):
   _iv = binary_decoding[64:86]
   _salt = binary_decoding[86:97]
   _ct = binary_decoding[97:]
-  decoded = {'iv': _iv, 'salt': _salt, 'ct': _ct}
+  decoded = {'iv':_iv, 'salt':_salt, 'ct':_ct}
   json_str = JSONEncoder().encode(decoded)
   integrity_check_value = sha256hash(_to_check)
 
