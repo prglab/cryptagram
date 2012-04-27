@@ -1,20 +1,23 @@
 #!/usr/bin/env python
-import os
+import platform
 import logging
 import PyV8
 from json import JSONDecoder
 
 class V8Cipher(PyV8.JSClass):
+  # NOT THREAD-SAFE. DO NOT USE IN A PYTHON THREAD.
   def __init__(self, password):
     self.password = password
     PyV8.JSClass.__init__(self)
 
-    if os.name == 'posix':
+    _platform = platform.system()
+    if _platform == 'Linux':
       self.sjcljs = 'Cipher/sjcl.js'
-    elif os.name == 'mac':
+    elif _platform == 'Darwin':
       self.sjcljs = 'sjcl.js'
 
   def encode(self, message):
+    logging.info('V8Cipher.encode called.')
     env = V8Cipher(self)
     with open(self.sjcljs) as fh:
       with PyV8.JSContext(env) as ctxt:

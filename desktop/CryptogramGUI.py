@@ -2,56 +2,112 @@
 
 # User-friendly SeeMeNot application code. Supports Drag and Drop.
 
-import Tkinter as tk
-from Tkinter import *
-import os
+from Cipher.PyV8Cipher import V8Cipher as Cipher
+from Codec import Codec
+from Encryptor import Encrypt
+from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
+from PIL import Image
+from SymbolShape import two_square
+from encodings import hex_codec
+from tornado.options import define, options
 import logging
+import os
 import shlex
 import subprocess
 import sys
 import time
-
-from Cipher.PyV8Cipher import V8Cipher as Cipher
-from Codec import Codec
-from SymbolShape import two_square
-from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
-from Encryptor import Encrypt
-from PIL import Image
-from encodings import hex_codec
+import tornado.auth
+import tornado.escape
+import tornado.httpserver
+import tornado.ioloop
+import tornado.options
+import tornado.web
+import urllib
+import urllib2
+import webbrowser
 
 logging.basicConfig(level=logging.INFO,
                     #stream = sys.stdout,
-                    filename='py2app.tierney.log',
+                    filename='cryptogram.log',
                     format = '%(asctime)-15s %(levelname)8s %(module)20s '\
                       '%(lineno)4d %(message)s')
 
-class StatusBar(tk.Frame):
-  def __init__(self, master):
-    tk.Frame.__init__(self, master)
-    self.variable=tk.StringVar()
-    self.label=tk.Label(self, bd=1, anchor=tk.W,
-                        textvariable=self.variable,
-                        font=('arial',12,'normal'))
-    self.variable.set('Status Bar')
-    self.label.pack(fill="both", expand="yes")
-    self.pack()
+define("port", default=8888, help="run on the given port", type=int)
 
-  def set(self, set_string):
-    self.variable.set(set_string)
+_ALREADY_ENCRYPTING = False
+_CODEC = None
 
-  def clear(self):
-    self.variable.set('')
+class Application(tornado.web.Application):
+  def __init__(self):
+    handlers = [
+      (r"/", MainHandler),
+      (r"/status", StatusHandler),
+      (r"/password", PasswordHandler),
+      (r"/exit", ExitHandler),
+    ]
+
+    logging.info('I am a mac.')
+    settings = dict(
+      template_path = os.path.dirname(__file__),
+      static_path = os.path.dirname(__file__)
+      )
+    tornado.web.Application.__init__(self, handlers, **settings)
+
+
+class MainHandler(tornado.web.RequestHandler):
+  def get(self):
+    self.render("index.html")
+
+
+class StatusHandler(tornado.web.RequestHandler):
+  def get(self):
+    global _CODEC
+    if _CODEC:
+      _CODEC.get_status()
+    return 'hello'
+
+
+class PasswordHandler(tornado.web.RequestHandler):
+  def post(self):
+    global _ALREADY_ENCRYPTING, _CODEC
+
+    password = self.get_argument('password')
+    verify_password = self.get_argument('verify_password')
+    if password != verify_password:
+      logging.warning('Passwords do not match.')
+      self.render('index.html')
+      return
+
+    if _ALREADY_ENCRYPTING:
+      logging.warning('Return idempotency error.')
+      self.render("index.html")
+      return
+    _ALREADY_ENCRYPTING = True
+    self.render("index.html")
+
+    passed_values = sys.argv[1:]
+    logging.info('Going to handle: %s.' % str(passed_values))
+    logging.info('Password: %s.' % password)
+    _CODEC = GuiCodec(passed_values, password, None)
+    _CODEC.run()
+
+
+class ExitHandler(tornado.web.RequestHandler):
+  def get(self):
+    logging.info('Indicated we wanted to quit.')
+    self.render('exit.html')
+    sys.exit(0)
+
 
 class GuiCodec(object):
-  def __init__(self, parent_frame, passed_values, status_bar):
-    self.parent_frame = parent_frame
+  # TODO(tierney): Idempotent...
+  def __init__(self, passed_values, password, status_bar):
     self.passed_values = passed_values
-    self.status_bar = status_bar
-    self.password = None
-
-  def set_password(self, password):
-    logging.info('Set password %s' % password)
     self.password = password
+    self.status_bar = status_bar
+
+  def get_status(self):
+    return 'good'
 
   def _encrypt(self, image_path):
     # Update codec based on wh_ratio from given image.
@@ -93,114 +149,35 @@ class GuiCodec(object):
     return 0
 
   def run(self):
-    while True:
-      if self.password:
-        break
-      logging.info('Waiting for password')
-      time.sleep(1)
-
     logging.info('Got password')
     errors = 0
     for passed_value in self.passed_values:
       if os.path.isdir(passed_value):
-        self.status_bar.set(passed_value)
+        # self.status_bar.set(passed_value)
         logging.info('Treat %s like a directory.' % passed_value)
       else:
-        self.status_bar.set('Encrypting %s...' % os.path.basename(passed_value))
-        self.status_bar.update()
+        # self.status_bar.set('Encrypting %s...' % os.path.basename(passed_value))
+        # self.status_bar.update()
         logging.info('Encrypting %s.' % passed_value)
         ret = self._encrypt(passed_value)
         if ret != 0:
           errors += 1
         logging.info('Completed.')
 
-    self.status_bar.set('Done (%d %s).' % \
-                          (errors, 'error' if errors == 1 else 'errors'))
+    # self.status_bar.set('Done (%d %s).' % \
+    #                       (errors, 'error' if errors == 1 else 'errors'))
     logging.info('Done so quitting.')
 
 
-class Application(Frame):
-  def __init__(self, master=None, passed_values=None):
-    self.passed_values = passed_values
-    self.password = None
-
-    Frame.__init__(self, master)
-
-    labelframe = LabelFrame(master, text="Password for Photos")
-    labelframe.pack(fill="both", expand="yes")
-
-    self.contents = Entry(labelframe)
-    self.contents.pack(fill='both', expand='yes')
-    self.contentstext = StringVar()
-    self.contentstext.set("Type password here. Hit Enter.")
-    self.contents["textvariable"] = self.contentstext
-    self.contents.bind('<Key-Return>', self.begin_encryption)
-
-    self.submit = Button(labelframe)
-    self.submit['text'] = 'Start encryption with password above.'
-    self.submit['command'] = self.begin_encryption
-    self.submit.pack()
-
-    status_frame = LabelFrame(master, text="Status")
-    status_frame.pack(fill="both", expand="yes")
-    self.sb = StatusBar(status_frame)
-    self.sb.pack()
-    self.sb.clear()
-
-    # Should allow for both selecting files to encrypt and drag and drop.
-    self.sb.set('Waiting for password...')
-
-    self.pack()
-    self.createWidgets()
-
-  def say_hi(self):
-    print "hi there, everyone!"
-
-  def createWidgets(self):
-    self.hi_there = Button(self)
-    self.hi_there["text"] = "Choose Files"
-    self.hi_there["command"] = self.say_hi
-    self.hi_there.pack({"side": "left"})
-
-    self.hi_there2 = Button(self)
-    self.hi_there2["text"] = "Choose Folder"
-    self.hi_there2["command"] = self.say_hi
-    self.hi_there2.pack({"side": "left"})
-
-    self.QUIT = Button(self)
-    self.QUIT["text"] = "Quit"
-    # self.QUIT["fg"]   = "red"
-    self.QUIT["command"] =  self.quit
-
-    self.QUIT.pack({"side": "left"})
-
-  def begin_encryption(self, event):
-    self.password = self.contents.get()
-    logging.info("Password entered")
-    self.codec = GuiCodec(self, self.passed_values, self.sb)
-    self.codec.set_password(self.password)
-    self.codec.run()
-
-  def done(self):
-    logging.info('Done called')
-
 def main(argv):
   logging.info(argv)
-
   passed_values = argv[1:]
 
-  root = Tk()
-  root.title('CryptoSam Image Converter')
-  w = root.winfo_screenwidth()
-  h = root.winfo_screenheight()
-  rootsize = (500, 160) # tuple(int(_) for _ in root.geometry().split('+')[0].split('x'))
-  x = w/2 - rootsize[0]/2
-  y = h/2 - rootsize[1]/2
-  root.geometry("%dx%d+%d+%d" % (rootsize + (x, y)))
+  http_server = tornado.httpserver.HTTPServer(Application())
+  http_server.listen(options.port)
 
-  app = Application(master=root, passed_values = passed_values)
-  app.mainloop()
-  root.destroy()
+  webbrowser.open_new_tab('http://localhost:%d' % options.port)
+  tornado.ioloop.IOLoop.instance().start()
 
 if __name__=='__main__':
   main(sys.argv)
