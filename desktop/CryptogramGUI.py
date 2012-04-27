@@ -46,10 +46,9 @@ class Application(tornado.web.Application):
       (r"/exit", ExitHandler),
     ]
 
-    logging.info('I am a mac.')
     settings = dict(
-      template_path = os.path.dirname(__file__),
-      static_path = os.path.dirname(__file__)
+      template_path = os.path.join(os.path.dirname(__file__), 'templates'),
+      static_path = os.path.join(os.path.dirname(__file__), 'static')
       )
     tornado.web.Application.__init__(self, handlers, **settings)
 
@@ -59,12 +58,14 @@ class MainHandler(tornado.web.RequestHandler):
     self.render("index.html")
 
 
+_PROGRESS = 0
 class StatusHandler(tornado.web.RequestHandler):
-  def get(self):
-    global _CODEC
+  def post(self):
+    global _CODEC, _PROGRESS
     if _CODEC:
-      _CODEC.get_status()
-    return 'hello'
+      _PROGRESS += 1
+      return _PROGRESS
+    return 0
 
 
 class PasswordHandler(tornado.web.RequestHandler):
@@ -82,6 +83,7 @@ class PasswordHandler(tornado.web.RequestHandler):
       logging.warning('Return idempotency error.')
       self.render("index.html")
       return
+
     _ALREADY_ENCRYPTING = True
     self.render("index.html")
 

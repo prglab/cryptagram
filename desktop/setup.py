@@ -34,8 +34,7 @@ APP = ['CryptogramGUI.py']
 DATA_FILES = ['Cipher/sjcl.js',
               'templates/index.html',
               'templates/exit.html',
-              'static/blueprint/screen.css',
-              'static/blueprint/print.css']
+              ]
 
 OPTIONS = {'argv_emulation': True,
            'iconfile': 'icon.icns',
