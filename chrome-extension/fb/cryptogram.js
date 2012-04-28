@@ -7,20 +7,20 @@ cryptogram.init = function() {
 
   chrome.extension.onRequest.addListener(
       function(request, sender, sendResponse) {
-        if (request.decodeURL) {
-          cryptogram.decryptByURL(request.decodeURL);
+        if (request.decodeURL && request.password) {
+          cryptogram.decryptByURL(request.decodeURL, request.password);
         }
       });
 };
 
-cryptogram.decryptByURL = function(URL) {
+cryptogram.decryptByURL = function(URL, password) {
   
   console.log("Request to decrypt:\n " + URL);
   
   cryptogram.context.initWithURL(URL);
   cryptogram.loader.getImageData( cryptogram.context.fullURL, 
     function(data) {
-      cryptogram.decoder.decodeDataToContainer(data, cryptogram.context.container);
+      cryptogram.decoder.decodeDataToContainer(data, password, cryptogram.context.container);
     });
 
 };
@@ -47,7 +47,29 @@ cryptogram.context = {
     
     this.fullURL = this._media.fixURL(_URL);
     this.container = cryptogram.context.getContainer();
+    cryptogram.context.createStatusDiv();
   },
+  
+  createStatusDiv: function() {
+  
+  	if (this.status != null) return;
+  	var div = document.createElement("div");
+  	div.id = "cryptogramStatus";
+  	div.style.position = "absolute";
+  	div.style.top = "0px";
+  	div.style.left = "50%";
+  	div.style.margin = "5px";
+  	div.style.marginLeft = "-40px";
+  	div.style.padding = "5px";
+  	div.style.color = "black";
+  	div.style.background = "white";
+  	div.style.opacity = "0.8";
+  	div.innerHTML = "Downloading...";
+  	this.status = div;
+  	this.container.parentNode.appendChild(div);
+  },
+  
+  
   
   getContainer: function() {
     var elements = document.getElementsByTagName('img');  
@@ -66,7 +88,7 @@ cryptogram.context.facebook = {
     if (URL.search("_o.jpg") != -1) {
       console.log("Facebook URL appears to be full size.")
       return URL;
-  	}
+		}
   		
     var FBURLParts = URL.split("/");
   	var FBFilename = FBURLParts[FBURLParts.length-1];
@@ -134,14 +156,18 @@ cryptogram.context.web = {
 
 cryptogram.decoder = {};
 cryptogram.decoder.URIHeader = "data:image/jpeg;base64,";
-cryptogram.decoder.decodeDataToContainer = function(data, container) {
+cryptogram.decoder.decodeDataToContainer = function(data, password, container) {
+
 
   var base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
   
   var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
   var img = new Image();
-  var blockSize = 2;
+  blockSize = 2;
+  
+  var _decoder = this;
+  _decoder.base64Values = base64Values;
   
   img.onload = function(){
 
@@ -152,11 +178,40 @@ cryptogram.decoder.decodeDataToContainer = function(data, container) {
     var newBase64 = "";
     var block0;
     var block1;
-
+		
     var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;               
-         
-    for (y = 0; y < img.height; y+= blockSize) {
-      for (x = 0; x < img.width; x+= (blockSize * 2)) {
+
+		_decoder.img = img;
+		_decoder.imageData = imageData;
+		_decoder.blockSize = blockSize;
+		_decoder.password = password;
+		_decoder.container = container;
+		_decoder.chunkSize = img.height / 12;
+		_decoder.y = 0;
+		_decoder.newBase64 = "";
+		
+  	cryptogram.decoder.processImage();
+  };
+  
+  img.src = data;
+}
+
+
+cryptogram.decoder.processImage = function() {
+
+	var img = this.img;
+	var imageData = this.imageData;
+	var blockSize = this.blockSize;
+	var newBase64 = "";
+	var count = 0;
+	var y = this.y;
+	var done = false;
+	//console.log(img.height + "/" + this.chunkSize);
+	
+	
+	while (this.chunkSize == 0 || count < this.chunkSize) {
+	
+		for (x = 0; x < img.width; x+= (blockSize * 2)) {
         
         base8_0 = cryptogram.decoder.getBase8Value(imageData, img.width, x, y, blockSize, blockSize);
         base8_1 = cryptogram.decoder.getBase8Value(imageData, img.width, x + blockSize, y, blockSize, blockSize);
@@ -165,24 +220,44 @@ cryptogram.decoder.decodeDataToContainer = function(data, container) {
         if (base8_0 == -1 || base8_1 == -1) break;  
         
         base64Num = base8_0 * 8 + base8_1 ;
-        base64 = base64Values.charAt(base64Num);                    
-        newBase64 += base64;
-        count++;
+        base64 = this.base64Values.charAt(base64Num);                    
+        this.newBase64 += base64;
       } 
-    }
-    console.log("Decoded " + newBase64.length + " Base64 characters:\n \"" + newBase64.substring(0,100) + "…\"");
-
-    var check = newBase64.substring(0,64);
-    var iv = newBase64.substring(64,64+22);
-    var salt = newBase64.substring(64+22,64+33);
-    var ct = newBase64.substring(64+33,newBase64.length);
-    var full = newBase64.substring(64,newBase64.length);
+    count++;  
+    y+= blockSize;
     
-    var obj = new Object();
-    obj.iv = iv;
-    obj.salt = salt;
-    obj.ct = ct;
-    var base64Decode = JSON.stringify(obj);
+    if (y >= img.height) {
+    	done = true;
+    	break;
+    }
+	}
+	
+	this.y = y;
+	
+	if (!done) {
+			var percent = Math.floor(100.0 * (y / img.height));
+			cryptogram.context.status.style.display = "";
+			cryptogram.context.status.innerHTML = "Decrypting " + percent + "%";
+			setTimeout(function () { cryptogram.decoder.processImage() }, 100);
+	} else {
+			cryptogram.context.status.style.display = "none";
+			cryptogram.context.status.innerHTML = "Downloading...";
+			console.log("Decoded " + newBase64.length + " Base64 characters:\n \"" + newBase64.substring(0,100) + "…\"");
+			cryptogram.decoder.decryptImage(this.newBase64);
+	}
+	
+	
+}
+
+
+
+cryptogram.decoder.decryptImage = function (newBase64) {
+
+  var check = newBase64.substring(0,64);
+  var iv = newBase64.substring(64,64+22);
+  var salt = newBase64.substring(64+22,64+33);
+  var ct = newBase64.substring(64+33,newBase64.length);
+  var full = newBase64.substring(64,newBase64.length);
     
 	var bits = sjcl.hash.sha256.hash(full);
 	var hexHash = sjcl.codec.hex.fromBits(bits);
@@ -193,15 +268,17 @@ cryptogram.decoder.decodeDataToContainer = function(data, container) {
 		console.log("Checksum passed.");
 	}
 		
-    var decrypted = sjcl.decrypt("helloworld", base64Decode);
+  var obj = new Object();
+  obj.iv = iv;
+  obj.salt = salt;
+  obj.ct = ct;
+  var base64Decode = JSON.stringify(obj);
+  var decrypted = sjcl.decrypt(this.password, base64Decode);
     
-    console.log("Decrypted " + decrypted.length + " Base64 characters:\n \"" + decrypted.substring(0,100) + "…\"");
-    container.src = cryptogram.decoder.URIHeader + decrypted;
-  };
-  
-  img.src = data;
-  
+  console.log("Decrypted " + decrypted.length + " Base64 characters:\n \"" + decrypted.substring(0,100) + "…\"");
+  this.container.src = cryptogram.decoder.URIHeader + decrypted;
 }
+
  		
 // Takes the average over some block of pixels
 //

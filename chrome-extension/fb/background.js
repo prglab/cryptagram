@@ -22,7 +22,7 @@ function getClickHandler() {
 		if (!password) {
 			password = prompt("Enter password for\n"+info.srcUrl,"helloworld");     
 		}
-		chrome.tabs.sendRequest(tab.id, {"decodeURL":info.srcUrl}, function(response) {
+		chrome.tabs.sendRequest(tab.id, {"decodeURL":info.srcUrl, "password":password}, function(response) {
 	    	
 	    if (response.outcome == "success") {
 	    	alert("Success");
