@@ -78,8 +78,8 @@ class PyV8Decode(threading.Thread):
         with open(self.sjcljs) as fh:
           sjcl = fh.read()
         context.eval(sjcl)
-        resp = ctxt.eval('sjcl.decrypt("%s", \'%s\')' % \
-                           (self.password, self.message))
+        resp = context.eval('sjcl.decrypt("%s", \'%s\')' % \
+                              (self.password, self.message))
         self.result = resp
         del context
 
