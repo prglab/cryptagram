@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import logging
+import numpy
 from NewImageDimensions import NewImageDimensions
 from PIL import Image
 
@@ -46,45 +47,49 @@ class Codec(object):
 
     data_len = len(data)
     coords = {}
+
+    _shape_name = self.symbol_shape.get_name()
     _symbol_to_signal = self.symbol_signal_coder.symbol_to_signal
     _message_to_symbol = self.message_symbol_coder.message_to_symbol
+    _num_symbol_shapes = self.symbol_shape.get_num_symbol_shapes()
 
-    for sym_i in range(self.symbol_shape.get_num_symbol_shapes()):
+    for sym_i in range(_num_symbol_shapes):
       coords[sym_i + 1] = self.symbol_shape.get_symbol_shape_coords(sym_i + 1)
 
     for i, datum in enumerate(data):
-      if i % 20000 == 0:
-        logging.info('At datum %d of %d.' % (i, data_len))
-
       y_coord = int(i / (1. * new_image_symbol_width))
       x_coord = int(i - (y_coord * new_image_symbol_width))
       symbol_values = _message_to_symbol(datum)
-      # assert (len(symbol_values) == self.symbol_shape.get_num_symbol_shapes())
+
+      assert (len(symbol_values) == _num_symbol_shapes)
 
       base_x = x_coord * shape_width
       base_y = y_coord * shape_height
 
-      # for sym_i, symbol_val in enumerate(symbol_values):
-      #   fill = _symbol_to_signal(symbol_val)
-      #   for x,y in coords[sym_i + 1]:
-      #     # pixel[base_x + x, base_y + y] = (fill, fill, fill)
-      #     assign(pixel, base_x, x, base_y, y, fill)
+      _fill_0 = _symbol_to_signal(symbol_values[0])
+      fill_0 = (_fill_0, _fill_0, _fill_0)
 
-      fill_0 = _symbol_to_signal(symbol_values[0])
-      fill_1 = _symbol_to_signal(symbol_values[1])
+      _fill_1 = _symbol_to_signal(symbol_values[1])
+      fill_1 = (_fill_1, _fill_1, _fill_1)
 
-      pixel[base_x + 0, base_y + 0] = fill_0
-      pixel[base_x + 1, base_y + 0] = fill_0
-      pixel[base_x + 1, base_y + 1] = fill_0
-      pixel[base_x + 0, base_y + 1] = fill_0
+      if _shape_name == 'two_square':
+        pixel[base_x + 0, base_y + 0] = fill_0
+        pixel[base_x + 1, base_y + 0] = fill_0
+        pixel[base_x + 1, base_y + 1] = fill_0
+        pixel[base_x + 0, base_y + 1] = fill_0
 
-      pixel[base_x + 2, base_y + 0] = fill_1
-      pixel[base_x + 3, base_y + 0] = fill_1
-      pixel[base_x + 3, base_y + 1] = fill_1
-      pixel[base_x + 2, base_y + 1] = fill_1
+        pixel[base_x + 2, base_y + 0] = fill_1
+        pixel[base_x + 3, base_y + 0] = fill_1
+        pixel[base_x + 3, base_y + 1] = fill_1
+        pixel[base_x + 2, base_y + 1] = fill_1
+
+      else:
+        for sym_i, symbol_val in enumerate(symbol_values):
+          fill = _symbol_to_signal(symbol_val)
+          for x,y in coords[sym_i + 1]:
+            pixel[base_x + x, base_y + y] = (fill, fill, fill)
 
     return new_image
-
 
 
   def decode(self, read_image):
@@ -94,16 +99,21 @@ class Codec(object):
     shape_width, shape_height = self.symbol_shape.get_shape_size()
     pixels = image.load()
     extracted_data = ''
+
+    _num_symbol_shapes = self.symbol_shape.get_num_symbol_shapes()
+    _symbol_to_message = self.message_symbol_coder.symbol_to_message
+    _signal_to_symbol = self.symbol_signal_coder.signal_to_symbol
+    _get_symbol_shape_coords = self.symbol_shape.get_symbol_shape_coords
+
     for y_coord in range(0, height, shape_height):
       for x_coord in range(0, width, shape_width):
         values = {}
-        for symbol_val in range(self.symbol_shape.get_num_symbol_shapes()):
-          coords = self.symbol_shape.get_symbol_shape_coords(symbol_val+1)
+        for symbol_val in range(_num_symbol_shapes):
+          coords = _get_symbol_shape_coords(symbol_val+1)
           values[symbol_val] = {}
           for x,y in coords:
             values[symbol_val][(x,y)] = pixels[x_coord + x, y_coord + y]
 
-        extracted_datum = self.message_symbol_coder.symbol_to_message(
-          self.symbol_signal_coder.signal_to_symbol(values))
+        extracted_datum = _symbol_to_message(_signal_to_symbol(values))
         extracted_data += extracted_datum
     return extracted_data
