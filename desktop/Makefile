@@ -2,7 +2,7 @@ all:
 	@echo Please be more specific.
 
 mac:
-	python setup.py py2app --no-strip
+	python setup.py py2app --no-strip -O2
 	cp -r static dist/Cryptogram.app/Contents/Resources/
 	cp -r templates dist/Cryptogram.app/Contents/Resources/
 
@@ -11,5 +11,5 @@ linux:
 
 clean:
 	rm -rf *.log build/ dist/
-	find . -name *.pyo | xargs rm -f
-	find . -name *.pyc | xargs rm -f
+	find . -name "*.pyo" | xargs rm -f
+	find . -name "*.pyc" | xargs rm -f
