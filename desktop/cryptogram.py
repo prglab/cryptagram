@@ -61,7 +61,7 @@ def main(argv):
 
   symbol_shape = _AVAILABLE_SHAPES[FLAGS.symbol_shape]
   quality = FLAGS.quality
-  cipher = Cipher(FLAGS.password)
+  cipher = Cipher(FLAGS.password, command_line=True)
 
   if FLAGS.image and FLAGS.encrypt:
     logging.info('Image to encrypt: %s.' % FLAGS.image)

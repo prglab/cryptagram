@@ -10,4 +10,6 @@ linux:
 	python setup.py build
 
 clean:
-	rm -rf *.pyc *.log build/ dist/
+	rm -rf *.log build/ dist/
+	find . -name *.pyo | xargs rm -f
+	find . -name *.pyc | xargs rm -f
