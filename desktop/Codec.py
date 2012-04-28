@@ -39,23 +39,53 @@ class Codec(object):
     new_image = Image.new('RGB', (new_image_width, new_image_height))
     logging.info('Image dimensions: width (%d) height (%d).' % \
                    (new_image_width, new_image_height))
+
     pixel = new_image.load()
+
     shape_width, shape_height = self.symbol_shape.get_shape_size()
+
+    data_len = len(data)
+    coords = {}
+    _symbol_to_signal = self.symbol_signal_coder.symbol_to_signal
+    _message_to_symbol = self.message_symbol_coder.message_to_symbol
+
+    for sym_i in range(self.symbol_shape.get_num_symbol_shapes()):
+      coords[sym_i + 1] = self.symbol_shape.get_symbol_shape_coords(sym_i + 1)
+
     for i, datum in enumerate(data):
-      y_coord = int(i / float(new_image_symbol_width))
+      if i % 20000 == 0:
+        logging.info('At datum %d of %d.' % (i, data_len))
+
+      y_coord = int(i / (1. * new_image_symbol_width))
       x_coord = int(i - (y_coord * new_image_symbol_width))
-      symbol_values = self.message_symbol_coder.message_to_symbol(datum)
-      assert (len(symbol_values) == self.symbol_shape.get_num_symbol_shapes())
+      symbol_values = _message_to_symbol(datum)
+      # assert (len(symbol_values) == self.symbol_shape.get_num_symbol_shapes())
 
       base_x = x_coord * shape_width
       base_y = y_coord * shape_height
 
-      for sym_i, symbol_val in enumerate(symbol_values):
-        fill = self.symbol_signal_coder.symbol_to_signal(symbol_val)
-        coords = self.symbol_shape.get_symbol_shape_coords(sym_i + 1)
-        for x,y in coords:
-          pixel[base_x + x, base_y + y] = (fill, fill, fill)
+      # for sym_i, symbol_val in enumerate(symbol_values):
+      #   fill = _symbol_to_signal(symbol_val)
+      #   for x,y in coords[sym_i + 1]:
+      #     # pixel[base_x + x, base_y + y] = (fill, fill, fill)
+      #     assign(pixel, base_x, x, base_y, y, fill)
+
+      fill_0 = _symbol_to_signal(symbol_values[0])
+      fill_1 = _symbol_to_signal(symbol_values[1])
+
+      pixel[base_x + 0, base_y + 0] = fill_0
+      pixel[base_x + 1, base_y + 0] = fill_0
+      pixel[base_x + 1, base_y + 1] = fill_0
+      pixel[base_x + 0, base_y + 1] = fill_0
+
+      pixel[base_x + 2, base_y + 0] = fill_1
+      pixel[base_x + 3, base_y + 0] = fill_1
+      pixel[base_x + 3, base_y + 1] = fill_1
+      pixel[base_x + 2, base_y + 1] = fill_1
+
     return new_image
+
+
 
   def decode(self, read_image):
     width, height = read_image.size

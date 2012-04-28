@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{% block body %}
 	<div id=response></div>
 	<form name="input" action="password" method="post" onsubmit="checkPass()">
 		Password: <input type="password" name="password" /> <br />
@@ -10,6 +11,4 @@
 	<form name="quitform" action="exit" method="get">
 		<input type="submit" value="Exit" />
 	</form>
-
-	</body>
-</html>
+{% end %}
