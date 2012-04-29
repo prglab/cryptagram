@@ -2,6 +2,7 @@
 
 # User-friendly SeeMeNot application code. Supports Drag and Drop.
 
+from Queue import Queue
 from Cipher.PyV8Cipher import V8Cipher as Cipher
 from Codec import Codec
 from Encryptor import Encrypt
@@ -26,6 +27,7 @@ import tornado.web
 import urllib
 import urllib2
 import webbrowser
+from json import JSONEncoder
 
 logging.basicConfig(level=logging.INFO,
                     #stream = sys.stdout,
@@ -59,40 +61,29 @@ class MainHandler(tornado.web.RequestHandler):
     self.render("index.html")
 
 
-_PROGRESS = 0
 class StatusHandler(tornado.web.RequestHandler):
   def post(self):
-    global _CODEC, _PROGRESS
-    if _CODEC:
-      _PROGRESS += 1
-      return _PROGRESS
-    return 0
+    global _PROGRESS
+    logging.info('Asking for status: %s.' % str(_PROGRESS))
+    to_return = dict(
+      (key.replace('/','_').replace('.','_')[1:], int(100. * _PROGRESS.get(key)))
+      for key in _PROGRESS)
+    self.write(JSONEncoder().encode(to_return))
+    logging.info('Returned status.')
 
 
 class PasswordHandler(tornado.web.RequestHandler):
   def post(self):
-    global _ALREADY_ENCRYPTING, _CODEC
+    global _CODECS
 
     password = self.get_argument('password')
     verify_password = self.get_argument('verify_password')
     if password != verify_password:
       logging.warning('Passwords do not match.')
       self.render('index.html')
-      return
 
-    if _ALREADY_ENCRYPTING:
-      logging.warning('Return idempotency error.')
-      self.render("index.html")
-      return
-
-    _ALREADY_ENCRYPTING = True
-    self.render("index.html")
-
-    passed_values = sys.argv[1:]
-    logging.info('Going to handle: %s.' % str(passed_values))
-    logging.info('Password: %s.' % password)
-    _CODEC = GuiCodec(passed_values, password, None)
-    _CODEC.run()
+    [codec.set_password(password) for codec in _CODECS]
+    self.render("encrypting.html")
 
 
 class ExitHandler(tornado.web.RequestHandler):
@@ -102,17 +93,20 @@ class ExitHandler(tornado.web.RequestHandler):
     sys.exit(0)
 
 
-class GuiCodec(object):
-  # TODO(tierney): Idempotent...
-  def __init__(self, passed_values, password, status_bar):
-    self.passed_values = passed_values
-    self.password = password
-    self.status_bar = status_bar
+class GuiCodec(threading.Thread):
+  codec = None
+  password = None
 
-  def get_status(self):
-    return 'good'
+  def __init__(self, queue):
+    threading.Thread.__init__(self)
+    self.queue = queue
+
+  def set_password(self, password):
+    self.password = password
 
   def _encrypt(self, image_path):
+    global _PROGRESS
+
     # Update codec based on wh_ratio from given image.
     try:
       _image = Image.open(image_path)
@@ -121,8 +115,8 @@ class GuiCodec(object):
       return -1
     _width, _height = _image.size
     wh_ratio = _width / float(_height)
-    codec = Codec(two_square, wh_ratio, Base64MessageSymbolCoder(),
-                  Base64SymbolSignalCoder())
+    self.codec = Codec(two_square, wh_ratio, Base64MessageSymbolCoder(),
+                       Base64SymbolSignalCoder())
 
     # Determine file size.
     with open(image_path, 'rb') as fh:
@@ -131,7 +125,7 @@ class GuiCodec(object):
       logging.info('Image filesize: %d bytes.' % length)
 
     cipher = Cipher(self.password)
-    crypto = Encrypt(image_path, codec, cipher)
+    crypto = Encrypt(image_path, self.codec, cipher)
     try:
       encrypted_data = crypto.upload_encrypt()
     except IOError, e:
@@ -139,7 +133,19 @@ class GuiCodec(object):
       return -1
 
     logging.info('Encrypted data length: %d.' % len(encrypted_data))
-    im = codec.encode(encrypted_data)
+
+    self.codec.set_direction('encode')
+    self.codec.set_data(encrypted_data)
+    self.codec.start()
+    while True:
+      im = self.codec.get_result()
+      if im:
+        break
+
+      # Recording the image progress for the user.
+      _PROGRESS[image_path] = self.codec.get_percent_complete()
+      logging.info('Progress: %.2f%%.' % (100. * self.codec.get_percent_complete()))
+      time.sleep(0.5)
 
     quality = 95
     logging.info('Saving encrypted jpeg with quality %d.' % quality)
@@ -149,32 +155,50 @@ class GuiCodec(object):
     except Exception, e:
       logging.error(str(e))
       return -1
+
+    _PROGRESS[image_path] = 1
     return 0
 
   def run(self):
-    logging.info('Got password')
-    errors = 0
-    for passed_value in self.passed_values:
-      if os.path.isdir(passed_value):
-        # self.status_bar.set(passed_value)
-        logging.info('Treat %s like a directory.' % passed_value)
-      else:
-        # self.status_bar.set('Encrypting %s...' % os.path.basename(passed_value))
-        # self.status_bar.update()
-        logging.info('Encrypting %s.' % passed_value)
-        ret = self._encrypt(passed_value)
-        if ret != 0:
-          errors += 1
-        logging.info('Completed.')
+    global _PROGRESS
+    while True:
+      if self.password: break
+      time.sleep(1)
 
-    # self.status_bar.set('Done (%d %s).' % \
-    #                       (errors, 'error' if errors == 1 else 'errors'))
-    logging.info('Done so quitting.')
+    while True:
+      try:
+        image_path = self.queue.get_nowait()
+      except Exception, e:
+        logging.error('Queue empty? %s.' % str(e))
+        break
+      _PROGRESS[image_path] = -1
+      self._encrypt(image_path)
 
 
 def main(argv):
+  global _CODECS, _PROGRESS
   logging.info(argv)
+
+  _PROGRESS = {}
+  queue = Queue()
   passed_values = argv[1:]
+  for passed_value in passed_values:
+    if os.path.isdir(passed_value):
+      logging.info('Treat %s like a directory.' % passed_value)
+      for _dir_file in os.path.listdir(passed_value):
+        logging.info('Adding %s from %s.' % (_dir_file, passed_value))
+        _path = os.path.join(passed_value, _dir_file)
+
+        queue.put(_path)
+        _PROGRESS[_path] = -2
+
+    else:
+      logging.info('Encrypting %s.' % passed_value)
+      queue.put(passed_value)
+      _PROGRESS[passed_value] = -2
+
+  _CODECS = [GuiCodec(queue) for i in range(2)]
+  [codec.start() for codec in _CODECS]
 
   http_server = tornado.httpserver.HTTPServer(Application())
   http_server.listen(options.port)

@@ -1,12 +1,19 @@
 #!/usr/bin/env python
 import logging
-import numpy
+import threading
 from NewImageDimensions import NewImageDimensions
 from PIL import Image
 
-class Codec(object):
+class Codec(threading.Thread):
+  completed = 0
+  data_length = 1
+  direction = None
+  data = None
+  result = None
+
   def __init__(self, symbol_shape, wh_ratio, message_symbol_coder,
                symbol_signal_coder):
+    threading.Thread.__init__(self)
     self.symbol_shape = symbol_shape
     self.wh_ratio = wh_ratio
     self.message_symbol_coder = message_symbol_coder
@@ -25,6 +32,26 @@ class Codec(object):
   def get_prospective_image_dimensions(self, data):
     self._new_image_dimensions(data)
     return self.new_image_dimensions.get_image_dimensions()
+
+  def get_percent_complete(self):
+    percent = self.completed / (1. * self.data_length)
+    return percent
+
+  def set_data(self, data):
+    self.data = data
+
+  def set_direction(self, direction):
+    self.direction = direction
+
+  def get_result(self):
+    return self.result
+
+  def run(self):
+    self.result = None
+    if self.direction == 'encode':
+      self.encode(self.data)
+    elif self.directoin == 'decode':
+      self.decode(self.data)
 
   def encode(self, data):
     logging.info('Encoding data.')
@@ -45,18 +72,21 @@ class Codec(object):
 
     shape_width, shape_height = self.symbol_shape.get_shape_size()
 
-    data_len = len(data)
-    coords = {}
-
     _shape_name = self.symbol_shape.get_name()
     _symbol_to_signal = self.symbol_signal_coder.symbol_to_signal
     _message_to_symbol = self.message_symbol_coder.message_to_symbol
     _num_symbol_shapes = self.symbol_shape.get_num_symbol_shapes()
 
+    coords = {}
     for sym_i in range(_num_symbol_shapes):
       coords[sym_i + 1] = self.symbol_shape.get_symbol_shape_coords(sym_i + 1)
 
+    self.data_length = len(data)
+    self.completed = 0
+
     for i, datum in enumerate(data):
+      self.completed += 1
+
       y_coord = int(i / (1. * new_image_symbol_width))
       x_coord = int(i - (y_coord * new_image_symbol_width))
       symbol_values = _message_to_symbol(datum)
@@ -89,7 +119,7 @@ class Codec(object):
           for x,y in coords[sym_i + 1]:
             pixel[base_x + x, base_y + y] = (fill, fill, fill)
 
-    return new_image
+    self.result = new_image
 
 
   def decode(self, read_image):
@@ -116,4 +146,4 @@ class Codec(object):
 
         extracted_datum = _symbol_to_message(_signal_to_symbol(values))
         extracted_data += extracted_datum
-    return extracted_data
+    self.result = extracted_data
