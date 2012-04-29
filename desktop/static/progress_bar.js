@@ -7,7 +7,7 @@
       $(this).animate({
         width: progress+'%'
       }, {
-        duration: 1100,
+        duration: 1500,
 
         // swing or linear
         easing: 'linear',
@@ -25,14 +25,14 @@
             };
           }
 
-          if (Math.ceil(progress) == 100) {
-            labelEl.text('Completed');
-            setTimeout(function() {
-              labelEl.fadeOut();
-            }, 1000);
-          }else{
+          // if (Math.ceil(progress) == 100) {
+          //   labelEl.text('Completed');
+          //   setTimeout(function() {
+          //     labelEl.fadeOut();
+          //   }, 1000);
+          // } else {
             valueEl.text(Math.ceil(progress) + '%');
-          }
+          // }
         },
         complete: function(scope, i, elem) {
           if (callback) {
@@ -62,7 +62,8 @@ function postStatus(first_time) {
 								child_progress.id = path + '_progress';
 
 								var child_progress_span = document.createElement("span");
-								child_progress_span.value = path;
+								child_progress_span.id = path + '_progress_span';
+								child_progress_span.innerHTML = path;
 
 								child_progress.appendChild(child_progress_span);
 								child.appendChild(child_progress);
@@ -83,20 +84,22 @@ function postStatus(first_time) {
 				for (path in paths_progress) {
 						var progress = paths_progress[path];
 						if (progress < 100) {
-								console.log('Not at 100 yet.');
 								callback_complete = false;
 						}
 						$('#' + path + '_progress').animateProgress(progress);
 				}
-				console.log(callback_complete);
+
 				if (callback_complete) {
+						// Disable timer firing in a loop.
 						clearTimeout(progress_bar_timer);
+
+						// Reveal to the user how to quit.
 						show_exit();
 				}
 
 		}.bind(this));
 
-		progress_bar_timer = setTimeout("postStatus(false);", 1000);
+		progress_bar_timer = setTimeout("postStatus(false);", 1500);
 }
 
 function show_exit() {
