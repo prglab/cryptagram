@@ -37,6 +37,7 @@ logging.basicConfig(level=logging.INFO,
 
 define("port", default=8888, help="run on the given port", type=int)
 
+_NUM_THREADS = 4
 _ALREADY_ENCRYPTING = False
 _CODEC = None
 
@@ -176,7 +177,7 @@ class GuiCodec(threading.Thread):
 
 
 def main(argv):
-  global _CODECS, _PROGRESS
+  global _CODECS, _PROGRESS, _NUM_THREADS
   logging.info(argv)
 
   _PROGRESS = {}
@@ -197,7 +198,7 @@ def main(argv):
       queue.put(passed_value)
       _PROGRESS[passed_value] = -2
 
-  _CODECS = [GuiCodec(queue) for i in range(2)]
+  _CODECS = [GuiCodec(queue) for i in range(_NUM_THREADS)]
   [codec.start() for codec in _CODECS]
 
   http_server = tornado.httpserver.HTTPServer(Application())
