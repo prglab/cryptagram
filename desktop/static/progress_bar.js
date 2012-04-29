@@ -45,6 +45,7 @@
 })( jQuery );
 
 function postStatus(first_time) {
+		var complete = false;
 		$.post("status", function(data) {
 				if (first_time) {
 						console.log(data);
@@ -77,12 +78,29 @@ function postStatus(first_time) {
 						return false;
 				}
 
+				var callback_complete = true;
 				paths_progress = $.parseJSON(data);
 				for (path in paths_progress) {
-						$('#' + path + '_progress').animateProgress(paths_progress[path]);
+						var progress = paths_progress[path];
+						if (progress < 100) {
+								console.log('Not at 100 yet.');
+								callback_complete = false;
+						}
+						$('#' + path + '_progress').animateProgress(progress);
+				}
+				console.log(callback_complete);
+				if (callback_complete) {
+						clearTimeout(progress_bar_timer);
+						show_exit();
 				}
 
 		}.bind(this));
-		t = setTimeout("postStatus(false);", 1000);
+
+		progress_bar_timer = setTimeout("postStatus(false);", 1000);
 }
 
+function show_exit() {
+		var exit = document.getElementById('exit');
+		exit.innerHTML = '<form name="quitform" action="exit" method="get"><input type="submit" value="Exit" /></form>';
+		return false;
+}
