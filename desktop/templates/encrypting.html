@@ -3,7 +3,21 @@
 {% block body %}
 
 <script type="text/javascript">
-postStatus(true);
+		postStatus(true);
+</script>
+
+<script type="text/javascript">
+$(window).unload(function() {
+$.ajax({
+        type: "POST",
+        url: "exit",
+        async:false,
+        success: function(msg){
+             alert( "Data Saved: " + msg );
+        }
+});
+alert (c);
+});
 </script>
 
 <center>
