@@ -1,5 +1,10 @@
 <html>
 	<head>
+		<link type="text/css" href="{{ static_url("css/ui-lightness/jquery-ui-1.8.19.custom.css") }}" rel="stylesheet" />
+		<link type="text/css" href="{{ static_url("ui-progress-bar.css") }}" rel="stylesheet" />
+		<script type="text/javascript" src="{{ static_url("jquery-1.7.2.min.js") }}"></script>
+		<script type="text/javascript" src="{{ static_url("js/jquery-ui-1.8.19.custom.min.js") }}"></script>
+		<script type="text/javascript" src="{{ static_url("progress_bar.js") }}"></script>
 		<script type="text/javascript">
 function checkPass() {
 	var pass1 = document.forms['input']['password'].value;
@@ -13,13 +18,9 @@ function checkPass() {
   return true;
 }
 		</script>
-		<link type="text/css" href="{{ static_url("css/ui-lightness/jquery-ui-1.8.19.custom.css") }}" rel="stylesheet" />
-		<link type="text/css" href="{{ static_url("ui-progress-bar.css") }}" rel="stylesheet" />
-		<script type="text/javascript" src="{{ static_url("jquery-1.7.2.min.js") }}"></script>
-		<script type="text/javascript" src="{{ static_url("js/jquery-ui-1.8.19.custom.min.js") }}"></script>
-		<script type="text/javascript" src="{{ static_url("progress_bar.js") }}"></script>
+
 	</head>
-	<body>
+	<body >
 		{% block body %}
 		{% end %}
 	</body>

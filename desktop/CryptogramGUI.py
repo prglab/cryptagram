@@ -93,10 +93,16 @@ class ExitHandler(tornado.web.RequestHandler):
     self.render('exit.html')
     sys.exit(0)
 
+  def post(self):
+    logging.info('Posted quit.')
+    self.write('GUI quitting');
+    sys.exit(0)
+
 
 class GuiCodec(threading.Thread):
   codec = None
   password = None
+  daemon = True
 
   def __init__(self, queue):
     threading.Thread.__init__(self)
@@ -208,4 +214,7 @@ def main(argv):
   tornado.ioloop.IOLoop.instance().start()
 
 if __name__=='__main__':
-  main(sys.argv)
+  try:
+    main(sys.argv)
+  except Exception, e:
+    logging.error(str(e))

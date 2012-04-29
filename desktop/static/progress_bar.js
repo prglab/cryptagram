@@ -71,7 +71,7 @@ function postStatus(first_time) {
 						}
 
 						for (path in paths_progress) {
-								$('#' + path).addClass("ui-progress-bar ui-container transition");
+								$('#' + path).addClass("ui-progress-bar ui-container");
 								$('#' + path + '_progress').addClass("ui-progress");
 								$('#' + path + '_progress').css("width","0%");
 								$('#' + path + '_progress_span').addClass("ui-label");
@@ -107,3 +107,4 @@ function show_exit() {
 		exit.innerHTML = '<form name="quitform" action="exit" method="get"><input type="submit" value="Exit" /></form>';
 		return false;
 }
+
