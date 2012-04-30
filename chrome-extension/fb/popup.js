@@ -5,8 +5,16 @@ var autoCheck = null;
 
 document.addEventListener('DOMContentLoaded', function () {
   
+  if (!localStorage['auto_password']) {
+      localStorage['auto_password'] = true;
+  }
+
+  if (!localStorage['auto_decrypt']) {
+      localStorage['auto_decrypt'] = true;
+  }
+  
   saveCheck = document.getElementById("saveCheck");
-  saveCheck.checked = (localStorage['save_passwords'] == "true" ? true : false);  
+  saveCheck.checked = (localStorage['auto_password'] == "true" ? true : false);  
   saveCheck.addEventListener('change', saveChanged);
 
   autoCheck = document.getElementById("autoCheck");
@@ -16,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   
 function saveChanged(e) {
-  localStorage["save_passwords"] = document.getElementById("saveCheck").checked;
+  localStorage["auto_password"] = document.getElementById("saveCheck").checked;
 }  
  
 function autoChanged(e) {
