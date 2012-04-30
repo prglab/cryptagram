@@ -8,6 +8,8 @@ $(document).ready(function() {
       }
     },
     submitHandler: function(form) {
+      // Global variable that disables the window.unload event that kills the
+      // backend program.
       submitted = true;
       $(form).ajaxSubmit();
     }
