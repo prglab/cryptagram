@@ -69,7 +69,8 @@ class Encrypt(object):
       width, height = im.size
 
       # Update codec with the new width, height ratio.
-      self.codec.set_wh_ratio(width / float(height))
+      # TODO(tierney): Test if this is necessary.
+      # self.codec.set_wh_ratio(width / float(height))
 
       im.save(new_image_path, quality=77)
     return new_image_path
@@ -80,15 +81,17 @@ class Encrypt(object):
     requality_count = 0
     rescale_count = 0
     logging.info('Encrypting image: %s.' % _image_path)
+
+    prospective_image_dimensions = self.codec.get_prospective_image_dimensions
     while True:
       _ = Image.open(_image_path)
       _w, _h = _.size
       logging.info('Cleartext image dimensions: (%d, %d).' % (_w, _h))
       encrypted_data = self._image_path_to_encrypted_data(_image_path)
-      width, height = self.codec.get_prospective_image_dimensions(
-        encrypted_data)
+      width, height = prospective_image_dimensions(encrypted_data)
       if width <= dimension_limit and height <= dimension_limit:
         break
+
       logging.info('Dimensions too large (w: %d, h: %d).' % (width, height))
 
       # Strategies to reduce raw bytes that we need to encrypt: requality,

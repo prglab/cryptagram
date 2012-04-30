@@ -122,6 +122,10 @@ class GuiCodec(threading.Thread):
       return -1
     _width, _height = _image.size
     wh_ratio = _width / float(_height)
+
+    logging.info('Original im dimens: w (%d) h (%d) ratio (%.2f).' % \
+                   (_width, _height, wh_ratio))
+
     self.codec = Codec(two_square, wh_ratio, Base64MessageSymbolCoder(),
                        Base64SymbolSignalCoder())
 
@@ -134,6 +138,7 @@ class GuiCodec(threading.Thread):
     cipher = Cipher(self.password)
     crypto = Encrypt(image_path, self.codec, cipher)
     try:
+      # Potentially resizes the photo.
       encrypted_data = crypto.upload_encrypt()
     except IOError, e:
       logging.error(str(e))
