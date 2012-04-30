@@ -1,0 +1,14 @@
+body {
+  width: 100px;
+  padding: 0px;
+  font: 10px arial;
+  background: #EEEEEE;
+}
+
+.title {
+ text-align: center;
+ font-size: 12px;
+ margin-bottom: 10px;
+ background: #DDDDEE;
+ border: 1px solid gray;
+}
