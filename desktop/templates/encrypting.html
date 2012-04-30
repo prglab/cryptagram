@@ -1,19 +1,9 @@
 {% extends "base.html" %}
 
 {% block body %}
-
+<script type="text/javascript" src="{{ static_url("close-window.js") }}"></script>
 <script type="text/javascript">
 		postStatus(true);
-</script>
-
-<script type="text/javascript">
-$(window).unload(function() {
-$.ajax({
-        type: "POST",
-        url: "exit",
-        async:false,
-});
-});
 </script>
 
 <center>
