@@ -1,18 +1,14 @@
 // Create a context menu which will only show up for images and link the menu
 // item to getClickHandler
 
-chrome.contextMenus.create({
-  "title" : "Decrypt Image",
-  "type" : "normal",
-  "contexts" : ["image"],
-  "onclick" : getClickHandler()
-});
-
+var background = {};
 
 // Sends the decodeURL message request to the current tabIndex
 
-function getClickHandler() {
 
+
+background.getClickHandler = function() {
+  
   return function(info, tab) {
         
     chrome.tabs.getSelected(null, function(tab) {
@@ -21,26 +17,22 @@ function getClickHandler() {
         chrome.tabs.sendRequest(tab.id, {"revertURL":info.srcUrl}, null); 
         return;
       }
-        
-      var password = localStorage['password.' + info.srcUrl];
-      if (!password) {
-        password = prompt("Enter password for\n"+info.srcUrl,"helloworld");     
-      }
-        
-      chrome.tabs.sendRequest(tab.id, {"decryptURL":info.srcUrl, "password":password}, function(response) {
+      
+      chrome.tabs.sendRequest(tab.id, {"decryptURL":info.srcUrl, "storage": localStorage}, function(response) {
         if (response.outcome == "success") {
-          alert("Success");
-          //localStorage['password.' + info.srcUrl] = password;
+          if (localStorage['auto_password'] == "true") {
+            localStorage[response.id] = response.password;
+          }
         }
       });  
     });    
   };
-}
+};
 
 
 // Keep track of last checked URL since the FB JS seems to lead to double complete events sometimes
-var lastCheck = "";
-
+background.lastCheck = "";
+   
    
 // The JS files need to be loaded last, so this listener waits until status is complete
 chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
@@ -50,19 +42,21 @@ chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
     chrome.tabs.executeScript(null, {file: "sjcl.js"});
     chrome.tabs.executeScript(null, {file: "cryptogram.js"});
                 
-    if (tab.url != lastCheck) {
-      lastCheck = tab.url;
-      //checkForSavedPasswords(tab.id);
-    }      
-  }
-});
+    if (tab.url != background.lastCheck) {
+      background.lastCheck = tab.url;
 
+      if (localStorage["auto_decrypt"] == "true") {
+        chrome.tabs.sendRequest(tabId, {"checkForSaved":1, "storage": localStorage}, null);
+      }   
+    }
+  }  
+});
 
 
 
 // Uses messaging to get all images on the page then checks to see if we have any relevant passwords
 
-function checkForSavedPasswords(tabId) {
+background.checkForSavedPasswords = function(tabId) {
 
   chrome.tabs.sendRequest(tabId, { "getImages":1 }, function(response) {
             
@@ -79,6 +73,15 @@ function checkForSavedPasswords(tabId) {
                                       
       }   
     }
-  });
-  
-}
+  }); 
+};
+
+
+
+background.contextMenuID = chrome.contextMenus.create({
+  "title" : "Decode Image",
+  "type" : "normal",
+  "contexts" : ["image"],
+  "onclick" : background.getClickHandler()
+});
+
