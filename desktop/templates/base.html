@@ -1,25 +1,17 @@
 <html>
 	<head>
 		<link type="text/css" href="{{ static_url("css/ui-lightness/jquery-ui-1.8.19.custom.css") }}" rel="stylesheet" />
-		<link type="text/css" href="{{ static_url("application.css") }}" rel="stylesheet" />
 		<link type="text/css" href="{{ static_url("ui-progress-bar.css") }}" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ static_url("blueprint/screen.css") }}" type="text/css" media="screen, projection" />
+    <link rel="stylesheet" href="{{ static_url("blueprint/print.css") }}" type="text/css" media="print" />
+    <!--[if IE]><link rel="stylesheet" href="{{ static_url("blueprint/ie.css") }}" type="text/css" media="screen, projection" /><![endif]-->
+    <!-- Import fancy-type plugin. -->
+    <link rel="stylesheet" href="{{ static_url("blueprint/plugins/fancy-type/screen.css") }}" type="text/css" media="screen, projection" />
+		<link type="text/css" href="{{ static_url("application.css") }}" rel="stylesheet" />
 		<script type="text/javascript" src="{{ static_url("jquery-1.7.2.min.js") }}"></script>
+		<script type="text/javascript" src="{{ static_url("jquery.validate.min.js") }}"></script>
 		<script type="text/javascript" src="{{ static_url("js/jquery-ui-1.8.19.custom.min.js") }}"></script>
 		<script type="text/javascript" src="{{ static_url("progress_bar.js") }}"></script>
-		<script type="text/javascript">
-function checkPass() {
-	var pass1 = document.forms['input']['password'].value;
-	var pass2 = document.forms['input']['verify_password'].value;
-
-	if(pass1 != pass2) {
-    var response = document.getElementById('response');
-		response.innerHTML = "Passwords did not Match!";
-    return false;
-	}
-  return true;
-}
-		</script>
-
 	</head>
 	<body >
 		{% block body %}

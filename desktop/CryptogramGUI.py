@@ -78,8 +78,8 @@ class PasswordHandler(tornado.web.RequestHandler):
     global _CODECS
 
     password = self.get_argument('password')
-    verify_password = self.get_argument('verify_password')
-    if password != verify_password:
+    password_again = self.get_argument('password_again')
+    if password != password_again:
       logging.warning('Passwords do not match.')
       self.render('index.html')
 
