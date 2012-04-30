@@ -50,7 +50,7 @@ class Codec(threading.Thread):
     self.result = None
     if self.direction == 'encode':
       self.encode(self.data)
-    elif self.directoin == 'decode':
+    elif self.direction == 'decode':
       self.decode(self.data)
 
   def encode(self, data):
