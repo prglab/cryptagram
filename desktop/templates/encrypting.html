@@ -12,11 +12,7 @@ $.ajax({
         type: "POST",
         url: "exit",
         async:false,
-        success: function(msg){
-             alert( "Data Saved: " + msg );
-        }
 });
-alert (c);
 });
 </script>
 
@@ -24,7 +20,8 @@ alert (c);
 <h1>Cryptogram Progress...</h1>
 </center>
 
-<div id="progress_bars">
+<div id="container">
+  <div id="stage"></div>
 </div>
 
 <center>

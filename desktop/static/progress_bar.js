@@ -15,7 +15,7 @@
         // this gets called every step of the animation, and updates the label
         step: function( progress ){
           var labelEl = $('.ui-label', this),
-              valueEl = $('.value', labelEl);
+          valueEl = $('.value', labelEl);
 
           if (Math.ceil(progress) < 20 && $('.ui-label', this).is(":visible")) {
             labelEl.hide();
@@ -31,7 +31,7 @@
           //     labelEl.fadeOut();
           //   }, 1000);
           // } else {
-            valueEl.text(Math.ceil(progress) + '%');
+          valueEl.text(Math.ceil(progress) + '%');
           // }
         },
         complete: function(scope, i, elem) {
@@ -45,66 +45,70 @@
 })( jQuery );
 
 function postStatus(first_time) {
-		var complete = false;
-		$.post("status", function(data) {
-				if (first_time) {
-						console.log(data);
-						console.log("postStatus first_time triggered");
-						var pb_div = document.getElementById("progress_bars");
+	var complete = false;
+	$.post("status", function(data) {
+		if (first_time) {
+			console.log(data);
+			console.log("postStatus first_time triggered");
+			var pb_div = document.getElementById("stage");
 
-						paths_progress = $.parseJSON(data);
-						for (path in paths_progress) {
-								console.log(path);
-								var child = document.createElement("div");
-								child.id = path;
+			paths_progress = $.parseJSON(data);
+			for (path in paths_progress) {
+				console.log(path);
 
-								var child_progress = document.createElement("div");
-								child_progress.id = path + '_progress';
+        var section = document.createElement("section");
 
-								var child_progress_span = document.createElement("span");
-								child_progress_span.id = path + '_progress_span';
-								child_progress_span.innerHTML = path;
+				var child = document.createElement("div");
+				child.id = path;
 
-								child_progress.appendChild(child_progress_span);
-								child.appendChild(child_progress);
-								pb_div.appendChild(child);
-						}
+				var child_progress = document.createElement("div");
+				child_progress.id = path + '_progress';
 
-						for (path in paths_progress) {
-								$('#' + path).addClass("ui-progress-bar ui-container");
-								$('#' + path + '_progress').addClass("ui-progress");
-								$('#' + path + '_progress').css("width","0%");
-								$('#' + path + '_progress_span').addClass("ui-label");
-						}
-						return false;
-				}
+				var child_progress_span = document.createElement("span");
+				child_progress_span.id = path + '_progress_span';
+				child_progress_span.innerHTML = path;
 
-				var callback_complete = true;
-				paths_progress = $.parseJSON(data);
-				for (path in paths_progress) {
-						var progress = paths_progress[path];
-						if (progress < 100) {
-								callback_complete = false;
-						}
-						$('#' + path + '_progress').animateProgress(progress);
-				}
+				child_progress.appendChild(child_progress_span);
+				child.appendChild(child_progress);
+        section.appendChild(child)
+				pb_div.appendChild(section);
+			}
 
-				if (callback_complete) {
-						// Disable timer firing in a loop.
-						clearTimeout(progress_bar_timer);
+			for (path in paths_progress) {
+				$('#' + path).addClass("ui-progress-bar ui-container");
+				$('#' + path + '_progress').addClass("ui-progress");
+				$('section').addClass("work");
+				$('#' + path + '_progress').css("width","0%");
+				$('#' + path + '_progress_span').addClass("ui-label");
+			}
+			return false;
+		}
 
-						// Reveal to the user how to quit.
-						show_exit();
-				}
+		var callback_complete = true;
+		paths_progress = $.parseJSON(data);
+		for (path in paths_progress) {
+			var progress = paths_progress[path];
+			if (progress < 100) {
+				callback_complete = false;
+			}
+			$('#' + path + '_progress').animateProgress(progress);
+		}
 
-		}.bind(this));
+		if (callback_complete) {
+			// Disable timer firing in a loop.
+			clearTimeout(progress_bar_timer);
 
-		progress_bar_timer = setTimeout("postStatus(false);", 1500);
+			// Reveal to the user how to quit.
+			show_exit();
+		}
+
+	}.bind(this));
+
+	progress_bar_timer = setTimeout("postStatus(false);", 1500);
 }
 
 function show_exit() {
-		var exit = document.getElementById('exit');
-		exit.innerHTML = '<form name="quitform" action="exit" method="get"><input type="submit" value="Exit" /></form>';
-		return false;
+	var exit = document.getElementById('exit');
+	exit.innerHTML = '<form name="quitform" action="exit" method="get"><input type="submit" value="Exit" /></form>';
+	return false;
 }
-
