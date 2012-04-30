@@ -1,8 +1,11 @@
 // Closes the application when the tab closes.
+var submitted = false;
 $(window).unload(function() {
-  $.ajax({
-    type: "POST",
-    url: "exit",
-    async:false,
-  });
+  if (!submitted) {
+    $.ajax({
+      type: "POST",
+      url: "exit",
+      async:false,
+    });
+  }
 });

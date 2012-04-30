@@ -6,6 +6,10 @@ $(document).ready(function() {
       password_again: {
         equalTo: "#password"
       }
+    },
+    submitHandler: function(form) {
+      submitted = true;
+      $(form).ajaxSubmit();
     }
   });
 });
