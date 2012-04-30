@@ -7,15 +7,19 @@ cryptogram.init = function() {
 
   chrome.extension.onRequest.addListener(
       function(request, sender, sendResponse) {
-        if (request.decodeURL && request.password) {
-          cryptogram.decryptByURL(request.decodeURL, request.password);
+        if (request.decryptURL && request.password) {
+          cryptogram.decryptByURL(request.decryptURL, request.password);
+        }
+        
+        if (request.revertURL) {
+          cryptogram.revertByURL(request.revertURL);
         }
       });
 };
 
 cryptogram.decryptByURL = function(URL, password) {
   
-  console.log("Request to decrypt:\n " + URL);
+  cryptogram.log("Request to decrypt:", URL);
   
   cryptogram.context.initWithURL(URL);
   cryptogram.loader.getImageData( cryptogram.context.fullURL, 
@@ -25,6 +29,14 @@ cryptogram.decryptByURL = function(URL, password) {
 
 };
 
+cryptogram.revertByURL = function(URL) {
+  
+  cryptogram.log("Reverting URL: ", URL);
+    
+  cryptogram.context.removeStatusDiv();
+  cryptogram.context.initWithURL(URL);
+  cryptogram.context.container.src = cryptogram.context.container.previousSrc;
+};
 
 
 
@@ -35,7 +47,7 @@ cryptogram.decryptByURL = function(URL, password) {
 cryptogram.context = {
   
   initWithURL: function(URL) {
-    _URL = URL;
+    this.URL = URL;
     
     if (URL.contains("fbcdn.net/")) {
       this._media = cryptogram.context.facebook;
@@ -45,36 +57,59 @@ cryptogram.context = {
       this._media = cryptogram.context.web;
     }
     
-    this.fullURL = this._media.fixURL(_URL);
+    this.fullURL = this._media.fixURL(URL);
     this.container = cryptogram.context.getContainer();
     cryptogram.context.createStatusDiv();
   },
   
-  createStatusDiv: function() {
   
-  	if (this.status != null) return;
-  	var div = document.createElement("div");
-  	div.id = "cryptogramStatus";
-  	div.style.position = "absolute";
-  	div.style.top = "0px";
-  	div.style.left = "50%";
-  	div.style.margin = "5px";
-  	div.style.marginLeft = "-40px";
-  	div.style.padding = "5px";
-  	div.style.color = "black";
-  	div.style.background = "white";
-  	div.style.opacity = "0.8";
-  	div.innerHTML = "Downloading...";
-  	this.status = div;
-  	this.container.parentNode.appendChild(div);
+  removeStatusDiv: function() {
+      var status = document.getElementById("cryptogramStatus");
+      status.parentNode.removeChild(status); 
+      this.status = null;
   },
   
+  createStatusDiv: function() {
+    
+    if (this.status != null) {
+      this.removeStatusDiv();
+    }
+    
+    var div = document.createElement("div");
+    div.id = "cryptogramStatus";
+    div.style.position = "absolute";
+    div.style.top = "0px";
+    div.style.left = "50%";
+    div.style.margin = "5px";
+    div.style.marginLeft = "-25px";
+    div.style.padding = "5px";
+    div.style.color = "black";
+    div.style.background = "white";
+    div.style.opacity = "0.8";
+    div.style.font = "10px arial";
+    div.style.width = "50px";
+    div.style.textAlign = "center";
+    div.innerHTML = "Load<br>...";
+    div.style.display = "none";
+    this.status = div;
+    this.container.parentNode.appendChild(div);
+  },
+  
+  setStatus: function(message) {
+    
+    if (!message) {
+      this.status.style.display = "none";
+    } else {
+      this.status.style.display = "block";
+      this.status.innerHTML = message;    
+    }
+  },
   
   
   getContainer: function() {
     var elements = document.getElementsByTagName('img');  
     for (i = 0; i < elements.length; i++) {
-      if (elements[i].src == _URL) {
+      if (elements[i].src == this.URL) {
         return elements[i];
       }
     }
@@ -86,44 +121,44 @@ cryptogram.context.facebook = {
   fixURL: function(URL) {
       
     if (URL.search("_o.jpg") != -1) {
-      console.log("Facebook URL appears to be full size.")
+      cryptogram.log("Facebook URL appears to be full size.")
       return URL;
-		}
-  		
+    }
+      
     var FBURLParts = URL.split("/");
-  	var FBFilename = FBURLParts[FBURLParts.length-1];
-  	var FBFilenameParts = FBFilename.split("_");
-  	var FBFileID = FBFilenameParts[1];
-  	var FBAName = "pic_" + FBFileID;
-  	var projectorA = document.getElementById(FBAName);
-  		
-  	// In projector mode
-  	if (projectorA) {
-  			
-    	var ajax = projectorA.getAttribute("ajaxify");
-    		
-    	// Ajaxify parameter contains the full src, but escaped
-    	if (ajax) {
-    		var ajaxParts = ajax.split("&");
-    		var escapedSrc = ajaxParts[3];
-    		var escapedURL = escapedSrc.substring(4,escapedSrc.length);
-    		var fullURL = unescape(escapedURL);
-    		console.log("Extracted Facebook URL from Ajax:\n " + fullURL);
-    		return fullURL;
-    	}
-    			
-  	// Regular image page	
-  	} else {
-    			
-    	var elements = document.getElementsByClassName('fbPhotosPhotoActionsItem');
-    			
-    	for (i = 0; i < elements.length; i++) {
-    		var fullURL = elements[i].href;
-    		if (fullURL.contains("_o.jpg") || fullURL.contains("_n.jpg")) {
-    		  console.log("Extracted full Facebook URL from Download Link:\n " + fullURL);
-    		  return fullURL;
-    		}
-    	}
+    var FBFilename = FBURLParts[FBURLParts.length-1];
+    var FBFilenameParts = FBFilename.split("_");
+    var FBFileID = FBFilenameParts[1];
+    var FBAName = "pic_" + FBFileID;
+    var projectorA = document.getElementById(FBAName);
+      
+    // In projector mode
+    if (projectorA) {
+        
+      var ajax = projectorA.getAttribute("ajaxify");
+        
+      // Ajaxify parameter contains the full src, but escaped
+      if (ajax) {
+        var ajaxParts = ajax.split("&");
+        var escapedSrc = ajaxParts[3];
+        var escapedURL = escapedSrc.substring(4,escapedSrc.length);
+        var fullURL = unescape(escapedURL);
+        cryptogram.log("Extracted Facebook URL from Ajax:", fullURL);
+        return fullURL;
+      }
+          
+    // Regular image page 
+    } else {
+          
+      var elements = document.getElementsByClassName('fbPhotosPhotoActionsItem');
+          
+      for (i = 0; i < elements.length; i++) {
+        var fullURL = elements[i].href;
+        if (fullURL.contains("_o.jpg") || fullURL.contains("_n.jpg")) {
+          cryptogram.log("Extracted full Facebook URL from Download Link:", fullURL);
+          return fullURL;
+        }
+      }
     }
     return URL;
   }
@@ -136,9 +171,10 @@ cryptogram.context.gplus = {
     GURLParts = URL.split("/");
     GURLParts[7] = "s0";
     var fullURL = GURLParts.join("/");
-    console.log("Modified Google+ URL with s0:\n " + fullURL);
+    cryptogram.log("Modified Google+ URL with s0:", fullURL);
     return fullURL;
   }
+  
 };
 
 cryptogram.context.web = {
@@ -178,19 +214,19 @@ cryptogram.decoder.decodeDataToContainer = function(data, password, container) {
     var newBase64 = "";
     var block0;
     var block1;
-		
+    
     var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;               
 
-		_decoder.img = img;
-		_decoder.imageData = imageData;
-		_decoder.blockSize = blockSize;
-		_decoder.password = password;
-		_decoder.container = container;
-		_decoder.chunkSize = img.height / 12;
-		_decoder.y = 0;
-		_decoder.newBase64 = "";
-		
-  	cryptogram.decoder.processImage();
+    _decoder.img = img;
+    _decoder.imageData = imageData;
+    _decoder.blockSize = blockSize;
+    _decoder.password = password;
+    _decoder.container = container;
+    _decoder.chunkSize = img.height / 20;
+    _decoder.y = 0;
+    _decoder.newBase64 = "";
+    
+    cryptogram.decoder.processImage();
   };
   
   img.src = data;
@@ -199,19 +235,16 @@ cryptogram.decoder.decodeDataToContainer = function(data, password, container) {
 
 cryptogram.decoder.processImage = function() {
 
-	var img = this.img;
-	var imageData = this.imageData;
-	var blockSize = this.blockSize;
-	var newBase64 = "";
-	var count = 0;
-	var y = this.y;
-	var done = false;
-	//console.log(img.height + "/" + this.chunkSize);
-	
-	
-	while (this.chunkSize == 0 || count < this.chunkSize) {
-	
-		for (x = 0; x < img.width; x+= (blockSize * 2)) {
+  var img = this.img;
+  var imageData = this.imageData;
+  var blockSize = this.blockSize;
+  var count = 0;
+  var y = this.y;
+  var done = false;
+  
+  while (this.chunkSize == 0 || count < this.chunkSize) {
+      
+    for (x = 0; x < img.width; x+= (blockSize * 2)) {
         
         base8_0 = cryptogram.decoder.getBase8Value(imageData, img.width, x, y, blockSize, blockSize);
         base8_1 = cryptogram.decoder.getBase8Value(imageData, img.width, x + blockSize, y, blockSize, blockSize);
@@ -227,26 +260,24 @@ cryptogram.decoder.processImage = function() {
     y+= blockSize;
     
     if (y >= img.height) {
-    	done = true;
-    	break;
+      done = true;
+      break;
     }
-	}
-	
-	this.y = y;
-	
-	if (!done) {
-			var percent = Math.floor(100.0 * (y / img.height));
-			cryptogram.context.status.style.display = "";
-			cryptogram.context.status.innerHTML = "Decrypting " + percent + "%";
-			setTimeout(function () { cryptogram.decoder.processImage() }, 100);
-	} else {
-			cryptogram.context.status.style.display = "none";
-			cryptogram.context.status.innerHTML = "Downloading...";
-			console.log("Decoded " + newBase64.length + " Base64 characters:\n \"" + newBase64.substring(0,100) + "…\"");
-			cryptogram.decoder.decryptImage(this.newBase64);
-	}
-	
-	
+  }
+  
+  this.y = y;
+  
+  if (!done) {
+      var percent = Math.floor(100.0 * (y / img.height));
+      cryptogram.context.setStatus("Decrypt<br>" + percent + "%");
+      setTimeout(function () { cryptogram.decoder.processImage() }, 100);
+  } else {
+      cryptogram.context.setStatus();
+      cryptogram.log("Decoded " + this.newBase64.length + " Base64 characters:", this.newBase64);
+      cryptogram.decoder.decryptImage(this.newBase64);
+  }
+  
+  
 }
 
 
@@ -259,15 +290,15 @@ cryptogram.decoder.decryptImage = function (newBase64) {
   var ct = newBase64.substring(64+33,newBase64.length);
   var full = newBase64.substring(64,newBase64.length);
     
-	var bits = sjcl.hash.sha256.hash(full);
-	var hexHash = sjcl.codec.hex.fromBits(bits);
-	
-	if (hexHash != check) {
-		console.log("Checksum failed. Image is corrupted.");
-	}	else {
-		console.log("Checksum passed.");
-	}
-		
+  var bits = sjcl.hash.sha256.hash(full);
+  var hexHash = sjcl.codec.hex.fromBits(bits);
+  
+  if (hexHash != check) {
+    cryptogram.log("Checksum failed. Image is corrupted.");
+  } else {
+    cryptogram.log("Checksum passed.");
+  }
+    
   var obj = new Object();
   obj.iv = iv;
   obj.salt = salt;
@@ -275,27 +306,32 @@ cryptogram.decoder.decryptImage = function (newBase64) {
   var base64Decode = JSON.stringify(obj);
   var decrypted = sjcl.decrypt(this.password, base64Decode);
     
-  console.log("Decrypted " + decrypted.length + " Base64 characters:\n \"" + decrypted.substring(0,100) + "…\"");
+  cryptogram.log("Decrypted " + decrypted.length + " Base64 characters:", decrypted);
+  this.container.previousSrc = this.container.src;
   this.container.src = cryptogram.decoder.URIHeader + decrypted;
 }
 
- 		
+    
 // Takes the average over some block of pixels
 //
 //  -1 is black
-// 	0-7 are decoded base8 values. 0 is white, 7 dark gray, etc
+//  0-7 are decoded base8 values. 0 is white, 7 dark gray, etc
 
 cryptogram.decoder.getBase8Value = function(block, width, x, y, blockW, blockH) {
 
   var count = 0.0;
   var vt = 0.0;
+  var avg;
   
   for (i = 0; i < blockW; i++) {
     for (j = 0; j < blockH; j++) {
       
       base = (y + j) * width + (x + i);
       //Use green to estimate the value
-      vt += block[4*base + 1];
+      
+      avg = (block[4*base] + block[4*base + 1] + block[4*base + 2] ) / 3.0;    
+      
+      vt += avg;
       count++;
     }
   }
@@ -379,13 +415,15 @@ cryptogram.loader.arrayBufferDataUri = function(raw) {
 
 cryptogram.loader.getImageData = function(src, callback) {
 
+  cryptogram.context.setStatus("Loading<br>...");
+
   var oHTTP = cryptogram.loader.createRequest();
   oHTTP.onreadystatechange = function() {
     if (oHTTP.readyState == 4) {
       if (oHTTP.status == "200" || oHTTP.status == "206") {
         var arrayBuffer = oHTTP.response;  
         var b64 = cryptogram.loader.arrayBufferDataUri(arrayBuffer);
-        console.log("Downloaded image as Base64:\n \"" + b64.substring(0,100) + "…\"");
+        cryptogram.log("Downloaded image as Base64:", b64);
         callback(b64);
       } else {
         console.error("Download failed");
@@ -407,9 +445,71 @@ cryptogram.loader.getImageData = function(src, callback) {
 
 // ############################## MISC ##############################
 
+cryptogram.log = function(str1, str2) {
+  console.log(str1);
+  
+  if (str2) {
+    if (str2.length > 128) {
+      console.log("   " + str2.substring(0,128)+"…");
+    } else {
+      console.log("   " + str2);
+    }
+  }
+}
+
+
+
 // Add a contains function to cleanup URL searching
 String.prototype.contains = function(str1) {
   return (this.search(str1) != -1);
+};
+
+
+
+/**
+ * A utility class for creating object-oriented hierarchy.
+ * 
+ * Courtesy Thomas Huston
+ */
+var OOP = {
+
+  /**
+   * Implements the specified interface for the specified class type.
+   *
+   * @param classType The class type to add the interface to.
+   * @param interfaceType The interface to implement.
+   */
+  implement: function(classType, interfaceType) {
+    var property;
+    if (typeof classType === 'function') {
+      for (property in interfaceType.prototype) {
+        if (interfaceType.prototype.hasOwnProperty(property)) {
+          classType.prototype[property] = interfaceType.prototype[property];
+        }
+      }
+    } else {
+      for (property in interfaceType.prototype) {
+        if (interfaceType.prototype.hasOwnProperty(property)) {
+          classType[property] = interfaceType.prototype[property];
+        }
+      }
+    }
+  },
+
+  /**
+   * Inherits the prototype methods of superType in subType.
+   *
+   * @param subType The subclass.
+   * @param superType The superclass.
+   */
+  inherit: function(subType, superType) {
+    function F(){}
+    F.prototype = superType.prototype;
+    var prototype = new F();
+    prototype.constructor = subType;
+    subType.prototype = prototype;
+  }
+
 };
 
 
