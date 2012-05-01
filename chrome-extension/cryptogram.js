@@ -99,6 +99,8 @@ cryptogram.context = {
   },
   
   setURL: function(URL) {
+    console.log("Setting " + URL);
+  
     this.URL = URL;
     this.fullURL = this._media.fixURL(URL);
     this.container = this.getContainer();
@@ -223,10 +225,21 @@ cryptogram.context.facebook = {
           
       for (i = 0; i < elements.length; i++) {
         var fullURL = elements[i].href;
-        if (fullURL.contains("_o.jpg") || fullURL.contains("_n.jpg")) {
-          cryptogram.log("Extracted full Facebook URL from Download Link:", fullURL);
-          return fullURL;
+        
+        // If we got to the photos from a wall/feed, the structure is different
+        // Now we need to extract the href from the first child of the fbPhotosPhotoActionsItem
+        if (!fullURL) {
+          var childAnchor = elements[i].childNodes[0];
+          if (childAnchor) fullURL = childAnchor.href;
         }
+        
+        if (fullURL) {
+          if (fullURL.contains("_o.jpg") || fullURL.contains("_n.jpg")) {
+            cryptogram.log("Extracted full Facebook URL from Download Link:", fullURL);
+            return fullURL;
+          }
+        } 
+          
       }
     }
     return URL;
