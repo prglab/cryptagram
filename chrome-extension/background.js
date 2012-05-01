@@ -20,9 +20,10 @@ background.getClickHandler = function() {
       
       chrome.tabs.sendRequest(tab.id, {"decryptURL":info.srcUrl, "storage": localStorage}, function(response) {
         if (response.outcome == "success") {
-          if (localStorage['auto_password'] == "true") {
-            localStorage[response.id] = response.password;
-          }
+          localStorage[response.id] = response.password;
+          if (response.album != null) {
+            localStorage[response.album] = response.password;              
+          }         
         }
       });  
     });    
@@ -30,15 +31,19 @@ background.getClickHandler = function() {
 };
 
 
-// Keep track of last checked URL since the FB JS seems to lead to double complete events sometimes
-background.lastCheck = "";
-   
    
 // The JS files need to be loaded last, so this listener waits until status is complete
 chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
     
+    
   if (info.status=="complete") {
-            
+       
+    if (!background.lastCheck) {
+      background.lastCheck = "";
+    }
+    
+    //console.log("Dom complete: " + tab.url);
+    
     chrome.tabs.executeScript(null, {file: "sjcl.js"});
     chrome.tabs.executeScript(null, {file: "cryptogram.js"});
                 
