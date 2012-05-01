@@ -10,9 +10,7 @@ mac-release:
 	python setup.py py2app --no-strip -O2
 	cp -r static dist/Cryptogram.app/Contents/Resources/
 	cp -r templates dist/Cryptogram.app/Contents/Resources/
-	cd dist
-	tar cvzf Cryptogram.tar.gz Cryptogram.app
-	cd -
+	cd dist && tar czf Cryptogram.tar.gz Cryptogram.app/
 
 linux:
 	python setup.py build
