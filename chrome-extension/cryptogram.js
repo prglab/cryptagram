@@ -1,6 +1,32 @@
 // ############################## CRYPTOGRAM ##############################
 
+
 var cryptogram = {};
+
+
+cryptogram.decryptByURL = function(URL, password) {
+  
+  cryptogram.log("Request to decrypt:", URL);
+  _context = this.context;
+  _context.init(URL);
+
+  cryptogram.loader.getImageData( cryptogram.context.fullURL, 
+    function(data) {
+      cryptogram.decoder.decodeDataToContainer(data, password, _context.getContainer());
+    });
+
+};
+
+
+cryptogram.revertByURL = function(URL) {
+  
+  cryptogram.log("Reverting URL: ", URL);
+    
+  cryptogram.context.removeStatusDiv();
+  cryptogram.context.init();
+  cryptogram.context.container.src = cryptogram.context.container.previousSrc;
+};
+
 
 cryptogram.init = function() {
   if (chrome.extension.onRequest.hasListeners()) return;
@@ -16,7 +42,7 @@ cryptogram.init = function() {
         }
       
         if (request.decryptURL) {
-                  
+  
           if (request.storage) {
             cryptogram.storage.load(request.storage);
           }
@@ -27,10 +53,9 @@ cryptogram.init = function() {
           }
 
           if (!password) {
-            password = prompt("Enter password for\n" + request.decryptURL,"helloworld");     
+            password = prompt("Enter password for\n" + request.decryptURL, "helloworld");     
           }
           
-          cryptogram.context.initWithURL(request.decryptURL);
           cryptogram.decryptByURL(request.decryptURL, password);
         }
         
@@ -40,98 +65,11 @@ cryptogram.init = function() {
       });
 };
 
-cryptogram.decryptByURL = function(URL, password) {
-  
-  cryptogram.log("Request to decrypt:", URL);
-  _context = this.context;
-  
-  cryptogram.loader.getImageData( cryptogram.context.fullURL, 
-    function(data) {
-      cryptogram.decoder.decodeDataToContainer(data, password, _context.getContainer());
-    });
-
-};
-
-cryptogram.revertByURL = function(URL) {
-  
-  cryptogram.log("Reverting URL: ", URL);
-    
-  cryptogram.context.removeStatusDiv();
-  cryptogram.context.initWithURL(URL);
-  cryptogram.context.container.src = cryptogram.context.container.previousSrc;
-};
 
 
 
 
-// ############################## MISC ##############################
 
-cryptogram.log = function(str1, str2) {
-  console.log(str1);
-  
-  if (str2) {
-    if (str2.length > 128) {
-      console.log("   " + str2.substring(0,128)+"…");
-    } else {
-      console.log("   " + str2);
-    }
-  }
-}
-
-
-
-// Add a contains function to cleanup URL searching
-String.prototype.contains = function(str1) {
-  return (this.search(str1) != -1);
-};
-
-
-
-/**
- * A utility class for creating object-oriented hierarchy.
- * 
- * Courtesy Thomas Huston
- */
-var OOP = {
-
-  /**
-   * Implements the specified interface for the specified class type.
-   *
-   * @param classType The class type to add the interface to.
-   * @param interfaceType The interface to implement.
-   */
-  implement: function(classType, interfaceType) {
-    var property;
-    if (typeof classType === 'function') {
-      for (property in interfaceType.prototype) {
-        if (interfaceType.prototype.hasOwnProperty(property)) {
-          classType.prototype[property] = interfaceType.prototype[property];
-        }
-      }
-    } else {
-      for (property in interfaceType.prototype) {
-        if (interfaceType.prototype.hasOwnProperty(property)) {
-          classType[property] = interfaceType.prototype[property];
-        }
-      }
-    }
-  },
-
-  /**
-   * Inherits the prototype methods of superType in subType.
-   *
-   * @param subType The subclass.
-   * @param superType The superclass.
-   */
-  inherit: function(subType, superType) {
-    function F(){}
-    F.prototype = superType.prototype;
-    var prototype = new F();
-    prototype.constructor = subType;
-    subType.prototype = prototype;
-  }
-
-};
 
 
 
@@ -141,30 +79,32 @@ var OOP = {
 
 // ############################## CONTEXT ##############################
 
+
 cryptogram.context = {
   
-  initWithURL: function(URL) {
-        
-    this.URL = URL;
-    this.selectMedia(URL);
+  init: function(imageURL) {
+    URL = document.URL;
     
-    this.fullURL = this._media.fixURL(URL);
-    this.container = cryptogram.context.getContainer();
-    cryptogram.context.createStatusDiv();
-  },
-  
-  
-  selectMedia: function(URL) {
-    if (URL.contains("fbcdn.net/")) {
+    if (URL.contains("facebook.com/")) {
       this._media = cryptogram.context.facebook;
-    } else if (URL.contains("googleusercontent.com/")) {
-      this._media = cryptogram.context.gplus;
+    } else if (URL.contains("plus.google.com/")) {
+      this._media = cryptogram.context.googleplus;
     } else {
       this._media = cryptogram.context.web;
     }
+    
+    if (imageURL) {
+      this.setURL(imageURL);
+    }
   },
   
-  
+  setURL: function(URL) {
+    this.URL = URL;
+    this.fullURL = this._media.fixURL(URL);
+    this.container = this.getContainer();
+    this.createStatusDiv();
+  },
+    
   removeStatusDiv: function() {  
       var status = document.getElementById("cryptogramStatus");
       if (!status) return;
@@ -173,7 +113,7 @@ cryptogram.context = {
   },
   
   createStatusDiv: function() {
-    
+        
     if (cryptogram.context.status != null) {
       this.removeStatusDiv();
     }
@@ -210,6 +150,9 @@ cryptogram.context = {
     }
   },
   
+  fixURL: function(URL) {
+    return _media.fixURL(URL);
+  },
   
   getContainer: function() {
     var elements = document.getElementsByTagName('img');  
@@ -220,28 +163,26 @@ cryptogram.context = {
     }
     return null;
   },
-  
-  
-  getPhotoName: function(testURL) {
-    this.selectMedia(testURL);
-    return this._media.getPhotoName(testURL);
+
+  getPhotoName: function(URL) {
+    this.init();
+    return this._media.getPhotoName(URL);
+  },
+
+  getAlbumName: function(URL) {
+    this.init();
+    return this._media.getAlbumName(URL);
   },
   
+  getImages: function() {
+    this.init();
+    return this._media.getImages();
+  },
   
-  getAlbumName: function(testURL) {
-    return this._media.getAlbumName(testURL);
-  }
+  facebook: {},
+  googleplus: {},
+  web: {}
 };
-
-
-
-
-
-
-cryptogram.context.facebook = {};
-cryptogram.context.googleplus = {};
-cryptogram.context.web = {};
-
 
 
 cryptogram.context.facebook = {
@@ -290,26 +231,35 @@ cryptogram.context.facebook = {
     }
     return URL;
   },
-  
+
   getPhotoName: function(URL) {
-  
       var FBURLParts = URL.split("/");
       var FBFilename = FBURLParts[FBURLParts.length-1];
       var FBFilenameParts = FBFilename.split("_");
-      return "fb_photo_" + FBFilenameParts[1];
-
+      return "fb_photo://" + FBFilenameParts[1];
   },
 
-  getAlbumName: function() {
-    var URL = document.URL;
-    //var pattern = /set=a.([0-9a.]*)/
-    var albumID = URL.match(/set=a.([0-9a.]*)/)[1];
-    return "fb_album_" + albumID;
+  getAlbumName: function(URL) {
+    var browserURL = document.URL;
+    var albumID = browserURL.match(/set=a.([0-9a.]*)/)[1];
+    var albumParts = albumID.split(".");
+    return "fb_album://" + albumParts[0] + "." + albumParts[1];
+  },
+
+  getImages: function() {
+    var images = document.getElementsByTagName('img');
+    var valid = [];
+    
+    for (i = 0; i < images.length; i++) {
+      var URL = images[i].src;
+      if (URL.contains("_o.jpg") || URL.contains("_n.jpg")) {
+        valid.push(images[i]);  
+      }
+    }
+    return valid;
   }
-
-
-
 };
+
 
 cryptogram.context.googleplus = {
   fixURL: function(URL) {
@@ -322,13 +272,58 @@ cryptogram.context.googleplus = {
     return fullURL;
   },
   
+  getPhotoName: function(URL) {
+      var URLParts = URL.split("/");
+      return "g+_photo://" + URLParts[4];
+  },
+  
+  getAlbumName: function(URL) {
+    var browserURL = document.URL;
+    var albumIDs = browserURL.match(/\/albums\/([0-9]*)/);
+    if (albumIDs) return "g+_album://" + albumIDs[1];
+    return null;
+  },
+  
+  getImages: function() {
+    var images = document.getElementsByTagName('img');
+    var valid = [];
+    
+    for (i = 0; i < images.length; i++) {
+      if (images[i].parentNode) {
+        var parentClass = images[i].parentNode.className;
+        if (parentClass.contains("photo-container")) {
+          valid.push(images[i]);  
+        }
+      }
+    }
+    return valid;
+  }
 };
 
+
 cryptogram.context.web = {
+
   fixURL: function(URL) {
     return URL;
   },
+  
+  getPhotoName: function(URL) {
+      return URL;
+  },
+
+  getAlbumName: function(URL) {
+    return null;
+  },
+  
+  getImages: function() {
+    var images = document.getElementsByTagName('img');
+    return images;
+  }
 };
+
+
+
+
 
 
 // ############################## STORAGE ##############################
@@ -352,20 +347,36 @@ cryptogram.storage.checkPassword = function(URL) {
 };
 
 cryptogram.storage.savePassword = function(id, password) {
-  if (cryptogram.storage.callback) {
-    cryptogram.log("Saving password for: ", id);
+  if (cryptogram.storage.callback && 
+    cryptogram.storage.lookup['save_passwords'] == "true") {
+        
     var photoId = cryptogram.context.getPhotoName(id);
     var albumId = cryptogram.context.getAlbumName(id);
     
-    cryptogram.log("Album name", albumId);
+    if (albumId && cryptogram.storage.lookup[albumId]) return;
     
-    cryptogram.storage.callback({outcome: "success", "id" : photoId, "password" : password});
+    cryptogram.log("Saving password for photo: ", photoId);
+
+    if (albumId && cryptogram.storage.lookup['album_passwords'] == "true" &&
+        !cryptogram.storage.lookup[albumId]) { 
+      var saveAlbum = confirm("Save password for current album?");
+      if (!saveAlbum) {
+        albumId = null;
+      } else {
+        cryptogram.log("Saving password for album: ", albumId);
+      }
+    } else {
+      albumId = null;
+    }
+    
+    cryptogram.storage.callback({outcome: "success", "id" : photoId, "password" : password, "album" : albumId});
   }
 };
 
 cryptogram.storage.autoDecrypt = function() {
-    
-  var images = document.getElementsByTagName('img');
+        
+  var images = cryptogram.context.getImages();
+  
   if (images) {
     cryptogram.log("Checking "+ images.length +" images against saved passwords.");
   }
@@ -375,15 +386,29 @@ cryptogram.storage.autoDecrypt = function() {
     var testURL = images[i].src;
         
     var photoId = cryptogram.context.getPhotoName(testURL);
-    var password = cryptogram.storage.lookup[photoId];
+    var albumId = cryptogram.context.getAlbumName(testURL);
+    
+    var password = null;
+    var albumPassword = null;
+    
+    if (photoId) password = cryptogram.storage.lookup[photoId];
+    if (albumId) albumPassword = cryptogram.storage.lookup[albumId];
 
     if (password) {
-        cryptogram.log("Found saved password for URL:", testURL);
-        cryptogram.context.initWithURL(testURL);
+        cryptogram.log("Found saved photo password for photo:", testURL);
         cryptogram.decryptByURL(testURL, password);
-
-      return;
+        return;
 		}
+		
+		if (albumPassword) {
+        cryptogram.log("Found saved album password for photo:", testURL);
+        cryptogram.log("Album id:", albumId);
+        
+        cryptogram.context.init(testURL);
+        cryptogram.decryptByURL(testURL, albumPassword);
+        return;
+		}
+		
   }
 };
 
@@ -401,25 +426,19 @@ cryptogram.decoder = {};
 cryptogram.decoder.URIHeader = "data:image/jpeg;base64,";
 cryptogram.decoder.decodeDataToContainer = function(data, password, container) {
 
-  var base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  
+  this.base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  var _decoder = this;
+
   var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
   var img = new Image();
   blockSize = 2;
-    
-  var _decoder = this;
-  _decoder.base64Values = base64Values;
-  
+      
   img.onload = function(){
 
     canvas.width = img.width;
     canvas.height = img.height;
     ctx.drawImage(img,0,0);
-    var count = 0;
-    var newBase64 = "";
-    var block0;
-    var block1;
     
     var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;               
 
@@ -494,9 +513,9 @@ cryptogram.decoder.decryptImage = function () {
   var newBase64 = this.newBase64;
   
   var check = newBase64.substring(0,64);
-  var iv = newBase64.substring(64,64+22);
-  var salt = newBase64.substring(64+22,64+33);
-  var ct = newBase64.substring(64+33,newBase64.length);
+  var iv = newBase64.substring(64,86);
+  var salt = newBase64.substring(86,97);
+  var ct = newBase64.substring(97,newBase64.length);
   var full = newBase64.substring(64,newBase64.length);
     
   var bits = sjcl.hash.sha256.hash(full);
@@ -519,7 +538,6 @@ cryptogram.decoder.decryptImage = function () {
   cryptogram.storage.savePassword(this.container.src, this.password);
   this.container.previousSrc = this.container.src;
   this.container.src = cryptogram.decoder.URIHeader + decrypted;
-  
 }
 
     
@@ -539,10 +557,7 @@ cryptogram.decoder.getBase8Value = function(block, width, x, y, blockW, blockH) 
       
       base = (y + j) * width + (x + i);
       //Use green to estimate the value
-      
-      avg = (block[4*base] + block[4*base + 1] + block[4*base + 2] ) / 3.0;    
-      
-      vt += avg;
+      vt += block[4*base + 1];
       count++;
     }
   }
@@ -562,7 +577,9 @@ cryptogram.decoder.getBase8Value = function(block, width, x, y, blockW, blockH) 
 
 // ############################## LOADER ##############################
 
+
 cryptogram.loader = {};
+
 
 cryptogram.loader.createRequest = function() {
   var oHTTP = null;
@@ -574,6 +591,7 @@ cryptogram.loader.createRequest = function() {
     }
   return oHTTP;
 }
+
 
 // Binary parsing code borrowed from 
 // http://jsperf.com/encoding-xhr-image-data
@@ -624,6 +642,7 @@ cryptogram.loader.arrayBufferDataUri = function(raw) {
    return "data:image/jpeg;base64," + base64
 }
 
+
 cryptogram.loader.getImageData = function(src, callback) {
 
   cryptogram.context.setStatus("Load<br>...");
@@ -657,4 +676,80 @@ cryptogram.loader.getImageData = function(src, callback) {
 
 
 
+// ############################## MISC ##############################
+
+
+cryptogram.log = function(str1, str2) {
+  console.log(str1);
+  
+  if (str2) {
+    if (str2.length > 128) {
+      console.log("   " + str2.substring(0,128)+"…");
+    } else {
+      console.log("   " + str2);
+    }
+  }
+}
+
+
+// Add a contains function to simplify URL searching
+String.prototype.contains = function(str1) {
+  return (this.search(str1) != -1);
+};
+
+
+/**
+ * A utility class for creating object-oriented hierarchy.
+ * 
+ * Courtesy Thomas Huston
+ */
+var OOP = {
+
+  /**
+   * Implements the specified interface for the specified class type.
+   *
+   * @param classType The class type to add the interface to.
+   * @param interfaceType The interface to implement.
+   */
+  implement: function(classType, interfaceType) {
+    var property;
+    if (typeof classType === 'function') {
+      for (property in interfaceType.prototype) {
+        if (interfaceType.prototype.hasOwnProperty(property)) {
+          classType.prototype[property] = interfaceType.prototype[property];
+        }
+      }
+    } else {
+      for (property in interfaceType.prototype) {
+        if (interfaceType.prototype.hasOwnProperty(property)) {
+          classType[property] = interfaceType.prototype[property];
+        }
+      }
+    }
+  },
+
+  /**
+   * Inherits the prototype methods of superType in subType.
+   *
+   * @param subType The subclass.
+   * @param superType The superclass.
+   */
+  inherit: function(subType, superType) {
+    function F(){}
+    F.prototype = superType.prototype;
+    var prototype = new F();
+    prototype.constructor = subType;
+    subType.prototype = prototype;
+  }
+};
+
+
+
+
+
+
+// ############################## INITIALIZATION ##############################
+
+
 cryptogram.init();
+
