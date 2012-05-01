@@ -94,9 +94,11 @@ function postStatus(first_time) {
 			if (0 == file_status.queued[path]) {
 				++file_status.queued[path];
 
-				var list_item = $("<li id=" + path + ">" +
+				var list_item = $("<li id=" + path + "><a href='file://" +
+													paths_progress[path]['path'] +
+													"' target=\"_blank\" >" +
 													paths_progress[path]['shortname'] +
-													"</li>")
+													"</a></li>")
 					.hide().fadeIn(1000);
 				$("#queued_list").append(list_item);
 			}
@@ -111,7 +113,9 @@ function postStatus(first_time) {
 
 				$("section").remove("#" + path);
 
-				var list_item = $("<li>" + paths_progress[path]['shortname'] + "</li>")
+				var shortname = paths_progress[path]['shortname'];
+				var list_item = $("<li><a href='file://" + paths_progress[path]['path'] +
+													".encrypted.jpg' target=\"_blank\">" + shortname + "</a></li>")
 					.hide().fadeIn(1000);
 				$("#finished_list").append(list_item);
 			}
