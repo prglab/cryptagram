@@ -74,7 +74,8 @@ class StatusHandler(tornado.web.RequestHandler):
     logging.info('Asking for status: %s.' % str(_PROGRESS))
     to_return = dict(
       (path_hash(key), {'percent': int(100. * _PROGRESS.get(key)),
-                        'path': key,}
+                        'path': key,
+                        'shortname': '/'.join(key.split('/')[-2:])}
        )
       for key in _PROGRESS)
     self.write(JSONEncoder().encode(to_return))
