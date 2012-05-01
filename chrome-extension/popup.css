@@ -1,0 +1,46 @@
+body {
+  width: 120px;
+  padding: 0px;
+  margin: 0px;
+  font: 10px arial;
+  background: #EEEEEE;
+}
+
+a {
+  text-decoration: none;
+  color: #333333;
+}
+
+#title {
+ text-align: center;
+ font-size: 12px;
+ background: #DDDDDD;
+ border: 1px solid gray;
+ border: none;
+ padding: 5px;
+ height: 1em;
+}
+
+#controls {
+  padding: 5px;
+  margin: none;
+}
+
+#prglab {
+  display: block;
+  color: black;
+  background: #DDDDDD;
+  text-align: center;
+  font-size: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+#prglab:hover {
+  background: #888888;
+  color: white;
+}
+
+#controls input {
+  margin: 5px;
+}
