@@ -5,8 +5,6 @@ var cryptogram = {};
 cryptogram.init = function() {
   if (chrome.extension.onRequest.hasListeners()) return;
   
-  _storage = this.storage;
-
   chrome.extension.onRequest.addListener(
       function(request, sender, callback) {
       
@@ -66,16 +64,97 @@ cryptogram.revertByURL = function(URL) {
 
 
 
+// ############################## MISC ##############################
+
+cryptogram.log = function(str1, str2) {
+  console.log(str1);
+  
+  if (str2) {
+    if (str2.length > 128) {
+      console.log("   " + str2.substring(0,128)+"…");
+    } else {
+      console.log("   " + str2);
+    }
+  }
+}
+
+
+
+// Add a contains function to cleanup URL searching
+String.prototype.contains = function(str1) {
+  return (this.search(str1) != -1);
+};
+
+
+
+/**
+ * A utility class for creating object-oriented hierarchy.
+ * 
+ * Courtesy Thomas Huston
+ */
+var OOP = {
+
+  /**
+   * Implements the specified interface for the specified class type.
+   *
+   * @param classType The class type to add the interface to.
+   * @param interfaceType The interface to implement.
+   */
+  implement: function(classType, interfaceType) {
+    var property;
+    if (typeof classType === 'function') {
+      for (property in interfaceType.prototype) {
+        if (interfaceType.prototype.hasOwnProperty(property)) {
+          classType.prototype[property] = interfaceType.prototype[property];
+        }
+      }
+    } else {
+      for (property in interfaceType.prototype) {
+        if (interfaceType.prototype.hasOwnProperty(property)) {
+          classType[property] = interfaceType.prototype[property];
+        }
+      }
+    }
+  },
+
+  /**
+   * Inherits the prototype methods of superType in subType.
+   *
+   * @param subType The subclass.
+   * @param superType The superclass.
+   */
+  inherit: function(subType, superType) {
+    function F(){}
+    F.prototype = superType.prototype;
+    var prototype = new F();
+    prototype.constructor = subType;
+    subType.prototype = prototype;
+  }
+
+};
+
+
+
+
+
+
 
 // ############################## CONTEXT ##############################
 
 cryptogram.context = {
   
-  
-  
   initWithURL: function(URL) {
+        
     this.URL = URL;
+    this.selectMedia(URL);
     
+    this.fullURL = this._media.fixURL(URL);
+    this.container = cryptogram.context.getContainer();
+    cryptogram.context.createStatusDiv();
+  },
+  
+  
+  selectMedia: function(URL) {
     if (URL.contains("fbcdn.net/")) {
       this._media = cryptogram.context.facebook;
     } else if (URL.contains("googleusercontent.com/")) {
@@ -83,10 +162,6 @@ cryptogram.context = {
     } else {
       this._media = cryptogram.context.web;
     }
-    
-    this.fullURL = this._media.fixURL(URL);
-    this.container = cryptogram.context.getContainer();
-    cryptogram.context.createStatusDiv();
   },
   
   
@@ -139,16 +214,38 @@ cryptogram.context = {
   getContainer: function() {
     var elements = document.getElementsByTagName('img');  
     for (i = 0; i < elements.length; i++) {
-    
       if (elements[i].src == this.URL) {
         return elements[i];
       }
     }
     return null;
+  },
+  
+  
+  getPhotoName: function(testURL) {
+    this.selectMedia(testURL);
+    return this._media.getPhotoName(testURL);
+  },
+  
+  
+  getAlbumName: function(testURL) {
+    return this._media.getAlbumName(testURL);
   }
 };
 
+
+
+
+
+
+cryptogram.context.facebook = {};
+cryptogram.context.googleplus = {};
+cryptogram.context.web = {};
+
+
+
 cryptogram.context.facebook = {
+
   fixURL: function(URL) {
       
     if (URL.search("_o.jpg") != -1) {
@@ -192,10 +289,29 @@ cryptogram.context.facebook = {
       }
     }
     return URL;
+  },
+  
+  getPhotoName: function(URL) {
+  
+      var FBURLParts = URL.split("/");
+      var FBFilename = FBURLParts[FBURLParts.length-1];
+      var FBFilenameParts = FBFilename.split("_");
+      return "fb_photo_" + FBFilenameParts[1];
+
+  },
+
+  getAlbumName: function() {
+    var URL = document.URL;
+    //var pattern = /set=a.([0-9a.]*)/
+    var albumID = URL.match(/set=a.([0-9a.]*)/)[1];
+    return "fb_album_" + albumID;
   }
+
+
+
 };
 
-cryptogram.context.gplus = {
+cryptogram.context.googleplus = {
   fixURL: function(URL) {
     // URL is like: https://a1.googleusercontent.com/-a/B/C/E/<size>/0.jpg
     // By swapping the <size> parameter with 's0' we get the full size image
@@ -204,14 +320,14 @@ cryptogram.context.gplus = {
     var fullURL = GURLParts.join("/");
     cryptogram.log("Modified Google+ URL with s0:", fullURL);
     return fullURL;
-  }
+  },
   
 };
 
 cryptogram.context.web = {
   fixURL: function(URL) {
     return URL;
-  }
+  },
 };
 
 
@@ -237,8 +353,13 @@ cryptogram.storage.checkPassword = function(URL) {
 
 cryptogram.storage.savePassword = function(id, password) {
   if (cryptogram.storage.callback) {
-    cryptogram.log("Saving password for: ", id); 
-    cryptogram.storage.callback({outcome: "success", "id" : id, "password" : password});
+    cryptogram.log("Saving password for: ", id);
+    var photoId = cryptogram.context.getPhotoName(id);
+    var albumId = cryptogram.context.getAlbumName(id);
+    
+    cryptogram.log("Album name", albumId);
+    
+    cryptogram.storage.callback({outcome: "success", "id" : photoId, "password" : password});
   }
 };
 
@@ -246,13 +367,15 @@ cryptogram.storage.autoDecrypt = function() {
     
   var images = document.getElementsByTagName('img');
   if (images) {
-    console.log("Checking "+ images.length +" images against saved passwords.");
+    cryptogram.log("Checking "+ images.length +" images against saved passwords.");
   }
   
   for (i = 0; i < images.length; i++) {
     
     var testURL = images[i].src;
-    var password = cryptogram.storage.lookup[testURL];
+        
+    var photoId = cryptogram.context.getPhotoName(testURL);
+    var password = cryptogram.storage.lookup[photoId];
 
     if (password) {
         cryptogram.log("Found saved password for URL:", testURL);
@@ -358,7 +481,7 @@ cryptogram.decoder.processImage = function() {
   } else {
       cryptogram.context.setStatus();
       cryptogram.log("Decoded " + this.newBase64.length + " Base64 characters:", this.newBase64);
-      _decoder.decryptImage(this.newBase64);
+      _decoder.decryptImage();
   }
   
   
@@ -366,8 +489,10 @@ cryptogram.decoder.processImage = function() {
 
 
 
-cryptogram.decoder.decryptImage = function (newBase64) {
+cryptogram.decoder.decryptImage = function () {
 
+  var newBase64 = this.newBase64;
+  
   var check = newBase64.substring(0,64);
   var iv = newBase64.substring(64,64+22);
   var salt = newBase64.substring(64+22,64+33);
@@ -376,7 +501,7 @@ cryptogram.decoder.decryptImage = function (newBase64) {
     
   var bits = sjcl.hash.sha256.hash(full);
   var hexHash = sjcl.codec.hex.fromBits(bits);
-  
+    
   if (hexHash != check) {
     cryptogram.log("Checksum failed. Image is corrupted.");
   } else {
@@ -528,75 +653,6 @@ cryptogram.loader.getImageData = function(src, callback) {
 
 
 
-
-// ############################## MISC ##############################
-
-cryptogram.log = function(str1, str2) {
-  console.log(str1);
-  
-  if (str2) {
-    if (str2.length > 128) {
-      console.log("   " + str2.substring(0,128)+"…");
-    } else {
-      console.log("   " + str2);
-    }
-  }
-}
-
-
-
-// Add a contains function to cleanup URL searching
-String.prototype.contains = function(str1) {
-  return (this.search(str1) != -1);
-};
-
-
-
-/**
- * A utility class for creating object-oriented hierarchy.
- * 
- * Courtesy Thomas Huston
- */
-var OOP = {
-
-  /**
-   * Implements the specified interface for the specified class type.
-   *
-   * @param classType The class type to add the interface to.
-   * @param interfaceType The interface to implement.
-   */
-  implement: function(classType, interfaceType) {
-    var property;
-    if (typeof classType === 'function') {
-      for (property in interfaceType.prototype) {
-        if (interfaceType.prototype.hasOwnProperty(property)) {
-          classType.prototype[property] = interfaceType.prototype[property];
-        }
-      }
-    } else {
-      for (property in interfaceType.prototype) {
-        if (interfaceType.prototype.hasOwnProperty(property)) {
-          classType[property] = interfaceType.prototype[property];
-        }
-      }
-    }
-  },
-
-  /**
-   * Inherits the prototype methods of superType in subType.
-   *
-   * @param subType The subclass.
-   * @param superType The superclass.
-   */
-  inherit: function(subType, superType) {
-    function F(){}
-    F.prototype = superType.prototype;
-    var prototype = new F();
-    prototype.constructor = subType;
-    subType.prototype = prototype;
-  }
-
-};
 
 
 
