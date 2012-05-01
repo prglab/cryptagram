@@ -62,12 +62,20 @@ class MainHandler(tornado.web.RequestHandler):
     self.render("index.html")
 
 
+from hashlib import md5
+def path_hash(path):
+  hash_func = md5()
+  hash_func.update(path)
+  return hash_func.hexdigest()
+
 class StatusHandler(tornado.web.RequestHandler):
   def post(self):
     global _PROGRESS
     logging.info('Asking for status: %s.' % str(_PROGRESS))
     to_return = dict(
-      (key.replace('/','_').replace('.','_')[1:], int(100. * _PROGRESS.get(key)))
+      (path_hash(key), {'percent': int(100. * _PROGRESS.get(key)),
+                        'path': key,}
+       )
       for key in _PROGRESS)
     self.write(JSONEncoder().encode(to_return))
     logging.info('Returned status.')

@@ -63,7 +63,7 @@ function postStatus(first_time) {
 		// Identify any transitions between the three states.
 		for (path in paths_progress) {
 			// Transitioned: processing --> finished.
-			if ((paths_progress[path] == 100) && !(path in file_status.finished)) {
+			if ((paths_progress[path]['percent'] == 100) && !(path in file_status.finished)) {
 				console.log('processing --> finished: ' + path);
 				delete file_status.processing[path];
 				file_status.finished[path] = 0;
@@ -71,7 +71,7 @@ function postStatus(first_time) {
 			}
 
 			// Transitioned: queued --> processing.
-			if ((paths_progress[path] >= -100) && (paths_progress[path] < 100) &&
+			if ((paths_progress[path]['percent'] >= -100) && (paths_progress[path]['percent'] < 100) &&
 					!(path in file_status.processing)) {
 				console.log('queued --> processing: ' + path);
 				delete file_status.queued[path];
@@ -95,7 +95,7 @@ function postStatus(first_time) {
 
 				var list_item = document.createElement("li");
 				list_item.id = path;
-				list_item.innerHTML = path;
+				list_item.innerHTML = paths_progress[path]['path'];
 				$("#queued_list").append(list_item);
 			}
 		}
@@ -110,7 +110,7 @@ function postStatus(first_time) {
 				$("section").remove("#" + path);
 
 				var list_item = document.createElement("li");
-				list_item.innerHTML = path;
+				list_item.innerHTML = paths_progress[path]['path'];
 				$("#finished_list").append(list_item);
 			}
 		}
@@ -136,7 +136,7 @@ function postStatus(first_time) {
 				child_progress.id = path + '_progress';
 				var child_progress_span = document.createElement("span");
 				child_progress_span.id = path + '_progress_span';
-				child_progress_span.innerHTML = path;
+				child_progress_span.innerHTML = paths_progress[path]['path'];
 				child_progress.appendChild(child_progress_span);
 				child.appendChild(child_progress);
         section.appendChild(child)
@@ -154,7 +154,7 @@ function postStatus(first_time) {
 		var callback_complete = true;
 		paths_progress = $.parseJSON(data);
 		for (path in paths_progress) {
-			var progress = paths_progress[path];
+			var progress = paths_progress[path]['percent'];
 			if (progress < 100) {
 				callback_complete = false;
 			}
