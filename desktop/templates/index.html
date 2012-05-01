@@ -5,18 +5,22 @@
 <center>
 	<h1>Cryptogram Encryption</h1>
 	<h2>Please enter a password to start encrypting photos</h2>
-	<form id="input" action="password" method="post">
-		<table>
-			<tr><td>Password:</td><td>
-          <input type="password" name="password" id="password" /> </td></tr>
-			<tr><td>Verify Password:</td><td>
-          <input type="password" name="password_again" id="password_again" /></td></tr>
-		</table>
-		<input type="submit" value="Start encrypting" />
-	</form>
+	<div id="container">
+		<div id="stage">
+			<form id="input" action="password" method="post">
+				<table>
+					<tr><td>Password:</td><td>
+							<input type="password" name="password" id="password" /> </td></tr>
+					<tr><td>Verify Password:</td><td>
+							<input type="password" name="password_again" id="password_again" /></td></tr>
+				</table>
+				<input type="submit" value="Start encrypting" />
+			</form>
 
-	<form name="quitform" action="exit" method="get">
-		<input type="submit" value="Exit" />
-	</form>
+			<form name="quitform" action="exit" method="get">
+				<input type="submit" value="Exit" />
+			</form>
+		</div>
+	</div>
 </center>
 {% end %}

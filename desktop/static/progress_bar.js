@@ -7,7 +7,7 @@
       $(this).animate({
         width: progress+'%'
       }, {
-        duration: 1500,
+        duration: 750,
 
         // swing or linear
         easing: 'linear',
@@ -44,44 +44,111 @@
   };
 })( jQuery );
 
+// Poll the backend for status of the files. Files can be in one of three
+// states: queued, processing, finished. Finished files may either be success or
+// failure.
+
+var file_status = new Object();
+file_status.queued = new Object();
+file_status.processing = new Object();
+file_status.finished = new Object();
+
 function postStatus(first_time) {
 	var complete = false;
 	$.post("status", function(data) {
-		if (first_time) {
-			console.log(data);
-			console.log("postStatus first_time triggered");
-			var pb_div = document.getElementById("stage");
+		console.log(data);
 
-			paths_progress = $.parseJSON(data);
-			for (path in paths_progress) {
-				console.log(path);
+		var paths_progress = $.parseJSON(data);
 
+		// Identify any transitions between the three states.
+		for (path in paths_progress) {
+			// Transitioned: processing --> finished.
+			if ((paths_progress[path] == 100) && !(path in file_status.finished)) {
+				console.log('processing --> finished: ' + path);
+				delete file_status.processing[path];
+				file_status.finished[path] = 0;
+				continue;
+			}
+
+			// Transitioned: queued --> processing.
+			if ((paths_progress[path] >= -100) && (paths_progress[path] < 100) &&
+					!(path in file_status.processing)) {
+				console.log('queued --> processing: ' + path);
+				delete file_status.queued[path];
+				file_status.processing[path] = 0;
+				continue;
+			}
+
+			// If not in processing or finished, then queued. Add it if not already
+			// there.
+			if (!(path in file_status.processing) &&
+					(!(path in file_status.finished)) &&
+					(!(path in file_status.queued))) {
+				file_status.queued[path] = 0;
+			}
+		}
+
+		// For new queue items, add them to the visible queue list.
+		for (path in file_status.queued) {
+			if (0 == file_status.queued[path]) {
+				++file_status.queued[path];
+
+				var list_item = document.createElement("li");
+				list_item.id = path;
+				list_item.innerHTML = path;
+				$("#queued_list").append(list_item);
+			}
+		}
+
+		// For new finished items, remove them from the staging area and add them to
+		// the finished list.
+		for (path in file_status.finished) {
+			if (0 == file_status.finished[path]) {
+				++file_status.finished[path];
+				console.log('Trying to remove from processing ' + path);
+
+				$("section").remove("#" + path);
+
+				var list_item = document.createElement("li");
+				list_item.innerHTML = path;
+				$("#finished_list").append(list_item);
+			}
+		}
+
+
+		// For files that are being processed, we dequeue them and add them to the
+		// processing area.
+		for (path in file_status.processing) {
+			if (0 == file_status.processing[path]) {
+				// Increment value on file so we don't create another element.
+				++file_status.processing[path];
+
+				// Remove from queue.
+				$("li").remove("#" + path);
+
+				// Create new progress bar.
+				var pb_div = document.getElementById("stage");
         var section = document.createElement("section");
-
+				section.id = path;
 				var child = document.createElement("div");
-				child.id = path;
-
+				child.id = path + '_progress_bar';
 				var child_progress = document.createElement("div");
 				child_progress.id = path + '_progress';
-
 				var child_progress_span = document.createElement("span");
 				child_progress_span.id = path + '_progress_span';
 				child_progress_span.innerHTML = path;
-
 				child_progress.appendChild(child_progress_span);
 				child.appendChild(child_progress);
         section.appendChild(child)
-				pb_div.appendChild(section);
-			}
 
-			for (path in paths_progress) {
-				$('#' + path).addClass("ui-progress-bar ui-container");
+				pb_div.insertBefore(section, pb_div.firstChild);
+
+				$('#' + path + '_progress_bar').addClass("ui-progress-bar ui-container");
 				$('#' + path + '_progress').addClass("ui-progress");
 				$('section').addClass("work");
 				$('#' + path + '_progress').css("width","0%");
 				$('#' + path + '_progress_span').addClass("ui-label");
 			}
-			return false;
 		}
 
 		var callback_complete = true;
@@ -104,7 +171,7 @@ function postStatus(first_time) {
 
 	}.bind(this));
 
-	progress_bar_timer = setTimeout("postStatus(false);", 1500);
+	progress_bar_timer = setTimeout("postStatus(false);", 750);
 }
 
 function show_exit() {

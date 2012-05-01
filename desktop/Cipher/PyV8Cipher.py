@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import platform
+import os
 import logging
 import PyV8
 import threading
@@ -10,11 +10,13 @@ class V8Cipher(object):
   def __init__(self, password, command_line = False):
     self.password = password
 
-    _platform = platform.system()
-    if _platform == 'Linux' or command_line:
+    if os.path.exists('Cipher/sjcl.js'):
       self.sjcljs = 'Cipher/sjcl.js'
-    elif _platform == 'Darwin':
+    elif os.path.exists('sjcl.js'):
       self.sjcljs = 'sjcl.js'
+    else:
+      logging.error('Could not find sjcl.js.')
+      raise Exception('Could not find sjcl.js.')
 
   def _do_code(self, action, message):
     # Based on the specified action, set the coder.
