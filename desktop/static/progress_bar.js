@@ -71,7 +71,8 @@ function postStatus(first_time) {
 			}
 
 			// Transitioned: queued --> processing.
-			if ((paths_progress[path]['percent'] >= -100) && (paths_progress[path]['percent'] < 100) &&
+			if ((paths_progress[path]['percent'] >= -100) &&
+					(paths_progress[path]['percent'] < 100) &&
 					!(path in file_status.processing)) {
 				console.log('queued --> processing: ' + path);
 				delete file_status.queued[path];
@@ -93,9 +94,10 @@ function postStatus(first_time) {
 			if (0 == file_status.queued[path]) {
 				++file_status.queued[path];
 
-				var list_item = document.createElement("li");
-				list_item.id = path;
-				list_item.innerHTML = paths_progress[path]['path'];
+				var list_item = $("<li id=" + path + ">" +
+													paths_progress[path]['shortname'] +
+													"</li>")
+					.hide().fadeIn(1000);
 				$("#queued_list").append(list_item);
 			}
 		}
@@ -109,8 +111,8 @@ function postStatus(first_time) {
 
 				$("section").remove("#" + path);
 
-				var list_item = document.createElement("li");
-				list_item.innerHTML = paths_progress[path]['path'];
+				var list_item = $("<li>" + paths_progress[path]['shortname'] + "</li>")
+					.hide().fadeIn(1000);
 				$("#finished_list").append(list_item);
 			}
 		}
