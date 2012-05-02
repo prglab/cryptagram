@@ -31,6 +31,14 @@ background.getClickHandler = function() {
 };
 
 
+background.sendDebugReport = function() {
+
+  chrome.tabs.getSelected(null, function(tab) {   
+      chrome.tabs.sendRequest(tab.id, {"sendDebugReport": 1}, null); 
+  });
+    
+};
+
    
 chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
     
