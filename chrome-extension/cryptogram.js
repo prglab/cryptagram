@@ -38,6 +38,12 @@ cryptogram.init = function() {
 
 
 cryptogram.handleRequest = function(request, sender, callback) {
+      
+        if (request.sendDebugReport == "1") {
+          //alert(cryptogram.log.report);
+          cryptogram.log.sendDebugReport();   
+          return;
+        }  
         
         cryptogram.storage.callback = callback;
       
@@ -186,6 +192,23 @@ cryptogram.context = {
     return this._media.getImages();
   },
   
+  setSrc: function(src) {
+  
+    this.container.previousSrc = this.container.src;
+
+    if (this._media.needsRescale) {
+  
+      if (this.container.height > this.container.width) {
+        this.container.style.height = "720px";
+      } else {
+        this.container.style.width = "720px";
+      }
+    }
+  
+    this.container.src = src;
+  
+  },
+  
   facebook: {},
   googleplus: {},
   web: {}
@@ -225,6 +248,8 @@ cryptogram.context.facebook = {
           
     // Regular image page 
     } else {
+    
+      this.needsRescale = true;
           
       var elements = document.getElementsByClassName('fbPhotosPhotoActionsItem');
           
@@ -540,6 +565,7 @@ cryptogram.decoder.decryptImage = function () {
     
   if (hexHash != check) {
     cryptogram.log("Checksum failed. Image is corrupted.");
+    return;
   } else {
     cryptogram.log("Checksum passed.");
   }
@@ -549,12 +575,20 @@ cryptogram.decoder.decryptImage = function () {
   obj.salt = salt;
   obj.ct = ct;
   var base64Decode = JSON.stringify(obj);
-  var decrypted = sjcl.decrypt(this.password, base64Decode);
-    
+  var decrypted;
+  
+  try {
+    decrypted = sjcl.decrypt(this.password, base64Decode);
+  } 
+  
+  catch(err) {
+    cryptogram.log("Error decrypting:" ,err.toString());
+    return;
+  }
+  
   cryptogram.log("Decrypted " + decrypted.length + " Base64 characters:", decrypted);
   cryptogram.storage.savePassword(this.container.src, this.password);
-  this.container.previousSrc = this.container.src;
-  this.container.src = cryptogram.decoder.URIHeader + decrypted;
+  cryptogram.context.setSrc(cryptogram.decoder.URIHeader + decrypted);
 }
 
     
@@ -697,16 +731,29 @@ cryptogram.loader.getImageData = function(src, callback) {
 
 
 cryptogram.log = function(str1, str2) {
+  
+  cryptogram.log.report += str1 + "%0D%0A";
   console.log(str1);
   
   if (str2) {
-    if (str2.length > 128) {
-      console.log("   " + str2.substring(0,128)+"…");
-    } else {
-      console.log("   " + str2);
+    if (str2.length > 128) {      
+      str2 = str2.substring(0,128) + "…";
     }
-  }
+    str2 = "   " + str2;
+    console.log(str2);
+    cryptogram.log.report += str2 + "%0D%0A";
+  }  
+};
+
+cryptogram.log.sendDebugReport = function() {
+  
+  var addresses = "ispiro@gmail.com,mrtierney@gmail.com";
+  var subject = "Cryptogram Debug Report";
+  var href = "mailto:" + addresses + "?subject=" + subject + "&body=" + cryptogram.log.report;
+  window.open(href, "_blank");
 }
+
+cryptogram.log.report = "";
 
 
 // Add a contains function to simplify URL searching
