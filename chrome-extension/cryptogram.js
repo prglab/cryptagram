@@ -46,21 +46,24 @@ cryptogram.handleRequest = function(request, sender, callback) {
           cryptogram.storage.autoDecrypt();
         }
       
+        var password = null;
+      
         if (request.decryptURL) {
   
           if (request.storage) {
             cryptogram.storage.load(request.storage);
           }
                       
-          var password = null;
           if (cryptogram.storage) {    
-            password = cryptogram.storage.checkPassword(request.decryptURL);
-          }
-
-          if (!password) {
-            password = prompt("Enter password for\n" + request.decryptURL, "helloworld");     
+            password = cryptogram.storage.getPasswordForURL(request.decryptURL);
           }
           
+          if (!password) {
+            password = prompt("Enter password for\n" + request.decryptURL, "helloworld");
+          }
+          
+          if (!password) return;
+                    
           cryptogram.decryptByURL(request.decryptURL, password);
         }
         
@@ -351,14 +354,29 @@ cryptogram.storage.load = function(localStorage) {
   cryptogram.storage.lookup = localStorage;
 }
 
-cryptogram.storage.checkPassword = function(URL) {
-  
-  var lookup = cryptogram.storage.lookup;
-  
-  if (lookup[URL] != null) {
-    return lookup[URL];
-  }
-  return null;
+cryptogram.storage.getPasswordForURL = function(URL) {
+    
+    var photoId = cryptogram.context.getPhotoName(URL);
+    var albumId = cryptogram.context.getAlbumName(URL);
+    
+    var password = null;
+    var albumPassword = null;
+    
+    if (photoId) password = cryptogram.storage.lookup[photoId];
+    if (albumId) albumPassword = cryptogram.storage.lookup[albumId];
+
+    if (password) {
+        cryptogram.log("Found saved photo password for photo:", URL);
+        return password;
+		}
+		
+		if (albumPassword) {
+        cryptogram.log("Found saved album password for photo:", URL);
+        cryptogram.log("Album id:", albumId);
+        return albumPassword;
+		}
+		
+		return null;
 };
 
 cryptogram.storage.savePassword = function(id, password) {
@@ -399,31 +417,13 @@ cryptogram.storage.autoDecrypt = function() {
   for (i = 0; i < images.length; i++) {
     
     var testURL = images[i].src;
-        
-    var photoId = cryptogram.context.getPhotoName(testURL);
-    var albumId = cryptogram.context.getAlbumName(testURL);
     
-    var password = null;
-    var albumPassword = null;
-    
-    if (photoId) password = cryptogram.storage.lookup[photoId];
-    if (albumId) albumPassword = cryptogram.storage.lookup[albumId];
-
+    var password = cryptogram.storage.getPasswordForURL(testURL);
+      
     if (password) {
-        cryptogram.log("Found saved photo password for photo:", testURL);
         cryptogram.decryptByURL(testURL, password);
         return;
-		}
-		
-		if (albumPassword) {
-        cryptogram.log("Found saved album password for photo:", testURL);
-        cryptogram.log("Album id:", albumId);
-        
-        cryptogram.context.init(testURL);
-        cryptogram.decryptByURL(testURL, albumPassword);
-        return;
-		}
-		
+		}		
   }
 };
 
