@@ -7,7 +7,6 @@ body {
 }
 
 a {
-  text-decoration: none;
   color: #333333;
 }
 
@@ -26,7 +25,8 @@ a {
   margin: none;
 }
 
-#prglab {
+
+a {
   display: block;
   color: black;
   background: #DDDDDD;
@@ -34,9 +34,10 @@ a {
   font-size: 10px;
   padding-top: 5px;
   padding-bottom: 5px;
+  margin-top: 1px;
 }
 
-#prglab:hover {
+a:hover {
   background: #888888;
   color: white;
 }
