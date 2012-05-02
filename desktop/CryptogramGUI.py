@@ -28,6 +28,15 @@ import urllib
 import urllib2
 import webbrowser
 from json import JSONEncoder
+from util import md5hash
+
+import platform
+if platform.system() == 'Darwin':
+  import objc
+  from Foundation import *
+  from AppKit import *
+  from PyObjCTools import AppHelper
+
 
 logging.basicConfig(level=logging.INFO,
                     #stream = sys.stdout,
@@ -62,18 +71,12 @@ class MainHandler(tornado.web.RequestHandler):
     self.render("index.html")
 
 
-from hashlib import md5
-def path_hash(path):
-  hash_func = md5()
-  hash_func.update(path)
-  return hash_func.hexdigest()
-
 class StatusHandler(tornado.web.RequestHandler):
   def post(self):
     global _PROGRESS
     logging.info('Asking for status: %s.' % str(_PROGRESS))
     to_return = dict(
-      (path_hash(key), {'percent': int(100. * _PROGRESS.get(key)),
+      (md5hash(key), {'percent': int(100. * _PROGRESS.get(key)),
                         'path': key,
                         'shortname': '/'.join(key.split('/')[-2:])}
        )
@@ -195,6 +198,38 @@ class GuiCodec(threading.Thread):
       _PROGRESS[image_path] = -1
       self._encrypt(image_path)
 
+class TornadoServer(threading.Thread):
+  def __init__(self):
+    threading.Thread.__init__(self)
+    daemon = True
+
+  def run(self):
+    tornado.ioloop.IOLoop.instance().start()
+
+class MyApp(NSApplication):
+  def __new__(cls):
+    return cls.alloc().init()
+
+  def applicationDidFinishLaunching_(self, notification):
+    logging.info('Finished launching')
+    systemTray = NSStatusBar.systemStatusBar()
+
+    textInputItem = NSMenuItem.alloc().init()
+    textInputItem.setTitle_('CryptogramInputTitle')
+
+    textInputItem.setTarget_(textInputItem);
+    textInputItem.setEnabled_(True);
+
+    systemTrayMenu = NSMenu.alloc().init();
+    systemTrayMenu.addItem_(textInputItem);
+
+    systemTrayIcon = systemTray.statusItemWithLength_(NSVariableStatusItemLength)
+    systemTrayIcon.setMenu_(systemTrayMenu);
+
+    systemTrayIcon.setTitle_("CryptogramTitle");
+    systemTrayIcon.setToolTip_("CryptogramTip");
+    systemTrayIcon.setHighlightMode_(True);
+
 
 def main(argv):
   global _CODECS, _PROGRESS, _NUM_THREADS
@@ -225,7 +260,13 @@ def main(argv):
   http_server.listen(options.port)
 
   webbrowser.open_new_tab('http://localhost:%d' % options.port)
-  tornado.ioloop.IOLoop.instance().start()
+  tornado_server = TornadoServer()
+  tornado_server.start()
+
+  logging.info('Made to the end of the main function.')
+  if platform.system() == 'Darwin':
+    app = MyApp()
+    AppHelper.runEventLoop()
 
 if __name__=='__main__':
   try:
