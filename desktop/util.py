@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from hashlib import sha256
+from hashlib import sha256, md5
 import math
 
 def bsearch(a, x, lo=0, hi=None):
