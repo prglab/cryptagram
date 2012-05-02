@@ -33,6 +33,11 @@ class Codec(threading.Thread):
     self._new_image_dimensions(data)
     return self.new_image_dimensions.get_image_dimensions()
 
+  def get_prospective_image_dimensions_from_data_len(self, data_len):
+    self.new_image_dimensions = NewImageDimensions(
+      self.wh_ratio, data_len, self.symbol_shape)
+    return self.new_image_dimensions.get_image_dimensions()
+
   def get_percent_complete(self):
     percent = self.completed / (1. * self.data_length)
     return percent
