@@ -2,22 +2,26 @@
 
 # User-friendly SeeMeNot application code. Supports Drag and Drop.
 
-from Queue import Queue
 from Cipher.PyV8Cipher import V8Cipher as Cipher
 from Codec import Codec
 from Encryptor import Encrypt
 from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
 from PIL import Image
+from Queue import Queue
 from SymbolShape import two_square
 from encodings import hex_codec
+from json import JSONEncoder
+from multiprocessing import cpu_count
 from tornado.options import define, options
+from util import md5hash
 import logging
 import os
+import platform
 import shlex
 import subprocess
 import sys
-import time
 import threading
+import time
 import tornado.auth
 import tornado.escape
 import tornado.httpserver
@@ -27,10 +31,7 @@ import tornado.web
 import urllib
 import urllib2
 import webbrowser
-from json import JSONEncoder
-from util import md5hash
 
-import platform
 if platform.system() == 'Darwin':
   import objc
   from Foundation import *
@@ -39,14 +40,13 @@ if platform.system() == 'Darwin':
 
 
 logging.basicConfig(level=logging.INFO,
-                    #stream = sys.stdout,
                     filename='cryptogram.log',
                     format = '%(asctime)-15s %(levelname)8s %(module)20s '\
                       '%(lineno)4d %(message)s')
 
 define("port", default=8888, help="run on the given port", type=int)
 
-_NUM_THREADS = 4
+_NUM_THREADS = cpu_count() - 1
 _ALREADY_ENCRYPTING = False
 _CODEC = None
 
@@ -108,8 +108,12 @@ class ExitHandler(tornado.web.RequestHandler):
   def post(self):
     logging.info('Posted quit.')
     self.write('GUI quitting');
+
+    # On mac, we have to shutdown the application before quitting the rest of
+    # the process.
     if platform.system() == 'Darwin':
       AppHelper.stopEventLoop()
+
     sys.exit(0)
 
 
