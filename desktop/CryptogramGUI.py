@@ -108,6 +108,8 @@ class ExitHandler(tornado.web.RequestHandler):
   def post(self):
     logging.info('Posted quit.')
     self.write('GUI quitting');
+    if platform.system() == 'Darwin':
+      AppHelper.stopEventLoop()
     sys.exit(0)
 
 
@@ -206,29 +208,42 @@ class TornadoServer(threading.Thread):
   def run(self):
     tornado.ioloop.IOLoop.instance().start()
 
-class MyApp(NSApplication):
-  def __new__(cls):
-    return cls.alloc().init()
+class MyApp(NSObject):
+  statusbar = None
 
   def applicationDidFinishLaunching_(self, notification):
     logging.info('Finished launching')
-    systemTray = NSStatusBar.systemStatusBar()
 
-    textInputItem = NSMenuItem.alloc().init()
-    textInputItem.setTitle_('CryptogramInputTitle')
+    self.statusbar = NSStatusBar.systemStatusBar()
+    # Create the statusbar item
+    self.statusitem = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 
-    textInputItem.setTarget_(textInputItem);
-    textInputItem.setEnabled_(True);
+    # textInputItem = NSMenuItem.alloc().init()
+    # textInputItem.setTitle_('CryptogramInputTitle')
 
-    systemTrayMenu = NSMenu.alloc().init();
-    systemTrayMenu.addItem_(textInputItem);
+    # textInputItem.setTarget_(textInputItem);
+    # textInputItem.setEnabled_(True);
 
-    systemTrayIcon = systemTray.statusItemWithLength_(NSVariableStatusItemLength)
-    systemTrayIcon.setMenu_(systemTrayMenu);
+    self.menu = NSMenu.alloc().init()
+    menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+      'Sync...', 'sync:', '')
+    self.menu.addItem_(menuitem)
+    # Default event
+    menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+      'Quit', 'terminate:', '')
+    self.menu.addItem_(menuitem)
+    # Bind it to the status item
+    self.statusitem.setMenu_(self.menu)
 
-    systemTrayIcon.setTitle_("CryptogramTitle");
-    systemTrayIcon.setToolTip_("CryptogramTip");
-    systemTrayIcon.setHighlightMode_(True);
+    # systemTrayMenu = NSMenu.alloc().init();
+    # systemTrayMenu.addItem_(textInputItem);
+
+    # systemTrayIcon = systemTray.statusItemWithLength_(NSVariableStatusItemLength)
+    # systemTrayIcon.setMenu_(systemTrayMenu);
+
+    # systemTrayIcon.setTitle_("CryptogramTitle");
+    # systemTrayIcon.setToolTip_("CryptogramTip");
+    # systemTrayIcon.setHighlightMode_(True);
 
 
 def main(argv):
@@ -265,8 +280,27 @@ def main(argv):
 
   logging.info('Made to the end of the main function.')
   if platform.system() == 'Darwin':
-    app = MyApp()
+    app = NSApplication.sharedApplication()
+    delegate = MyApp.alloc().init()
+    app.setDelegate_(delegate)
+    # delegate.setApp_(app)
+    setup_menus(app, delegate)
     AppHelper.runEventLoop()
+
+def setup_menus(app,delegate):
+   mainmenu = NSMenu.alloc().init()
+   app.setMainMenu_(mainmenu)
+   appMenuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+     'Quit',
+     'terminate:',
+     'q')
+   mainmenu.addItem_(appMenuItem)
+   appMenu = NSMenu.alloc().init()
+   appMenuItem.setSubmenu_(appMenu)
+   aboutItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+     'Quit', 'terminate:', 'q')
+   aboutItem.setTarget_(app)
+   appMenu.addItem_(aboutItem)
 
 if __name__=='__main__':
   try:
