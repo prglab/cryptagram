@@ -1,12 +1,12 @@
-var bg = chrome.extension.getBackgroundPage();
-var settings = ['save_passwords', 'auto_decrypt', 'album_passwords'];
+var page = chrome.extension.getBackgroundPage();
 
 document.addEventListener('DOMContentLoaded', function () {
   
+  var settings = page.background.settings;
+    
   for (i = 0; i < settings.length; i++) {
     var setting = settings[i];
     var checkboxName = "checkbox_" + setting;
-    //bg.console.log("Checking " + checkboxName + "/" + localStorage[setting]);
     if (localStorage[setting] == null) {
       localStorage[setting] = "true";
     }
