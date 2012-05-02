@@ -27,16 +27,21 @@ cryptogram.revertByURL = function(URL) {
   cryptogram.context.container.src = cryptogram.context.container.previousSrc;
 };
 
-
-cryptogram.init = function() {
-  if (chrome.extension.onRequest.hasListeners()) return;
-  
-  chrome.extension.onRequest.addListener(
-      function(request, sender, callback) {
       
+      
+cryptogram.init = function() {
+  
+  if (chrome.extension.onRequest.hasListeners()) return;
+  chrome.extension.onRequest.addListener(cryptogram.handleRequest);
+  
+};
+
+
+cryptogram.handleRequest = function(request, sender, callback) {
+        
         cryptogram.storage.callback = callback;
       
-        if (request.checkForSaved == "1") {        
+        if (request.checkForSaved == "1") {
           cryptogram.storage.load(request.storage);
           cryptogram.storage.autoDecrypt();
         }
@@ -61,13 +66,8 @@ cryptogram.init = function() {
         
         if (request.revertURL) {
           cryptogram.revertByURL(request.revertURL);
-        }
-      });
+      }
 };
-
-
-
-
 
 
 
@@ -99,7 +99,6 @@ cryptogram.context = {
   },
   
   setURL: function(URL) {
-    console.log("Setting " + URL);
   
     this.URL = URL;
     this.fullURL = this._media.fixURL(URL);
@@ -144,6 +143,8 @@ cryptogram.context = {
   setStatus: function(message) {
     
     cryptogram.context.status = document.getElementById("cryptogramStatus");
+    
+    if (!cryptogram.context.status) return;
     
     if (!message) {
       cryptogram.context.status.style.display = "none";
@@ -768,4 +769,3 @@ var OOP = {
 
 
 cryptogram.init();
-
