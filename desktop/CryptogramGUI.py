@@ -32,7 +32,9 @@ import urllib
 import urllib2
 import webbrowser
 
-if platform.system() == 'Darwin':
+_PLATFORM = platform.system()
+
+if _PLATFORM == 'Darwin':
   import objc
   from Foundation import *
   from AppKit import *
@@ -111,7 +113,7 @@ class ExitHandler(tornado.web.RequestHandler):
 
     # On mac, we have to shutdown the application before quitting the rest of
     # the process.
-    if platform.system() == 'Darwin':
+    if _PLATFORM == 'Darwin':
       AppHelper.stopEventLoop()
 
     sys.exit(0)
@@ -212,42 +214,43 @@ class TornadoServer(threading.Thread):
   def run(self):
     tornado.ioloop.IOLoop.instance().start()
 
-class MyApp(NSObject):
-  statusbar = None
+if _PLATFORM == 'Darwin':
+  class CryptogramMacApp(NSObject):
+    statusbar = None
 
-  def applicationDidFinishLaunching_(self, notification):
-    logging.info('Finished launching')
+    def applicationDidFinishLaunching_(self, notification):
+      logging.info('Finished launching')
 
-    self.statusbar = NSStatusBar.systemStatusBar()
-    # Create the statusbar item
-    self.statusitem = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
+      self.statusbar = NSStatusBar.systemStatusBar()
+      # Create the statusbar item
+      self.statusitem = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 
-    # textInputItem = NSMenuItem.alloc().init()
-    # textInputItem.setTitle_('CryptogramInputTitle')
+      # textInputItem = NSMenuItem.alloc().init()
+      # textInputItem.setTitle_('CryptogramInputTitle')
 
-    # textInputItem.setTarget_(textInputItem);
-    # textInputItem.setEnabled_(True);
+      # textInputItem.setTarget_(textInputItem);
+      # textInputItem.setEnabled_(True);
 
-    self.menu = NSMenu.alloc().init()
-    menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-      'Sync...', 'sync:', '')
-    self.menu.addItem_(menuitem)
-    # Default event
-    menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-      'Quit', 'terminate:', '')
-    self.menu.addItem_(menuitem)
-    # Bind it to the status item
-    self.statusitem.setMenu_(self.menu)
+      self.menu = NSMenu.alloc().init()
+      menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+        'Sync...', 'sync:', '')
+      self.menu.addItem_(menuitem)
+      # Default event
+      menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+        'Quit', 'terminate:', '')
+      self.menu.addItem_(menuitem)
+      # Bind it to the status item
+      self.statusitem.setMenu_(self.menu)
 
-    # systemTrayMenu = NSMenu.alloc().init();
-    # systemTrayMenu.addItem_(textInputItem);
+      # systemTrayMenu = NSMenu.alloc().init();
+      # systemTrayMenu.addItem_(textInputItem);
 
-    # systemTrayIcon = systemTray.statusItemWithLength_(NSVariableStatusItemLength)
-    # systemTrayIcon.setMenu_(systemTrayMenu);
+      # systemTrayIcon = systemTray.statusItemWithLength_(NSVariableStatusItemLength)
+      # systemTrayIcon.setMenu_(systemTrayMenu);
 
-    # systemTrayIcon.setTitle_("CryptogramTitle");
-    # systemTrayIcon.setToolTip_("CryptogramTip");
-    # systemTrayIcon.setHighlightMode_(True);
+      # systemTrayIcon.setTitle_("CryptogramTitle");
+      # systemTrayIcon.setToolTip_("CryptogramTip");
+      # systemTrayIcon.setHighlightMode_(True);
 
 
 def main(argv):
@@ -283,9 +286,9 @@ def main(argv):
   tornado_server.start()
 
   logging.info('Made to the end of the main function.')
-  if platform.system() == 'Darwin':
+  if _PLATFORM == 'Darwin':
     app = NSApplication.sharedApplication()
-    delegate = MyApp.alloc().init()
+    delegate = CryptogramMacApp.alloc().init()
     app.setDelegate_(delegate)
     # delegate.setApp_(app)
     setup_menus(app, delegate)
