@@ -8,17 +8,23 @@ from tempfile import NamedTemporaryFile
 from json import JSONEncoder
 from PIL import Image
 from util import sha256hash
+import cStringIO
 
 class Encrypt(object):
-  def __init__(self, image_path, codec, cipher):
-    self.image_path = image_path
+  def __init__(self, image_buffer, codec, cipher):
+    self.image_buffer = image_buffer
     self.codec = codec
     self.cipher = cipher
+    self.temp_memory_file = image_buffer
 
   def _image_path_to_encrypted_data(self, image_path):
     logging.info('Reading raw image data.')
     with open(image_path, 'rb') as fh:
       raw_image_file_data = fh.read()
+    return self._raw_image_data_to_encrypted_data(raw_image_file_data)
+
+  def _raw_image_data_to_encrypted_data(self, raw_image_file_data):
+    logging.info('Raw data: %s.' % raw_image_file_data[:10])
     base64_image_file_data = base64.b64encode(raw_image_file_data)
 
     logging.info('Cipher encoding data.')
@@ -50,61 +56,80 @@ class Encrypt(object):
     return encrypted_data
 
   def _reduce_image_quality(self, image_path):
+    logging.info('Requalitying image.')
+    image_path.seek(0)
     im = Image.open(image_path)
-    with NamedTemporaryFile() as fh:
-      new_image_path = fh.name + '.jpg'
-      try:
-        im.save(new_image_path, quality=77)
-      except IOError, e:
-        logging.error(str(e))
-        raise
-    return new_image_path
+
+    new_file = cStringIO.StringIO()
+    im.save(new_file, 'jpeg', quality=77)
+    logging.info('Deleting image.')
+    del im
+    return new_file
+
 
   def _reduce_image_size(self, image_path, scale):
+    logging.info('Resizing image.')
+
+    logging.info('Opening image')
+    image_path.seek(0)
     im = Image.open(image_path)
+
+    logging.info('Opened. Resizing')
     width, height = im.size
-    with NamedTemporaryFile() as fh:
-      new_image_path = fh.name + '.jpg'
-      im = im.resize((int(width * scale), int(height * scale)))
-      width, height = im.size
+    im = im.resize((int(width * scale), int(height * scale)))
 
-      # Update codec with the new width, height ratio.
-      # TODO(tierney): Test if this is necessary.
-      # self.codec.set_wh_ratio(width / float(height))
+    new_file = cStringIO.StringIO()
+    im.save(new_file, 'jpeg', quality=77)
+    del im
+    return new_file
 
-      im.save(new_image_path, quality=77)
-    return new_image_path
 
   def upload_encrypt(self, dimension_limit = 2048):
-    _image_path = self.image_path
     requality_limit = 1
     requality_count = 0
     rescale_count = 0
-    logging.info('Encrypting image: %s.' % _image_path)
 
     prospective_image_dimensions = self.codec.get_prospective_image_dimensions
+
+    _image_buffer = self.temp_memory_file
+
     while True:
-      _ = Image.open(_image_path)
+      logging.info('Start of while loop.')
+
+      _image_buffer.seek(0)
+      _ = Image.open(_image_buffer)
       _w, _h = _.size
       logging.info('Cleartext image dimensions: (%d, %d).' % (_w, _h))
-      encrypted_data = self._image_path_to_encrypted_data(_image_path)
+      del _
+
+      encrypted_data = self._raw_image_data_to_encrypted_data(
+        _image_buffer.getvalue())
+
       width, height = prospective_image_dimensions(encrypted_data)
       if width <= dimension_limit and height <= dimension_limit:
         break
 
+      del encrypted_data
       logging.info('Dimensions too large (w: %d, h: %d).' % (width, height))
 
       # Strategies to reduce raw bytes that we need to encrypt: requality,
       # rescale.
       if requality_count < requality_limit:
         logging.info('Requality image.')
-        _image_path = self._reduce_image_quality(_image_path)
+        _ = self._reduce_image_quality(_image_buffer)
+        del _image_buffer
+        _image_buffer = _
         requality_count += 1
+
       else:
         rescale_count += 1
         logging.info('Rescale with original image.')
-        _image_path = self._reduce_image_size(self.image_path,
-                                              1.0-(0.05 * rescale_count))
+        _ = self._reduce_image_size(
+          self.image_buffer, 1.0 - (0.05 * rescale_count))
+        del _image_buffer
+        _image_buffer = _
+
+    del _image_buffer
     return encrypted_data
 
   def encrypt(self):

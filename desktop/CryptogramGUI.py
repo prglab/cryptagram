@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # User-friendly SeeMeNot application code. Supports Drag and Drop.
-
+import gc
 from Cipher.PyV8Cipher import V8Cipher as Cipher
 from Codec import Codec
 from Encryptor import Encrypt
@@ -31,6 +31,7 @@ import tornado.web
 import urllib
 import urllib2
 import webbrowser
+import cStringIO
 
 _PLATFORM = platform.system()
 
@@ -134,12 +135,21 @@ class GuiCodec(threading.Thread):
   def _encrypt(self, image_path):
     global _PROGRESS
 
+    image_buffer = cStringIO.StringIO()
+
+    with open(image_path, 'rb') as fh:
+      image_buffer.write(fh.read())
+      length = fh.tell()
+    logging.info('%s has size %d.' % (image_path, length))
+
     # Update codec based on wh_ratio from given image.
     try:
-      _image = Image.open(image_path)
+      image_buffer.seek(0)
+      _image = Image.open(image_buffer)
     except IOError, e:
       logging.error(str(e))
       return -1
+
     _width, _height = _image.size
     wh_ratio = _width / float(_height)
 
@@ -149,18 +159,15 @@ class GuiCodec(threading.Thread):
     self.codec = Codec(two_square, wh_ratio, Base64MessageSymbolCoder(),
                        Base64SymbolSignalCoder())
 
-    # Determine file size.
-    with open(image_path, 'rb') as fh:
-      orig_data = fh.read()
-      length = fh.tell()
-      logging.info('Image filesize: %d bytes.' % length)
-
     cipher = Cipher(self.password)
-    crypto = Encrypt(image_path, self.codec, cipher)
+    crypto = Encrypt(image_buffer, self.codec, cipher)
     try:
       # Potentially resizes the photo.
       encrypted_data = crypto.upload_encrypt()
     except IOError, e:
+      logging.error(str(e))
+      return -1
+    except Exception, e:
       logging.error(str(e))
       return -1
 
@@ -189,6 +196,7 @@ class GuiCodec(threading.Thread):
       return -1
 
     _PROGRESS[image_path] = 1
+    del crypto
     return 0
 
   def run(self):
@@ -204,7 +212,11 @@ class GuiCodec(threading.Thread):
         logging.error('Queue empty? %s.' % str(e))
         break
       _PROGRESS[image_path] = -1
+
       self._encrypt(image_path)
+
+      self.queue.task_done()
+      gc.collect()
 
 class TornadoServer(threading.Thread):
   def __init__(self):
