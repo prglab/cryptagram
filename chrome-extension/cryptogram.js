@@ -27,19 +27,26 @@ cryptogram.revertByURL = function(URL) {
   cryptogram.context.container.src = cryptogram.context.container.previousSrc;
 };
 
-
-cryptogram.init = function() {
-  if (chrome.extension.onRequest.hasListeners()) return;
-  
-  chrome.extension.onRequest.addListener(
-      function(request, sender, callback) {
       
+      
+cryptogram.init = function() {
+  
+  if (chrome.extension.onRequest.hasListeners()) return;
+  chrome.extension.onRequest.addListener(cryptogram.handleRequest);
+  
+};
+
+
+cryptogram.handleRequest = function(request, sender, callback) {
+        
         cryptogram.storage.callback = callback;
       
-        if (request.checkForSaved == "1") {        
+        if (request.checkForSaved == "1") {
           cryptogram.storage.load(request.storage);
           cryptogram.storage.autoDecrypt();
         }
+      
+        var password = null;
       
         if (request.decryptURL) {
   
@@ -47,27 +54,23 @@ cryptogram.init = function() {
             cryptogram.storage.load(request.storage);
           }
                       
-          var password = null;
           if (cryptogram.storage) {    
-            password = cryptogram.storage.checkPassword(request.decryptURL);
-          }
-
-          if (!password) {
-            password = prompt("Enter password for\n" + request.decryptURL, "helloworld");     
+            password = cryptogram.storage.getPasswordForURL(request.decryptURL);
           }
           
+          if (!password) {
+            password = prompt("Enter password for\n" + request.decryptURL, "helloworld");
+          }
+          
+          if (!password) return;
+                    
           cryptogram.decryptByURL(request.decryptURL, password);
         }
         
         if (request.revertURL) {
           cryptogram.revertByURL(request.revertURL);
-        }
-      });
+      }
 };
-
-
-
-
 
 
 
@@ -99,7 +102,6 @@ cryptogram.context = {
   },
   
   setURL: function(URL) {
-    console.log("Setting " + URL);
   
     this.URL = URL;
     this.fullURL = this._media.fixURL(URL);
@@ -134,6 +136,7 @@ cryptogram.context = {
     div.style.font = "10px arial";
     div.style.width = "50px";
     div.style.textAlign = "center";
+    div.style.borderRadius = "3px";
     div.innerHTML = "Load<br>...";
     div.style.display = "none";
     cryptogram.context.status = div;
@@ -143,6 +146,8 @@ cryptogram.context = {
   setStatus: function(message) {
     
     cryptogram.context.status = document.getElementById("cryptogramStatus");
+    
+    if (!cryptogram.context.status) return;
     
     if (!message) {
       cryptogram.context.status.style.display = "none";
@@ -349,14 +354,29 @@ cryptogram.storage.load = function(localStorage) {
   cryptogram.storage.lookup = localStorage;
 }
 
-cryptogram.storage.checkPassword = function(URL) {
-  
-  var lookup = cryptogram.storage.lookup;
-  
-  if (lookup[URL] != null) {
-    return lookup[URL];
-  }
-  return null;
+cryptogram.storage.getPasswordForURL = function(URL) {
+    
+    var photoId = cryptogram.context.getPhotoName(URL);
+    var albumId = cryptogram.context.getAlbumName(URL);
+    
+    var password = null;
+    var albumPassword = null;
+    
+    if (photoId) password = cryptogram.storage.lookup[photoId];
+    if (albumId) albumPassword = cryptogram.storage.lookup[albumId];
+
+    if (password) {
+        cryptogram.log("Found saved photo password for photo:", URL);
+        return password;
+		}
+		
+		if (albumPassword) {
+        cryptogram.log("Found saved album password for photo:", URL);
+        cryptogram.log("Album id:", albumId);
+        return albumPassword;
+		}
+		
+		return null;
 };
 
 cryptogram.storage.savePassword = function(id, password) {
@@ -397,31 +417,13 @@ cryptogram.storage.autoDecrypt = function() {
   for (i = 0; i < images.length; i++) {
     
     var testURL = images[i].src;
-        
-    var photoId = cryptogram.context.getPhotoName(testURL);
-    var albumId = cryptogram.context.getAlbumName(testURL);
     
-    var password = null;
-    var albumPassword = null;
-    
-    if (photoId) password = cryptogram.storage.lookup[photoId];
-    if (albumId) albumPassword = cryptogram.storage.lookup[albumId];
-
+    var password = cryptogram.storage.getPasswordForURL(testURL);
+      
     if (password) {
-        cryptogram.log("Found saved photo password for photo:", testURL);
         cryptogram.decryptByURL(testURL, password);
         return;
-		}
-		
-		if (albumPassword) {
-        cryptogram.log("Found saved album password for photo:", testURL);
-        cryptogram.log("Album id:", albumId);
-        
-        cryptogram.context.init(testURL);
-        cryptogram.decryptByURL(testURL, albumPassword);
-        return;
-		}
-		
+		}		
   }
 };
 
@@ -460,7 +462,7 @@ cryptogram.decoder.decodeDataToContainer = function(data, password, container) {
     _decoder.blockSize = blockSize;
     _decoder.password = password;
     _decoder.container = container;
-    _decoder.chunkSize = img.height / 10.0;
+    _decoder.chunkSize = img.height / 40.0;
     _decoder.y = 0;
     _decoder.newBase64 = "";
     _decoder.processImage();
@@ -507,7 +509,9 @@ cryptogram.decoder.processImage = function() {
   _decoder = this;
 
   if (!done) {
-      var percent = Math.floor(100.0 * Math.ceil(y / img.height));
+      // Artificially inflate the percent so it gets to 100
+      var percent = Math.ceil(100.0 * ((y + (4*blockSize)) / img.height));
+      if (percent > 100) percent = 100;
       cryptogram.context.setStatus("Decode<br>" + percent + "%");
       setTimeout(function () { _decoder.processImage() }, 1);
   } else {
@@ -765,4 +769,3 @@ var OOP = {
 
 
 cryptogram.init();
-
