@@ -134,6 +134,7 @@ cryptogram.context = {
     div.style.font = "10px arial";
     div.style.width = "50px";
     div.style.textAlign = "center";
+    div.style.borderRadius = "3px";
     div.innerHTML = "Load<br>...";
     div.style.display = "none";
     cryptogram.context.status = div;
@@ -460,7 +461,7 @@ cryptogram.decoder.decodeDataToContainer = function(data, password, container) {
     _decoder.blockSize = blockSize;
     _decoder.password = password;
     _decoder.container = container;
-    _decoder.chunkSize = img.height / 10.0;
+    _decoder.chunkSize = img.height / 40.0;
     _decoder.y = 0;
     _decoder.newBase64 = "";
     _decoder.processImage();
@@ -507,7 +508,9 @@ cryptogram.decoder.processImage = function() {
   _decoder = this;
 
   if (!done) {
-      var percent = Math.floor(100.0 * Math.ceil(y / img.height));
+      // Artificially inflate the percent so it gets to 100
+      var percent = Math.ceil(100.0 * ((y + (4*blockSize)) / img.height));
+      if (percent > 100) percent = 100;
       cryptogram.context.setStatus("Decode<br>" + percent + "%");
       setTimeout(function () { _decoder.processImage() }, 1);
   } else {
