@@ -90,7 +90,7 @@ class Encrypt(object):
     return new_file
 
   def _estimate_encryption_inflation(self, data):
-    return len(data) * 1.3334
+    return len(data) * (1.3334**2)
 
   def upload_encrypt(self, dimension_limit = 2048):
     requality_limit = 1
@@ -117,6 +117,8 @@ class Encrypt(object):
         _image_buffer.getvalue())
       width, height = prospective_image_dimensions_from_data_len(
         estimated_encrypted_data_len)
+      logging.info('Estimated image dimensions for len %d: (w: %d, h: %d).' % \
+                     (estimated_encrypted_data_len, width, height))
       if width <= dimension_limit and height <= dimension_limit:
         encrypted_data = self._raw_image_data_to_encrypted_data(
           _image_buffer.getvalue())
