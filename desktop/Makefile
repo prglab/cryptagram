@@ -2,10 +2,20 @@ all:
 	@echo Please be more specific.
 
 mac:
-	python setup.py py2app --no-strip
+	python setup.py py2app -A
+	cp -r static dist/Cryptogram.app/Contents/Resources/
+	cp -r templates dist/Cryptogram.app/Contents/Resources/
+
+mac-release:
+	python setup.py py2app --no-strip -O2
+	cp -r static dist/Cryptogram.app/Contents/Resources/
+	cp -r templates dist/Cryptogram.app/Contents/Resources/
+	cd dist && tar czf Cryptogram.tar.gz Cryptogram.app/
 
 linux:
 	python setup.py build
 
 clean:
-	rm -rf *.pyc *.log build/ dist/
+	rm -rf *.log build/ dist/
+	find . -name "*.pyo" | xargs rm -f
+	find . -name "*.pyc" | xargs rm -f

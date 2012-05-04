@@ -13,6 +13,7 @@ from tempfile import NamedTemporaryFile
 from Cipher.PyV8Cipher import V8Cipher as Cipher
 from json import JSONEncoder, JSONDecoder
 from util import sha256hash
+import time
 
 from Encryptor import Encrypt
 from SymbolShape import SymbolShape, four_square, three_square, two_square, \
@@ -61,7 +62,7 @@ def main(argv):
 
   symbol_shape = _AVAILABLE_SHAPES[FLAGS.symbol_shape]
   quality = FLAGS.quality
-  cipher = Cipher(FLAGS.password)
+  cipher = Cipher(FLAGS.password, command_line=True)
 
   if FLAGS.image and FLAGS.encrypt:
     logging.info('Image to encrypt: %s.' % FLAGS.image)
@@ -82,7 +83,16 @@ def main(argv):
     crypto = Encrypt(FLAGS.image, codec, cipher)
     encrypted_data = crypto.upload_encrypt()
     logging.info('Encrypted data length: %d.' % len(encrypted_data))
-    im = codec.encode(encrypted_data)
+
+    codec.set_direction('encode')
+    codec.set_data(encrypted_data)
+    codec.start()
+    while True:
+      im = codec.get_result()
+      if im: break
+      logging.info('Progress: %.2f%%.' % \
+                     (100. * codec.get_percent_complete()))
+      time.sleep(0.5)
 
     logging.info('Saving encrypted jpeg with quality %d.' % quality)
     with open(FLAGS.encrypt, 'w') as out_file:
@@ -93,6 +103,7 @@ def main(argv):
       logging.info('Encrypted image size: %d bytes.' % fh.tell())
       logging.info('Encrypted image data expansion %.2f.' % \
                      (fh.tell() / float(length)))
+    del codec
 
   if not FLAGS.decrypt:
     return
@@ -108,10 +119,19 @@ def main(argv):
     read_back_image = Image.open(FLAGS.image)
     _width, _height = read_back_image.size
     wh_ratio = _width / float(_height)
-    codec = Codec(symbol_shape, wh_ratio, Base64MessageSymbolCoder(),
-                  Base64SymbolSignalCoder())
 
-  binary_decoding = codec.decode(read_back_image)
+  codec = Codec(symbol_shape, wh_ratio, Base64MessageSymbolCoder(),
+                Base64SymbolSignalCoder())
+
+  codec.set_direction('decode')
+  codec.set_data(read_back_image)
+  codec.start()
+  while True:
+    binary_decoding = codec.get_result()
+    if binary_decoding: break
+    logging.info('Progress: %.2f%%.' % \
+                   (100. * codec.get_percent_complete()))
+    time.sleep(0.5)
 
   if FLAGS.encrypt and FLAGS.decrypt:
     logging.info('Byte for byte diff: %d.' % \

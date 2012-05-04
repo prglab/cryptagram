@@ -12,8 +12,12 @@ class SymbolShape(object):
   _width = -1
   _height = -1
 
-  def __init__(self, shape):
+  def __init__(self, shape, name):
     self.shape = shape
+    self.name = name
+
+  def get_name(self):
+    return self.name
 
   def get_num_symbol_shapes(self):
     # Count the number of distinct symbol_shapes, ignoring zero-valued
@@ -71,22 +75,29 @@ class SymbolShape(object):
 four_square = SymbolShape([[1, 1, 1, 1, 2, 2, 2, 2],
                            [1, 1, 1, 1, 2, 2, 2, 2],
                            [1, 1, 1, 1, 2, 2, 2, 2],
-                           [1, 1, 1, 1, 2, 2, 2, 2]])
+                           [1, 1, 1, 1, 2, 2, 2, 2]],
+                          'four_square')
 
 three_square = SymbolShape([[1, 1, 1, 2, 2, 2],
                             [1, 1, 1, 2, 2, 2],
-                            [1, 1, 1, 2, 2, 2]])
+                            [1, 1, 1, 2, 2, 2]],
+                           'three_square')
 
 two_by_four = SymbolShape([[1, 1, 1, 1, 2, 2, 2, 2],
-                           [1, 1, 1, 1, 2, 2, 2, 2]])
+                           [1, 1, 1, 1, 2, 2, 2, 2]],
+                          'two_by_four')
 
 two_by_three = SymbolShape([[1, 1, 1, 2, 2, 2],
-                            [1, 1, 1, 2, 2, 2]])
+                            [1, 1, 1, 2, 2, 2]],
+                           'two_by_three')
 
 two_square = SymbolShape([[1, 1, 2, 2],
-                          [1, 1, 2, 2]])
+                          [1, 1, 2, 2]],
+                         'two_square')
 
 two_by_one = SymbolShape([[1, 2],
-                          [1, 2]])
+                          [1, 2]],
+                         'two_by_one')
 
-one_square = SymbolShape([[1, 2]])
+one_square = SymbolShape([[1, 2]],
+                         'one_square')

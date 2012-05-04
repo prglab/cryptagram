@@ -1,86 +1,190 @@
 #!/usr/bin/env python
 
 # User-friendly SeeMeNot application code. Supports Drag and Drop.
-
-import Tkinter as tk
-from Tkinter import *
-import os
+import gc
+from Cipher.PyV8Cipher import V8Cipher as Cipher
+from Codec import Codec
+from Encryptor import Encrypt
+from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
+from PIL import Image
+from Queue import Queue
+from SymbolShape import two_square
+from encodings import hex_codec
+from json import JSONEncoder
+from multiprocessing import cpu_count
+from tornado.options import define, options
+from util import md5hash
 import logging
+import os
+import platform
 import shlex
 import subprocess
 import sys
+import threading
 import time
+import tornado.auth
+import tornado.escape
+import tornado.httpserver
+import tornado.ioloop
+import tornado.options
+import tornado.web
+import urllib
+import urllib2
+import webbrowser
+import cStringIO
 
-from Cipher.PyV8Cipher import V8Cipher as Cipher
-from Codec import Codec
-from SymbolShape import two_square
-from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
-from Encryptor import Encrypt
-from PIL import Image
-from encodings import hex_codec
+_PLATFORM = platform.system()
+
+if _PLATFORM == 'Darwin':
+  import objc
+  from Foundation import *
+  from AppKit import *
+  from PyObjCTools import AppHelper
+
 
 logging.basicConfig(level=logging.INFO,
-                    #stream = sys.stdout,
-                    filename='py2app.tierney.log',
+                    filename='cryptogram.log',
                     format = '%(asctime)-15s %(levelname)8s %(module)20s '\
                       '%(lineno)4d %(message)s')
 
-class StatusBar(tk.Frame):
-  def __init__(self, master):
-    tk.Frame.__init__(self, master)
-    self.variable=tk.StringVar()
-    self.label=tk.Label(self, bd=1, anchor=tk.W,
-                        textvariable=self.variable,
-                        font=('arial',12,'normal'))
-    self.variable.set('Status Bar')
-    self.label.pack(fill="both", expand="yes")
-    self.pack()
+define("port", default=8888, help="run on the given port", type=int)
 
-  def set(self, set_string):
-    self.variable.set(set_string)
+_NUM_THREADS = cpu_count() - 1
+_ALREADY_ENCRYPTING = False
+_CODEC = None
 
-  def clear(self):
-    self.variable.set('')
+class Application(tornado.web.Application):
+  def __init__(self):
+    handlers = [
+      (r"/", MainHandler),
+      (r"/status", StatusHandler),
+      (r"/password", PasswordHandler),
+      (r"/exit", ExitHandler),
+    ]
 
-class GuiCodec(object):
-  def __init__(self, parent_frame, passed_values, status_bar):
-    self.parent_frame = parent_frame
-    self.passed_values = passed_values
-    self.status_bar = status_bar
-    self.password = None
+    settings = dict(
+      template_path = os.path.join(os.path.dirname(__file__), 'templates'),
+      static_path = os.path.join(os.path.dirname(__file__), 'static')
+      )
+    tornado.web.Application.__init__(self, handlers, **settings)
+
+
+class MainHandler(tornado.web.RequestHandler):
+  def get(self):
+    self.render("index.html")
+
+
+class StatusHandler(tornado.web.RequestHandler):
+  def post(self):
+    global _PROGRESS
+    logging.info('Asking for status: %s.' % str(_PROGRESS))
+    to_return = dict(
+      (md5hash(key), {'percent': int(100. * _PROGRESS.get(key)),
+                        'path': key,
+                        'shortname': '/'.join(key.split('/')[-2:])}
+       )
+      for key in _PROGRESS)
+    self.write(JSONEncoder().encode(to_return))
+    logging.info('Returned status.')
+
+
+class PasswordHandler(tornado.web.RequestHandler):
+  def post(self):
+    global _CODECS
+
+    password = self.get_argument('password')
+    password_again = self.get_argument('password_again')
+    if password != password_again:
+      logging.warning('Passwords do not match.')
+      self.render('index.html')
+
+    [codec.set_password(password) for codec in _CODECS]
+    self.render("encrypting.html")
+
+
+class ExitHandler(tornado.web.RequestHandler):
+  def get(self):
+    logging.info('Indicated we wanted to quit.')
+    self.render('exit.html')
+    sys.exit(0)
+
+  def post(self):
+    logging.info('Posted quit.')
+    self.write('GUI quitting');
+
+    # On mac, we have to shutdown the application before quitting the rest of
+    # the process.
+    if _PLATFORM == 'Darwin':
+      AppHelper.stopEventLoop()
+
+    sys.exit(0)
+
+
+class GuiCodec(threading.Thread):
+  codec = None
+  password = None
+  daemon = True
+
+  def __init__(self, queue):
+    threading.Thread.__init__(self)
+    self.queue = queue
 
   def set_password(self, password):
-    logging.info('Set password %s' % password)
     self.password = password
 
   def _encrypt(self, image_path):
+    global _PROGRESS
+
+    image_buffer = cStringIO.StringIO()
+
+    with open(image_path, 'rb') as fh:
+      image_buffer.write(fh.read())
+      length = fh.tell()
+    logging.info('%s has size %d.' % (image_path, length))
+
     # Update codec based on wh_ratio from given image.
     try:
-      _image = Image.open(image_path)
+      image_buffer.seek(0)
+      _image = Image.open(image_buffer)
     except IOError, e:
       logging.error(str(e))
       return -1
+
     _width, _height = _image.size
     wh_ratio = _width / float(_height)
-    codec = Codec(two_square, wh_ratio, Base64MessageSymbolCoder(),
-                  Base64SymbolSignalCoder())
 
-    # Determine file size.
-    with open(image_path, 'rb') as fh:
-      orig_data = fh.read()
-      length = fh.tell()
-      logging.info('Image filesize: %d bytes.' % length)
+    logging.info('Original im dimens: w (%d) h (%d) ratio (%.2f).' % \
+                   (_width, _height, wh_ratio))
+
+    self.codec = Codec(two_square, wh_ratio, Base64MessageSymbolCoder(),
+                       Base64SymbolSignalCoder())
 
     cipher = Cipher(self.password)
-    crypto = Encrypt(image_path, codec, cipher)
+    crypto = Encrypt(image_buffer, self.codec, cipher)
     try:
+      # Potentially resizes the photo.
       encrypted_data = crypto.upload_encrypt()
     except IOError, e:
       logging.error(str(e))
       return -1
+    except Exception, e:
+      logging.error(str(e))
+      return -1
 
     logging.info('Encrypted data length: %d.' % len(encrypted_data))
-    im = codec.encode(encrypted_data)
+
+    self.codec.set_direction('encode')
+    self.codec.set_data(encrypted_data)
+    self.codec.start()
+    while True:
+      im = self.codec.get_result()
+      if im:
+        break
+
+      # Recording the image progress for the user.
+      _PROGRESS[image_path] = self.codec.get_percent_complete()
+      logging.info('Progress: %.2f%%.' % (100. * self.codec.get_percent_complete()))
+      time.sleep(0.5)
 
     quality = 95
     logging.info('Saving encrypted jpeg with quality %d.' % quality)
@@ -90,117 +194,135 @@ class GuiCodec(object):
     except Exception, e:
       logging.error(str(e))
       return -1
+
+    _PROGRESS[image_path] = 1
+    del crypto
     return 0
 
   def run(self):
+    global _PROGRESS
     while True:
-      if self.password:
-        break
-      logging.info('Waiting for password')
+      if self.password: break
       time.sleep(1)
 
-    logging.info('Got password')
-    errors = 0
-    for passed_value in self.passed_values:
-      if os.path.isdir(passed_value):
-        self.status_bar.set(passed_value)
-        logging.info('Treat %s like a directory.' % passed_value)
-      else:
-        self.status_bar.set('Encrypting %s...' % os.path.basename(passed_value))
-        self.status_bar.update()
-        logging.info('Encrypting %s.' % passed_value)
-        ret = self._encrypt(passed_value)
-        if ret != 0:
-          errors += 1
-        logging.info('Completed.')
+    while True:
+      try:
+        image_path = self.queue.get_nowait()
+      except Exception, e:
+        logging.error('Queue empty? %s.' % str(e))
+        break
+      _PROGRESS[image_path] = -1
 
-    self.status_bar.set('Done (%d %s).' % \
-                          (errors, 'error' if errors == 1 else 'errors'))
-    logging.info('Done so quitting.')
+      self._encrypt(image_path)
 
+      self.queue.task_done()
+      gc.collect()
 
-class Application(Frame):
-  def __init__(self, master=None, passed_values=None):
-    self.passed_values = passed_values
-    self.password = None
+class TornadoServer(threading.Thread):
+  def __init__(self):
+    threading.Thread.__init__(self)
+    daemon = True
 
-    Frame.__init__(self, master)
+  def run(self):
+    tornado.ioloop.IOLoop.instance().start()
 
-    labelframe = LabelFrame(master, text="Password for Photos")
-    labelframe.pack(fill="both", expand="yes")
+if _PLATFORM == 'Darwin':
+  class CryptogramMacApp(NSObject):
+    statusbar = None
 
-    self.contents = Entry(labelframe)
-    self.contents.pack(fill='both', expand='yes')
-    self.contentstext = StringVar()
-    self.contentstext.set("Type password here. Hit Enter.")
-    self.contents["textvariable"] = self.contentstext
-    self.contents.bind('<Key-Return>', self.begin_encryption)
+    def applicationDidFinishLaunching_(self, notification):
+      logging.info('Finished launching')
 
-    self.submit = Button(labelframe)
-    self.submit['text'] = 'Start encryption with password above.'
-    self.submit['command'] = self.begin_encryption
-    self.submit.pack()
+      self.statusbar = NSStatusBar.systemStatusBar()
+      # Create the statusbar item
+      self.statusitem = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 
-    status_frame = LabelFrame(master, text="Status")
-    status_frame.pack(fill="both", expand="yes")
-    self.sb = StatusBar(status_frame)
-    self.sb.pack()
-    self.sb.clear()
+      # textInputItem = NSMenuItem.alloc().init()
+      # textInputItem.setTitle_('CryptogramInputTitle')
 
-    # Should allow for both selecting files to encrypt and drag and drop.
-    self.sb.set('Waiting for password...')
+      # textInputItem.setTarget_(textInputItem);
+      # textInputItem.setEnabled_(True);
 
-    self.pack()
-    self.createWidgets()
+      self.menu = NSMenu.alloc().init()
+      menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+        'Sync...', 'sync:', '')
+      self.menu.addItem_(menuitem)
+      # Default event
+      menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+        'Quit', 'terminate:', '')
+      self.menu.addItem_(menuitem)
+      # Bind it to the status item
+      self.statusitem.setMenu_(self.menu)
 
-  def say_hi(self):
-    print "hi there, everyone!"
+      # systemTrayMenu = NSMenu.alloc().init();
+      # systemTrayMenu.addItem_(textInputItem);
 
-  def createWidgets(self):
-    self.hi_there = Button(self)
-    self.hi_there["text"] = "Choose Files"
-    self.hi_there["command"] = self.say_hi
-    self.hi_there.pack({"side": "left"})
+      # systemTrayIcon = systemTray.statusItemWithLength_(NSVariableStatusItemLength)
+      # systemTrayIcon.setMenu_(systemTrayMenu);
 
-    self.hi_there2 = Button(self)
-    self.hi_there2["text"] = "Choose Folder"
-    self.hi_there2["command"] = self.say_hi
-    self.hi_there2.pack({"side": "left"})
+      # systemTrayIcon.setTitle_("CryptogramTitle");
+      # systemTrayIcon.setToolTip_("CryptogramTip");
+      # systemTrayIcon.setHighlightMode_(True);
 
-    self.QUIT = Button(self)
-    self.QUIT["text"] = "Quit"
-    # self.QUIT["fg"]   = "red"
-    self.QUIT["command"] =  self.quit
-
-    self.QUIT.pack({"side": "left"})
-
-  def begin_encryption(self, event):
-    self.password = self.contents.get()
-    logging.info("Password entered")
-    self.codec = GuiCodec(self, self.passed_values, self.sb)
-    self.codec.set_password(self.password)
-    self.codec.run()
-
-  def done(self):
-    logging.info('Done called')
 
 def main(argv):
+  global _CODECS, _PROGRESS, _NUM_THREADS
   logging.info(argv)
 
+  _PROGRESS = {}
+  queue = Queue()
   passed_values = argv[1:]
+  for passed_value in passed_values:
+    if os.path.isdir(passed_value):
+      logging.info('Treat %s like a directory.' % passed_value)
+      for _dir_file in os.path.listdir(passed_value):
+        logging.info('Adding %s from %s.' % (_dir_file, passed_value))
+        _path = os.path.join(passed_value, _dir_file)
 
-  root = Tk()
-  root.title('CryptoSam Image Converter')
-  w = root.winfo_screenwidth()
-  h = root.winfo_screenheight()
-  rootsize = (500, 160) # tuple(int(_) for _ in root.geometry().split('+')[0].split('x'))
-  x = w/2 - rootsize[0]/2
-  y = h/2 - rootsize[1]/2
-  root.geometry("%dx%d+%d+%d" % (rootsize + (x, y)))
+        queue.put(_path)
+        _PROGRESS[_path] = -2
 
-  app = Application(master=root, passed_values = passed_values)
-  app.mainloop()
-  root.destroy()
+    else:
+      logging.info('Encrypting %s.' % passed_value)
+      queue.put(passed_value)
+      _PROGRESS[passed_value] = -2
+
+  _CODECS = [GuiCodec(queue) for i in range(_NUM_THREADS)]
+  [codec.start() for codec in _CODECS]
+
+  http_server = tornado.httpserver.HTTPServer(Application())
+  http_server.listen(options.port)
+
+  webbrowser.open_new_tab('http://localhost:%d' % options.port)
+  tornado_server = TornadoServer()
+  tornado_server.start()
+
+  logging.info('Made to the end of the main function.')
+  if _PLATFORM == 'Darwin':
+    app = NSApplication.sharedApplication()
+    delegate = CryptogramMacApp.alloc().init()
+    app.setDelegate_(delegate)
+    # delegate.setApp_(app)
+    setup_menus(app, delegate)
+    AppHelper.runEventLoop()
+
+def setup_menus(app,delegate):
+   mainmenu = NSMenu.alloc().init()
+   app.setMainMenu_(mainmenu)
+   appMenuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+     'Quit',
+     'terminate:',
+     'q')
+   mainmenu.addItem_(appMenuItem)
+   appMenu = NSMenu.alloc().init()
+   appMenuItem.setSubmenu_(appMenu)
+   aboutItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+     'Quit', 'terminate:', 'q')
+   aboutItem.setTarget_(app)
+   appMenu.addItem_(aboutItem)
 
 if __name__=='__main__':
-  main(sys.argv)
+  try:
+    main(sys.argv)
+  except Exception, e:
+    logging.error(str(e))
