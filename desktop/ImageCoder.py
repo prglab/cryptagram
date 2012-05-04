@@ -46,11 +46,12 @@ class Base64SymbolSignalCoder(SymbolSignalCoder):
 class Base64MessageSymbolCoder(MessageSymbolCoder):
   encoding = 'base64'
   values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+  values_dict = dict((val,i) for i,val in enumerate(values))
 
   def message_to_symbol(self, char):
-    index = self.values.find(char)
+    index = self.values_dict[char]
     octal_val = '%02s' % oct(index)[1:]
-    return list(octal_val.replace(' ','0'))
+    return octal_val.replace(' ','0')
 
   def symbol_to_message(self, values):
     assert len(values) == 2

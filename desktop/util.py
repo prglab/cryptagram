@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from hashlib import sha256
+from hashlib import sha256, md5
 import math
 
 def bsearch(a, x, lo=0, hi=None):
@@ -46,3 +46,8 @@ def sha256hash(to_hash):
   integrity_hash.update(to_hash)
   integrity_check_value = integrity_hash.hexdigest()
   return integrity_check_value
+
+def md5hash(to_hash):
+  hash_func = md5()
+  hash_func.update(to_hash)
+  return hash_func.hexdigest()

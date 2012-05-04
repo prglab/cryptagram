@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block body %}
+<script type="text/javascript" src="{{ static_url("close-window.js") }}"></script>
+<script type="text/javascript">
+	postStatus(true);
+</script>
+
+<center>
+<h1>Cryptogram Progress...</h1>
+</center>
+
+<div id="container">
+  <div id="stage">
+		<div class="container show-grid">
+			<div class="span-8"><b>Queued</b><ul id="queued_list"></ul></div>
+			<div class="span-8 last"><b>Finished</b><ul id="finished_list"></ul></div>
+	</div>
+</div>
+
+<center>
+	<div id="exit"></div>
+</center>
+{% end %}

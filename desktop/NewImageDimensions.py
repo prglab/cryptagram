@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 from math import ceil
+import logging
 class NewImageDimensions(object):
   symbol_height = None
   symbol_width = None
-  _epsilon = .1
+  _epsilon = 0
 
-  def __init__(self, hw_ratio, data_len, symbol_shape):
-    self.hw_ratio = hw_ratio
+  def __init__(self, wh_ratio, data_len, symbol_shape):
+    self.wh_ratio = wh_ratio
     self.data_len = data_len
     self.symbol_shape = symbol_shape
 
@@ -22,49 +23,54 @@ class NewImageDimensions(object):
     # these roundings and methods are suboptimal, in practice, things seem to be
     # good enough for now. Improvements welcome :)
 
-    # Rounding basedon the following:
+    # Rounding based on the following:
     #   xw = sqrt( ((r +- e)*bh*s) / bw )
     #   xh = S / xw
 
-    # Plus calculations.
-    num_symbols_wide = (((self.hw_ratio + self._epsilon) * \
-                   self.symbol_height * self.data_len) \
-                  / (self.symbol_width)) ** .5
-    num_symbols_high = self.data_len / float(num_symbols_wide)
+    if self.wh_ratio < 0:
+      # Tall images.
+      num_symbols_wide = (((self.wh_ratio + self._epsilon) * \
+                     self.symbol_height * self.data_len) \
+                    / (self.symbol_width)) ** .5
+      num_symbols_high = self.data_len / float(num_symbols_wide)
 
-    plus_sym_width = self._round_up(num_symbols_wide)
-    plus_sym_height = self._round_up(num_symbols_high)
+      plus_sym_width = self._round_up(num_symbols_wide)
+      plus_sym_height = self._round_up(num_symbols_high)
 
-    # Minus calculations
-    num_symbols_wide = (((self.hw_ratio - self._epsilon) * \
-                   self.symbol_height * self.data_len) \
-                  / (self.symbol_width)) ** .5
-    num_symbols_high = self.data_len / float(num_symbols_wide)
+      sym_width, sym_height = plus_sym_width, plus_sym_height
 
-    minus_sym_width = self._round_up(num_symbols_wide)
-    minus_sym_height = self._round_up(num_symbols_high)
+    else:
+      # Wide images.
+      num_symbols_wide = (((self.wh_ratio - self._epsilon) * \
+                     self.symbol_height * self.data_len) \
+                    / (self.symbol_width)) ** .5
+      num_symbols_high = self.data_len / float(num_symbols_wide)
 
-    # Optimize for minimizing blank panels.
-    plus_diff = plus_sym_width - \
-        (plus_sym_height - self.data_len % plus_sym_width)
-    minus_diff = minus_sym_width - \
-        (minus_sym_height - self.data_len % minus_sym_width)
+      minus_sym_width = self._round_up(num_symbols_wide)
+      minus_sym_height = self._round_up(num_symbols_high)
 
-    min_diff = min(plus_diff, minus_diff)
-
-    sym_width, sym_height = plus_sym_width, plus_sym_height
-    if min_diff != plus_diff:
       sym_width, sym_height = minus_sym_width, minus_sym_height
 
-    # If it turns out that we have an extra row due to rounding, remove it.
-    row_discrepancy = sym_height - self._round_up(self.data_len / float(sym_width))
-    sym_height -= row_discrepancy
+    logging.info('NewImageDimensions dimens: w (%d) h (%d) ratio (%.3f given %.3f).' % \
+                   (sym_width * self.symbol_width,
+                    sym_height * self.symbol_height,
+                    (sym_width * self.symbol_width) / \
+                      float(self.symbol_height * sym_height),
+                    self.wh_ratio))
+
+    self.new_height = self.symbol_height * sym_height
+    self.new_width = self.symbol_width * sym_width
+    if (self.new_width) / float(self.new_height) > self.wh_ratio:
+      _desired_height = self.new_width / self.wh_ratio
+      symbol_rows_to_add = int((_desired_height - self.new_height) / float(self.symbol_height))
+      logging.info('symbol_rows_to_add %d.' % symbol_rows_to_add)
+      sym_height += symbol_rows_to_add
 
     self.num_symbols_wide = sym_width
     self.num_symbols_high = sym_height
 
   def _calculate_num_symbols(self):
-    assert self.hw_ratio > 0
+    assert self.wh_ratio > 0
     self._calculate_symbol_dims()
 
     self.new_width = self.num_symbols_wide * self.symbol_width

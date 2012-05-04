@@ -14,7 +14,7 @@ if sys.platform == "win32":
 if sys.platform in ['linux2', 'win32']:
   from cx_Freeze import setup, Executable
   copyDependentFiles = True
-  includes = ['Crypto','gflags','PIL','PyV8', 'Tkinter','encodings']
+  includes = ['Crypto','gflags','PIL','PyV8','encodings']
 
   # Dependencies are automatically detected, but it might need fine tuning.
   build_exe_options = {"packages": ["os"],
@@ -30,14 +30,25 @@ if sys.platform in ['linux2', 'win32']:
 # Build on Mac OS X.
 # python setup.py py2app --no-strip -g -O0
 APP = ['CryptogramGUI.py']
-DATA_FILES = ['Cipher/sjcl.js']
+
+DATA_FILES = ['Cipher/sjcl.js',
+              'templates/index.html',
+              'templates/exit.html',
+              ]
+
 OPTIONS = {'argv_emulation': True,
            'iconfile': 'icon.icns',
            'plist':
              {'CFBundleName': 'Cryptogram',
               'CFBundleIconFile':'icon.icns'
               },
-           'includes':['Tkinter','PyV8'],
+           'includes':['web','PyV8',
+                       'tornado.auth',
+                       'tornado.escape',
+                       'tornado.httpserver',
+                       'tornado.ioloop',
+                       'tornado.options',
+                       'tornado.web'],
            }
 
 if sys.platform == 'darwin':
