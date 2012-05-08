@@ -32,6 +32,7 @@ import urllib
 import urllib2
 import webbrowser
 import cStringIO
+import Orientation
 
 _PLATFORM = platform.system()
 
@@ -141,6 +142,14 @@ class GuiCodec(threading.Thread):
       image_buffer.write(fh.read())
       length = fh.tell()
     logging.info('%s has size %d.' % (image_path, length))
+
+    # Reorient the image, if necessary as determined by auto_orient.
+    reoriented_image_buffer = cStringIO.StringIO()
+    orient = Orientation.Orientation(image_path)
+    if orient.auto_orient(reoriented_image_buffer):
+      logging.info('Reoriented the image so reassigning the image_buffer.')
+      del image_buffer
+      image_buffer = reoriented_image_buffer    
 
     # Update codec based on wh_ratio from given image.
     try:
