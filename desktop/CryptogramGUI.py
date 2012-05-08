@@ -123,7 +123,7 @@ class ExitHandler(tornado.web.RequestHandler):
 class GuiCodec(threading.Thread):
   codec = None
   password = None
-  daemon = True
+  #daemon = True
 
   def __init__(self, queue):
     threading.Thread.__init__(self)
@@ -156,8 +156,10 @@ class GuiCodec(threading.Thread):
     logging.info('Original im dimens: w (%d) h (%d) ratio (%.2f).' % \
                    (_width, _height, wh_ratio))
 
+    # TODO(tierney): Hard-coded hack for fixed image width.
     self.codec = Codec(two_square, wh_ratio, Base64MessageSymbolCoder(),
-                       Base64SymbolSignalCoder())
+                       Base64SymbolSignalCoder(),
+                       fixed_width=None)
 
     cipher = Cipher(self.password)
     crypto = Encrypt(image_buffer, self.codec, cipher)
@@ -221,7 +223,6 @@ class GuiCodec(threading.Thread):
 class TornadoServer(threading.Thread):
   def __init__(self):
     threading.Thread.__init__(self)
-    daemon = True
 
   def run(self):
     tornado.ioloop.IOLoop.instance().start()
@@ -305,6 +306,10 @@ def main(argv):
     # delegate.setApp_(app)
     setup_menus(app, delegate)
     AppHelper.runEventLoop()
+
+  # TODO(tierney): Should hold the last non-daemon thread here (I think) and 
+  # quit when appropriate. Currently, we rely on the GUI thread being 
+  # non-daemonized.
 
 def setup_menus(app,delegate):
    mainmenu = NSMenu.alloc().init()

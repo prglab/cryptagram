@@ -112,14 +112,16 @@ class Encrypt(object):
       logging.info('Cleartext image dimensions: (%d, %d).' % (_w, _h))
       del _
 
-      # encrypted_data
       estimated_encrypted_data_len = self._estimate_encryption_inflation(
         _image_buffer.getvalue())
       width, height = prospective_image_dimensions_from_data_len(
         estimated_encrypted_data_len)
       logging.info('Estimated image dimensions for len %d: (w: %d, h: %d).' % \
                      (estimated_encrypted_data_len, width, height))
-      if width <= dimension_limit and height <= dimension_limit:
+      
+      # Rejection criteria for this round. Dimensions greater than limits or our aspect ratio is too far off.
+      if (width <= dimension_limit) and (height <= dimension_limit) and \
+          (abs((_w / float(_h)) - (width / float(height))) < .1):
         encrypted_data = self._raw_image_data_to_encrypted_data(
           _image_buffer.getvalue())
         break
