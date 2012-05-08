@@ -312,19 +312,19 @@ def main(argv):
   # non-daemonized.
 
 def setup_menus(app,delegate):
-   mainmenu = NSMenu.alloc().init()
-   app.setMainMenu_(mainmenu)
-   appMenuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-     'Quit',
-     'terminate:',
-     'q')
-   mainmenu.addItem_(appMenuItem)
-   appMenu = NSMenu.alloc().init()
-   appMenuItem.setSubmenu_(appMenu)
-   aboutItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-     'Quit', 'terminate:', 'q')
-   aboutItem.setTarget_(app)
-   appMenu.addItem_(aboutItem)
+  mainmenu = NSMenu.alloc().init()
+  app.setMainMenu_(mainmenu)
+  appMenuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+    'Quit',
+    'terminate:',
+    'q')
+  mainmenu.addItem_(appMenuItem)
+  appMenu = NSMenu.alloc().init()
+  appMenuItem.setSubmenu_(appMenu)
+  aboutItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+    'Quit', 'terminate:', 'q')
+  aboutItem.setTarget_(app)
+  appMenu.addItem_(aboutItem)
 
 if __name__=='__main__':
   try:
