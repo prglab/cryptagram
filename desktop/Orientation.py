@@ -31,9 +31,8 @@ class Orientation(object):
           for tag, value in exifinfo.items():
             decoded = TAGS.get(tag, tag)
             ret[decoded] = value
-    except IOError:
-      print 'IOERROR ' + filename
-    print ret
+    except IOError, e:
+      logging.error(str(e) + ' %s.' % filename)
     return ret
 
   def _get_metadata(self):
@@ -48,15 +47,6 @@ class Orientation(object):
     if 'Orientation' in self.metadata:
       metadata_ret_val = self.metadata['Orientation']
     return metadata_ret_val
-
-  def rotate_image(self, degrees, save_path=None):
-    im = Image.open(self.image_path)
-    rotated = im.rotate(degrees)
-
-    if save_path:
-      rotated.save(save_path, 'JPEG', quality=95)
-
-    return rotated
 
   def auto_orient(self, save_path):
     # Our goal is to take an image file and reorient that image. The output
@@ -73,16 +63,38 @@ class Orientation(object):
     # 88          88      88  88
     # 88          88  888888  888888
 
+    im = Image.open(self.image_path)
+
     orientation = self.get_orientation()
     logging.info('Orientation value: %d.' % orientation)
 
-    if orientation == 3:
-      self.rotate_image(180, save_path)
-      return True
+    if orientation == 1:
+      # Nothing
+      mirror = im.copy()
+    elif orientation == 2:
+      # Vertical Mirror
+      mirror = im.transpose(Image.FLIP_LEFT_RIGHT)
+    elif orientation == 3:
+      # Rotation 180
+      mirror = im.transpose(Image.ROTATE_180)
+    elif orientation == 4:
+      # Horizontal Mirror
+      mirror = im.transpose(Image.FLIP_TOP_BOTTOM)
+    elif orientation == 5:
+      # Horizontal Mirror + Rotation 270
+      mirror = im.transpose(Image.FLIP_TOP_BOTTOM).transpose(Image.ROTATE_270)
     elif orientation == 6:
-      self.rotate_image(90, save_path)
-      return True
+      # Rotation 270
+      mirror = im.transpose(Image.ROTATE_270)
+    elif orientation == 7:
+      # Vertical Mirror + Rotation 270
+      mirror = im.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.ROTATE_270)
     elif orientation == 8:
-      self.rotate_image(270, save_path)
-      return True
-    return False
+      # Rotation 90
+      mirror = im.transpose(Image.ROTATE_90)
+    else:
+      mirror = im.copy()
+
+    mirror.save(save_path, "JPEG", quality=95)
+    return True
+
