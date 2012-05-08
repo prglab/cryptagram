@@ -5,23 +5,21 @@
 # DCT). Of course, we must find a way to reengineer this application. Notably,
 # the last row will be unrecoverable especially if resizing is involved.
 
-import base64
-import sys
-import logging
-import os
-from tempfile import NamedTemporaryFile
 from Cipher.PyV8Cipher import V8Cipher as Cipher
-from json import JSONEncoder, JSONDecoder
-from util import sha256hash
-import time
-
-from Encryptor import Encrypt
-from SymbolShape import SymbolShape, four_square, three_square, two_square, \
-    one_square, two_by_four, two_by_three, two_by_one
 from Codec import Codec
-from PIL import Image
+from Encryptor import Encrypt
 from ImageCoder import Base64MessageSymbolCoder, Base64SymbolSignalCoder
+from PIL import Image
+from SymbolShape import four_square, three_square, two_square, one_square, two_by_four, two_by_three, two_by_one
+from json import JSONEncoder
+from util import sha256hash
+import Orientation
+import base64
+import cStringIO
 import gflags
+import logging
+import sys
+import time
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format = '%(asctime)-15s %(levelname)8s %(module)10s '\
@@ -75,12 +73,21 @@ def main(argv):
                   Base64SymbolSignalCoder())
 
     # Determine file size.
-    with open(FLAGS.image,'rb') as fh:
-      orig_data = fh.read()
+    image_buffer = cStringIO.StringIO()
+    with open(FLAGS.image, 'rb') as fh:
+      image_buffer.write(fh.read())
       length = fh.tell()
-      logging.info('Image filesize: %d bytes.' % length)
+      logging.info('%s has size %d.' % (FLAGS.image, length))
 
-    crypto = Encrypt(FLAGS.image, codec, cipher)
+    # Reorient the image, if necessary as determined by auto_orient.
+    reoriented_image_buffer = cStringIO.StringIO()
+    orient = Orientation.Orientation(FLAGS.image)
+    if orient.auto_orient(reoriented_image_buffer):
+      logging.info('Reoriented the image so reassigning the image_buffer.')
+      del image_buffer
+      image_buffer = reoriented_image_buffer    
+    
+    crypto = Encrypt(image_buffer, codec, cipher)
     encrypted_data = crypto.upload_encrypt()
     logging.info('Encrypted data length: %d.' % len(encrypted_data))
 
