@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 # User-friendly SeeMeNot application code. Supports Drag and Drop.
-import gc
 from Cipher.PyV8Cipher import V8Cipher as Cipher
 from Codec import Codec
 from Encryptor import Encrypt
@@ -14,6 +13,10 @@ from json import JSONEncoder
 from multiprocessing import cpu_count
 from tornado.options import define, options
 from util import md5hash
+import Orientation
+import argparse
+import cStringIO
+import gc
 import logging
 import os
 import platform
@@ -31,8 +34,6 @@ import tornado.web
 import urllib
 import urllib2
 import webbrowser
-import cStringIO
-import Orientation
 
 _PLATFORM = platform.system()
 
@@ -42,10 +43,9 @@ if _PLATFORM == 'Darwin':
   from AppKit import *
   from PyObjCTools import AppHelper
 
-
 logging.basicConfig(level=logging.INFO,
                     filename='cryptogram.log',
-                    format = '%(asctime)-15s %(levelname)8s %(module)20s '\
+                    format='%(asctime)-15s %(levelname)8s %(module)20s '\
                       '%(lineno)4d %(message)s')
 
 define("port", default=8888, help="run on the given port", type=int)
@@ -65,8 +65,8 @@ class Application(tornado.web.Application):
     ]
 
     settings = dict(
-      template_path = os.path.join(os.path.dirname(__file__), 'templates'),
-      static_path = os.path.join(os.path.dirname(__file__), 'static')
+      template_path=os.path.join(os.path.dirname(__file__), 'templates'),
+      static_path=os.path.join(os.path.dirname(__file__), 'static')
       )
     tornado.web.Application.__init__(self, handlers, **settings)
 
@@ -93,14 +93,14 @@ class StatusHandler(tornado.web.RequestHandler):
 class PhotoSelectionHandler(tornado.web.RequestHandler):
   def get(self):
     self.render('file_selection.html')
-    
+
   def post(self):
     logging.info('Received web photo selection. Redirecting to password.')
-    
+
     photos = self.get_argument('files[]')
     logging.info('Photos: %s.' % str(photos))
     self.render('index.html')
-    
+
 
 class PasswordHandler(tornado.web.RequestHandler):
   def post(self):
@@ -162,7 +162,7 @@ class GuiCodec(threading.Thread):
     if orient.auto_orient(reoriented_image_buffer):
       logging.info('Reoriented the image so reassigning the image_buffer.')
       del image_buffer
-      image_buffer = reoriented_image_buffer    
+      image_buffer = reoriented_image_buffer
 
     # Update codec based on wh_ratio from given image.
     try:
@@ -274,7 +274,15 @@ if _PLATFORM == 'Darwin':
 
 def main(argv):
   global _CODECS, _PROGRESS, _NUM_THREADS
-  logging.info(argv)
+
+  # Parse arguments from the user.
+  parser = argparse.ArgumentParser(
+    prog='cryptogram', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+  parser.add_argument('-p', '--password', type=str, default=None,
+                      help='TODO Password to encrypt image with.')
+  parser.add_argument('photo', nargs='+', default=[], help='Photos to encrypt.')
+
+  FLAGS = parser.parse_args()
 
   _PROGRESS = {}
 
@@ -287,7 +295,7 @@ def main(argv):
   # TODO(tierney): Make it possible for users to specify switches beyond 
   # passed in files. We will use argparse.
   queue = Queue()
-  passed_values = argv[1:]
+  passed_values = FLAGS.photo
   for passed_value in passed_values:
     if os.path.isdir(passed_value):
       logging.info('Treat %s like a directory.' % passed_value)
@@ -312,7 +320,7 @@ def main(argv):
   else:
     logging.info('We have a queue ready for action.')
     webbrowser.open_new_tab('http://localhost:%d' % options.port)
-  
+
   # Spin up codecs for coding process when we are ready.
   _CODECS = [GuiCodec(queue) for i in range(_NUM_THREADS)]
   [codec.start() for codec in _CODECS]
@@ -330,7 +338,7 @@ def main(argv):
   # quit when appropriate. Currently, we rely on the GUI thread being 
   # non-daemonized.
 
-def setup_menus(app,delegate):
+def setup_menus(app, delegate):
   mainmenu = NSMenu.alloc().init()
   app.setMainMenu_(mainmenu)
   appMenuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
@@ -345,7 +353,7 @@ def setup_menus(app,delegate):
   aboutItem.setTarget_(app)
   appMenu.addItem_(aboutItem)
 
-if __name__=='__main__':
+if __name__ == '__main__':
   try:
     main(sys.argv)
   except Exception, e:

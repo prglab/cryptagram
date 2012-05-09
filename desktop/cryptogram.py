@@ -14,32 +14,16 @@ from SymbolShape import four_square, three_square, two_square, one_square, two_b
 from json import JSONEncoder
 from util import sha256hash
 import Orientation
+import argparse
 import base64
 import cStringIO
-import gflags
 import logging
 import sys
 import time
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
-                    format = '%(asctime)-15s %(levelname)8s %(module)10s '\
+                    format='%(asctime)-15s %(levelname)8s %(module)10s '\
                       '%(threadName)10s %(thread)16d %(lineno)4d %(message)s')
-
-FLAGS = gflags.FLAGS
-gflags.DEFINE_integer('quality', 95,
-                      'quality to save encrypted image in range (0,95]. ',
-                      short_name = 'q')
-gflags.DEFINE_string('password', None, 'Password to encrypt image with.',
-                     short_name = 'p')
-gflags.DEFINE_string('symbol_shape', 'two_square', 'symbol shape to use',
-                     short_name ='s')
-gflags.DEFINE_string('image', None, 'path to input image', short_name = 'i')
-gflags.DEFINE_string('encrypt', None, 'encrypted image output filename',
-                     short_name = 'e')
-gflags.DEFINE_string('decrypt', None, 'decrypted image output filename',
-                      short_name = 'd')
-
-gflags.MarkFlagAsRequired('password')
 
 _AVAILABLE_SHAPES = {
   'four_square' : four_square,
@@ -52,11 +36,24 @@ _AVAILABLE_SHAPES = {
 }
 
 def main(argv):
-  try:
-    argv = FLAGS(argv)  # parse flags
-  except gflags.FlagsError, e:
-    print '%s\nUsage: %s ARGS\n%s' % (e, sys.argv[0], FLAGS)
-    sys.exit(1)
+
+  # Parse arguments from the user.
+  parser = argparse.ArgumentParser(
+    prog='cryptogram', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+  parser.add_argument('-q', '--quality', type=int, default=95,
+                      help='Quality to save encrypted image in range (0,95].')
+  parser.add_argument('-p', '--password', type=str, default=None, required=True,
+                      help='Password to encrypt image with.')
+  parser.add_argument('-s', '--symbol_shape', type=str, default='two_square',
+                      help='SymbolShape to use.')
+  parser.add_argument('-i', '--image', type=str, default=None,
+                      help='Path to input image.')
+  parser.add_argument('-e', '--encrypt', type=str, default=None,
+                      help='Encrypted image output filename.')
+  parser.add_argument('-d', '--decrypt', type=str, default=None,
+                      help='Decrypted image output filename.')
+  FLAGS = parser.parse_args()
+
 
   symbol_shape = _AVAILABLE_SHAPES[FLAGS.symbol_shape]
   quality = FLAGS.quality
@@ -85,8 +82,8 @@ def main(argv):
     if orient.auto_orient(reoriented_image_buffer):
       logging.info('Reoriented the image so reassigning the image_buffer.')
       del image_buffer
-      image_buffer = reoriented_image_buffer    
-    
+      image_buffer = reoriented_image_buffer
+
     crypto = Encrypt(image_buffer, codec, cipher)
     encrypted_data = crypto.upload_encrypt()
     logging.info('Encrypted data length: %d.' % len(encrypted_data))
@@ -188,5 +185,5 @@ def byte_for_byte_compare(a, b):
     errors += len(b) - len(a)
   return errors
 
-if __name__=='__main__':
+if __name__ == '__main__':
   main(sys.argv)

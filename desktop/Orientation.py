@@ -25,7 +25,7 @@ class Orientation(object):
     ret = {}
     try:
       img = Image.open(filename)
-      if hasattr( img, '_getexif' ):
+      if hasattr(img, '_getexif'):
         exifinfo = img._getexif()
         if exifinfo != None:
           for tag, value in exifinfo.items():
@@ -43,7 +43,7 @@ class Orientation(object):
     if not self.retrieved_metadata:
       self._get_metadata()
 
-    metadata_ret_val = None
+    metadata_ret_val = 1 # Default is "correct orientation."
     if 'Orientation' in self.metadata:
       metadata_ret_val = self.metadata['Orientation']
     return metadata_ret_val
