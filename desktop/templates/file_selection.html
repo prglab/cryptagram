@@ -7,14 +7,15 @@
 </script>
 
 <center>
-<h1>Cryptogram Progress...</h1>
+<h1>Please select files to Cryptogram</h1>
 </center>
 
 <div id="container">
   <div id="stage">
 		<div class="container show-grid">
-			<div class="span-8"><b>Queued</b><ul id="queued_list"></ul></div>
-			<div class="span-8 last"><b>Finished</b><ul id="finished_list"></ul></div>
+		  <form action="photo_selection" method="post">
+        <input name="files[]" onchange="javascript:submitted=true;this.form.submit();" type=file multiple>
+       </form>
 		</div>
 	</div>
 </div>

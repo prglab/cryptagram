@@ -61,6 +61,7 @@ class Application(tornado.web.Application):
       (r"/status", StatusHandler),
       (r"/password", PasswordHandler),
       (r"/exit", ExitHandler),
+      (r"/photo_selection", PhotoSelectionHandler),
     ]
 
     settings = dict(
@@ -88,6 +89,18 @@ class StatusHandler(tornado.web.RequestHandler):
     self.write(JSONEncoder().encode(to_return))
     logging.info('Returned status.')
 
+
+class PhotoSelectionHandler(tornado.web.RequestHandler):
+  def get(self):
+    self.render('file_selection.html')
+    
+  def post(self):
+    logging.info('Received web photo selection. Redirecting to password.')
+    
+    photos = self.get_argument('files[]')
+    logging.info('Photos: %s.' % str(photos))
+    self.render('index.html')
+    
 
 class PasswordHandler(tornado.web.RequestHandler):
   def post(self):
@@ -247,16 +260,11 @@ if _PLATFORM == 'Darwin':
       # Create the statusbar item
       self.statusitem = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 
-      # textInputItem = NSMenuItem.alloc().init()
-      # textInputItem.setTitle_('CryptogramInputTitle')
-
-      # textInputItem.setTarget_(textInputItem);
-      # textInputItem.setEnabled_(True);
-
       self.menu = NSMenu.alloc().init()
       menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
         'Sync...', 'sync:', '')
       self.menu.addItem_(menuitem)
+
       # Default event
       menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
         'Quit', 'terminate:', '')
@@ -264,22 +272,20 @@ if _PLATFORM == 'Darwin':
       # Bind it to the status item
       self.statusitem.setMenu_(self.menu)
 
-      # systemTrayMenu = NSMenu.alloc().init();
-      # systemTrayMenu.addItem_(textInputItem);
-
-      # systemTrayIcon = systemTray.statusItemWithLength_(NSVariableStatusItemLength)
-      # systemTrayIcon.setMenu_(systemTrayMenu);
-
-      # systemTrayIcon.setTitle_("CryptogramTitle");
-      # systemTrayIcon.setToolTip_("CryptogramTip");
-      # systemTrayIcon.setHighlightMode_(True);
-
-
 def main(argv):
   global _CODECS, _PROGRESS, _NUM_THREADS
   logging.info(argv)
 
   _PROGRESS = {}
+
+  # Start user-facing web server.
+  http_server = tornado.httpserver.HTTPServer(Application())
+  http_server.listen(options.port)
+  tornado_server = TornadoServer()
+  tornado_server.start()
+
+  # TODO(tierney): Make it possible for users to specify switches beyond 
+  # passed in files. We will use argparse.
   queue = Queue()
   passed_values = argv[1:]
   for passed_value in passed_values:
@@ -297,15 +303,19 @@ def main(argv):
       queue.put(passed_value)
       _PROGRESS[passed_value] = -2
 
+  if queue.empty():
+    logging.info('Queue empty. Therefore, we need some files.')
+    logging.warning('TODO: allow users to select photos.')
+    return
+    # webbrowser.open_new_tab('http://localhost:%d/photo_selection' % \
+    #                         options.port)
+  else:
+    logging.info('We have a queue ready for action.')
+    webbrowser.open_new_tab('http://localhost:%d' % options.port)
+  
+  # Spin up codecs for coding process when we are ready.
   _CODECS = [GuiCodec(queue) for i in range(_NUM_THREADS)]
   [codec.start() for codec in _CODECS]
-
-  http_server = tornado.httpserver.HTTPServer(Application())
-  http_server.listen(options.port)
-
-  webbrowser.open_new_tab('http://localhost:%d' % options.port)
-  tornado_server = TornadoServer()
-  tornado_server.start()
 
   logging.info('Made to the end of the main function.')
   if _PLATFORM == 'Darwin':
