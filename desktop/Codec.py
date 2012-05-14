@@ -3,6 +3,7 @@ import logging
 import threading
 from NewImageDimensions import NewImageDimensions
 from PIL import Image
+from ImageCoder import Base64SymbolSignalCoder, Base64MessageSymbolCoder
 
 class Codec(threading.Thread):
   completed = 0
@@ -64,8 +65,9 @@ class Codec(threading.Thread):
   def encode(self, data):
     logging.info('Encoding data.')
 
+    self.data_length = len(data)
     # Set the NewImageDimensions internal state.
-    self.set_new_image_dimensions(len(data))
+    self.set_new_image_dimensions(self.data_length)
 
     new_image_width, new_image_height = \
         self.new_image_dimensions.get_image_dimensions()
@@ -91,14 +93,55 @@ class Codec(threading.Thread):
     for sym_i in range(_num_symbol_shapes):
       coords[sym_i + 1] = self.symbol_shape.get_symbol_shape_coords(sym_i + 1)
 
-    self.data_length = len(data)
-    self.completed = 0
+    # TODO(tierney): Encode the header before the payload. Account for header's
+    # presence in the way we assign values in the payload.
+    header = data[:16]
+    payload = data[16:]
 
-    for i, datum in enumerate(data):
+    # Write the header in the upper-left using our original 2x2 pixel block,
+    # three-bit symbol encoding.
+    _header_symbol_signal_coder = Base64SymbolSignalCoder()
+    _header_message_to_symbol = Base64MessageSymbolCoder()
+    _header_num_symbols_wide = 4.
+    for i, header_char in enumerate(header):
+      symbol_values = _header_message_to_symbol(header_char)
+      _fill_0 = _symbol_to_signal(symbol_values[0])
+      fill_0 = (_fill_0, _fill_0, _fill_0)
+      _fill_1 = _symbol_to_signal(symbol_values[1])
+      fill_1 = (_fill_1, _fill_1, _fill_1)
+
+      y_coord = int(i / _header_num_symbols_wide)
+      x_coord = int(i - (y_coord * _header_num_symbols_wide))
+      base_x = x_coord * 2.
+      base_y = y_coord * 2.
+
+      pixel[base_x + 0, base_y + 0] = fill_0
+      pixel[base_x + 1, base_y + 0] = fill_0
+      pixel[base_x + 1, base_y + 1] = fill_0
+      pixel[base_x + 0, base_y + 1] = fill_0
+
+      pixel[base_x + 2, base_y + 0] = fill_1
+      pixel[base_x + 3, base_y + 0] = fill_1
+      pixel[base_x + 3, base_y + 1] = fill_1
+      pixel[base_x + 2, base_y + 1] = fill_1
+
+    self.completed = 0
+    for i, datum in enumerate(payload):
       self.completed += 1
+      header_row_trimmed = False
 
       y_coord = int(i / (1. * new_image_symbol_width))
-      x_coord = int(i - (y_coord * new_image_symbol_width))
+      if y_coord < 8: # Header row.
+        y_coord = int(i / (1. * (new_image_symbol_width - 1)))
+
+        if y_coord < 8:
+          header_row_trimmed = True
+
+      if header_row_trimmed:
+        x_coord = int(i - (y_coord * (new_image_symbol_width - 1)))
+      else:
+        x_coord = int(i - (y_coord * new_image_symbol_width))
+
       symbol_values = _message_to_symbol(datum)
 
       assert (len(symbol_values) == _num_symbol_shapes)
