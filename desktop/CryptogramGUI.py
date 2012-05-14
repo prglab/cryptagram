@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 # User-friendly SeeMeNot application code. Supports Drag and Drop.
-import gc
 from Cipher.PyV8Cipher import V8Cipher as Cipher
 from Codec import Codec
 from Encryptor import Encrypt
@@ -14,6 +13,10 @@ from json import JSONEncoder
 from multiprocessing import cpu_count
 from tornado.options import define, options
 from util import md5hash
+import Orientation
+import argparse
+import cStringIO
+import gc
 import logging
 import os
 import platform
@@ -31,7 +34,6 @@ import tornado.web
 import urllib
 import urllib2
 import webbrowser
-import cStringIO
 
 _PLATFORM = platform.system()
 
@@ -41,10 +43,9 @@ if _PLATFORM == 'Darwin':
   from AppKit import *
   from PyObjCTools import AppHelper
 
-
 logging.basicConfig(level=logging.INFO,
                     filename='cryptogram.log',
-                    format = '%(asctime)-15s %(levelname)8s %(module)20s '\
+                    format='%(asctime)-15s %(levelname)8s %(module)20s '\
                       '%(lineno)4d %(message)s')
 
 define("port", default=8888, help="run on the given port", type=int)
@@ -60,11 +61,12 @@ class Application(tornado.web.Application):
       (r"/status", StatusHandler),
       (r"/password", PasswordHandler),
       (r"/exit", ExitHandler),
+      (r"/photo_selection", PhotoSelectionHandler),
     ]
 
     settings = dict(
-      template_path = os.path.join(os.path.dirname(__file__), 'templates'),
-      static_path = os.path.join(os.path.dirname(__file__), 'static')
+      template_path=os.path.join(os.path.dirname(__file__), 'templates'),
+      static_path=os.path.join(os.path.dirname(__file__), 'static')
       )
     tornado.web.Application.__init__(self, handlers, **settings)
 
@@ -86,6 +88,18 @@ class StatusHandler(tornado.web.RequestHandler):
       for key in _PROGRESS)
     self.write(JSONEncoder().encode(to_return))
     logging.info('Returned status.')
+
+
+class PhotoSelectionHandler(tornado.web.RequestHandler):
+  def get(self):
+    self.render('file_selection.html')
+
+  def post(self):
+    logging.info('Received web photo selection. Redirecting to password.')
+
+    photos = self.get_argument('files[]')
+    logging.info('Photos: %s.' % str(photos))
+    self.render('index.html')
 
 
 class PasswordHandler(tornado.web.RequestHandler):
@@ -123,7 +137,7 @@ class ExitHandler(tornado.web.RequestHandler):
 class GuiCodec(threading.Thread):
   codec = None
   password = None
-  daemon = True
+  #daemon = True
 
   def __init__(self, queue):
     threading.Thread.__init__(self)
@@ -142,6 +156,14 @@ class GuiCodec(threading.Thread):
       length = fh.tell()
     logging.info('%s has size %d.' % (image_path, length))
 
+    # Reorient the image, if necessary as determined by auto_orient.
+    reoriented_image_buffer = cStringIO.StringIO()
+    orient = Orientation.Orientation(image_path)
+    if orient.auto_orient(reoriented_image_buffer):
+      logging.info('Reoriented the image so reassigning the image_buffer.')
+      del image_buffer
+      image_buffer = reoriented_image_buffer
+
     # Update codec based on wh_ratio from given image.
     try:
       image_buffer.seek(0)
@@ -156,8 +178,10 @@ class GuiCodec(threading.Thread):
     logging.info('Original im dimens: w (%d) h (%d) ratio (%.2f).' % \
                    (_width, _height, wh_ratio))
 
+    # TODO(tierney): Hard-coded hack for fixed image width.
     self.codec = Codec(two_square, wh_ratio, Base64MessageSymbolCoder(),
-                       Base64SymbolSignalCoder())
+                       Base64SymbolSignalCoder(),
+                       fixed_width=None)
 
     cipher = Cipher(self.password)
     crypto = Encrypt(image_buffer, self.codec, cipher)
@@ -221,7 +245,6 @@ class GuiCodec(threading.Thread):
 class TornadoServer(threading.Thread):
   def __init__(self):
     threading.Thread.__init__(self)
-    daemon = True
 
   def run(self):
     tornado.ioloop.IOLoop.instance().start()
@@ -237,16 +260,11 @@ if _PLATFORM == 'Darwin':
       # Create the statusbar item
       self.statusitem = self.statusbar.statusItemWithLength_(NSVariableStatusItemLength)
 
-      # textInputItem = NSMenuItem.alloc().init()
-      # textInputItem.setTitle_('CryptogramInputTitle')
-
-      # textInputItem.setTarget_(textInputItem);
-      # textInputItem.setEnabled_(True);
-
       self.menu = NSMenu.alloc().init()
       menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
         'Sync...', 'sync:', '')
       self.menu.addItem_(menuitem)
+
       # Default event
       menuitem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
         'Quit', 'terminate:', '')
@@ -254,24 +272,30 @@ if _PLATFORM == 'Darwin':
       # Bind it to the status item
       self.statusitem.setMenu_(self.menu)
 
-      # systemTrayMenu = NSMenu.alloc().init();
-      # systemTrayMenu.addItem_(textInputItem);
-
-      # systemTrayIcon = systemTray.statusItemWithLength_(NSVariableStatusItemLength)
-      # systemTrayIcon.setMenu_(systemTrayMenu);
-
-      # systemTrayIcon.setTitle_("CryptogramTitle");
-      # systemTrayIcon.setToolTip_("CryptogramTip");
-      # systemTrayIcon.setHighlightMode_(True);
-
-
 def main(argv):
   global _CODECS, _PROGRESS, _NUM_THREADS
-  logging.info(argv)
+
+  # Parse arguments from the user.
+  parser = argparse.ArgumentParser(
+    prog='cryptogram', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+  parser.add_argument('-p', '--password', type=str, default=None,
+                      help='TODO Password to encrypt image with.')
+  parser.add_argument('photo', nargs='+', default=[], help='Photos to encrypt.')
+
+  FLAGS = parser.parse_args()
 
   _PROGRESS = {}
+
+  # Start user-facing web server.
+  http_server = tornado.httpserver.HTTPServer(Application())
+  http_server.listen(options.port)
+  tornado_server = TornadoServer()
+  tornado_server.start()
+
+  # TODO(tierney): Make it possible for users to specify switches beyond 
+  # passed in files. We will use argparse.
   queue = Queue()
-  passed_values = argv[1:]
+  passed_values = FLAGS.photo
   for passed_value in passed_values:
     if os.path.isdir(passed_value):
       logging.info('Treat %s like a directory.' % passed_value)
@@ -287,15 +311,19 @@ def main(argv):
       queue.put(passed_value)
       _PROGRESS[passed_value] = -2
 
+  if queue.empty():
+    logging.info('Queue empty. Therefore, we need some files.')
+    logging.warning('TODO: allow users to select photos.')
+    return
+    # webbrowser.open_new_tab('http://localhost:%d/photo_selection' % \
+    #                         options.port)
+  else:
+    logging.info('We have a queue ready for action.')
+    webbrowser.open_new_tab('http://localhost:%d' % options.port)
+
+  # Spin up codecs for coding process when we are ready.
   _CODECS = [GuiCodec(queue) for i in range(_NUM_THREADS)]
   [codec.start() for codec in _CODECS]
-
-  http_server = tornado.httpserver.HTTPServer(Application())
-  http_server.listen(options.port)
-
-  webbrowser.open_new_tab('http://localhost:%d' % options.port)
-  tornado_server = TornadoServer()
-  tornado_server.start()
 
   logging.info('Made to the end of the main function.')
   if _PLATFORM == 'Darwin':
@@ -306,22 +334,26 @@ def main(argv):
     setup_menus(app, delegate)
     AppHelper.runEventLoop()
 
-def setup_menus(app,delegate):
-   mainmenu = NSMenu.alloc().init()
-   app.setMainMenu_(mainmenu)
-   appMenuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-     'Quit',
-     'terminate:',
-     'q')
-   mainmenu.addItem_(appMenuItem)
-   appMenu = NSMenu.alloc().init()
-   appMenuItem.setSubmenu_(appMenu)
-   aboutItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-     'Quit', 'terminate:', 'q')
-   aboutItem.setTarget_(app)
-   appMenu.addItem_(aboutItem)
+  # TODO(tierney): Should hold the last non-daemon thread here (I think) and 
+  # quit when appropriate. Currently, we rely on the GUI thread being 
+  # non-daemonized.
 
-if __name__=='__main__':
+def setup_menus(app, delegate):
+  mainmenu = NSMenu.alloc().init()
+  app.setMainMenu_(mainmenu)
+  appMenuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+    'Quit',
+    'terminate:',
+    'q')
+  mainmenu.addItem_(appMenuItem)
+  appMenu = NSMenu.alloc().init()
+  appMenuItem.setSubmenu_(appMenu)
+  aboutItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+    'Quit', 'terminate:', 'q')
+  aboutItem.setTarget_(app)
+  appMenu.addItem_(aboutItem)
+
+if __name__ == '__main__':
   try:
     main(sys.argv)
   except Exception, e:

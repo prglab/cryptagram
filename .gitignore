@@ -1,7 +1,9 @@
 .project
+.pydevproject
 .DS_Store
 *.pyc
 *.pyo
 *.jpg
+*.jpeg
 *.tar.gz
 *.zip

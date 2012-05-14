@@ -12,30 +12,33 @@ class Codec(threading.Thread):
   result = None
 
   def __init__(self, symbol_shape, wh_ratio, message_symbol_coder,
-               symbol_signal_coder):
+               symbol_signal_coder, fixed_width=None):
     threading.Thread.__init__(self)
     self.symbol_shape = symbol_shape
     self.wh_ratio = wh_ratio
     self.message_symbol_coder = message_symbol_coder
     self.symbol_signal_coder = symbol_signal_coder
+    self.fixed_width = fixed_width
 
   def _new_image_dimensions(self, data):
     data_len = len(data)
-    self.new_image_dimensions = NewImageDimensions(
-      self.wh_ratio, data_len, self.symbol_shape)
+    self.set_new_image_dimensions(data_len)
 
   def set_wh_ratio(self, wh_ratio):
     assert wh_ratio > 0
     logging.info('New wh ratio: %.2f.' % wh_ratio)
     self.wh_ratio = wh_ratio
 
+  def set_new_image_dimensions(self, data_len):
+    self.new_image_dimensions = NewImageDimensions(
+      self.wh_ratio, data_len, self.symbol_shape, self.fixed_width)
+
   def get_prospective_image_dimensions(self, data):
-    self._new_image_dimensions(data)
-    return self.new_image_dimensions.get_image_dimensions()
+    data_len = len(data)
+    return self.get_prospective_image_dimensions_from_data_len(data_len)
 
   def get_prospective_image_dimensions_from_data_len(self, data_len):
-    self.new_image_dimensions = NewImageDimensions(
-      self.wh_ratio, data_len, self.symbol_shape)
+    self.set_new_image_dimensions(data_len)
     return self.new_image_dimensions.get_image_dimensions()
 
   def get_percent_complete(self):
@@ -60,7 +63,9 @@ class Codec(threading.Thread):
 
   def encode(self, data):
     logging.info('Encoding data.')
-    self._new_image_dimensions(data)
+
+    # Set the NewImageDimensions internal state.
+    self.set_new_image_dimensions(len(data))
 
     new_image_width, new_image_height = \
         self.new_image_dimensions.get_image_dimensions()

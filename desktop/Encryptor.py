@@ -90,14 +90,13 @@ class Encrypt(object):
     return new_file
 
   def _estimate_encryption_inflation(self, data):
-    return len(data) * 1.3334
+    return len(data) * (1.3334**2)
 
   def upload_encrypt(self, dimension_limit = 2048):
     requality_limit = 1
     requality_count = 0
     rescale_count = 0
 
-    prospective_image_dimensions = self.codec.get_prospective_image_dimensions
     prospective_image_dimensions_from_data_len = \
         self.codec.get_prospective_image_dimensions_from_data_len
 
@@ -107,17 +106,22 @@ class Encrypt(object):
       logging.info('Start of while loop.')
 
       _image_buffer.seek(0)
-      _ = Image.open(_image_buffer)
-      _w, _h = _.size
+      _image = Image.open(_image_buffer)
+      _w, _h = _image.size
       logging.info('Cleartext image dimensions: (%d, %d).' % (_w, _h))
-      del _
+      del _image
 
-      # encrypted_data
       estimated_encrypted_data_len = self._estimate_encryption_inflation(
         _image_buffer.getvalue())
       width, height = prospective_image_dimensions_from_data_len(
         estimated_encrypted_data_len)
-      if width <= dimension_limit and height <= dimension_limit:
+      logging.info('Estimated image dimensions for len %d: (w: %d, h: %d).' % \
+                     (estimated_encrypted_data_len, width, height))
+      
+      # Rejection criteria for this round. Dimensions greater than limits or 
+      # our aspect ratio is too far off.
+      if (width <= dimension_limit) and (height <= dimension_limit) and \
+          (abs((_w / float(_h)) - (width / float(height))) < .1):
         encrypted_data = self._raw_image_data_to_encrypted_data(
           _image_buffer.getvalue())
         break
@@ -128,18 +132,18 @@ class Encrypt(object):
       # rescale.
       if requality_count < requality_limit:
         logging.info('Requality image.')
-        _ = self._reduce_image_quality(_image_buffer)
+        _image = self._reduce_image_quality(_image_buffer)
         del _image_buffer
-        _image_buffer = _
+        _image_buffer = _image
         requality_count += 1
 
       else:
         rescale_count += 1
         logging.info('Rescale with original image.')
-        _ = self._reduce_image_size(
+        _image = self._reduce_image_size(
           self.image_buffer, 1.0 - (0.05 * rescale_count))
         del _image_buffer
-        _image_buffer = _
+        _image_buffer = _image
 
     del _image_buffer
     return encrypted_data
