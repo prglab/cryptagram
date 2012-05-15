@@ -41,7 +41,7 @@ class Encrypt(object):
           encrypted_data['iv'] + \
           encrypted_data['salt'] + \
           encrypted_data['ct']
-      logging.info('Integrity hash input: %s...' % _to_hash[:32])
+      logging.info('Integrity hash input: %s...' % _to_hash[:48])
       integrity_check_value = sha256hash(_to_hash)
       logging.info('Integrity hash value: %s.' % integrity_check_value)
     else:
@@ -117,8 +117,8 @@ class Encrypt(object):
         estimated_encrypted_data_len)
       logging.info('Estimated image dimensions for len %d: (w: %d, h: %d).' % \
                      (estimated_encrypted_data_len, width, height))
-      
-      # Rejection criteria for this round. Dimensions greater than limits or 
+
+      # Rejection criteria for this round. Dimensions greater than limits or
       # our aspect ratio is too far off.
       if (width <= dimension_limit) and (height <= dimension_limit) and \
           (abs((_w / float(_h)) - (width / float(height))) < .1):

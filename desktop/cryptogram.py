@@ -88,8 +88,11 @@ def main(argv):
     encrypted_data = crypto.upload_encrypt()
     logging.info('Encrypted data length: %d.' % len(encrypted_data))
 
+    # TODO(tierney): Set somewhere more appropriately.
+    header = 'aesthete'
+
     codec.set_direction('encode')
-    codec.set_data(encrypted_data)
+    codec.set_data(header + encrypted_data)
     codec.start()
     while True:
       im = codec.get_result()
@@ -150,7 +153,7 @@ def main(argv):
   # padded_decoding = _base64_pad(binary_decoding)
   _integrity_check = binary_decoding[0:64]
   _to_check = binary_decoding[64:]
-  logging.info('Input to integrity check: %s.' % _to_check[:32])
+  logging.info('Input to integrity check: %s...' % _to_check[:48])
   integrity_check_value = sha256hash(_to_check)
   logging.info('Extracted integrity check: %s.' % _integrity_check)
   logging.info('Calculated integrity check: %s.' % integrity_check_value)
