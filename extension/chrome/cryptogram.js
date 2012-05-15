@@ -249,10 +249,14 @@ cryptogram.context.facebook = {
     // Regular image page 
     } else {
     
-      this.needsRescale = true;
           
       var elements = document.getElementsByClassName('fbPhotosPhotoActionsItem');
-          
+  
+      if (elements.length > 0) {
+        this.needsRescale = true;
+      }
+      
+      
       for (i = 0; i < elements.length; i++) {
         var fullURL = elements[i].href;
         
@@ -284,7 +288,11 @@ cryptogram.context.facebook = {
 
   getAlbumName: function(URL) {
     var browserURL = document.URL;
-    var albumID = browserURL.match(/set=a.([0-9a.]*)/)[1];
+    var albumIDParts = browserURL.match(/set=a.([0-9a.]*)/);
+  
+    if (!albumIDParts) return null;
+    var albumID = albumIDParts[1];
+    
     var albumParts = albumID.split(".");
     return "fb_album://" + albumParts[0] + "." + albumParts[1];
   },
