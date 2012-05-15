@@ -18,6 +18,7 @@ import argparse
 import cStringIO
 import gc
 import logging
+from os.path import expanduser, isdir, join
 import os
 import platform
 import shlex
@@ -34,6 +35,7 @@ import tornado.web
 import urllib
 import urllib2
 import webbrowser
+import json
 
 _PLATFORM = platform.system()
 
@@ -62,6 +64,7 @@ class Application(tornado.web.Application):
       (r"/password", PasswordHandler),
       (r"/exit", ExitHandler),
       (r"/photo_selection", PhotoSelectionHandler),
+      (r"/tree_json", TreeJsonHandler),
     ]
 
     settings = dict(
@@ -74,6 +77,25 @@ class Application(tornado.web.Application):
 class MainHandler(tornado.web.RequestHandler):
   def get(self):
     self.render("index.html")
+
+
+class TreeJsonHandler(tornado.web.RequestHandler):
+  def get(self):
+    path = self.get_argument('path')
+    d = expanduser(path)
+    children = []
+    for f in sorted(os.listdir(d)):
+      # Include directories but not '.' directories.
+      if isdir(join(d, f)) and not f.startswith('.'):
+        children.append(dict(data = f, attr = {"path" : join(d, f)},
+                             state = "closed", children = []))
+    if d != '~':
+      out = children
+    else:
+      out = [dict(data = split(d)[1], attr = {"path" : d}, state = 'open',
+                  children = children)]
+
+    self.write(json.dumps(out, indent = 2))
 
 
 class StatusHandler(tornado.web.RequestHandler):
