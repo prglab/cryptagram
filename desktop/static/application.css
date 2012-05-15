@@ -130,7 +130,7 @@ a:hover {
   left: 0;
 }
 
-#stage {
+div .stage {
   margin-top: 10px;
   padding: 20px;
   background: #fbfbfb;
