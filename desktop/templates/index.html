@@ -3,19 +3,53 @@
 {% block body %}
 <script type="text/javascript" src="{{ static_url("validate-password.js") }}"></script>
 <center>
-	<h1>Cryptogram Encryption</h1>
-	<h2>Please enter a password to start encrypting photos</h2>
 	<div id="container">
 		<div id="stage">
+	    <h1>Cryptogram Encoder</h1>
+
+      <!-- Select files to encrypt. -->
+      <table>
+       <tr>
+         <td>Sync Directory</td>
+         <td><input class="required" id="input_dir_path" name="input_dir_path" value="${USER_BOX}" type="text"></input>
+         </td>
+       </tr>
+       <tr>
+         <td colspan="2">
+           <div id="input_dir"></div>
+         </td>
+       </tr>
+      </table>
+
+      <!-- Choose output location. -->
+      <table>
+       <tr>
+         <td>Output Directory</td>
+         <td><input class="required" id="output_dir_path" name="output_dir_path" value="${USER_BOX}" type="text"></input>
+         </td>
+       </tr>
+       <tr>
+         <td colspan="2">
+           <div id="output_dir"></div>
+         </td>
+       </tr>
+      </table>
+
+
+      <!-- Enter the password to use during encryption. -->
 			<form id="input" action="password" method="post">
 				<table>
-					<tr><td>Password:</td><td>
-							<input type="password" name="password" id="password" /> </td></tr>
-					<tr><td>Verify Password:</td><td>
-							<input type="password" name="password_again" id="password_again" /></td></tr>
+					<tr><td>Password:</td><td>Verify Password</td></tr>
+          <tr>
+            <td><input type="password" name="password" id="password" /> </td>
+            <td><input type="password" name="password_again" id="password_again" /></td>
+          </tr>
+          <tr><td colspan="2">HELLO</td></tr>
+
 				</table>
 				<input type="submit" value="Start encrypting" />
 			</form>
+
 
 			<form name="quitform" action="exit" method="get">
 				<input type="submit" value="Exit" />
