@@ -110,9 +110,32 @@
       </td>
 		</div>
 
+    <script type="text/javascript">
+      $(function() {
+        $("#start_encryption").click(function() {
+          var password = $("input#password").val();
+          var password_again = $("input#password_again").val();
+          if (password != password_again) {
+            console.log('password did not match');
+            return false;
+          }
+          return true;
+        });
+
+        var data_string = 'password=' + password + '&password_again=' + password_again;
+        $.ajax({
+          type: "POST",
+          url: "password",
+          data: data_string,
+          success: function() {
+            postStatus(true);
+          }
+        });
+      });
+    </script>
 
       <!-- Enter the password to use during encryption. -->
-			<form id="input" action="password" method="post">
+			<form id="input" action="" method="post" onsubmit="">
 				<table>
 					<tr><td>Password:</td><td>Verify Password</td></tr>
           <tr>
@@ -120,7 +143,7 @@
             <td><input type="password" name="password_again" id="password_again" /></td>
           </tr>
 				</table>
-				<input type="submit" value="Start encrypting" />
+				<input id="start_encryption" type="submit" value="Start encrypting" />
 			</form>
 
 
