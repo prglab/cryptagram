@@ -197,8 +197,11 @@ class GuiCodec(threading.Thread):
 
     logging.info('Encrypted data length: %d.' % len(encrypted_data))
 
+    # TODO(tierney): Set the "header" more flexibly.
+    header = 'aesthete'
+
     self.codec.set_direction('encode')
-    self.codec.set_data(encrypted_data)
+    self.codec.set_data(header + encrypted_data)
     self.codec.start()
     while True:
       im = self.codec.get_result()
@@ -292,7 +295,7 @@ def main(argv):
   tornado_server = TornadoServer()
   tornado_server.start()
 
-  # TODO(tierney): Make it possible for users to specify switches beyond 
+  # TODO(tierney): Make it possible for users to specify switches beyond
   # passed in files. We will use argparse.
   queue = Queue()
   passed_values = FLAGS.photo
@@ -334,8 +337,8 @@ def main(argv):
     setup_menus(app, delegate)
     AppHelper.runEventLoop()
 
-  # TODO(tierney): Should hold the last non-daemon thread here (I think) and 
-  # quit when appropriate. Currently, we rely on the GUI thread being 
+  # TODO(tierney): Should hold the last non-daemon thread here (I think) and
+  # quit when appropriate. Currently, we rely on the GUI thread being
   # non-daemonized.
 
 def setup_menus(app, delegate):
