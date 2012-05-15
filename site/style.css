@@ -1,0 +1,75 @@
+body {
+  background: url('bg.png');
+  font: 14px arial;
+  margin-bottom: 100px;
+}
+
+
+#main {
+  position: relative;
+  left: 50%;
+  margin-left: -300px;
+  margin-top: 50px;
+  border: 1px solid gray;
+  width: 500px;
+  padding: 50px;
+  text-align: center;
+  vertical-align: middle;
+  background: white;
+  -moz-box-shadow: 5px 5px 5px #888;
+  -webkit-box-shadow: 5px 5px 5px #888;
+  box-shadow: 5px 5px 5px #888;
+}
+
+
+#main .pixels {
+  border: 1px solid gray;
+}
+
+#main img {
+  max-height: 100px;
+}
+
+#main .arrow {
+  vertical-align: top;
+  margin-left: 30px;
+  margin-right: 30px;
+}
+
+#install .small {
+  color: gray;
+  font-size: 10px;
+  position: absolute;
+  right: 30px;
+  margin-top: 5px;
+}
+
+#install a {
+  color: #333377;
+  text-decoration: none;
+  border-bottom: 1px dotted #333333;
+}
+
+h1 {
+  font-weight: normal;
+  font-size: 32px;
+  margin-bottom: 50px;
+  margin-top: 20px;
+}
+
+h1 img {
+  position: relative;
+  top: 5px;
+  margin-left: 0px;
+  margin-right: 20px;
+  opacity: .5;
+}
+
+h2 {
+  font-weight: normal;
+}
+
+p {
+  margin-top: 50px;
+  text-align: left;
+}
