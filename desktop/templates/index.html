@@ -5,12 +5,12 @@
 
 		<script type="text/javascript">
 			$(function(){
-
 				// Dialog
-				$('#dialog').dialog({
+				$('#input_dir_dialog').dialog({
 					autoOpen: false,
 					width: 600,
           modal: true,
+          maxHeight: 480,
 					buttons: {
 						"Ok": function() {
 							$(this).dialog("close");
@@ -22,13 +22,41 @@
 				});
 
 				// Dialog Link
-				$('#dialog_link').click(function(){
-					$('#dialog').dialog('open');
+				$('#input_dir_dialog_link').click(function(){
+					$('#input_dir_dialog').dialog('open');
 					return false;
 				});
 
 				//hover states on the static widgets
-				$('#dialog_link, ul#icons li').hover(
+				$('#input_dir_dialog_link, ul#icons li').hover(
+					function() { $(this).addClass('ui-state-hover'); },
+					function() { $(this).removeClass('ui-state-hover'); }
+				);
+
+				// Dialog
+				$('#output_dir_dialog').dialog({
+					autoOpen: false,
+					width: 600,
+          modal: true,
+          maxHeight: 480,
+					buttons: {
+						"Ok": function() {
+							$(this).dialog("close");
+						},
+						"Cancel": function() {
+							$(this).dialog("close");
+						}
+					}
+				});
+
+				// Dialog Link
+				$('#output_dir_dialog_link').click(function(){
+					$('#output_dir_dialog').dialog('open');
+					return false;
+				});
+
+				//hover states on the static widgets
+				$('#output_dir_dialog_link, ul#icons li').hover(
 					function() { $(this).addClass('ui-state-hover'); },
 					function() { $(this).removeClass('ui-state-hover'); }
 				);
@@ -44,11 +72,13 @@
       <table>
        <tr>
          <td>Input Directory</td>
-         <td><input class="required" id="input_dir_path" name="input_dir_path" value="${USER_BOX}" type="text"></input>
+         <td>
+           <input class="required" id="input_dir_path" name="input_dir_path" value="${USER_BOX}" type="text"></input>
          </td>
-       </tr>
-       <tr>
-		     <p><a href="#" id="dialog_link" class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-newwin"></span>Open Dialog</a></p>
+         <td>
+           <a href="#" id="input_dir_dialog_link" class="ui-state-default ui-corner-all">
+             <!-- <span class="ui-icon ui-icon-newwin"></span> -->Choose inputs.</a>
+         </td>
        </tr>
       </table>
 
@@ -56,21 +86,27 @@
       <table>
        <tr>
          <td>Output Directory</td>
-         <td><input class="required" id="output_dir_path" name="output_dir_path" value="${USER_BOX}" type="text"></input>
+         <td>
+           <input class="required" id="output_dir_path" name="output_dir_path" value="${USER_BOX}" type="text"></input>
          </td>
-       </tr>
-       <tr>
-         <td colspan="2">
-           <div id="output_dir"></div>
+         <td>
+           <a href="#" id="output_dir_dialog_link" class="ui-state-default ui-corner-all">
+             <!-- <span class="ui-icon ui-icon-newwin"></span> -->Choose output directory.</a>
          </td>
        </tr>
       </table>
 
 
 		<!-- ui-dialog -->
-		<div id="dialog" title="Dialog Title">
+		<div id="input_dir_dialog" title="Inputs">
       <td colspan="2">
         <div id="input_dir"></div>
+      </td>
+		</div>
+
+		<div id="output_dir_dialog" title="Output Directory">
+      <td colspan="2">
+        <div id="output_dir"></div>
       </td>
 		</div>
 
