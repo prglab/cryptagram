@@ -148,7 +148,7 @@ class Codec(threading.Thread):
         x_coord = (i - (y_coord * _num_header_row_symbols_wide))
         base_x = 8 + (x_coord * shape_width)
       else:
-        _i = i + 16 # Account for number of symbols in the header.
+        _i = i + 8 # Account for number of symbols in the header.
         y_coord = int(_i / (1. * new_image_num_symbols_width))
         x_coord = int(_i - (y_coord * new_image_num_symbols_width))
         base_x = x_coord * shape_width
