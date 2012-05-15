@@ -2,6 +2,39 @@
 
 {% block body %}
 <script type="text/javascript" src="{{ static_url("validate-password.js") }}"></script>
+
+		<script type="text/javascript">
+			$(function(){
+
+				// Dialog
+				$('#dialog').dialog({
+					autoOpen: false,
+					width: 600,
+          modal: true,
+					buttons: {
+						"Ok": function() {
+							$(this).dialog("close");
+						},
+						"Cancel": function() {
+							$(this).dialog("close");
+						}
+					}
+				});
+
+				// Dialog Link
+				$('#dialog_link').click(function(){
+					$('#dialog').dialog('open');
+					return false;
+				});
+
+				//hover states on the static widgets
+				$('#dialog_link, ul#icons li').hover(
+					function() { $(this).addClass('ui-state-hover'); },
+					function() { $(this).removeClass('ui-state-hover'); }
+				);
+
+			});
+		</script>
 <center>
 	<div id="container">
 		<div id="stage">
@@ -10,14 +43,12 @@
       <!-- Select files to encrypt. -->
       <table>
        <tr>
-         <td>Sync Directory</td>
+         <td>Input Directory</td>
          <td><input class="required" id="input_dir_path" name="input_dir_path" value="${USER_BOX}" type="text"></input>
          </td>
        </tr>
        <tr>
-         <td colspan="2">
-           <div id="input_dir"></div>
-         </td>
+		     <p><a href="#" id="dialog_link" class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-newwin"></span>Open Dialog</a></p>
        </tr>
       </table>
 
@@ -34,6 +65,14 @@
          </td>
        </tr>
       </table>
+
+
+		<!-- ui-dialog -->
+		<div id="dialog" title="Dialog Title">
+      <td colspan="2">
+        <div id="input_dir"></div>
+      </td>
+		</div>
 
 
       <!-- Enter the password to use during encryption. -->
