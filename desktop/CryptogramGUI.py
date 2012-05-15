@@ -78,6 +78,16 @@ class MainHandler(tornado.web.RequestHandler):
   def get(self):
     self.render("index.html")
 
+  def post(self):
+    global _CODECS
+    password = self.get_argument('password')
+    password_again = self.get_argument('password_again')
+    if password != password_again:
+      logging.warning('Passwords do not match.')
+      self.render('index.html')
+
+    [codec.set_password(password) for codec in _CODECS]
+
 
 class TreeJsonHandler(tornado.web.RequestHandler):
   def get(self):
@@ -127,7 +137,6 @@ class PhotoSelectionHandler(tornado.web.RequestHandler):
 class PasswordHandler(tornado.web.RequestHandler):
   def post(self):
     global _CODECS
-
     password = self.get_argument('password')
     password_again = self.get_argument('password_again')
     if password != password_again:
