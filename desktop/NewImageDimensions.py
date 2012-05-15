@@ -98,6 +98,7 @@ class NewImageDimensions(object):
     self.new_height = self.num_symbols_high * self.symbol_height
 
   def _apply_symbol_shape(self):
+    # Symbol width is the same as "shape width".
     self.symbol_width = self.symbol_shape.get_shape_width()
     self.symbol_height = self.symbol_shape.get_shape_height()
 

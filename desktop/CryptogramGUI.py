@@ -198,7 +198,7 @@ class GuiCodec(threading.Thread):
     logging.info('Encrypted data length: %d.' % len(encrypted_data))
 
     # TODO(tierney): Set the "header" more flexibly.
-    header = 'cryptogram+alpha'
+    header = 'aesthete'
 
     self.codec.set_direction('encode')
     self.codec.set_data(header + encrypted_data)
