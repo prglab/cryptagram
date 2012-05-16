@@ -112,40 +112,52 @@
 
     <script type="text/javascript">
       $(function() {
+        $(".error").hide();
         $("#start_encryption").click(function() {
+          console.log('Start encryption clicked.');
           var password = $("input#password").val();
           var password_again = $("input#password_again").val();
           if (password != password_again) {
             console.log('password did not match');
             return false;
           }
-          return true;
-        });
 
-        var data_string = 'password=' + password + '&password_again=' + password_again;
-        $.ajax({
-          type: "POST",
-          url: "password",
-          data: data_string,
-          success: function() {
-            postStatus(true);
-          }
+          var data_string = 'password=' + password + '&password_again=' + password_again;
+          $.ajax({
+            type: "POST",
+            url: "/",
+            data: data_string,
+            success: function() {
+              console.log('Successful post. Now call post status.');
+              postStatus(true);
+            }
+          });
+          return false;
         });
       });
     </script>
 
       <!-- Enter the password to use during encryption. -->
-			<form id="input" action="" method="post" onsubmit="">
-				<table>
-					<tr><td>Password:</td><td>Verify Password</td></tr>
-          <tr>
-            <td><input type="password" name="password" id="password" /> </td>
-            <td><input type="password" name="password_again" id="password_again" /></td>
-          </tr>
-				</table>
-				<input id="start_encryption" type="submit" value="Start encrypting" />
-			</form>
+      <div id="password_form">
+        <form name="password" action="">
+          <fieldset>
+            <label>Password</label>
+            <input type="password" name="password" id="password" />
+            <label class="error" for="password" id="password_error">This field
+            is required.</label>
 
+            <label>Verify Password</label>
+            <input type="password" name="password_again" id="password_again" />
+            <label class="error" for="password_again" id="password_again_error">This field
+            is required.</label>
+
+            <br />
+            <input id="start_encryption" name="submit" type="submit"
+            class="button" value="Start encrypting" />
+          </fieldset>
+
+        </form>
+      </div>
 
 			<form name="quitform" action="exit" method="get">
 				<input type="submit" value="Exit" />
