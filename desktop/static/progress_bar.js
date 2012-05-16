@@ -111,7 +111,7 @@ function postStatus(first_time) {
 				++file_status.finished[path];
 				console.log('Trying to remove from processing ' + path);
 
-				$("section").remove("#" + path);
+				// $("section").remove("#" + path);
 
 				var shortname = paths_progress[path]['shortname'];
 				var list_item = $("<li><a href='file://" + paths_progress[path]['path'] +
@@ -136,16 +136,27 @@ function postStatus(first_time) {
 				var pb_div = document.getElementById("stage");
         var section = document.createElement("section");
 				section.id = path;
+        var row = document.createElement("div");
+        row.style.width = "100%";
+        row.style.overflow = "hidden";
+        var left_child = document.createElement("div");
+        left_child.style.width = "200px";
+        left_child.style.float = "left";
+        left_child.innerHTML = path;
 				var child = document.createElement("div");
+        child.style.marginLeft = "200px";
 				child.id = path + '_progress_bar';
 				var child_progress = document.createElement("div");
 				child_progress.id = path + '_progress';
 				var child_progress_span = document.createElement("span");
 				child_progress_span.id = path + '_progress_span';
 				child_progress_span.innerHTML = paths_progress[path]['path'];
+
 				child_progress.appendChild(child_progress_span);
 				child.appendChild(child_progress);
-        section.appendChild(child)
+        row.appendChild(left_child);
+        row.appendChild(child);
+        section.appendChild(row);
 
 				pb_div.insertBefore(section, pb_div.firstChild);
 
