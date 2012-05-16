@@ -54,6 +54,8 @@ def main(argv):
                       help='Decrypted image output filename.')
   parser.add_argument('-m', '--max_output_dimension', type=int, default=2048,
                       help='Maximum image dimension (applies to height and width).')
+  parser.add_argument('-w', '--fixed_width', type=int, default=None,
+                      help='Exact width specification.')
   FLAGS = parser.parse_args()
 
   symbol_shape = _AVAILABLE_SHAPES[FLAGS.symbol_shape]
@@ -86,7 +88,7 @@ def main(argv):
     wh_ratio = _width / float(_height)
     logging.info('Original image wh_ratio: %.2f.' % wh_ratio)
     codec = Codec(symbol_shape, wh_ratio, Base64MessageSymbolCoder(),
-                  Base64SymbolSignalCoder())
+                  Base64SymbolSignalCoder(), fixed_width = FLAGS.fixed_width)
 
     crypto = Encrypt(image_buffer, codec, cipher)
     encrypted_data = crypto.upload_encrypt(FLAGS.max_output_dimension)
