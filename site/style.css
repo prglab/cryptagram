@@ -12,7 +12,7 @@ body {
   margin-top: 20px;
   border: 1px solid gray;
   width: 500px;
-  padding: 50px;
+  padding: 20px;
   text-align: center;
   vertical-align: middle;
   background: white;
@@ -50,36 +50,40 @@ body {
 }
 
 #install a {
-  color: #333377;
+  color: #8888CC;
   font-size: 12px;
-  
 }
 
-#install img {
-
+#install a:hover {
+    color: #333377;
+    border: 1px solid #8888CC;
 }
 
+
+#install a {
+  width: 150px;
+  height: 200px;
+  border: 1px solid #EEEEEE;
+}
 
 
 #left {
-  width: 200px;
   display: block;
-  margin-left: 20px;
+  margin-left: 40px;
 }
 
 #right {
-  width: 200px;
   display: block;
   position: absolute;
-  right: 20px;
+  right: 40px;
   top: 0px;
 }
 
 
  h1 {
   font-weight: normal;
-  font-size: 24px;
-  margin-bottom: 20px;
+  font-size: 26px;
+  margin-bottom: 0px;
   margin-top: 0px;
 }
 
@@ -104,8 +108,28 @@ h2 {
 p {
   margin-top: 20px;
   text-align: left;
+  font-size: 12px;
+  
 }
 
 p.centered {
   text-align: center;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  border-bottom: 1px solid #EEEEEE;
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+
+
+#info {
+
+  text-align: left;
+
+  font-size: 12px;
+  padding-left: 40px;
+  padding-right: 40px;
 }
