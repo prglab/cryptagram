@@ -493,18 +493,54 @@ cryptogram.decoder.decodeDataToContainer = function(data, password, container) {
     _decoder.img = img;
     _decoder.imageData = imageData;
     _decoder.blockSize = blockSize;
+    _decoder.headerSize = blockSize * 4;
     _decoder.password = password;
     _decoder.container = container;
     _decoder.chunkSize = img.height / 40.0;
     _decoder.y = 0;
     _decoder.newBase64 = "";
-    _decoder.processImage();
+    
+    var protocol = _decoder.getHeader();
+    cryptogram.log("Found '"+ protocol + "' protocol");
+    
+    if (protocol != "aesthete") {
+      cryptogram.log("Error: Unknown Protocol");
+      cryptogram.context.setStatus();
+    } else {
+      _decoder.processImage();    
+    }
+    
     
   };
   
   img.src = data;
 }
 
+
+
+cryptogram.decoder.getHeader = function() {
+
+    var img = this.img;
+    var imageData = this.imageData;
+    var blockSize = this.blockSize;
+    var newBase64 = "";
+    
+    for (y = 0; y < 8; y+= this.blockSize) {
+      for (x = 0; x < 8; x+= 2*this.blockSize) {
+        
+        base8_0 = cryptogram.decoder.getBase8Value(imageData, img.width, x, y, blockSize, blockSize);
+        base8_1 = cryptogram.decoder.getBase8Value(imageData, img.width, x + blockSize, y, blockSize, blockSize);
+  
+        base64Num = base8_0 * 8 + base8_1 ;
+        base64 = this.base64Values.charAt(base64Num);                    
+        newBase64 += base64;
+
+      
+      }
+    }
+    
+    return newBase64;       
+}
 
 cryptogram.decoder.processImage = function() {
 
@@ -518,6 +554,12 @@ cryptogram.decoder.processImage = function() {
   while (this.chunkSize == 0 || count < this.chunkSize) {
       
     for (x = 0; x < img.width; x+= (blockSize * 2)) {
+        
+        // Skip over header super-block
+        if (y < this.headerSize && x < this.headerSize) {
+          console.log("Skipping header block");
+          continue;
+        }
         
         base8_0 = cryptogram.decoder.getBase8Value(imageData, img.width, x, y, blockSize, blockSize);
         base8_1 = cryptogram.decoder.getBase8Value(imageData, img.width, x + blockSize, y, blockSize, blockSize);
