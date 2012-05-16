@@ -16,7 +16,7 @@
               var checked_ids = [];
               var values = $("#input_dir").jstree("get_checked", null, true).each
                 (function() {
-                   checked_ids.push(this);});
+                   checked_ids.push(this.type + " " + this.value + " " + this.path);});
                 console.log("Checked values: " + checked_ids);
 
 							$(this).dialog("close");
@@ -74,25 +74,13 @@
 		<div class="stage">
 	    <h1>Cryptogram Encoder</h1>
 
-      <!-- Select files to encrypt. -->
-      <table>
-       <tr>
-         <td>Input Directory</td>
-         <td>
-           <input class="required" id="input_dir_path" name="input_dir_path" value="${USER_BOX}" type="text"></input>
-         </td>
-         <td>
-           <a href="#" id="input_dir_dialog_link" class="ui-state-default ui-corner-all">Choose inputs.</a>
-         </td>
-       </tr>
-      </table>
-
       <!-- Choose output location. -->
       <table>
        <tr>
          <td>Output Directory</td>
          <td>
-           <input class="required" id="output_dir_path" name="output_dir_path" value="${USER_BOX}" type="text"></input>
+           <input class="required" id="output_dir_path" name="output_dir_path"
+           value="~/Desktop/Cryptogram" size="50" type="text"></input>
          </td>
          <td>
            <a href="#" id="output_dir_dialog_link" class="ui-state-default ui-corner-all">Choose output directory.</a>
@@ -125,7 +113,12 @@
             return false;
           }
 
-          var data_string = 'password=' + password + '&password_again=' + password_again;
+			    var output_directory = $("input#output_dir_path").val();
+
+          var data_string = "password=" + password;
+			    data_string += "&password_again=" + password_again;
+			    data_string += "&output_dir=" + output_directory;
+
           $.ajax({
             type: "POST",
             url: "/",

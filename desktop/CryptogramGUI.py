@@ -88,7 +88,12 @@ class MainHandler(tornado.web.RequestHandler):
       self.render('index.html')
       return
 
-    [codec.set_password(password) for codec in _CODECS]
+    output_directory = self.get_argument('output_dir')
+    # TODO(tierney): If directory does not exist, make it. If directory already
+    # exists, consider making a different one with an incremented name.
+
+    [codec.set_encode_kickstart_values(password, output_directory)
+     for codec in _CODECS]
 
 
 class TreeJsonHandler(tornado.web.RequestHandler):
@@ -176,8 +181,9 @@ class GuiCodec(threading.Thread):
     threading.Thread.__init__(self)
     self.queue = queue
 
-  def set_password(self, password):
+  def set_encode_kickstart_values(self, password, output_directory):
     self.password = password
+    self.output_directory = output_directory
 
   def _encrypt(self, image_path):
     global _PROGRESS
@@ -214,7 +220,7 @@ class GuiCodec(threading.Thread):
     logging.info('Original im dimens: w (%d) h (%d) ratio (%.2f).' % \
                    (_width, _height, wh_ratio))
 
-    # TODO(tierney): Hard-coded hack for fixed image width.
+    # TODO(tierney): Consider adding the header name/label here.
     self.codec = Codec(two_square, wh_ratio, Base64MessageSymbolCoder(),
                        Base64SymbolSignalCoder(),
                        fixed_width=None)
@@ -233,9 +239,8 @@ class GuiCodec(threading.Thread):
 
     logging.info('Encrypted data length: %d.' % len(encrypted_data))
 
-    # TODO(tierney): Set the "header" more flexibly.
+    # TODO(tierney): Set the "header" more flexibly/appropriately.
     header = 'aesthete'
-
     self.codec.set_direction('encode')
     self.codec.set_data(header + encrypted_data)
     self.codec.start()
@@ -252,7 +257,7 @@ class GuiCodec(threading.Thread):
     quality = 95
     logging.info('Saving encrypted jpeg with quality %d.' % quality)
     try:
-      with open(image_path + '.encrypted.jpg', 'w') as out_file:
+      with open(image_path + '.cryptogram.jpg', 'w') as out_file:
         im.save(out_file, quality=quality)
     except Exception, e:
       logging.error(str(e))
@@ -335,16 +340,16 @@ def main(argv):
   # passed in files. We will use argparse.
   queue = Queue()
   passed_values = FLAGS.photo
+  logging.info('Photos: %s.' % passed_values)
   for passed_value in passed_values:
     if os.path.isdir(passed_value):
       logging.info('Treat %s like a directory.' % passed_value)
-      for _dir_file in os.path.listdir(passed_value):
+      for _dir_file in os.listdir(passed_value):
         logging.info('Adding %s from %s.' % (_dir_file, passed_value))
         _path = os.path.join(passed_value, _dir_file)
 
         queue.put(_path)
         _PROGRESS[_path] = -2
-
     else:
       logging.info('Encrypting %s.' % passed_value)
       queue.put(passed_value)
