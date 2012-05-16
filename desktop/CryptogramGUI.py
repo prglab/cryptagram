@@ -82,9 +82,11 @@ class MainHandler(tornado.web.RequestHandler):
     global _CODECS
     password = self.get_argument('password')
     password_again = self.get_argument('password_again')
+    logging.info('AJAX posted passwords.')
     if password != password_again:
       logging.warning('Passwords do not match.')
       self.render('index.html')
+      return
 
     [codec.set_password(password) for codec in _CODECS]
 
@@ -141,11 +143,11 @@ class PasswordHandler(tornado.web.RequestHandler):
     password_again = self.get_argument('password_again')
     if password != password_again:
       logging.warning('Passwords do not match.')
-      self.render('index.html')
+      # self.render('index.html')
+      self.write('')
 
     [codec.set_password(password) for codec in _CODECS]
-    self.render("encrypting.html")
-
+    self.write('')
 
 class ExitHandler(tornado.web.RequestHandler):
   def get(self):
@@ -179,13 +181,16 @@ class GuiCodec(threading.Thread):
 
   def _encrypt(self, image_path):
     global _PROGRESS
-
     image_buffer = cStringIO.StringIO()
 
-    with open(image_path, 'rb') as fh:
-      image_buffer.write(fh.read())
-      length = fh.tell()
-    logging.info('%s has size %d.' % (image_path, length))
+    try:
+      with open(image_path, 'rb') as fh:
+        image_buffer.write(fh.read())
+        length = fh.tell()
+      logging.info('%s has size %d.' % (image_path, length))
+    except IOError, e:
+      logging.error(str(e))
+      return -1
 
     # Reorient the image, if necessary as determined by auto_orient.
     reoriented_image_buffer = cStringIO.StringIO()
