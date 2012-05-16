@@ -46,7 +46,7 @@ THE SOFTWARE.
 .ui-progress-bar {
   /* Usual setup stuff */
   position: relative;
-  height: 25px;
+  height: 10px;
   /* Pad right so we don't cover the borders when fully progressed */
   padding-right: 2px;
   /* For browser that don't support gradients, we'll set a blanket background colour */
@@ -97,12 +97,15 @@ THE SOFTWARE.
   transition: background-color 0.5s ease-in, border-color 1.5s ease-out, box-shadow 1.5s ease-out;
 }
 .ui-progress-bar .ui-progress {
+  /* Allows progress bar to grow from left to right. */
+  margin-right: auto;
+
   /* Usual setup stuff */
   position: relative;
   display: block;
   overflow: hidden;
   /* Height should be 2px less than .ui-progress-bar so as to not cover borders and give it a look of being inset */
-  height: 23px;
+  height: 8px;
   /* Rounds the ends, we specify an excessive amount to make sure they are completely rounded */
   /* Adjust to your liking, and don't forget to adjust to the same amount in .ui-progress-bar */
   -moz-border-radius: 25px;

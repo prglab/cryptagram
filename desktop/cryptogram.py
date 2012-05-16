@@ -52,8 +52,11 @@ def main(argv):
                       help='Encrypted image output filename.')
   parser.add_argument('-d', '--decrypt', type=str, default=None,
                       help='Decrypted image output filename.')
+  parser.add_argument('-m', '--max_output_dimension', type=int, default=2048,
+                      help='Maximum image dimension (applies to height and width).')
+  parser.add_argument('-w', '--fixed_width', type=int, default=None,
+                      help='Exact width specification.')
   FLAGS = parser.parse_args()
-
 
   symbol_shape = _AVAILABLE_SHAPES[FLAGS.symbol_shape]
   quality = FLAGS.quality
@@ -61,13 +64,6 @@ def main(argv):
 
   if FLAGS.image and FLAGS.encrypt:
     logging.info('Image to encrypt: %s.' % FLAGS.image)
-
-    # Update codec based on wh_ratio from given image.
-    _image = Image.open(FLAGS.image)
-    _width, _height = _image.size
-    wh_ratio = _width / float(_height)
-    codec = Codec(symbol_shape, wh_ratio, Base64MessageSymbolCoder(),
-                  Base64SymbolSignalCoder())
 
     # Determine file size.
     image_buffer = cStringIO.StringIO()
@@ -84,8 +80,18 @@ def main(argv):
       del image_buffer
       image_buffer = reoriented_image_buffer
 
+    # Update codec based on wh_ratio from given image.
+    image_buffer.seek(0)
+    _image = Image.open(image_buffer)
+    _width, _height = _image.size
+    logging.info('Width: %d. Height: %d.' % (_width, _height))
+    wh_ratio = _width / float(_height)
+    logging.info('Original image wh_ratio: %.2f.' % wh_ratio)
+    codec = Codec(symbol_shape, wh_ratio, Base64MessageSymbolCoder(),
+                  Base64SymbolSignalCoder(), fixed_width = FLAGS.fixed_width)
+
     crypto = Encrypt(image_buffer, codec, cipher)
-    encrypted_data = crypto.upload_encrypt()
+    encrypted_data = crypto.upload_encrypt(FLAGS.max_output_dimension)
     logging.info('Encrypted data length: %d.' % len(encrypted_data))
 
     # TODO(tierney): Set somewhere more appropriately.

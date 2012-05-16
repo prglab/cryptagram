@@ -42,6 +42,7 @@ class NewImageDimensions(object):
 
     if self.wh_ratio < 1:
       # Tall images.
+      logging.info('Tall image')
       num_symbols_wide = (((self.wh_ratio + self._epsilon) * \
                      self.symbol_height * self.data_len) \
                     / (self.symbol_width)) ** .5
@@ -54,6 +55,7 @@ class NewImageDimensions(object):
 
     else:
       # Wide images.
+      logging.info('Wide image')
       num_symbols_wide = (((self.wh_ratio - self._epsilon) * \
                      self.symbol_height * self.data_len) \
                     / (self.symbol_width)) ** .5
