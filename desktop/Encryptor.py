@@ -15,6 +15,8 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                       '%(lineno)4d %(message)s')
 
 class Encrypt(object):
+  _ASPECT_RATIO_DIFFERENCE_LIMIT = .1
+
   def __init__(self, image_buffer, codec, cipher):
     self.image_buffer = image_buffer
     self.codec = codec
@@ -122,7 +124,7 @@ class Encrypt(object):
       # our aspect ratio is too far off.
       if (width <= dimension_limit) and (height <= dimension_limit):
         ar_difference = abs((_w / float(_h)) - (width / float(height)))
-        if (ar_difference < .15):
+        if (ar_difference < self._ASPECT_RATIO_DIFFERENCE_LIMIT):
           encrypted_data = self._raw_image_data_to_encrypted_data(
             _image_buffer.getvalue())
           break
