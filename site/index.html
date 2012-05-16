@@ -13,7 +13,9 @@
         <h1>Cryptogram Project</h1>        Visual cryptography for social media<br><br>
     </p>
 
+         
     <hr>
+
      <p class=centered>
       Encrypt<br>
       <img src=decoded.jpg class=pixels>
@@ -24,37 +26,75 @@
     </p>
     
     
-<hr>
-    <div id=install>
-    
-      <div>
-        <a href="cryptogram.crx" id=left>
-          <h2>INSTALL CHROME EXTENSION</h2>
-          <img src="crx.png"><br>
-          cryptogram.crx
-        </a>
-      </div>
-      <div>
-        <a href="Cryptogram.tar.gz" id=right>
-          <h2>DOWNLOAD CRYPTOGRAM DESKTOP</h2>
-          <img src="crx.png"><br>
-          cryptogram.tar.gz
-       </a>
-      </div>
-    </div>
+  <hr>
   
-        
- <hr>
-    <h2>About Cryptogram</h2>
+    <div id=install>
+     
+     <a id=add href="cryptogram.crx">
+     <font size=3>+</font> Add to Chrome</a>
+     Chrome extension to decrypt images<br>
+     <br>
+      <a id=add href="Cryptogram.tar.gz">
+     <font size=2>&#x25BC;</font> Download App</a>
+     Desktop application to encrypt images
+</div>
+  <hr>
     <div id=info>
-    
-    Cryptogram is software for password-protecting images to provide greater control over access to the images.
-    The software takes regular JPEG images as input and produces images that look like random noise. With the correct password, the original images can be restored. 
+    <h2>About</h2>
+    Cryptogram is software for password-protecting images to provide greater control over access to them.
+    The applications takes regular JPEG images as input and produces images that look like random noise. 
+    With the correct password, the original images can be restored. 
     The encoding format is designed to be robust to some level of JPEG compression.
     This means you can upload Cryptogram images to various social media services and the underlying
-    encoded data should not be lost. 
+    encoded data should not be lost.
     </div>
-  
+    
+    
+    <div id=info>
+    <h2>Why</h2>
+    What happens when users upload
+    images to social media sites without a full understanding of the privacy settings? Images may be shared inappropriately
+    with friends, acquaintances, or strangers. This project provides a way for people to take increased control over the privacy of personal images. Cryptogram
+    offers password-level security inside JPEG itself. Encrypted images can be used in a variety of scenarios, including
+     websites, social media, or e-mail. But in all cases, the password protection remains. The decryption is efficient, so original images can be viewed directly in the web browser, on the fly. 
+    
+    
+    </div>
+
+    
+    <div id=info>
+    <h2>Try It</h2>
+    <img src=encoded.jpg style="float: right; margin-left: 20px;">
+
+    We encourage anyone to try out the current release of Cryptogram.
+    <br><br>1) Install the <a href="cryptogram.crx">Chrome Extension.</a>
+    <br><br>
+   
+    2) Right-click this image and select <i>Decode Image.</i>
+    <br><br>
+    
+    3) When asked for a password enter:&nbsp; <code>cryptogram</code>     
+    <br><br>
+         
+    After installation, you should see a 4x4 grid icon in the top right of your Chrome address bar. Click this button to access settings.
+    </div>
+    
+      
+    
+    <div id=info>
+    <h2>Technical</h2>
+    
+    Image data is converted into base-64 which is then encrypted using AES block cipher, as implemented by <a href="http://crypto.stanford.edu/sjcl/" target=_new>SJCL</a>. The resulting encrypted base-64 data is written to a JPEG with a scheme that uses 2x2 pixel blocks to represent a base-8 number. Base-8 values are represented as shades in the luminance (Y) channel of the YCbCr colorspace. Cryptogram images can withstand JPEG compression down to approximately 70% quality before the decoder starts to fail. As JPEG quality decreases, eventually some base-8 values will become corrupted making decryption impossible.
+    
+    
+    <p>The code is open source and available on <a href="https://github.com/prglab/cryptogram" target=_new>GitHub</a>
+
+    </div>
+
+    
+    
+     
+    
     <p>
     </p>
   </div>
