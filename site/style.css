@@ -9,21 +9,21 @@ body {
   position: relative;
   left: 50%;
   margin-left: -300px;
-  margin-top: 50px;
+  margin-top: 20px;
   border: 1px solid gray;
   width: 500px;
-  padding: 50px;
+  padding: 20px;
   text-align: center;
   vertical-align: middle;
   background: white;
-  -moz-box-shadow: 5px 5px 5px #888;
-  -webkit-box-shadow: 5px 5px 5px #888;
-  box-shadow: 5px 5px 5px #888;
+  -moz-box-shadow: 3px 3px 5px #88A;
+  -webkit-box-shadow: 3px 3px 5px #88A;
+  box-shadow: 3px 3px 5px #88A;
 }
 
 
 #main .pixels {
-  border: 1px solid gray;
+  border: 1px solid black;
 }
 
 #main img {
@@ -36,6 +36,11 @@ body {
   margin-right: 30px;
 }
 
+#install {
+  text-align: center;
+  position: relative;
+}
+
 #install .small {
   color: gray;
   font-size: 10px;
@@ -45,19 +50,44 @@ body {
 }
 
 #install a {
-  color: #333377;
-  text-decoration: none;
-  border-bottom: 1px dotted #333333;
+  color: #8888CC;
+  font-size: 12px;
 }
 
-h1 {
+#install a:hover {
+    color: #333377;
+    border: 1px solid #8888CC;
+}
+
+
+#install a {
+  width: 150px;
+  height: 200px;
+  border: 1px solid #EEEEEE;
+}
+
+
+#left {
+  display: block;
+  margin-left: 40px;
+}
+
+#right {
+  display: block;
+  position: absolute;
+  right: 40px;
+  top: 0px;
+}
+
+
+ h1 {
   font-weight: normal;
-  font-size: 32px;
-  margin-bottom: 50px;
-  margin-top: 20px;
+  font-size: 26px;
+  margin-bottom: 0px;
+  margin-top: 0px;
 }
 
-h1 img {
+ h1 img {
   position: relative;
   top: 5px;
   margin-left: 0px;
@@ -65,11 +95,41 @@ h1 img {
   opacity: .5;
 }
 
+#install h1 {
+
+  margin: none;
+  borer: 1px solid red;
+}
+
 h2 {
   font-weight: normal;
 }
 
 p {
-  margin-top: 50px;
+  margin-top: 20px;
   text-align: left;
+  font-size: 12px;
+  
+}
+
+p.centered {
+  text-align: center;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  border-bottom: 1px solid #EEEEEE;
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+
+
+#info {
+
+  text-align: left;
+
+  font-size: 12px;
+  padding-left: 40px;
+  padding-right: 40px;
 }
