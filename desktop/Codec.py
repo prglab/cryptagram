@@ -116,7 +116,7 @@ class Codec(threading.Thread):
       x_coord = int(i - (y_coord * _header_num_symbols_wide))
       base_x = x_coord * 4. # Shape width.
       base_y = y_coord * 2.
-      logging.info('Header %s at (%d, %d).' % (header_char, base_x, base_y))
+
       pixel[base_x + 0, base_y + 0] = fill_0
       pixel[base_x + 1, base_y + 0] = fill_0
       pixel[base_x + 1, base_y + 1] = fill_0
