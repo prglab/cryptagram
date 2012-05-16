@@ -37,7 +37,8 @@ body {
 }
 
 #install {
-  text-align: center;
+  text-align: left;
+  margin-left: 20px;
   position: relative;
 }
 
@@ -49,22 +50,71 @@ body {
   margin-top: 5px;
 }
 
-#install a {
-  color: #8888CC;
-  font-size: 12px;
-}
-
-#install a:hover {
-    color: #333377;
-    border: 1px solid #8888CC;
-}
 
 
-#install a {
-  width: 150px;
-  height: 200px;
-  border: 1px solid #EEEEEE;
+#add {
+
+  -webkit-box-shadow: rgba(255, 255, 255, 0.0585938) 0px 2px 0px 0px inset, rgba(0, 0, 0, 0.199219) 0px 2px 3px 0px;
+  -webkit-user-select: none;
+  background-attachment: scroll;
+  background-clip: border-box;
+  background-color: transparent;
+  background-image: -webkit-linear-gradient(top, #5689DB 0%, #4D7BD6 100%);
+  background-origin: padding-box;
+  border-bottom-color: #2D53AF;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-left-color: #2D53AF;
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-right-color: #2D53AF;
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-top-color: #2D53AF;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  box-shadow: rgba(255, 255, 255, 0.0585938) 0px 2px 0px 0px inset, rgba(0, 0, 0, 0.199219) 0px 2px 3px 0px;
+  color: white;
+  cursor: pointer;
+  display: inline-block;
+  font-family: 'Open Sans', arial, sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  height: 28px;
+  line-height: 28px;
+  margin-bottom: 0px;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 0px;
+  min-width: 170px;
+  outline-color: white;
+  outline-style: none;
+  outline-width: 0px;
+  overflow-x: visible;
+  overflow-y: visible;
+  padding-bottom: 0px;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 0px;
+  text-align: center;
+  text-shadow: rgba(0, 0, 0, 0.0976563) 0px 1px 1px;
+  text-transform: uppercase;
+  width: 170px;
+  text-decoration: none;
+
 }
+
+#add:hover {
+  background-image: -webkit-linear-gradient(top, #7498FF 0%, #6281FE 100%);
+}
+
+#add font {
+}
+
 
 
 #left {
@@ -132,4 +182,5 @@ hr {
   font-size: 12px;
   padding-left: 40px;
   padding-right: 40px;
+  margin-bottom: 50px;
 }
