@@ -13,8 +13,11 @@
           maxHeight: 480,
 					buttons: {
 						"Ok": function() {
-              var values = $("#output_dir").jstree("get_selected");
-              console.log("Selected values: " + values);
+              var checked_ids = [];
+              var values = $("#input_dir").jstree("get_checked", null, true).each
+                (function() {
+                   checked_ids.push(this);});
+                console.log("Checked values: " + checked_ids);
 
 							$(this).dialog("close");
 						},
@@ -164,9 +167,7 @@
 			</form>
 		</div>
 
-    <div class="stage" id="stage">
-      Hello world.
-    </div>
+    <div class="stage" id="stage"></div>
 	</div>
 </center>
 {% end %}
