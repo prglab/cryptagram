@@ -52,8 +52,9 @@ def main(argv):
                       help='Encrypted image output filename.')
   parser.add_argument('-d', '--decrypt', type=str, default=None,
                       help='Decrypted image output filename.')
+  parser.add_argument('-m', '--max_output_dimension', type=int, default=2048,
+                      help='Maximum image dimension (applies to height and width).')
   FLAGS = parser.parse_args()
-
 
   symbol_shape = _AVAILABLE_SHAPES[FLAGS.symbol_shape]
   quality = FLAGS.quality
@@ -85,7 +86,7 @@ def main(argv):
       image_buffer = reoriented_image_buffer
 
     crypto = Encrypt(image_buffer, codec, cipher)
-    encrypted_data = crypto.upload_encrypt()
+    encrypted_data = crypto.upload_encrypt(FLAGS.max_output_dimension)
     logging.info('Encrypted data length: %d.' % len(encrypted_data))
 
     # TODO(tierney): Set somewhere more appropriately.
