@@ -44,8 +44,6 @@ THE SOFTWARE.
 
 /* Bar which is placed behind the progress */
 .ui-progress-bar {
-  /* Allows progress bar to grow from left to right. */
-  margin-right: auto;
   /* Usual setup stuff */
   position: relative;
   height: 10px;
@@ -99,6 +97,9 @@ THE SOFTWARE.
   transition: background-color 0.5s ease-in, border-color 1.5s ease-out, box-shadow 1.5s ease-out;
 }
 .ui-progress-bar .ui-progress {
+  /* Allows progress bar to grow from left to right. */
+  margin-right: auto;
+
   /* Usual setup stuff */
   position: relative;
   display: block;
