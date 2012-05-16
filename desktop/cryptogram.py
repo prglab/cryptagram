@@ -63,13 +63,6 @@ def main(argv):
   if FLAGS.image and FLAGS.encrypt:
     logging.info('Image to encrypt: %s.' % FLAGS.image)
 
-    # Update codec based on wh_ratio from given image.
-    _image = Image.open(FLAGS.image)
-    _width, _height = _image.size
-    wh_ratio = _width / float(_height)
-    codec = Codec(symbol_shape, wh_ratio, Base64MessageSymbolCoder(),
-                  Base64SymbolSignalCoder())
-
     # Determine file size.
     image_buffer = cStringIO.StringIO()
     with open(FLAGS.image, 'rb') as fh:
@@ -84,6 +77,16 @@ def main(argv):
       logging.info('Reoriented the image so reassigning the image_buffer.')
       del image_buffer
       image_buffer = reoriented_image_buffer
+
+    # Update codec based on wh_ratio from given image.
+    image_buffer.seek(0)
+    _image = Image.open(image_buffer)
+    _width, _height = _image.size
+    logging.info('Width: %d. Height: %d.' % (_width, _height))
+    wh_ratio = _width / float(_height)
+    logging.info('Original image wh_ratio: %.2f.' % wh_ratio)
+    codec = Codec(symbol_shape, wh_ratio, Base64MessageSymbolCoder(),
+                  Base64SymbolSignalCoder())
 
     crypto = Encrypt(image_buffer, codec, cipher)
     encrypted_data = crypto.upload_encrypt(FLAGS.max_output_dimension)

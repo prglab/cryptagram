@@ -120,13 +120,17 @@ class Encrypt(object):
 
       # Rejection criteria for this round. Dimensions greater than limits or
       # our aspect ratio is too far off.
-      if (width <= dimension_limit) and (height <= dimension_limit) and \
-          (abs((_w / float(_h)) - (width / float(height))) < .1):
-        encrypted_data = self._raw_image_data_to_encrypted_data(
-          _image_buffer.getvalue())
-        break
+      if (width <= dimension_limit) and (height <= dimension_limit):
+        ar_difference = abs((_w / float(_h)) - (width / float(height)))
+        if (ar_difference < .15):
+          encrypted_data = self._raw_image_data_to_encrypted_data(
+            _image_buffer.getvalue())
+          break
+        else:
+          logging.warning('Dimension limits okay. But AR off %.2f.' %
+                          ar_difference)
 
-      logging.info('Dimensions too large (w: %d, h: %d).' % (width, height))
+      logging.info('Dimensions/AR off (w: %d, h: %d).' % (width, height))
 
       # Strategies to reduce raw bytes that we need to encrypt: requality,
       # rescale.
