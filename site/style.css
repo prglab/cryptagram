@@ -9,21 +9,21 @@ body {
   position: relative;
   left: 50%;
   margin-left: -300px;
-  margin-top: 50px;
+  margin-top: 20px;
   border: 1px solid gray;
   width: 500px;
   padding: 50px;
   text-align: center;
   vertical-align: middle;
   background: white;
-  -moz-box-shadow: 5px 5px 5px #888;
-  -webkit-box-shadow: 5px 5px 5px #888;
-  box-shadow: 5px 5px 5px #888;
+  -moz-box-shadow: 3px 3px 5px #88A;
+  -webkit-box-shadow: 3px 3px 5px #88A;
+  box-shadow: 3px 3px 5px #88A;
 }
 
 
 #main .pixels {
-  border: 1px solid gray;
+  border: 1px solid black;
 }
 
 #main img {
@@ -36,6 +36,11 @@ body {
   margin-right: 30px;
 }
 
+#install {
+  text-align: center;
+  position: relative;
+}
+
 #install .small {
   color: gray;
   font-size: 10px;
@@ -46,18 +51,39 @@ body {
 
 #install a {
   color: #333377;
-  text-decoration: none;
-  border-bottom: 1px dotted #333333;
+  font-size: 12px;
+  
 }
 
-h1 {
+#install img {
+
+}
+
+
+
+#left {
+  width: 200px;
+  display: block;
+  margin-left: 20px;
+}
+
+#right {
+  width: 200px;
+  display: block;
+  position: absolute;
+  right: 20px;
+  top: 0px;
+}
+
+
+ h1 {
   font-weight: normal;
-  font-size: 32px;
-  margin-bottom: 50px;
-  margin-top: 20px;
+  font-size: 24px;
+  margin-bottom: 20px;
+  margin-top: 0px;
 }
 
-h1 img {
+ h1 img {
   position: relative;
   top: 5px;
   margin-left: 0px;
@@ -65,11 +91,21 @@ h1 img {
   opacity: .5;
 }
 
+#install h1 {
+
+  margin: none;
+  borer: 1px solid red;
+}
+
 h2 {
   font-weight: normal;
 }
 
 p {
-  margin-top: 50px;
+  margin-top: 20px;
   text-align: left;
+}
+
+p.centered {
+  text-align: center;
 }
