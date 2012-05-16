@@ -24,7 +24,7 @@
     <script type="text/javascript" src="{{ static_url("jquery.jstree.js") }}"></script>
     <script>
     $(document).ready(function() {
-      $("#input_dir").bind("select_node.jstree", function(e, data) {
+      $("#input_dir").bind("get_selected.jstree", function(e, data) {
         jQuery("#input_dir_path").val(data.rslt.obj.attr("path"));
       }).jstree({
         "core" : {},
