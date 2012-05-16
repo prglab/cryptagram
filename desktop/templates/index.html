@@ -13,6 +13,9 @@
           maxHeight: 480,
 					buttons: {
 						"Ok": function() {
+              var values = $("#output_dir").jstree("get_selected");
+              console.log("Selected values: " + values);
+
 							$(this).dialog("close");
 						},
 						"Cancel": function() {
@@ -76,8 +79,7 @@
            <input class="required" id="input_dir_path" name="input_dir_path" value="${USER_BOX}" type="text"></input>
          </td>
          <td>
-           <a href="#" id="input_dir_dialog_link" class="ui-state-default ui-corner-all">
-             <!-- <span class="ui-icon ui-icon-newwin"></span> -->Choose inputs.</a>
+           <a href="#" id="input_dir_dialog_link" class="ui-state-default ui-corner-all">Choose inputs.</a>
          </td>
        </tr>
       </table>
@@ -90,12 +92,10 @@
            <input class="required" id="output_dir_path" name="output_dir_path" value="${USER_BOX}" type="text"></input>
          </td>
          <td>
-           <a href="#" id="output_dir_dialog_link" class="ui-state-default ui-corner-all">
-             <!-- <span class="ui-icon ui-icon-newwin"></span> -->Choose output directory.</a>
+           <a href="#" id="output_dir_dialog_link" class="ui-state-default ui-corner-all">Choose output directory.</a>
          </td>
        </tr>
       </table>
-
 
 		<!-- ui-dialog -->
 		<div id="input_dir_dialog" title="Inputs">

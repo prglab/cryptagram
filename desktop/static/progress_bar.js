@@ -142,7 +142,7 @@ function postStatus(first_time) {
         var left_child = document.createElement("div");
         left_child.style.width = "200px";
         left_child.style.float = "left";
-        left_child.innerHTML = path;
+        left_child.innerHTML = paths_progress[path]['path'];
 				var child = document.createElement("div");
         child.style.marginLeft = "200px";
 				child.id = path + '_progress_bar';
@@ -150,7 +150,6 @@ function postStatus(first_time) {
 				child_progress.id = path + '_progress';
 				var child_progress_span = document.createElement("span");
 				child_progress_span.id = path + '_progress_span';
-				child_progress_span.innerHTML = paths_progress[path]['path'];
 
 				child_progress.appendChild(child_progress_span);
 				child.appendChild(child_progress);
