@@ -9,12 +9,56 @@
     <!-- Import fancy-type plugin. -->
     <link rel="stylesheet" href="{{ static_url("blueprint/plugins/fancy-type/screen.css") }}" type="text/css" media="screen, projection" />
 		<link type="text/css" href="{{ static_url("application.css") }}" rel="stylesheet" />
+		<link type="text/css" href="{{ static_url("treestyle.css") }}" rel="stylesheet" />
 
 		<script type="text/javascript" src="{{ static_url("jquery-1.7.2.min.js") }}"></script>
 		<script type="text/javascript" src="{{ static_url("jquery.validate.min.js") }}"></script>
 		<script type="text/javascript" src="{{ static_url("js/jquery-ui-1.8.19.custom.min.js") }}"></script>
 		<script type="text/javascript" src="{{ static_url("progress_bar.js") }}"></script>
     <script type="text/javascript" src="{{ static_url("close-window.js") }}"></script>
+
+    <!-- For the directory tree. -->
+    <script type="text/javascript" src="{{ static_url("jquery.validate.js") }}"></script>
+    <script type="text/javascript" src="{{ static_url("jquery.cookie.js") }}"></script>
+    <script type="text/javascript" src="{{ static_url("jquery.hotkeys.js") }}"></script>
+    <script type="text/javascript" src="{{ static_url("jquery.jstree.js") }}"></script>
+    <script>
+    $(document).ready(function() {
+      $("#input_dir").bind("select_node.jstree", function(e, data) {
+        jQuery("#input_dir_path").val(data.rslt.obj.attr("path"));
+      }).jstree({
+        "core" : {},
+        "plugins" : [ "themes", "json_data", "checkbox", "sort", "ui"],
+        "json_data" : {
+          "ajax" : {
+            "url" : "/tree_json",
+            "data" : function(n) {
+              return {
+                path : n.attr ? n.attr("path") : "~"
+              };
+            }
+          }
+        }
+      });
+      $("#output_dir").bind("select_node.jstree", function(e, data) {
+        jQuery("#output_dir_path").val(data.rslt.obj.attr("path"));
+      }).jstree({
+        "core" : {},
+        "plugins" : [ "themes", "json_data", "sort", "ui"],
+        "json_data" : {
+          "ajax" : {
+            "url" : "/tree_json",
+            "data" : function(n) {
+              return {
+                path : n.attr ? n.attr("path") : "~"
+              };
+            }
+          }
+        }
+      })
+    });
+    </script>
+
 	</head>
 	<body >
 		{% block body %}

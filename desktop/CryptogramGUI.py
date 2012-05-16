@@ -18,6 +18,7 @@ import argparse
 import cStringIO
 import gc
 import logging
+from os.path import expanduser, isdir, join
 import os
 import platform
 import shlex
@@ -34,6 +35,7 @@ import tornado.web
 import urllib
 import urllib2
 import webbrowser
+import json
 
 _PLATFORM = platform.system()
 
@@ -62,6 +64,7 @@ class Application(tornado.web.Application):
       (r"/password", PasswordHandler),
       (r"/exit", ExitHandler),
       (r"/photo_selection", PhotoSelectionHandler),
+      (r"/tree_json", TreeJsonHandler),
     ]
 
     settings = dict(
@@ -74,6 +77,37 @@ class Application(tornado.web.Application):
 class MainHandler(tornado.web.RequestHandler):
   def get(self):
     self.render("index.html")
+
+  def post(self):
+    global _CODECS
+    password = self.get_argument('password')
+    password_again = self.get_argument('password_again')
+    logging.info('AJAX posted passwords.')
+    if password != password_again:
+      logging.warning('Passwords do not match.')
+      self.render('index.html')
+      return
+
+    [codec.set_password(password) for codec in _CODECS]
+
+
+class TreeJsonHandler(tornado.web.RequestHandler):
+  def get(self):
+    path = self.get_argument('path')
+    d = expanduser(path)
+    children = []
+    for f in sorted(os.listdir(d)):
+      # Include directories but not '.' directories.
+      if isdir(join(d, f)) and not f.startswith('.'):
+        children.append(dict(data = f, attr = {"path" : join(d, f)},
+                             state = "closed", children = []))
+    if d != '~':
+      out = children
+    else:
+      out = [dict(data = split(d)[1], attr = {"path" : d}, state = 'open',
+                  children = children)]
+
+    self.write(json.dumps(out, indent = 2))
 
 
 class StatusHandler(tornado.web.RequestHandler):
@@ -105,16 +139,15 @@ class PhotoSelectionHandler(tornado.web.RequestHandler):
 class PasswordHandler(tornado.web.RequestHandler):
   def post(self):
     global _CODECS
-
     password = self.get_argument('password')
     password_again = self.get_argument('password_again')
     if password != password_again:
       logging.warning('Passwords do not match.')
-      self.render('index.html')
+      # self.render('index.html')
+      self.write('')
 
     [codec.set_password(password) for codec in _CODECS]
-    self.render("encrypting.html")
-
+    self.write('')
 
 class ExitHandler(tornado.web.RequestHandler):
   def get(self):
@@ -148,13 +181,16 @@ class GuiCodec(threading.Thread):
 
   def _encrypt(self, image_path):
     global _PROGRESS
-
     image_buffer = cStringIO.StringIO()
 
-    with open(image_path, 'rb') as fh:
-      image_buffer.write(fh.read())
-      length = fh.tell()
-    logging.info('%s has size %d.' % (image_path, length))
+    try:
+      with open(image_path, 'rb') as fh:
+        image_buffer.write(fh.read())
+        length = fh.tell()
+      logging.info('%s has size %d.' % (image_path, length))
+    except IOError, e:
+      logging.error(str(e))
+      return -1
 
     # Reorient the image, if necessary as determined by auto_orient.
     reoriented_image_buffer = cStringIO.StringIO()
