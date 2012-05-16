@@ -44,6 +44,8 @@ THE SOFTWARE.
 
 /* Bar which is placed behind the progress */
 .ui-progress-bar {
+  /* Allows progress bar to grow from left to right. */
+  margin-right: auto;
   /* Usual setup stuff */
   position: relative;
   height: 10px;
