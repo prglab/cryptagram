@@ -12,7 +12,9 @@ cryptogram.decryptByURL = function(URL, password) {
 
   cryptogram.loader.getImageData( cryptogram.context.fullURL, 
     function(data) {
-      cryptogram.decoder.decodeDataToContainer(data, password, _context.getContainer());
+    
+      var containers = _context.getContainers();
+      cryptogram.decoder.decodeDataToContainer(data, password, containers[0]);
     });
 
 };
@@ -21,10 +23,10 @@ cryptogram.decryptByURL = function(URL, password) {
 cryptogram.revertByURL = function(URL) {
   
   cryptogram.log("Reverting URL: ", URL);
-    
   cryptogram.context.removeStatusDiv();
   cryptogram.context.init();
-  cryptogram.context.container.src = cryptogram.context.container.previousSrc;
+  cryptogram.context.setSrc(cryptogram.context.container.previousSrc);
+  
 };
 
       
@@ -40,7 +42,6 @@ cryptogram.init = function() {
 cryptogram.handleRequest = function(request, sender, callback) {
       
         if (request.sendDebugReport == "1") {
-          //alert(cryptogram.log.report);
           cryptogram.log.sendDebugReport();   
           return;
         }  
@@ -94,11 +95,15 @@ cryptogram.context = {
   init: function(imageURL) {
     URL = document.URL;
     
-    if (URL.contains("facebook.com/")) {
+    if (URL.contains("www.facebook.com/")) {
+      this.domain = "www.facebook.com";
       this._media = cryptogram.context.facebook;
     } else if (URL.contains("plus.google.com/")) {
+      this.domain = "plus.google.com"
       this._media = cryptogram.context.googleplus;
     } else {
+      URLParts = URL.split("/");
+      this.domain = URLParts[2];
       this._media = cryptogram.context.web;
     }
     
@@ -177,6 +182,18 @@ cryptogram.context = {
     return null;
   },
 
+  getContainers: function() {
+    var elements = document.getElementsByTagName('img');  
+    var ret = new Array();
+    for (i = 0; i < elements.length; i++) {
+      if (elements[i].src == this.URL) {
+        ret.push(elements[i]);
+      }
+    }
+    this.containers = ret;
+    return ret;
+  },
+
   getPhotoName: function(URL) {
     this.init();
     return this._media.getPhotoName(URL);
@@ -202,6 +219,12 @@ cryptogram.context = {
         this.container.style.height = "720px";
       } else {
         this.container.style.width = "720px";
+      }
+    }
+    
+    if (this.containers && this.containers.length > 1) {
+      for (i = 1; i < this.containers.length; i++) {
+        this.containers[i].src = src;
       }
     }
   
@@ -472,6 +495,8 @@ cryptogram.storage.autoDecrypt = function() {
 
 cryptogram.decoder = {};
 cryptogram.decoder.URIHeader = "data:image/jpeg;base64,";
+
+
 cryptogram.decoder.decodeDataToContainer = function(data, password, container) {
 
   this.base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -557,7 +582,6 @@ cryptogram.decoder.processImage = function() {
         
         // Skip over header super-block
         if (y < this.headerSize && x < this.headerSize) {
-          console.log("Skipping header block");
           continue;
         }
         

@@ -1,5 +1,5 @@
   {
-  "name" : "Cryptogram Decoder",
+  "name" : "Cryptogram",
   "version" : "0.1",
   "description" : "Decode and decrypt Cryptogram images",
   "permissions" : [
