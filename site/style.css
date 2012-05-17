@@ -1,7 +1,9 @@
 body {
-  background: url('bg.png');
+  background: url('bar.gif');
   font: 14px arial;
+  letter-spacing: 1px;
   margin-bottom: 100px;
+  font-family: "HelveticaNeue-Light", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
 
 
@@ -11,24 +13,37 @@ body {
   margin-left: -300px;
   margin-top: 20px;
   border: 1px solid gray;
-  width: 500px;
+  width: 700px;
   padding: 20px;
   text-align: center;
   vertical-align: middle;
   background: white;
-  -moz-box-shadow: 3px 3px 5px #88A;
-  -webkit-box-shadow: 3px 3px 5px #88A;
-  box-shadow: 3px 3px 5px #88A;
-}
+  }
 
+
+#main {
+  position: relative;
+  left: 50%;
+  margin-left: -300px;
+  margin-top: 50px;
+  border: none;
+  width: 700px;
+  padding: 20px;
+  text-align: center;
+  vertical-align: middle;
+  background: white;
+ 
+  -moz-border-radius: 25px;
+  -webkit-border-radius: 25px;
+
+
+
+}
 
 #main .pixels {
   border: 1px solid black;
 }
 
-#main img {
-  max-height: 100px;
-}
 
 #main .arrow {
   vertical-align: top;
@@ -36,9 +51,23 @@ body {
   margin-right: 30px;
 }
 
+#title {
+  text-align: center;
+  font-size: 15px;
+}
+
+.title {
+  text-transform: uppercase;
+  font-size: 24px;
+  letter-spacing: 6px;
+
+}
+
+
+
 #install {
   text-align: left;
-  margin-left: 20px;
+  margin-left: 120px;
   position: relative;
 }
 
@@ -52,7 +81,7 @@ body {
 
 
 
-#add {
+.add {
 
   -webkit-box-shadow: rgba(255, 255, 255, 0.0585938) 0px 2px 0px 0px inset, rgba(0, 0, 0, 0.199219) 0px 2px 3px 0px;
   -webkit-user-select: none;
@@ -101,14 +130,25 @@ body {
   padding-right: 4px;
   padding-top: 0px;
   text-align: center;
-  text-shadow: rgba(0, 0, 0, 0.0976563) 0px 1px 1px;
+  text-shadow: rgba(0, 0, 0, .5) 0px 1px 1px;
   text-transform: uppercase;
   width: 170px;
   text-decoration: none;
 
 }
 
-#add:hover {
+
+#download {
+  background-image: -webkit-linear-gradient(top, #33DB22 0%, #4DD67B 100%);
+  border-color: #2DAF53;
+
+}
+
+#download:hover {
+  background-image: -webkit-linear-gradient(top, #53DB52 0%, #6DD69B 100%);
+}
+
+.add:hover {
   background-image: -webkit-linear-gradient(top, #7498FF 0%, #6281FE 100%);
 }
 
@@ -162,8 +202,18 @@ p {
   
 }
 
-p.centered {
+.centered {
   text-align: center;
+  display: block;
+  width: 380px;
+  margin-left: 160px;
+}
+
+
+
+.centered img {
+  max-height: 100px;
+  float: left;
 }
 
 hr {
@@ -183,4 +233,14 @@ hr {
   padding-left: 40px;
   padding-right: 40px;
   margin-bottom: 50px;
+}
+
+.frame { 
+  position: relative;
+  display: table-cell;
+}
+
+.frame img {
+ width: 100px;
+ height: 100px;
 }
