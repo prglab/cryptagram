@@ -1,0 +1,121 @@
+<!DOCTYPE html> 
+<html>
+
+
+<head>
+<title>Canvas Experiments</title>
+
+</head>
+
+<body style="padding: 5em;">
+
+
+
+<canvas width="600" height="525" id="cancan" 
+  style="padding:1em; border: 1px solid black;">
+</canvas>
+<br />
+<br /> 
+<input type="file" id="file_selector" name="file_selector"  />
+<output id="file_info"></output>
+
+<script>
+  symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14]; 
+  function encode_symbol(s) { return symbol_thresholds[s] } 
+  
+  base64_values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+  
+   
+  function resize( imagewidth, imageheight, thumbwidth, thumbheight ) {
+    var w = 0, h = 0, x = 0, y = 0,
+        widthratio  = imagewidth / thumbwidth,
+        heightratio = imageheight / thumbheight,
+        maxratio    = Math.max( widthratio, heightratio );
+
+    if ( maxratio > 1 ) {
+        w = imagewidth / maxratio;
+        h = imageheight / maxratio;
+    } else {
+        w = imagewidth;
+        h = imageheight;
+    }
+    x = ( thumbwidth - w ) / 2;
+    y = ( thumbheight - h ) / 2;
+    return { w:w, h:h, x:x, y:y };
+  }
+  
+  /* for now this does not one thing! */ 
+  function encrypt (data) { 
+    return data; 
+  } 
+
+  function encode(data) { 
+    /* grow an array of grayscale values and then convert them 
+       to an RGB Image afterward (so we don't have to precompute size
+       or worry about the header yet 
+    */ 
+    var values = new Array(); 
+    nchars = data.length; 
+    for (i = 0; i < nchars; i++) { 
+      ch = data[i]; 
+      
+      values.push(ch); 
+    } 
+    alert(lums.toString()); 
+    var img = new Image(); 
+    img.src = data;
+    return img; 
+
+  }
+  /* draw image onto canvas and optionally resize it into a thumbnail */ 
+  function image_to_canvas( img, thumb_width, thumb_height) {
+    var c = document.getElementById('cancan'); 
+    var cx = c.getContext('2d');
+    if (thumb_width && thumb_height) { 
+      c.width = thumb_width; 
+      c.height = thumb_height; 
+      var dimensions = resize( img.width, img.height, thumb_width, thumb_height );
+      cx.drawImage( 
+        img, dimensions.x, dimensions.y, dimensions.w, dimensions.h
+      );
+    }
+    else { 
+      c.width = img.width; 
+      c.height = img.height; 
+      cx.drawImage(img, 0, 0); 
+    } 
+   
+  };
+  function show_error(msg, url, linenumber) {
+     alert('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber)
+     return true;
+  }
+
+  /* when the user selects a file, draw it on the canvas as an image */ 
+  function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+
+    // files is a FileList of File objects. List some properties.
+    var output = [];
+    f = files[0]; 
+    var name = escape(f.name); 
+    var type = f.type || 'n/a'; 
+    var output = ['<li><strong>', name, '</strong> (', type, ') - ', f.size, ' bytes</li>'];
+    var reader = new FileReader();
+    reader.onload = function ( loadEvent ) { 
+       originalData = loadEvent.target.result; 
+       encryptedData = encrypt(originalData); 
+       encodedImage = encode(encryptedData); 
+       image_to_canvas(encodedImage);      
+    };
+    reader.onerror = show_error; 
+    reader.readAsDataURL(f); 
+    var info = document.getElementById('file_info');
+    info.innerHTML = '<ul>' + output.join('') + '</ul>';
+  }
+  document.getElementById('file_selector').addEventListener('change', handleFileSelect, false);
+</script>
+
+</body>
+
+</html>
