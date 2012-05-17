@@ -6,19 +6,9 @@ body {
   font-family: "HelveticaNeue-Light", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
 
-
-#main {
-  position: relative;
-  left: 50%;
-  margin-left: -300px;
-  margin-top: 20px;
-  border: 1px solid gray;
-  width: 700px;
-  padding: 20px;
-  text-align: center;
-  vertical-align: middle;
-  background: white;
-  }
+a {
+  color: #81609F;
+}
 
 
 #main {
@@ -29,15 +19,12 @@ body {
   border: none;
   width: 700px;
   padding: 20px;
+  padding-bottom: 10px;
   text-align: center;
   vertical-align: middle;
   background: white;
- 
   -moz-border-radius: 25px;
   -webkit-border-radius: 25px;
-
-
-
 }
 
 #main .pixels {
@@ -53,16 +40,27 @@ body {
 
 #title {
   text-align: center;
-  font-size: 15px;
+  font-size: 18px;
+}
+
+#title img {
+  position: absolute;
+  top: 25px;
+  opacity: .25;
+  -webkit-filter: grayscale(100%);
+}
+
+#title img:hover {
+  -webkit-filter: grayscale(0%);
+    opacity: .5;
+
 }
 
 .title {
   text-transform: uppercase;
-  font-size: 24px;
-  letter-spacing: 6px;
-
+  font-size: 28px;
+  letter-spacing: 7px;
 }
-
 
 
 #install {
@@ -145,29 +143,14 @@ body {
 }
 
 #download:hover {
-  background-image: -webkit-linear-gradient(top, #53DB52 0%, #6DD69B 100%);
+  background-image: -webkit-linear-gradient(top, #8DE6AB 0%, #53DB52 100%);
 }
 
 .add:hover {
   background-image: -webkit-linear-gradient(top, #7498FF 0%, #6281FE 100%);
 }
 
-#add font {
-}
 
-
-
-#left {
-  display: block;
-  margin-left: 40px;
-}
-
-#right {
-  display: block;
-  position: absolute;
-  right: 40px;
-  top: 0px;
-}
 
 
  h1 {
@@ -205,8 +188,10 @@ p {
 .centered {
   text-align: center;
   display: block;
-  width: 380px;
-  margin-left: 160px;
+  width: 460px;
+  position: relative;
+  left: 50%;
+  margin-left: -230px;
 }
 
 
@@ -214,6 +199,8 @@ p {
 .centered img {
   max-height: 100px;
   float: left;
+  margin-right: 20px;
+  margin-left: 20px;
 }
 
 hr {
@@ -238,6 +225,7 @@ hr {
 .frame { 
   position: relative;
   display: table-cell;
+  float: left;
 }
 
 .frame img {
