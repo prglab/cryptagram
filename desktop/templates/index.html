@@ -69,37 +69,6 @@
 
 			});
 		</script>
-<center>
-	<div id="container">
-		<div class="stage">
-	    <h1>Cryptogram Encoder</h1>
-
-      <!-- Choose output location. -->
-      <table>
-       <tr>
-         <td>Output Directory</td>
-         <td>
-           <input class="required" id="output_dir_path" name="output_dir_path"
-           value="~/Desktop/Cryptogram" size="50" type="text"></input>
-         </td>
-         <td>
-           <a href="#" id="output_dir_dialog_link" class="ui-state-default ui-corner-all">Choose output directory.</a>
-         </td>
-       </tr>
-      </table>
-
-		<!-- ui-dialog -->
-		<div id="input_dir_dialog" title="Inputs">
-      <td colspan="2">
-        <div id="input_dir"></div>
-      </td>
-		</div>
-
-		<div id="output_dir_dialog" title="Output Directory">
-      <td colspan="2">
-        <div id="output_dir"></div>
-      </td>
-		</div>
 
     <script type="text/javascript">
       $(function() {
@@ -133,14 +102,47 @@
       });
     </script>
 
+
+<center>
+	<div id="container">
+		<div class="stage">
+	    <h1>Cryptogram Encoder</h1>
+      <br />
+
+      <!-- Choose output location. -->
+      <table>
+       <tr><td>Output Directory</td></tr>
+       <tr>
+         <td><input class="required" id="output_dir_path"
+       name="output_dir_path"value="~/Desktop/Cryptogram" size="50"
+       type="text"></input></td>
+         <td><a href="#" id="output_dir_dialog_link" class="ui-state-default
+         ui-corner-all">Choose output directory.</a></td>
+       </tr>
+      </table>
+
+		<!-- ui-dialog -->
+		<div id="input_dir_dialog" title="Inputs">
+      <td colspan="2">
+        <div id="input_dir"></div>
+      </td>
+		</div>
+
+		<div id="output_dir_dialog" title="Output Directory">
+      <td colspan="2">
+        <div id="output_dir"></div>
+      </td>
+		</div>
+
       <!-- Enter the password to use during encryption. -->
       <div id="password_form">
-        <form name="password" action="">
+        <form name="password" action="" width="100%">
           <fieldset>
-            <label>Password</label>
-            <input type="password" name="password" id="password" />
-            <label class="error" for="password" id="password_error">This field
-            is required.</label>
+            <label><strong>Password</strong>
+              <input type="password" name="password" id="password" />
+              <label class="error" for="password" id="password_error">This field
+                is required.</label>
+            </label>
 
             <label>Verify Password</label>
             <input type="password" name="password_again" id="password_again" />
