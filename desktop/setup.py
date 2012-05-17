@@ -42,7 +42,7 @@ OPTIONS = {'argv_emulation': True,
              {'CFBundleName': 'Cryptogram',
               'CFBundleIconFile':'icon.icns'
               },
-           'includes':['web','PyV8',
+           'includes':['PyV8',
                        'tornado.auth',
                        'tornado.escape',
                        'tornado.httpserver',
