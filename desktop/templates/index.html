@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block body %}
-<script type="text/javascript" src="{{ static_url("validate-password.js") }}"></script>
+
+		
+		<script type="text/javascript" src="{{ static_url("validate-password.js") }}"></script>
 
 		<script type="text/javascript">
 			$(function(){
@@ -62,7 +64,7 @@
 				});
 
 				//hover states on the static widgets
-				$('#output_dir_dialog_link, ul#icons li').hover(
+				$('#output_dir_dialog_link, ul#icons li, #start_encryption').hover(
 					function() { $(this).addClass('ui-state-hover'); },
 					function() { $(this).removeClass('ui-state-hover'); }
 				);
@@ -103,24 +105,54 @@
     </script>
 
 
-<center>
+
 	<div id="container">
 		<div class="stage">
-	    <h1>Cryptogram Encoder</h1>
-      <br />
+		
+		  <center>
+		       
+			<form name="quitform" action="exit" method="get">
+				<input type="submit" value="X"  style="float: right">
+			</form>
+		
+	   <h1>Cryptogram Encoder</h1>
+     <br />
 
       <!-- Choose output location. -->
-      <table>
-       <tr><td>Output Directory</td></tr>
-       <tr>
-         <td><input class="required" id="output_dir_path"
-       name="output_dir_path"value="~/Desktop/Cryptogram" size="50"
+      
+       <table style="font-size: 14px">
+       <tr><td colspan=3>Output Directory</td></tr>
+       <tr><td colspan=2><input class="required" id="output_dir_path"
+       name="output_dir_path"value="~/Desktop/Cryptogram" size="56"
        type="text"></input></td>
-         <td><a href="#" id="output_dir_dialog_link" class="ui-state-default
-         ui-corner-all">Choose output directory.</a></td>
+       <td width=220><a href="#" id="output_dir_dialog_link" class="ui-state-default
+         ui-corner-all" style="text-decoration: none; padding: 5px; margin-left: 20px;">Set location . . . </a>
+         
+         </td>
        </tr>
+       
+       
+       <form name="password">
+       <tr><td>Password</td><td>Verify Password</td></tr>
+       <tr>
+       <td><input type="password" name="password" id="password" size=25 /></input></td>
+       <td><input type="password" name="password_again" id="password_again" size=25 /></input></td>
+       <td> 
+       
+      <a href="#" id="start_encryption" class="ui-state-default
+         ui-corner-all" style="text-decoration: none; padding: 5px; margin-left: 20px;">Start encrypting</a>
+       
+       </td>
+       </tr>
+       </form>
+       
+             
+
       </table>
 
+      
+      
+    
 		<!-- ui-dialog -->
 		<div id="input_dir_dialog" title="Inputs">
       <td colspan="2">
@@ -134,35 +166,14 @@
       </td>
 		</div>
 
-      <!-- Enter the password to use during encryption. -->
-      <div id="password_form">
-        <form name="password" action="" width="100%">
-          <fieldset>
-            <label><strong>Password</strong>
-              <input type="password" name="password" id="password" />
-              <label class="error" for="password" id="password_error">This field
-                is required.</label>
-            </label>
 
-            <label>Verify Password</label>
-            <input type="password" name="password_again" id="password_again" />
-            <label class="error" for="password_again" id="password_again_error">This field
-            is required.</label>
-
-            <br />
-            <input id="start_encryption" name="submit" type="submit"
-            class="button" value="Start encrypting" />
-          </fieldset>
-
-        </form>
-      </div>
-
-			<form name="quitform" action="exit" method="get">
-				<input type="submit" value="Exit" />
-			</form>
 		</div>
-
+    </center>
     <div class="stage" id="stage"></div>
 	</div>
-</center>
+		
+		
+		
+		
+		
 {% end %}

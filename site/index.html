@@ -5,38 +5,40 @@
   	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<title>Cryptogram Project</title>
 	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" media="screen" href="http://openfontlibrary.org/face/open-baskerville" rel="stylesheet" type="text/css"/>
 </head>
 
 <body>
   <div id=main>
-    <p>
-        <h1>Cryptogram Project</h1>        Visual cryptography for social media<br><br>
+    <p id=title>
+        <span class=title>Cryptogram</span> <br>photo privacy for social media<br><br>
     </p>
 
          
     <hr>
 
-     <p class=centered>
+     <div class=centered>
       Encrypt<br>
-      <img src=decoded.jpg class=pixels>
+      <img src=pup.jpg class=pixels>
       <img src=arrow.png class=arrow>
-      <img src=encoded.jpg class=pixels><br>
+      <div class=frame><img src=encrypted.jpg class=pixels></div>
+      
       Decrypt
 
-    </p>
+    </div>
     
     
   <hr>
   
     <div id=install>
      
-     <a id=add href="cryptogram.crx">
+     <a class=add href="cryptogram.crx">
      <font size=3>+</font> Add to Chrome</a>
-     Chrome extension to decrypt images<br>
+     Chrome extension (decrypts images)<br>
      <br>
-      <a id=add href="Cryptogram.tar.gz">
+      <a class=add id=download href="Cryptogram.tar.gz">
      <font size=2>&#x25BC;</font> Download App</a>
-     Desktop application to encrypt images
+     Mac OS X application (encrypts images)
 </div>
   <hr>
     <div id=info>
@@ -56,21 +58,19 @@
     images to social media sites without a full understanding of the privacy settings? Images may be shared inappropriately
     with friends, acquaintances, or strangers. This project provides a way for people to take increased control over the privacy of personal images. Cryptogram
     offers password-level security inside JPEG itself. Encrypted images can be used in a variety of scenarios, including
-     websites, social media, or e-mail. But in all cases, the password protection remains. The decryption is efficient, so original images can be viewed directly in the web browser, on the fly. 
-    
-    
+    websites, social media, or e-mail. But in all cases, password protection is obtained that does not rely on the
+    privacy settings or implementation of any particular service provider.    
     </div>
 
-    
     <div id=info>
     <h2>Try It</h2>
-    <img src=encoded.jpg style="float: right; margin-left: 20px;">
+    <img src=encrypted.jpg style="float: right; margin-left: 20px; height: 150px; border: 1px solid black;">
 
     We encourage anyone to try out the current release of Cryptogram.
     <br><br>1) Install the <a href="cryptogram.crx">Chrome Extension.</a>
     <br><br>
    
-    2) Right-click this image and select <i>Decode Image.</i>
+    2) Right-click this image and select <i>Decrypt Image.</i>
     <br><br>
     
     3) When asked for a password enter:&nbsp; <code>cryptogram</code>     
