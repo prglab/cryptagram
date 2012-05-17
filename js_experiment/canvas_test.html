@@ -4,15 +4,15 @@
 
 <head>
 <title>Canvas Experiments</title>
-
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="jquery.base64.js"></script>
 </head>
 
 <body style="padding: 5em;">
 
 
 
-<canvas width="600" height="525" id="cancan" 
-  style="padding:1em; border: 1px solid black;">
+<canvas width="1" height="1" id="cancan" style="padding:1em; border: 1px solid black;">
 </canvas>
 <br />
 <br /> 
@@ -20,12 +20,13 @@
 <output id="file_info"></output>
 
 <script>
-  symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14]; 
-  function encode_symbol(s) { return symbol_thresholds[s] } 
-  
+  octal_symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14]; 
+  /* each base-64 character gets split into multiple 8 octal symbols, 
+     so we have one function to turn an octal symbol into a single 
+     threshold and a base-64 character into a short array of thresholds */ 
   base64_values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
   
-   
+
   function resize( imagewidth, imageheight, thumbwidth, thumbheight ) {
     var w = 0, h = 0, x = 0, y = 0,
         widthratio  = imagewidth / thumbwidth,
@@ -49,27 +50,61 @@
     return data; 
   } 
 
+  function write(text) { 
+    $("#alerts").append($('<p>').html(text))
+  }
+
+  
   function encode(data) { 
     /* grow an array of grayscale values and then convert them 
        to an RGB Image afterward (so we don't have to precompute size
        or worry about the header yet 
     */ 
+    write(data.substring(0,50) + "..."); 
+    withoutHeader = data.split('base64,')[1];
+    justData = withoutHeader.split('=')[0]; 
+    nchars = justData.length;
     var values = new Array(); 
-    nchars = data.length; 
     for (i = 0; i < nchars; i++) { 
-      ch = data[i]; 
-      
-      values.push(ch); 
-    } 
-    alert(lums.toString()); 
+      ch = justData[i]; 
+      value = base64_values.indexOf(ch);  
+      x = Math.floor(value / 8); 
+      y = value % 8; 
+      values.push(x); 
+      values.push(y); 
+    }
+    
+    write(values.toString()); 
+    var n_values = values.length; 
+    n_pixels = n_values; 
+    
+    var c = document.createElement('canvas');  
+    var default_width = 800; 
+    c.width = default_width; 
+    var height = Math.ceil(n_pixels / default_width); 
+    c.height = height; 
+    var cxt = c.getContext('2d'); 
+    var imageData = cxt.createImageData(default_width, height); 
+    var d = imageData.data; 
+    for (i = 0; i < n_values; i++) { 
+      level = octal_symbol_thresholds[values[i]]; 
+      base_idx = 4 * i
+      d[base_idx] = level;
+      d[base_idx+1] = level; 
+      d[base_idx+2] = level;
+      d[base_idx+3] = 255; /* alpha */ 
+    }
+    cxt.putImageData(imageData, 0, 0);  
+    var dataUrl = c.toDataURL(); 
+    write(dataUrl); 
     var img = new Image(); 
-    img.src = data;
+    img.src = dataUrl;
     return img; 
 
   }
   /* draw image onto canvas and optionally resize it into a thumbnail */ 
   function image_to_canvas( img, thumb_width, thumb_height) {
-    var c = document.getElementById('cancan'); 
+    var c = document.getElementById('cancan');  
     var cx = c.getContext('2d');
     if (thumb_width && thumb_height) { 
       c.width = thumb_width; 
@@ -104,9 +139,11 @@
     var reader = new FileReader();
     reader.onload = function ( loadEvent ) { 
        originalData = loadEvent.target.result; 
-       encryptedData = encrypt(originalData); 
+       encryptedData = encrypt(originalData);
        encodedImage = encode(encryptedData); 
-       image_to_canvas(encodedImage);      
+       encodedImage.onload = function () { 
+         image_to_canvas(encodedImage);      
+       }
     };
     reader.onerror = show_error; 
     reader.readAsDataURL(f); 
@@ -115,6 +152,8 @@
   }
   document.getElementById('file_selector').addEventListener('change', handleFileSelect, false);
 </script>
+
+<div id="alerts" style="color:red;"></div>
 
 </body>
 
