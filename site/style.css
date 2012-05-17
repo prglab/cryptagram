@@ -10,6 +10,30 @@ a {
   color: #81609F;
 }
 
+h1 {
+  font-weight: normal;
+  font-size: 26px;
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+
+h2 {
+  font-weight: normal;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  border-bottom: 1px solid #EEEEEE;
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+
+
+
+
+
+
 
 #main {
   position: relative;
@@ -31,56 +55,50 @@ a {
   border: 1px solid black;
 }
 
-
 #main .arrow {
-  vertical-align: top;
   margin-left: 30px;
   margin-right: 30px;
 }
 
-#title {
+
+
+
+
+
+#header {
   text-align: center;
   font-size: 18px;
 }
 
-#title img {
+#header img {
   position: absolute;
   top: 25px;
   opacity: .25;
   -webkit-filter: grayscale(100%);
 }
 
-#title img:hover {
+#header img:hover {
   -webkit-filter: grayscale(0%);
     opacity: .5;
-
 }
 
-.title {
+#header .title {
   text-transform: uppercase;
   font-size: 28px;
   letter-spacing: 7px;
 }
 
 
+
+
+
+
 #install {
   text-align: left;
   margin-left: 120px;
-  position: relative;
 }
 
-#install .small {
-  color: gray;
-  font-size: 10px;
-  position: absolute;
-  right: 30px;
-  margin-top: 5px;
-}
-
-
-
-.add {
-
+#install .button {
   -webkit-box-shadow: rgba(255, 255, 255, 0.0585938) 0px 2px 0px 0px inset, rgba(0, 0, 0, 0.199219) 0px 2px 3px 0px;
   -webkit-user-select: none;
   background-attachment: scroll;
@@ -132,60 +150,27 @@ a {
   text-transform: uppercase;
   width: 170px;
   text-decoration: none;
-
 }
 
-
-#download {
+#install #download {
   background-image: -webkit-linear-gradient(top, #33DB22 0%, #4DD67B 100%);
   border-color: #2DAF53;
 
 }
 
-#download:hover {
+#install #download:hover {
   background-image: -webkit-linear-gradient(top, #8DE6AB 0%, #53DB52 100%);
 }
 
-.add:hover {
+#install .button:hover {
   background-image: -webkit-linear-gradient(top, #7498FF 0%, #6281FE 100%);
 }
 
 
 
 
- h1 {
-  font-weight: normal;
-  font-size: 26px;
-  margin-bottom: 0px;
-  margin-top: 0px;
-}
 
- h1 img {
-  position: relative;
-  top: 5px;
-  margin-left: 0px;
-  margin-right: 20px;
-  opacity: .5;
-}
-
-#install h1 {
-
-  margin: none;
-  borer: 1px solid red;
-}
-
-h2 {
-  font-weight: normal;
-}
-
-p {
-  margin-top: 20px;
-  text-align: left;
-  font-size: 12px;
-  
-}
-
-.centered {
+#diagram {
   text-align: center;
   display: block;
   width: 460px;
@@ -194,32 +179,25 @@ p {
   margin-left: -230px;
 }
 
-
-
-.centered img {
+#diagram img {
   max-height: 100px;
   float: left;
   margin-right: 20px;
   margin-left: 20px;
 }
 
-hr {
-  border: none;
-  height: 1px;
-  border-bottom: 1px solid #EEEEEE;
-  margin-top: 40px;
-  margin-bottom: 40px;
-}
 
 
-#info {
 
+
+
+
+.info {
   text-align: left;
-
   font-size: 12px;
   padding-left: 40px;
   padding-right: 40px;
-  margin-bottom: 50px;
+  margin-bottom: 40px;
 }
 
 .frame { 
@@ -229,6 +207,6 @@ hr {
 }
 
 .frame img {
- width: 100px;
- height: 100px;
+  width: 100px;
+  height: 100px;
 }
