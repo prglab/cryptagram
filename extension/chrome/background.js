@@ -64,7 +64,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
 
 
 background.contextMenuID = chrome.contextMenus.create({
-  "title" : "Decode Image",
+  "title" : "Decrypt Image",
   "type" : "normal",
   "contexts" : ["image"],
   "onclick" : background.getClickHandler()
