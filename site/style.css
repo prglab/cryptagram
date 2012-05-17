@@ -145,7 +145,7 @@ body {
 }
 
 #download:hover {
-  background-image: -webkit-linear-gradient(top, #53DB52 0%, #6DD69B 100%);
+  background-image: -webkit-linear-gradient(top, #8DE6AB 0%, #53DB52 100%);
 }
 
 .add:hover {
@@ -238,6 +238,7 @@ hr {
 .frame { 
   position: relative;
   display: table-cell;
+  float: left;
 }
 
 .frame img {
