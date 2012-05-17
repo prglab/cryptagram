@@ -88,9 +88,30 @@ class MainHandler(tornado.web.RequestHandler):
       self.render('index.html')
       return
 
-    output_directory = self.get_argument('output_dir')
     # TODO(tierney): If directory does not exist, make it. If directory already
     # exists, consider making a different one with an incremented name.
+    output_directory = self.get_argument('output_dir')
+    try:
+      expanded_output_dir_path = os.path.expanduser(output_directory)
+      if not os.path.exists(expanded_output_dir_path):
+        os.makedirs(expanded_output_dir_path)
+      output_directory = expanded_output_dir_path
+    except Exception, e:
+      logging.error('Error setting directory. Using default (Desktop). %s.'
+                    % str(e))
+      expanded_desktop_path = os.path.expanduser('~/Desktop')
+      attempt = -1
+      day = time.strftime('%Y%b%d')
+      while True:
+        attempt += 1
+        title = 'Cryptogram_%s_%03d' % (day, attempt)
+        logging.info('Attempting to make directory: %s.' % title)
+        attempted_path = os.path.join(expanded_desktop_path, title)
+        if os.path.exists(attempted_path):
+          continue
+        os.makedirs(attempted_path)
+        output_directory = attempted_path
+        break
 
     [codec.set_encode_kickstart_values(password, output_directory)
      for codec in _CODECS]
@@ -199,12 +220,16 @@ class GuiCodec(threading.Thread):
       return -1
 
     # Reorient the image, if necessary as determined by auto_orient.
-    reoriented_image_buffer = cStringIO.StringIO()
-    orient = Orientation.Orientation(image_path)
-    if orient.auto_orient(reoriented_image_buffer):
-      logging.info('Reoriented the image so reassigning the image_buffer.')
-      del image_buffer
-      image_buffer = reoriented_image_buffer
+    try:
+      reoriented_image_buffer = cStringIO.StringIO()
+      orient = Orientation.Orientation(image_path)
+      if orient.auto_orient(reoriented_image_buffer):
+        logging.info('Reoriented the image so reassigning the image_buffer.')
+        del image_buffer
+        image_buffer = reoriented_image_buffer
+    except IOError, e:
+      logging.error(str(e) + ' (%s).' % image_path)
+      return -1
 
     # Update codec based on wh_ratio from given image.
     try:
@@ -257,7 +282,12 @@ class GuiCodec(threading.Thread):
     quality = 95
     logging.info('Saving encrypted jpeg with quality %d.' % quality)
     try:
-      with open(image_path + '.cryptogram.jpg', 'w') as out_file:
+      image_basename = os.path.basename(image_path)
+      image_name = os.path.splitext(image_basename)[0]
+      save_name = os.path.join(self.output_directory, image_name)
+      save_name += '_cryptogram.jpg'
+
+      with open(save_name, 'w') as out_file:
         im.save(out_file, quality=quality)
     except Exception, e:
       logging.error(str(e))

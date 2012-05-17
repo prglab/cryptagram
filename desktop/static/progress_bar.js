@@ -142,7 +142,7 @@ function postStatus(first_time) {
         var left_child = document.createElement("div");
         left_child.style.width = "200px";
         left_child.style.float = "left";
-        left_child.innerHTML = paths_progress[path]['path'];
+        left_child.innerHTML = paths_progress[path]['shortname'];
 				var child = document.createElement("div");
         child.style.marginLeft = "200px";
 				child.id = path + '_progress_bar';
