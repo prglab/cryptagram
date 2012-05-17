@@ -11,14 +11,15 @@ from SymbolShape import two_square
 from encodings import hex_codec
 from json import JSONEncoder
 from multiprocessing import cpu_count
+from os.path import expanduser, isdir, join
 from tornado.options import define, options
 from util import md5hash
 import Orientation
 import argparse
 import cStringIO
 import gc
+import json
 import logging
-from os.path import expanduser, isdir, join
 import os
 import platform
 import shlex
@@ -35,7 +36,6 @@ import tornado.web
 import urllib
 import urllib2
 import webbrowser
-import json
 
 _PLATFORM = platform.system()
 
@@ -61,7 +61,6 @@ class Application(tornado.web.Application):
     handlers = [
       (r"/", MainHandler),
       (r"/status", StatusHandler),
-      (r"/password", PasswordHandler),
       (r"/exit", ExitHandler),
       (r"/photo_selection", PhotoSelectionHandler),
       (r"/tree_json", TreeJsonHandler),
@@ -88,8 +87,9 @@ class MainHandler(tornado.web.RequestHandler):
       self.render('index.html')
       return
 
-    # TODO(tierney): If directory does not exist, make it. If directory already
-    # exists, consider making a different one with an incremented name.
+    # Create the output directory specified by the user. If the directory
+    # already exists then we just dump the new encrypted photos into that
+    # directory.
     output_directory = self.get_argument('output_dir')
     try:
       expanded_output_dir_path = os.path.expanduser(output_directory)
@@ -97,6 +97,8 @@ class MainHandler(tornado.web.RequestHandler):
         os.makedirs(expanded_output_dir_path)
       output_directory = expanded_output_dir_path
     except Exception, e:
+      # If we have problems creating the output directory, we attempt to go down
+      # the default route of creating a desktop directory that is time-stamped.
       logging.error('Error setting directory. Using default (Desktop). %s.'
                     % str(e))
       expanded_desktop_path = os.path.expanduser('~/Desktop')
@@ -113,6 +115,7 @@ class MainHandler(tornado.web.RequestHandler):
         output_directory = attempted_path
         break
 
+    # Tell the threads to start working.
     [codec.set_encode_kickstart_values(password, output_directory)
      for codec in _CODECS]
 
@@ -162,19 +165,6 @@ class PhotoSelectionHandler(tornado.web.RequestHandler):
     self.render('index.html')
 
 
-class PasswordHandler(tornado.web.RequestHandler):
-  def post(self):
-    global _CODECS
-    password = self.get_argument('password')
-    password_again = self.get_argument('password_again')
-    if password != password_again:
-      logging.warning('Passwords do not match.')
-      # self.render('index.html')
-      self.write('')
-
-    [codec.set_password(password) for codec in _CODECS]
-    self.write('')
-
 class ExitHandler(tornado.web.RequestHandler):
   def get(self):
     logging.info('Indicated we wanted to quit.')
@@ -188,15 +178,18 @@ class ExitHandler(tornado.web.RequestHandler):
     # On mac, we have to shutdown the application before quitting the rest of
     # the process.
     if _PLATFORM == 'Darwin':
+      logging.info('Stopping Mac App EventLoop.')
       AppHelper.stopEventLoop()
 
+    logging.info('Good night.')
     sys.exit(0)
 
 
 class GuiCodec(threading.Thread):
+  """GuiCodec threads drive the heart of the work for the encryption."""
   codec = None
   password = None
-  #daemon = True
+  daemon = True
 
   def __init__(self, queue):
     threading.Thread.__init__(self)
@@ -316,12 +309,31 @@ class GuiCodec(threading.Thread):
       self.queue.task_done()
       gc.collect()
 
+
 class TornadoServer(threading.Thread):
   def __init__(self):
     threading.Thread.__init__(self)
 
   def run(self):
     tornado.ioloop.IOLoop.instance().start()
+
+
+# ---------------- Darwin (Mac OS X)-related Code ------------------------------
+def setup_menus(app, delegate):
+  mainmenu = NSMenu.alloc().init()
+  app.setMainMenu_(mainmenu)
+  appMenuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+    'Quit',
+    'terminate:',
+    'q')
+  mainmenu.addItem_(appMenuItem)
+  appMenu = NSMenu.alloc().init()
+  appMenuItem.setSubmenu_(appMenu)
+  aboutItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+    'Quit', 'terminate:', 'q')
+  aboutItem.setTarget_(app)
+  appMenu.addItem_(aboutItem)
+
 
 if _PLATFORM == 'Darwin':
   class CryptogramMacApp(NSObject):
@@ -345,6 +357,7 @@ if _PLATFORM == 'Darwin':
       self.menu.addItem_(menuitem)
       # Bind it to the status item
       self.statusitem.setMenu_(self.menu)
+# ---------------- End Darwin (Mac OS X)-related Code --------------------------
 
 def main(argv):
   global _CODECS, _PROGRESS, _NUM_THREADS
@@ -412,20 +425,6 @@ def main(argv):
   # quit when appropriate. Currently, we rely on the GUI thread being
   # non-daemonized.
 
-def setup_menus(app, delegate):
-  mainmenu = NSMenu.alloc().init()
-  app.setMainMenu_(mainmenu)
-  appMenuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-    'Quit',
-    'terminate:',
-    'q')
-  mainmenu.addItem_(appMenuItem)
-  appMenu = NSMenu.alloc().init()
-  appMenuItem.setSubmenu_(appMenu)
-  aboutItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
-    'Quit', 'terminate:', 'q')
-  aboutItem.setTarget_(app)
-  appMenu.addItem_(aboutItem)
 
 if __name__ == '__main__':
   try:
