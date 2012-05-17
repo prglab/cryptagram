@@ -3,15 +3,18 @@
 <head>
 	<meta charset="utf-8">
   	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<title>Cryptogram Project</title>
+	<title>Cryptogram</title>
 	<link rel="stylesheet" href="style.css">
-	<link rel="stylesheet" media="screen" href="http://openfontlibrary.org/face/open-baskerville" rel="stylesheet" type="text/css"/>
 </head>
 
 <body>
   <div id=main>
     <p id=title>
-        <span class=title>Cryptogram</span> <br>photo privacy for social media<br><br>
+    
+        <a href="http://blogs.law.nyu.edu/privacyresearchgroup/" target="_new"><img src=prg.jpg style="left: 25px;"></a>
+        <span class=title>Cryptogram</span> <br>photo privacy for social media
+        <a href="http://www.nyu.edu" target="_new"><img src=nyu.jpg style="right: 25px;"></a>
+
     </p>
 
          
@@ -19,7 +22,7 @@
 
      <div class=centered>
       Decrypt<br>
-      <img src=encrypted.jpg class=pixels>
+      <div class=frame><img src=encrypted.jpg class=pixels></div>
       <img src=arrow.png class=arrow>
       <img src=pup.jpg class=pixels>
 
@@ -76,10 +79,11 @@
     3) When asked for a password enter:&nbsp; <code>cryptogram</code>     
     <br><br>
          
-    After installation, you should see a 4x4 grid icon in the top right of your Chrome address bar. Click this button to access settings.
+    <img src=icon19.png style="float: left; margin-right: 10px; margin-top: 5px">After installation, you should see the Cryptogram icon on the right of your Chrome address bar. Click the icon to access settings.
     </div>
     
-      
+  
+    
     
     <div id=info>
     <h2>Technical</h2>
@@ -87,12 +91,20 @@
     Image data is converted into base-64 which is then encrypted using AES block cipher, as implemented by <a href="http://crypto.stanford.edu/sjcl/" target=_new>SJCL</a>. The resulting encrypted base-64 data is written to a JPEG with a scheme that uses 2x2 pixel blocks to represent a base-8 number. Base-8 values are represented as shades in the luminance (Y) channel of the YCbCr colorspace. Cryptogram images can withstand JPEG compression down to approximately 70% quality before the decoder starts to fail. As JPEG quality decreases, eventually some base-8 values will become corrupted making decryption impossible.
     
     
-    <p>The code is open source and available on <a href="https://github.com/prglab/cryptogram" target=_new>GitHub</a>
+    <p>The code is open source and available on <a href="https://github.com/prglab/cryptogram" target=_new>GitHub</a>.
 
     </div>
 
     
+    <div id=info>
+    <h2>People</h2>
     
+    Cryptogram was conceived of and created by <a href="http://cs.nyu.edu/~spiro/" target="_new">Ian Spiro</a> and <a href="http://cs.nyu.edu/~tierney/" target="_new">Matt Tierney</a>, inspired by discussions with <a href="http://www.nyu.edu/projects/nissenbaum/" target="_new">Helen Nissenbaum</a> and other members of the <a href="http://blogs.law.nyu.edu/privacyresearchgroup/" target="_new">Privacy Research Group</a> at <a href="http://www.nyu.edu/" target="_new">NYU</a>. Other contributors include: <a href="http://movement.nyu.edu/~bregler/" target="_new">Chris Bregler</a>, <a href="http://cs.nyu.edu/~lakshmi" target="_new">Lakshmi Subramanian</a>, <a href="http://www.rubinsteyn.com/" target="_new">Alex Rubinsteyn</a>. 
+    
+    <p>If you have any questions or suggestions about the project, please <a href="mailto:cryptogram@prglab.org">send us email</a>.</p>
+
+    </div>
+
      
     
     <p>
