@@ -168,6 +168,14 @@ class PhotoSelectionHandler(tornado.web.RequestHandler):
 class ExitHandler(tornado.web.RequestHandler):
   def get(self):
     logging.info('Indicated we wanted to quit.')
+
+    # On mac, we have to shutdown the application before quitting the rest of
+    # the process.
+    if _PLATFORM == 'Darwin':
+      logging.info('Stopping Mac App EventLoop.')
+      AppHelper.stopEventLoop()
+
+    logging.info('Good night.')
     self.render('exit.html')
     sys.exit(0)
 
