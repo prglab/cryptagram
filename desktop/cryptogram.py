@@ -47,7 +47,7 @@ def main(argv):
   parser.add_argument('-s', '--symbol_shape', type=str, default='two_square',
                       help='SymbolShape to use.')
   parser.add_argument('-i', '--image', type=str, default=None,
-                      help='Path to input image.')
+                      help='Path to input image.', required=True)
   parser.add_argument('-e', '--encrypt', type=str, default=None,
                       help='Encrypted image output filename.')
   parser.add_argument('-d', '--decrypt', type=str, default=None,
@@ -109,7 +109,7 @@ def main(argv):
 
     logging.info('Saving encrypted jpeg with quality %d.' % quality)
     with open(FLAGS.encrypt, 'w') as out_file:
-      im.save(out_file, quality=quality)
+      im.save(out_file, 'JPEG', quality=quality)
 
     with open(FLAGS.encrypt) as fh:
       fh.read()
