@@ -40,8 +40,9 @@
           }
         }
       });
+
       $("#output_dir").bind("select_node.jstree", function(e, data) {
-        jQuery("#output_dir_path").val(data.rslt.obj.attr("path"));
+        jQuery("#output_dir_path").val(data.rslt.obj.attr("path") + "/Cryptogram");
       }).jstree({
         "core" : {},
         "plugins" : [ "themes", "json_data", "sort", "ui"],
