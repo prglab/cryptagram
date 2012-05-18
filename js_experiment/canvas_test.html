@@ -7,12 +7,13 @@
 <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<script src="sjcl.js"></script>
 <style type="text/css">
   .slider { margin: 10px; background-color: green; }
   body { padding: 5em; }
   canvas { 
-    padding: 1em; 
-    border: 1px solid black; 
+    padding: 0em; 
+    border: 0px solid black; 
   } 
 </style>
 
@@ -66,9 +67,32 @@
     return { w:w, h:h, x:x, y:y };
   }
   
+  var sha256_hex_digits = "0123456789abcdef";
+  /* copied+modified from from Christoph Bichlmeier's SHA256 lib */ 
+   
+  function sha256_digest(to_hash) { 
+    var hash_digits = sjcl.hash.sha256.hash(to_hash); 
+    var hex = new String();
+    for(var i=0; i<8; i++) {
+      for(var j=28; j>=0; j-=4) {
+        hex += sha256_hex_digits.charAt((hash_digits[i] >>> j) & 0x0f);
+      }
+    }
+    return hex; 
+  } 
   /* for now this does not one thing! */ 
-  function encrypt (data) { 
-    return data; 
+  function encrypt (data, password) { 
+    encrypted_data = JSON.parse(sjcl.encrypt(password, data)); 
+    iv = encrypted_data['iv'];
+    salt = encrypted_data['salt'];
+    ct = encrypted_data['ct'];
+    to_hash = iv + salt + ct;
+    integrity_check_value = sha256_digest(to_hash); 
+    write('iv: ' + iv); 
+    write('salt: ' + salt); 
+    write('ct: ' + ct); 
+    write('check value: ' + integrity_check_value);     
+    return integrity_check_value + to_hash; 
   } 
 
   function write(text) { 
@@ -101,19 +125,14 @@
     } 
     // first translate the header string
     var header_values = new Array(); 
-    for (i = 0; i < header_string.length; i++) { 
+    for (var i = 0; i < header_string.length; i++) { 
       add_char(header_string[i], header_values); 
     }
     // next translate the image data 
     var values = new Array();
     write(data.substring(0,50) + "..."); 
-    // get rid of data type information (for now assuming always jpeg 
-    var withoutMimeHeader = data.split('base64,')[1];
-    // get rid of ='s which are for padding
-    var justData = withoutMimeHeader.split('=')[0]; 
-
-    for (i = 0; i < justData.length; i++) { 
-      add_char(justData[i], values); 
+    for (var i = 0; i < data.length; i++) { 
+      add_char(data[i], values); 
     }
     
     write(values.toString()); 
@@ -160,8 +179,8 @@
       d[idx + 3] = 255; // alpha channel 
     }
     function set_block(x_start, y_start, level) { 
-      for (i = 0; i < block_width; i++) { 
-        for (j = 0; j < block_height; j++) { 
+      for (var i = 0; i < block_width; i++) { 
+        for (var j = 0; j < block_height; j++) { 
           set_pixel(x_start+i, y_start+j, level); 
         }
       }
@@ -174,48 +193,36 @@
       for (var x = 0; x < header_width; x += block_width) { 
         value_idx = x / block_width + (y  / block_height) * (header_width / block_width); 
         if (value_idx < n_header_values) { 
-          set_block(x, y, octal_symbol_thresholds[header_values[value_idx]]); 
-        } else {
-          set_block(x, y, 0); 
-        }
+          level =  octal_symbol_thresholds[header_values[value_idx]]; 
+        } else { level = 0; }
+        set_block(x, y, level); 
       }
     }
-     
-    // fill data pixels on same rows as header 
-    var blocks_per_row = (width - header_width) / block_width; 
-    for (var y = 0; y < header_height; y += block_height) {
-      var yi = (y / block_height) * blocks_per_row; 
-      for (var x = header_width; x < width; x += block_width) { 
-         value_idx = (x - header_width) / block_width + yi; 
-         if (value_idx < n_values) { 
-           set_block(x, y, octal_symbol_thresholds[values[value_idx]]); 
-         } else { 
-           set_block(x, y, 0);  
-         }
-      } 
-    }
-    // number of values which could have fit in the header, 
-    // needs to be subtracted from value_idx in the following loop
-    var value_idx_offset = n_pixels_in_header / block_size; 
-    var blocks_per_row = width / block_width;  
-    // fill data pixels on all rows after header
-    for (var y = header_height; y < height; y += block_height) {
-      var yi =  (y / block_height) * blocks_per_row; 
-      for (var x = 0; x < width; x += block_width) { 
-        // which value would we be at if we didn't have a header? 
-        value_idx = x / block_width + yi - value_idx_offset; 
-        // now subtract off how ever many values could have fit in the header
-        if (value_idx < n_values) { 
-          set_block(x,y,octal_symbol_thresholds[values[value_idx]]); 
-        } else { 
-          set_block(x,y, 0); 
-        }
-        // file a block with the grayscale level chosen above 
-      } 
+    
+    n_header_row_symbols_wide = (width - header_width) / block_width; 
+    n_header_row_symbols = n_header_row_symbols_wide * (header_height / block_height)
+    n_symbols_in_full_row = width / block_width; 
+    var x_coord, y_coord, x, y, i2;  
+    for (var i = 0; i < n_values; i++) { 
+      octal = values[i];   
+      level = octal_symbol_thresholds[octal]; 
+      if (i < n_header_row_symbols) { 
+        y_coord = Math.floor(i / n_header_row_symbols_wide); 
+        x_coord = (i - (y_coord * n_header_row_symbols_wide)); 
+        x = header_width + (x_coord * block_width); 
+      } else { 
+        i2 = i + n_header_values; 
+        y_coord = Math.floor(i2 / n_symbols_in_full_row); 
+        x_coord = i2 - (y_coord * n_symbols_in_full_row);
+        x = x_coord * block_width; 
+      }
+      y = y_coord * block_height; 
+      write("i: " + i + ", level: " + level + ", x:" + x + ", y:" + y); 
+      set_block(x,y,level); 
     }
     cxt.putImageData(imageData, 0, 0);  
     var img = new Image(); 
-    img.src = c.toDataURL(); 
+    img.src = c.toDataURL('image/jpeg', 0.95); 
     return img; 
 
   }
@@ -257,7 +264,11 @@
     var reader = new FileReader();
     reader.onload = function ( loadEvent ) { 
        originalData = loadEvent.target.result; 
-       encryptedData = encrypt(originalData);
+       // get rid of data type information (for now assuming always jpeg 
+       var withoutMimeHeader = originalData.split('base64,')[1];
+       // get rid of ='s which are for padding
+       var justData = withoutMimeHeader.split('=')[0]; 
+       encryptedData = encrypt(justData, "cryptogram");
        block_width = $('#block_width_slider').slider('value'); // you can just drop these if you want to use the default 2x2
        block_height = $('#block_height_slider').slider('value');  
        width_to_height_ratio = 1.0; // todo: actually use the image 
