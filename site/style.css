@@ -104,7 +104,6 @@ hr {
   background-attachment: scroll;
   background-clip: border-box;
   background-color: transparent;
-  background-image: linear-gradient(top, #5689DB 0%, #4D7BD6 100%);
   background-image: -o-linear-gradient(top, #5689DB 0%, #4D7BD6 100%);
   background-image: -webkit-linear-gradient(top, #5689DB 0%, #4D7BD6 100%);
   background-image: -moz-linear-gradient(top, #5689DB 0%, #4D7BD6 100%);
@@ -158,17 +157,29 @@ hr {
 }
 
 #install #download {
+  background-image: linear-gradient(top, #33DB22 0%, #4DD67B 100%);
+  background-image: -o-linear-gradient(top, #33DB22 0%, #4DD67B 100%);
   background-image: -webkit-linear-gradient(top, #33DB22 0%, #4DD67B 100%);
+  background-image: -moz-linear-gradient(top, #33DB22 0%, #4DD67B 100%);
+  background-image: -ms-linear-gradient(top, #33DB22 0%, #4DD67B 100%);
   border-color: #2DAF53;
 
 }
 
 #install #download:hover {
+  background-image: linear-gradient(top, #8DE6AB 0%, #53DB52 100%);
+  background-image: -o-linear-gradient(top, #8DE6AB 0%, #53DB52 100%);
   background-image: -webkit-linear-gradient(top, #8DE6AB 0%, #53DB52 100%);
+  background-image: -moz-linear-gradient(top, #8DE6AB 0%, #53DB52 100%);
+  background-image: -ms-linear-gradient(top, #8DE6AB 0%, #53DB52 100%);
 }
 
 #install .button:hover {
+  background-image: linear-gradient(top, #7498FF 0%, #6281FE 100%);
+  background-image: -o-linear-gradient(top, #7498FF 0%, #6281FE 100%);
   background-image: -webkit-linear-gradient(top, #7498FF 0%, #6281FE 100%);
+  background-image: -moz-linear-gradient(top, #7498FF 0%, #6281FE 100%);
+  background-image: -ms-linear-gradient(top, #7498FF 0%, #6281FE 100%);
 }
 
 
