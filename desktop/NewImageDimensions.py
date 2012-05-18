@@ -5,7 +5,6 @@ import logging
 class NewImageDimensions(object):
   symbol_height = None
   symbol_width = None
-  _epsilon = 0
 
   def __init__(self, wh_ratio, data_len, symbol_shape, fixed_width = None):
     self.wh_ratio = wh_ratio
@@ -31,40 +30,16 @@ class NewImageDimensions(object):
 
 
   def _calculate_symbol_dims(self):
-    # TODO(tierney): The full solution to the problem of calculating symbol
-    # dimensions appears to be a quadratically constrained linear program. While
-    # these roundings and methods are suboptimal, in practice, things seem to be
-    # good enough for now. Improvements welcome :)
-
-    # Rounding based on the following:
+    # Rounding based on the following (e = 0 currently):
     #   xw = sqrt( ((r +- e)*bh*s) / bw )
     #   xh = S / xw
+    num_symbols_wide = (((self.wh_ratio - self._epsilon) * \
+                   self.symbol_height * self.data_len) \
+                  / (self.symbol_width)) ** .5
+    num_symbols_high = self.data_len / float(num_symbols_wide)
 
-    if self.wh_ratio < 1:
-      # Tall images.
-      logging.info('Tall image')
-      num_symbols_wide = (((self.wh_ratio + self._epsilon) * \
-                     self.symbol_height * self.data_len) \
-                    / (self.symbol_width)) ** .5
-      num_symbols_high = self.data_len / float(num_symbols_wide)
-
-      plus_sym_width = self._round_up(num_symbols_wide)
-      plus_sym_height = self._round_up(num_symbols_high)
-
-      sym_width, sym_height = plus_sym_width, plus_sym_height
-
-    else:
-      # Wide images.
-      logging.info('Wide image')
-      num_symbols_wide = (((self.wh_ratio - self._epsilon) * \
-                     self.symbol_height * self.data_len) \
-                    / (self.symbol_width)) ** .5
-      num_symbols_high = self.data_len / float(num_symbols_wide)
-
-      minus_sym_width = self._round_up(num_symbols_wide)
-      minus_sym_height = self._round_up(num_symbols_high)
-
-      sym_width, sym_height = minus_sym_width, minus_sym_height
+    sym_width = self._round_up(num_symbols_wide)
+    sym_height = self._round_up(num_symbols_high)
 
     logging.info('NewImageDimensions dimens: w (%d) h (%d) ratio '\
                  '(%.3f given %.3f).' % \
