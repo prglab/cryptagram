@@ -10,14 +10,14 @@
 <body>
   <div id=main>
     <p id=title>
-    
+
         <a href="http://blogs.law.nyu.edu/privacyresearchgroup/" target="_new"><img src=prg.jpg style="left: 25px;"></a>
         <span class=title>Cryptogram</span> <br>photo privacy for social media
         <a href="http://www.nyu.edu" target="_new"><img src=nyu.jpg style="right: 25px;"></a>
 
     </p>
 
-         
+
     <hr>
 
      <div class=centered>
@@ -27,14 +27,14 @@
       <img src=pup.jpg class=pixels>
 
       Encrypt
-      
+
     </div>
-    
-    
+
+
   <hr>
-  
+
     <div id=install>
-     
+
      <a class=add href="cryptogram.crx">
      <font size=3>+</font> Add to Chrome</a>
      Chrome extension (decrypts images)<br>
@@ -45,24 +45,26 @@
 </div>
   <hr>
     <div id=info>
-    <h2>About</h2>
-    Cryptogram is software for password-protecting images to provide greater control over access to them.
-    The applications takes regular JPEG images as input and produces images that look like random noise. 
-    With the correct password, the original images can be restored. 
-    The encoding format is designed to be robust to some level of JPEG compression.
-    This means you can upload Cryptogram images to various social media services and the underlying
-    encoded data should not be lost.
+    <h2>About</h2> Cryptogram is software for password-protecting images to
+    provide greater control over access to them.  The applications takes regular
+    JPEG images as input and produces images that look like random noise.  With
+    the correct password, the original images can be restored.  The encoding
+    format is designed to be robust to some level of JPEG compression.  This
+    means you can upload Cryptogram images to various social media services and
+    the underlying encoded data should not be lost.
     </div>
-    
-    
+
+
     <div id=info>
-    <h2>Why</h2>
-    What happens when users upload
-    images to social media sites without a full understanding of the privacy settings? Images may be shared inappropriately
-    with friends, acquaintances, or strangers. This project provides a way for people to take increased control over the privacy of personal images. Cryptogram
-    offers password-level security inside JPEG itself. Encrypted images can be used in a variety of scenarios, including
-    websites, social media, or e-mail. But in all cases, password protection is obtained that does not rely on the
-    privacy settings or implementation of any particular service provider.    
+    <h2>Why</h2> What happens when users upload images to social media sites
+    without a full understanding of the privacy settings? Images may be shared
+    inappropriately with friends, acquaintances, or strangers. This project
+    provides a way for people to take increased control over the privacy of
+    personal images. Cryptogram offers password-level security inside JPEG
+    itself. Encrypted images can be used in a variety of scenarios, including
+    websites, social media, or e-mail. But in all cases, password protection is
+    obtained that does not rely on the privacy settings or implementation of any
+    particular service provider.
     </div>
 
     <div id=info>
@@ -72,41 +74,41 @@
     We encourage anyone to try out the current release of Cryptogram.
     <br><br>1) Install the <a href="cryptogram.crx">Chrome Extension.</a>
     <br><br>
-   
+
     2) Right-click this image and select <i>Decrypt Image.</i>
     <br><br>
-    
-    3) When asked for a password enter:&nbsp; <code>cryptogram</code>     
+
+    3) When asked for a password enter:&nbsp; <code>cryptogram</code>
     <br><br>
-         
+
     <img src=icon19.png style="float: left; margin-right: 10px; margin-top: 5px">After installation, you should see the Cryptogram icon on the right of your Chrome address bar. Click the icon to access settings.
     </div>
-    
-  
-    
-    
+
+
+
+
     <div id=info>
     <h2>Technical</h2>
-    
+
     Image data is converted into base-64 which is then encrypted using AES block cipher, as implemented by <a href="http://crypto.stanford.edu/sjcl/" target=_new>SJCL</a>. The resulting encrypted base-64 data is written to a JPEG with a scheme that uses 2x2 pixel blocks to represent a base-8 number. Base-8 values are represented as shades in the luminance (Y) channel of the YCbCr colorspace. Cryptogram images can withstand JPEG compression down to approximately 70% quality before the decoder starts to fail. As JPEG quality decreases, eventually some base-8 values will become corrupted making decryption impossible.
-    
-    
+
+
     <p>The code is open source and available on <a href="https://github.com/prglab/cryptogram" target=_new>GitHub</a>.
 
     </div>
 
-    
+
     <div id=info>
     <h2>People</h2>
-    
-    Cryptogram was conceived of and created by <a href="http://cs.nyu.edu/~spiro/" target="_new">Ian Spiro</a> and <a href="http://cs.nyu.edu/~tierney/" target="_new">Matt Tierney</a>, inspired by discussions with <a href="http://www.nyu.edu/projects/nissenbaum/" target="_new">Helen Nissenbaum</a> and other members of the <a href="http://blogs.law.nyu.edu/privacyresearchgroup/" target="_new">Privacy Research Group</a> at <a href="http://www.nyu.edu/" target="_new">NYU</a>. Other contributors include: <a href="http://movement.nyu.edu/~bregler/" target="_new">Chris Bregler</a>, <a href="http://cs.nyu.edu/~lakshmi" target="_new">Lakshmi Subramanian</a>, <a href="http://www.rubinsteyn.com/" target="_new">Alex Rubinsteyn</a>. 
-    
+
+    Cryptogram was conceived of and created by <a href="http://cs.nyu.edu/~spiro/" target="_new">Ian Spiro</a> and <a href="http://cs.nyu.edu/~tierney/" target="_new">Matt Tierney</a>, inspired by discussions with <a href="http://www.nyu.edu/projects/nissenbaum/" target="_new">Helen Nissenbaum</a> and other members of the <a href="http://blogs.law.nyu.edu/privacyresearchgroup/" target="_new">Privacy Research Group</a> at <a href="http://www.nyu.edu/" target="_new">NYU</a>. Other contributors include: <a href="http://movement.nyu.edu/~bregler/" target="_new">Chris Bregler</a>, <a href="http://cs.nyu.edu/~lakshmi" target="_new">Lakshmi Subramanian</a>, <a href="http://www.rubinsteyn.com/" target="_new">Alex Rubinsteyn</a>.
+
     <p>If you have any questions or suggestions about the project, please <a href="mailto:cryptogram@prglab.org">send us email</a>.</p>
 
     </div>
 
-     
-    
+
+
     <p>
     </p>
   </div>
