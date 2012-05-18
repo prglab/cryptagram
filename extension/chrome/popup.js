@@ -4,11 +4,11 @@ document.addEventListener('DOMContentLoaded', function () {
   
   var settings = page.background.settings;
     
-  var debug = document.getElementById("debug");
+  //var debug = document.getElementById("debug");
     
-  debug.addEventListener('mouseup', function(e) { 
-    page.background.sendDebugReport();
-  });
+  //debug.addEventListener('mouseup', function(e) { 
+  //  page.background.sendDebugReport();
+  //});
   
   for (i = 0; i < settings.length; i++) {
     var setting = settings[i];
