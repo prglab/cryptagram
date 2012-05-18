@@ -413,7 +413,7 @@ def main(argv):
           _PROGRESS[_path] = -2
     else:
       logging.info('Encrypting %s.' % passed_value)
-      if valid_image(passed_value)
+      if valid_image(passed_value):
         queue.put(passed_value)
         _PROGRESS[passed_value] = -2
 
