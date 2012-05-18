@@ -422,7 +422,7 @@ cryptogram.storage.getPasswordForURL = function(URL) {
     if (albumId) albumPassword = cryptogram.storage.lookup[albumId];
 
     if (password) {
-        cryptogram.log("Found saved photo password for photo:", URL);
+        cryptogram.log("Found saved photo password for photo:", URL);        
         return password;
 		}
 		
@@ -524,7 +524,7 @@ cryptogram.decoder.decodeDataToContainer = function(data, password, container) {
     _decoder.chunkSize = img.height / 40.0;
     _decoder.y = 0;
     _decoder.newBase64 = "";
-    
+        
     var protocol = _decoder.getHeader();
     cryptogram.log("Found '"+ protocol + "' protocol");
     
@@ -534,8 +534,6 @@ cryptogram.decoder.decodeDataToContainer = function(data, password, container) {
     } else {
       _decoder.processImage();    
     }
-    
-    
   };
   
   img.src = data;
@@ -559,8 +557,6 @@ cryptogram.decoder.getHeader = function() {
         base64Num = base8_0 * 8 + base8_1 ;
         base64 = this.base64Values.charAt(base64Num);                    
         newBase64 += base64;
-
-      
       }
     }
     
@@ -575,7 +571,7 @@ cryptogram.decoder.processImage = function() {
   var count = 0;
   var y = this.y;
   var done = false;
-  
+    
   while (this.chunkSize == 0 || count < this.chunkSize) {
       
     for (x = 0; x < img.width; x+= (blockSize * 2)) {
@@ -584,15 +580,15 @@ cryptogram.decoder.processImage = function() {
         if (y < this.headerSize && x < this.headerSize) {
           continue;
         }
-        
+                        
         base8_0 = cryptogram.decoder.getBase8Value(imageData, img.width, x, y, blockSize, blockSize);
         base8_1 = cryptogram.decoder.getBase8Value(imageData, img.width, x + blockSize, y, blockSize, blockSize);
-          
+        
         // Found black, stop
         if (base8_0 == -1 || base8_1 == -1) break;  
         
         base64Num = base8_0 * 8 + base8_1 ;
-        base64 = this.base64Values.charAt(base64Num);                    
+        base64 = this.base64Values.charAt(base64Num);
         this.newBase64 += base64;
       } 
     count++;  
@@ -623,7 +619,6 @@ cryptogram.decoder.processImage = function() {
 }
 
 
-
 cryptogram.decoder.decryptImage = function () {
 
   var newBase64 = this.newBase64;
@@ -633,7 +628,6 @@ cryptogram.decoder.decryptImage = function () {
   var salt = newBase64.substring(86,97);
   var ct = newBase64.substring(97,newBase64.length);
   var full = newBase64.substring(64,newBase64.length);
-    
   var bits = sjcl.hash.sha256.hash(full);
   var hexHash = sjcl.codec.hex.fromBits(bits);
     
@@ -656,7 +650,7 @@ cryptogram.decoder.decryptImage = function () {
   } 
   
   catch(err) {
-    cryptogram.log("Error decrypting:" ,err.toString());
+    cryptogram.log("Error decrypting:" , err.toString());
     return;
   }
   
@@ -681,23 +675,23 @@ cryptogram.decoder.getBase8Value = function(block, width, x, y, blockW, blockH) 
     for (j = 0; j < blockH; j++) {
       
       base = (y + j) * width + (x + i);
-      //Use green to estimate the value
-      vt += block[4*base + 1];
+      
+      //Use green to estimate the luminance
+      green = block[4*base + 1];
+  
+      vt += green;
       count++;
     }
   }
-  v = vt / count;
   
-  var bin = Math.floor((v + 3.0) / 28.0)
+  v = vt / count;
+  var bin = Math.floor(v / 28.0)
+    
   if (bin == 0) return -1;
   if (bin > 8) return 0;
   return (8 - bin);   
 }
-            
-
-
-
-
+    
 
 
 // ############################## LOADER ##############################
@@ -821,7 +815,8 @@ cryptogram.log = function(str1, str2) {
   console.log(str1);
   
   if (str2) {
-    if (str2.length > 128) {      
+    if (str2.length > 128) {  
+    
       str2 = str2.substring(0,128) + "…";
     }
     str2 = "   " + str2;
