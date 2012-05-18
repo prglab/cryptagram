@@ -61,6 +61,7 @@ class Application(tornado.web.Application):
     handlers = [
       (r"/", MainHandler),
       (r"/status", StatusHandler),
+      (r"/dnd", DnDHandler),
       (r"/exit", ExitHandler),
       (r"/photo_selection", PhotoSelectionHandler),
       (r"/tree_json", TreeJsonHandler),
@@ -153,6 +154,10 @@ class StatusHandler(tornado.web.RequestHandler):
     logging.info('Returned status.')
 
 
+class DnDHandler(tornado.web.RequestHandler):
+  def get(self):
+    self.render('dnd.html')
+
 class PhotoSelectionHandler(tornado.web.RequestHandler):
   def get(self):
     self.render('file_selection.html')
@@ -168,6 +173,14 @@ class PhotoSelectionHandler(tornado.web.RequestHandler):
 class ExitHandler(tornado.web.RequestHandler):
   def get(self):
     logging.info('Indicated we wanted to quit.')
+
+    # On mac, we have to shutdown the application before quitting the rest of
+    # the process.
+    if _PLATFORM == 'Darwin':
+      logging.info('Stopping Mac App EventLoop.')
+      AppHelper.stopEventLoop()
+
+    logging.info('Good night.')
     self.render('exit.html')
     sys.exit(0)
 
@@ -300,7 +313,7 @@ class GuiCodec(threading.Thread):
       try:
         image_path = self.queue.get_nowait()
       except Exception, e:
-        logging.error('Queue empty? %s.' % str(e))
+        logging.info('Queue empty %s.' % str(e))
         break
       _PROGRESS[image_path] = -1
 
@@ -359,6 +372,14 @@ if _PLATFORM == 'Darwin':
       self.statusitem.setMenu_(self.menu)
 # ---------------- End Darwin (Mac OS X)-related Code --------------------------
 
+def valid_image(path):
+  try:
+    Image.open(path)
+    return True
+  except Exception, e:
+    logging.error('Validating image error. %s.' % str(e))
+    return False
+
 def main(argv):
   global _CODECS, _PROGRESS, _NUM_THREADS
 
@@ -367,7 +388,7 @@ def main(argv):
     prog='cryptogram', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument('-p', '--password', type=str, default=None,
                       help='TODO Password to encrypt image with.')
-  parser.add_argument('photo', nargs='+', default=[], help='Photos to encrypt.')
+  parser.add_argument('photo', nargs='*', default=[], help='Photos to encrypt.')
 
   FLAGS = parser.parse_args()
 
@@ -379,31 +400,34 @@ def main(argv):
   tornado_server = TornadoServer()
   tornado_server.start()
 
-  # TODO(tierney): Make it possible for users to specify switches beyond
-  # passed in files. We will use argparse.
+  # Build queue of images to encrypt.
   queue = Queue()
   passed_values = FLAGS.photo
+
   logging.info('Photos: %s.' % passed_values)
   for passed_value in passed_values:
     if os.path.isdir(passed_value):
       logging.info('Treat %s like a directory.' % passed_value)
+
       for _dir_file in os.listdir(passed_value):
         logging.info('Adding %s from %s.' % (_dir_file, passed_value))
         _path = os.path.join(passed_value, _dir_file)
 
-        queue.put(_path)
-        _PROGRESS[_path] = -2
+        if valid_image(_path):
+          queue.put(_path)
+          _PROGRESS[_path] = -2
     else:
       logging.info('Encrypting %s.' % passed_value)
-      queue.put(passed_value)
-      _PROGRESS[passed_value] = -2
+      if valid_image(passed_value):
+        queue.put(passed_value)
+        _PROGRESS[passed_value] = -2
 
   if queue.empty():
     logging.info('Queue empty. Therefore, we need some files.')
     logging.warning('TODO: allow users to select photos.')
+    webbrowser.open_new_tab('http://localhost:%d/dnd' % options.port)
     return
-    # webbrowser.open_new_tab('http://localhost:%d/photo_selection' % \
-    #                         options.port)
+
   else:
     logging.info('We have a queue ready for action.')
     webbrowser.open_new_tab('http://localhost:%d' % options.port)
