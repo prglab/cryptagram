@@ -4,18 +4,40 @@
 
 <head>
 <title>Canvas Experiments</title>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<style type="text/css">
+  .slider { margin: 10px; background-color: green; }
+  body { padding: 5em; }
+  canvas { 
+    padding: 1em; 
+    border: 1px solid black; 
+  } 
+</style>
+
+<script>
+  function init_ui() { 
+     params = { min: 1, max: 20, value: 2, step: 1, range: "min" }
+     $('#block_height_slider').slider(params);  
+     $('#block_width_slider').slider(params); 
+  }
+</script>
+
 </head>
 
-<body style="padding: 5em;">
+<body onload="init_ui();">
 
 
 
-<canvas width="1" height="1" id="cancan" style="padding:1em; border: 1px solid black;">
+<canvas width="1" height="1" id="cancan">
 </canvas>
 <br />
 <br /> 
 <input type="file" id="file_selector" name="file_selector"  />
+<p>Block height: <div id = "block_height_slider" class="slider"> </div></p>
+<p>Block width: <div id = "block_width_slider" class="slider"> </div></p>
+
 <output id="file_info"></output>
 
 <script>
@@ -52,9 +74,16 @@
   function write(text) { 
     $("#alerts").append($('<p>').html(text))
   }
+  function clear_alerts() { 
+    $("#alerts").html("");
+  }
 
   
-  function encode(data) { 
+  function encode(data, width_to_height_ratio, block_width, block_height) { 
+    if (!width_to_height_ratio) { width_to_height_ratio = 1.0; }
+    if (!block_width) { block_width = 2; } 
+    if (!block_height) { block_height = 2; } 
+    write('Using block_width = ' + block_width + ', block height = ' + block_height + ' w/h ratio = ' + width_to_height_ratio); 
     /* grow an array of grayscale values and then convert them 
        to an RGB Image afterward (so we don't have to precompute size
        or worry about the header yet 
@@ -75,29 +104,51 @@
     
     write(values.toString()); 
     var n_values = values.length; 
-    n_pixels = n_values; 
-    
+    pixels_in_header = 0; 
+    block_size = block_width * block_height; 
+    n_pixels = block_size * n_values + pixels_in_header; 
+    height = Math.sqrt(n_pixels / width_to_height_ratio); 
+    width = Math.ceil(width_to_height_ratio * height); 
+    // make width and height a multiple of block width and height
+    height = Math.ceil(Math.ceil(height) / block_height) * block_height; 
+    width = Math.ceil(width / block_width) * block_width; 
+
+    write('Making ' + width + ' by ' + height + ' image, required pixels = ' + n_pixels + ' available pixels = ' + (width*height)); 
+
     var c = document.createElement('canvas');  
-    var default_width = 800; 
-    c.width = default_width; 
-    var height = Math.ceil(n_pixels / default_width); 
+    
+    c.width = width; 
     c.height = height; 
     var cxt = c.getContext('2d'); 
-    var imageData = cxt.createImageData(default_width, height); 
+    var imageData = cxt.createImageData(width, height); 
     var d = imageData.data; 
-    for (i = 0; i < n_values; i++) { 
-      level = octal_symbol_thresholds[values[i]]; 
-      base_idx = 4 * i
-      d[base_idx] = level;
-      d[base_idx+1] = level; 
-      d[base_idx+2] = level;
-      d[base_idx+3] = 255; /* alpha */ 
+    function set_pixel(pix_idx, level) { 
+      x = pix_idx % width; 
+      y = Math.floor(pix_idx / width); 
+      idx = 4 * (x + y * width); 
+      // set RGB channels to same level since we're encoding data as grayscale
+      d[idx] = level; 
+      d[idx + 1] = level; 
+      d[idx + 2] = level;
+      d[idx + 3] = 255; // alpha channel 
     }
+    var pix_idx = 0; 
+    for (value_idx = 0; value_idx < n_values; value_idx++) { 
+      level = octal_symbol_thresholds[values[value_idx]];
+      for (i = 0; i < block_width; i++) { 
+        for (j = 0; j < block_height; j++) { 
+          set_pixel(pix_idx++, level); 
+         }
+      }
+    }
+    write('Wrote ' + pix_idx + ' data pixels '); 
+    for (; pix_idx < width*height; pix_idx++) { 
+      set_pixel(pix_idx, 0);  
+    }
+    write('Wrote ' + pix_idx + ' total pixels '); 
     cxt.putImageData(imageData, 0, 0);  
-    var dataUrl = c.toDataURL(); 
-    write(dataUrl); 
     var img = new Image(); 
-    img.src = dataUrl;
+    img.src = c.toDataURL(); 
     return img; 
 
   }
@@ -127,6 +178,7 @@
 
   /* when the user selects a file, draw it on the canvas as an image */ 
   function handleFileSelect(evt) {
+    clear_alerts(); 
     var files = evt.target.files; // FileList object
 
     // files is a FileList of File objects. List some properties.
@@ -139,7 +191,10 @@
     reader.onload = function ( loadEvent ) { 
        originalData = loadEvent.target.result; 
        encryptedData = encrypt(originalData);
-       encodedImage = encode(encryptedData); 
+       block_width = $('#block_width_slider').slider('value'); // you can just drop these if you want to use the default 2x2
+       block_height = $('#block_height_slider').slider('value');  
+       width_to_height_ratio = 1.0; // todo: actually use the image 
+       encodedImage = encode(encryptedData, 1.0, block_width, block_height ); 
        encodedImage.onload = function () { 
          image_to_canvas(encodedImage);      
        }
