@@ -61,6 +61,7 @@ class Application(tornado.web.Application):
     handlers = [
       (r"/", MainHandler),
       (r"/status", StatusHandler),
+      (r"/dnd", DnDHandler),
       (r"/exit", ExitHandler),
       (r"/photo_selection", PhotoSelectionHandler),
       (r"/tree_json", TreeJsonHandler),
@@ -152,6 +153,10 @@ class StatusHandler(tornado.web.RequestHandler):
     self.write(JSONEncoder().encode(to_return))
     logging.info('Returned status.')
 
+
+class DnDHandler(tornado.web.RequestHandler):
+  def get(self):
+    self.render('dnd.html')
 
 class PhotoSelectionHandler(tornado.web.RequestHandler):
   def get(self):
@@ -383,7 +388,7 @@ def main(argv):
     prog='cryptogram', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument('-p', '--password', type=str, default=None,
                       help='TODO Password to encrypt image with.')
-  parser.add_argument('photo', nargs='+', default=[], help='Photos to encrypt.')
+  parser.add_argument('photo', nargs='*', default=[], help='Photos to encrypt.')
 
   FLAGS = parser.parse_args()
 
@@ -420,9 +425,9 @@ def main(argv):
   if queue.empty():
     logging.info('Queue empty. Therefore, we need some files.')
     logging.warning('TODO: allow users to select photos.')
+    webbrowser.open_new_tab('http://localhost:%d/dnd' % options.port)
     return
-    # webbrowser.open_new_tab('http://localhost:%d/photo_selection' % \
-    #                         options.port)
+
   else:
     logging.info('We have a queue ready for action.')
     webbrowser.open_new_tab('http://localhost:%d' % options.port)
