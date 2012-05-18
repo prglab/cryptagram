@@ -308,7 +308,7 @@ class GuiCodec(threading.Thread):
       try:
         image_path = self.queue.get_nowait()
       except Exception, e:
-        logging.error('Queue empty? %s.' % str(e))
+        logging.info('Queue empty %s.' % str(e))
         break
       _PROGRESS[image_path] = -1
 
@@ -367,6 +367,14 @@ if _PLATFORM == 'Darwin':
       self.statusitem.setMenu_(self.menu)
 # ---------------- End Darwin (Mac OS X)-related Code --------------------------
 
+def valid_image(path):
+  try:
+    Image.open(path)
+    return True
+  except Exception, e:
+    logging.error('Validating image error. %s.' % str(e))
+    return False
+
 def main(argv):
   global _CODECS, _PROGRESS, _NUM_THREADS
 
@@ -387,24 +395,27 @@ def main(argv):
   tornado_server = TornadoServer()
   tornado_server.start()
 
-  # TODO(tierney): Make it possible for users to specify switches beyond
-  # passed in files. We will use argparse.
+  # Build queue of images to encrypt.
   queue = Queue()
   passed_values = FLAGS.photo
+
   logging.info('Photos: %s.' % passed_values)
   for passed_value in passed_values:
     if os.path.isdir(passed_value):
       logging.info('Treat %s like a directory.' % passed_value)
+
       for _dir_file in os.listdir(passed_value):
         logging.info('Adding %s from %s.' % (_dir_file, passed_value))
         _path = os.path.join(passed_value, _dir_file)
 
-        queue.put(_path)
-        _PROGRESS[_path] = -2
+        if valid_image(_path):
+          queue.put(_path)
+          _PROGRESS[_path] = -2
     else:
       logging.info('Encrypting %s.' % passed_value)
-      queue.put(passed_value)
-      _PROGRESS[passed_value] = -2
+      if valid_image(passed_value)
+        queue.put(passed_value)
+        _PROGRESS[passed_value] = -2
 
   if queue.empty():
     logging.info('Queue empty. Therefore, we need some files.')
