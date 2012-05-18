@@ -33,7 +33,7 @@ class NewImageDimensions(object):
     # Rounding based on the following (e = 0 currently):
     #   xw = sqrt( ((r +- e)*bh*s) / bw )
     #   xh = S / xw
-    num_symbols_wide = (((self.wh_ratio - self._epsilon) * \
+    num_symbols_wide = (((self.wh_ratio) * \
                    self.symbol_height * self.data_len) \
                   / (self.symbol_width)) ** .5
     num_symbols_high = self.data_len / float(num_symbols_wide)
