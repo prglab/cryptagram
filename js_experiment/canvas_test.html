@@ -169,7 +169,11 @@
     c.height = height; 
     var cxt = c.getContext('2d'); 
     var imageData = cxt.createImageData(width, height); 
-    var d = imageData.data; 
+    var d = imageData.data;
+    // zero the image 
+    for (var pix_idx = 0; pix_idx < width*height; pix_idx++) { 
+      d[pix_idx] = 0; 
+    } 
     function set_pixel(x, y, level) { 
       idx = 4 * (x + y * width); 
       // set RGB channels to same level since we're encoding data as grayscale
@@ -217,12 +221,13 @@
         x = x_coord * block_width; 
       }
       y = y_coord * block_height; 
-      write("i: " + i + ", level: " + level + ", x:" + x + ", y:" + y); 
+      //write("i: " + i + ", level: " + level + ", x:" + x + ", y:" + y); 
       set_block(x,y,level); 
     }
     cxt.putImageData(imageData, 0, 0);  
     var img = new Image(); 
-    img.src = c.toDataURL('image/jpeg', 0.95); 
+    img.src = c.toDataURL('image/jpeg', 0.95);
+    document.body.appendChild(img); 
     return img; 
 
   }
