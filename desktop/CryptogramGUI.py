@@ -16,6 +16,7 @@ from tornado.options import define, options
 from util import md5hash
 import Orientation
 import argparse
+import cPickle
 import cStringIO
 import gc
 import json
@@ -52,6 +53,7 @@ logging.basicConfig(level=logging.INFO,
 
 define("port", default=8888, help="run on the given port", type=int)
 
+_SETTINGS_FILE = 'settings.pkl'
 _NUM_THREADS = cpu_count() - 1
 _ALREADY_ENCRYPTING = False
 _CODEC = None
@@ -76,7 +78,16 @@ class Application(tornado.web.Application):
 
 class MainHandler(tornado.web.RequestHandler):
   def get(self):
-    self.render("index.html")
+    output_directory_default = "~/Desktop/Cryptogram"
+    if not os.path.exists(_SETTINGS_FILE):
+      with open(_SETTINGS_FILE, 'wb') as fh:
+        cPickle.dump({'output_directory_default': output_directory_default},
+                     fh)
+    with open(_SETTINGS_FILE) as fh:
+      settings = cPickle.load(fh)
+    output_directory_default = settings['output_directory_default']
+    self.render("index.html",
+                output_directory_default = output_directory_default)
 
   def post(self):
     global _CODECS
@@ -92,6 +103,12 @@ class MainHandler(tornado.web.RequestHandler):
     # already exists then we just dump the new encrypted photos into that
     # directory.
     output_directory = self.get_argument('output_dir')
+    with open(_SETTINGS_FILE) as fh:
+      settings = cPickle.load(fh)
+    settings['output_directory_default'] = output_directory
+    with open(_SETTINGS_FILE, 'wb') as fh:
+      cPickle.dump(settings, fh)
+
     try:
       expanded_output_dir_path = os.path.expanduser(output_directory)
       if not os.path.exists(expanded_output_dir_path):
@@ -157,6 +174,7 @@ class StatusHandler(tornado.web.RequestHandler):
 class DnDHandler(tornado.web.RequestHandler):
   def get(self):
     self.render('dnd.html')
+
 
 class PhotoSelectionHandler(tornado.web.RequestHandler):
   def get(self):
