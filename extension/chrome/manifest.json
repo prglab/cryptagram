@@ -1,6 +1,6 @@
   {
   "name" : "Cryptogram",
-  "version" : "0.11",
+  "version" : "0.12",
   "description" : "Decrypt Cryptogram photos.",
   "permissions" : [
     "contextMenus",
