@@ -272,8 +272,8 @@
        // get rid of data type information (for now assuming always jpeg 
        var withoutMimeHeader = originalData.split('base64,')[1];
        // get rid of ='s which are for padding
-       var justData = withoutMimeHeader.split('=')[0]; 
-       encryptedData = encrypt(justData, "cryptogram");
+       //var justData = withoutMimeHeader.split('=')[0]; 
+       encryptedData = encrypt(withoutMimeHeader, "cryptogram");
        block_width = $('#block_width_slider').slider('value'); // you can just drop these if you want to use the default 2x2
        block_height = $('#block_height_slider').slider('value');  
        width_to_height_ratio = 1.0; // todo: actually use the image 
