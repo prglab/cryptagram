@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		54111C13157186FC00443EAA /* sjcl.js in Sources */ = {isa = PBXBuildFile; fileRef = 54111C12157186FB00443EAA /* sjcl.js */; };
 		8F0ED2E814FC195800563787 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED2E714FC195800563787 /* UIKit.framework */; };
 		8F0ED2EA14FC195800563787 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED2E914FC195800563787 /* Foundation.framework */; };
 		8F0ED2EC14FC195800563787 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED2EB14FC195800563787 /* CoreGraphics.framework */; };
@@ -24,6 +25,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		54111C12157186FB00443EAA /* sjcl.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = sjcl.js; sourceTree = "<group>"; };
 		8F0ED2E314FC195800563787 /* AddressBookSpy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AddressBookSpy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F0ED2E714FC195800563787 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		8F0ED2E914FC195800563787 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -76,6 +78,7 @@
 		8F0ED2D814FC195800563787 = {
 			isa = PBXGroup;
 			children = (
+				54111C12157186FB00443EAA /* sjcl.js */,
 				8F0ED31F14FC356200563787 /* Resources */,
 				8F0ED30C14FC1C2C00563787 /* JavaScriptCore */,
 				8F0ED2ED14FC195800563787 /* AddressBookSpy */,
@@ -225,6 +228,7 @@
 				8F0ED2F814FC195800563787 /* ABSAppDelegate.m in Sources */,
 				8F0ED2FB14FC195800563787 /* ABSViewController.m in Sources */,
 				8F0ED31E14FC2A0300563787 /* ABSEngine.m in Sources */,
+				54111C13157186FC00443EAA /* sjcl.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

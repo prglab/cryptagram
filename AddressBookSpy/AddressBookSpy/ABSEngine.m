@@ -116,8 +116,12 @@ JSValueRef ABSFindPersonMethod(JSContextRef ctx,
  */
 - (void)loadJSLibrary:(NSString*)libraryName 
 {
-    NSString *library = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:libraryName ofType:@"js"]  encoding:NSUTF8StringEncoding error:nil];
-    
+    NSError *error = nil;
+    NSString *library = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:libraryName ofType:@"js"]  encoding:NSASCIIStringEncoding error:&error];
+    if (!library) {
+        NSLog(@"Error with library %@: %@.", libraryName, error);
+        return;
+    }
     NSLog(@"[JSC] loading library %@...", libraryName);
     [self runJS:library];  
 }
