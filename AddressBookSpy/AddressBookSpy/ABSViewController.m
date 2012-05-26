@@ -24,13 +24,20 @@
 {
     [super viewDidLoad];
     
-    [self.engine loadJSLibrary:@"handlebars-1.0.0.beta.6"];
-    
-    NSString *handlebarsTest = @"\
-    var template = Handlebars.compile(\"It's log, log, it's {{size}}, it's {{weight}}, it's {{material}}!\");\
-    var context = {size: 'big', weight: 'heavy', material: 'wood'};\
-    template(context);";
-    NSLog(@"Result: %@", [self.engine runJS:handlebarsTest]);
+//    [self.engine loadJSLibrary:@"handlebars-1.0.0.beta.6"];
+//    
+//    NSString *handlebarsTest = @"\
+//    var template = Handlebars.compile(\"It's log, log, it's {{size}}, it's {{weight}}, it's {{material}}!\");\
+//    var context = {size: 'big', weight: 'heavy', material: 'wood'};\
+//    template(context);";
+//    NSLog(@"Result: %@", [self.engine runJS:handlebarsTest]);
+
+    [self.engine loadJSLibrary:@"sjcl"];
+
+    NSString *sjclTest = @"\
+        sjcl.encrypt(\"hello\", \"message\");";
+    NSLog(@"Sanity check: %@.", sjclTest);
+    NSLog(@"Result: %@", [self.engine runJS:sjclTest]);
 }
 
 - (IBAction)findPerson:(id)sender 
