@@ -7,6 +7,10 @@
 //
 
 #import "ABSViewController.h"
+#import "QSUtilities.h"
+#import "HashValue.h"
+#import <Foundation/NSJSONSerialization.h>
+#include <CommonCrypto/CommonDigest.h>
 
 @implementation ABSViewController
 @synthesize engine=_engine, searchTermField=_searchTermField, resultLabel=_resultLabel;
@@ -24,20 +28,7 @@
 {
     [super viewDidLoad];
     
-//    [self.engine loadJSLibrary:@"handlebars-1.0.0.beta.6"];
-//    
-//    NSString *handlebarsTest = @"\
-//    var template = Handlebars.compile(\"It's log, log, it's {{size}}, it's {{weight}}, it's {{material}}!\");\
-//    var context = {size: 'big', weight: 'heavy', material: 'wood'};\
-//    template(context);";
-//    NSLog(@"Result: %@", [self.engine runJS:handlebarsTest]);
-
     [self.engine loadJSLibrary:@"sjcl"];
-
-    NSString *sjclTest = @"\
-        sjcl.encrypt(\"hello\", \"message\");";
-    NSLog(@"Sanity check: %@.", sjclTest);
-    NSLog(@"Result: %@", [self.engine runJS:sjclTest]);
 }
 
 - (IBAction)findPerson:(id)sender 
@@ -45,6 +36,43 @@
     NSString *result = [self.engine runJS:[NSString stringWithFormat:@"findPerson('%@')", 
                                            self.searchTermField.text]];
     self.resultLabel.text = result;
+
+    NSString *image_path = [[NSBundle mainBundle] pathForResource:@"green" ofType:@"jpg"];
+    NSFileHandle *image_fh = [NSFileHandle fileHandleForReadingAtPath:image_path];
+    NSData *buffer = [image_fh readDataToEndOfFile];
+    NSString *base64_image = [QSStrings encodeBase64WithData:buffer];
+    NSLog(@"image %@.", [base64_image substringToIndex:25]);
+    
+    NSString *password = @"cryptogram";
+    NSString *sjcl_command = [NSString 
+                              stringWithFormat:@"sjcl.encrypt(\"%@\", \"%@\");",
+                              password, base64_image];
+    
+    NSLog(@"About to encrypt.");
+    NSData *encrypted_result = [[self.engine runJS:sjcl_command] 
+                                dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *encrypted_data = [NSJSONSerialization 
+                                    JSONObjectWithData:encrypted_result 
+                                    options:kNilOptions error:nil];
+
+    NSString *to_hash = [NSString stringWithFormat:@"%@%@%@", 
+     [encrypted_data objectForKey:@"iv"],
+     [encrypted_data objectForKey:@"salt"],
+     [encrypted_data objectForKey:@"ct"]];
+
+    HashValue *data_to_hash = [HashValue sha256HashWithData:[to_hash dataUsingEncoding:NSUTF8StringEncoding]];
+    NSString *integrity_check_value = [data_to_hash description];
+    NSLog(@"Integrity check: %@.", integrity_check_value);
+    NSLog(@"Result: %@", [encrypted_data objectForKey:@"iv"]);
+    
+}
+
+-(IBAction)encrypt:(id)sender
+{
+    NSFileHandle *image = [NSFileHandle fileHandleForReadingAtPath:@"koi.jpg"];
+//    NSString *sjclTest = [NSString stringWithFormat:@"sjcl.encrypt(\"%@\", \"message\");",
+//                          self.passwordField.text];
+
 }
 
 @end
