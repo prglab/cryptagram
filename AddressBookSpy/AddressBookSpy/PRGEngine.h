@@ -1,3 +1,8 @@
+//  PRGEngine.h
+//  Cryptogram
+//  Author: tierney@cs.nyu.edu (Matt Tierney)
+//
+//  Based on the following:
 //
 //  ABSEngine.h
 //  AddressBookSpy
@@ -9,7 +14,7 @@
 #import <Foundation/Foundation.h>
 #import <JavaScriptCore/JavaScriptCore.h>
 
-@interface ABSEngine : NSObject {
+@interface PRGEngine : NSObject {
     JSGlobalContextRef _JSContext;
 }
 
