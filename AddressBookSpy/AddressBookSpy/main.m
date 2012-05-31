@@ -8,11 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-#import "ABSAppDelegate.h"
+#import "PRGAppDelegate.h"
 
 int main(int argc, char *argv[])
 {
     @autoreleasepool {
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([ABSAppDelegate class]));
+        return UIApplicationMain(argc, argv, nil, NSStringFromClass([PRGAppDelegate class]));
     }
 }

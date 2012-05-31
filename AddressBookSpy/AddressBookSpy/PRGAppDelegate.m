@@ -1,3 +1,8 @@
+//  PRGAppDelegate.m
+//  Cryptogram
+//  Author: tierney@cs.nyu.edu (Matt Tierney)
+//
+//  Based on the following:
 //
 //  ABSAppDelegate.m
 //  AddressBookSpy
@@ -6,11 +11,11 @@
 //  Copyright (c) 2012 Springenwerk. All rights reserved.
 //
 
-#import "ABSAppDelegate.h"
+#import "PRGAppDelegate.h"
 
-#import "ABSViewController.h"
+#import "PRGViewController.h"
 
-@implementation ABSAppDelegate
+@implementation PRGAppDelegate
 
 @synthesize window = _window;
 @synthesize viewController = _viewController;
@@ -19,8 +24,9 @@
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
-    self.viewController = [[ABSViewController alloc] initWithNibName:@"ABSViewController" bundle:nil];
-    self.window.rootViewController = self.viewController;
+    self.viewController = [[PRGViewController alloc] initWithNibName:@"PRGViewController" bundle:nil];
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.viewController];
+    self.window.rootViewController = nav;
     [self.window makeKeyAndVisible];
     return YES;
 }

@@ -85,8 +85,7 @@
 	NSMutableString *stringValue =
 		[NSMutableString stringWithCapacity:byteLength * 2];
 	NSInteger i;
-	for (i = 0; i < byteLength; i++)
-	{
+	for (i = 0; i < byteLength; i++) {
 		[stringValue appendFormat:@"%02x", value[i]];
 	}
 	

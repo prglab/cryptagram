@@ -11,20 +11,23 @@
 		54111C5A1571D2C100443EAA /* QSStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 54111C221571C70800443EAA /* QSStrings.m */; };
 		54111C5B1571D2ED00443EAA /* QSUtilities.h in Sources */ = {isa = PBXBuildFile; fileRef = 54111C231571C70F00443EAA /* QSUtilities.h */; };
 		54111C6A1572A4A100443EAA /* green.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 54111C691572A4A100443EAA /* green.jpg */; };
+		54C349941575C2E20022032C /* PRGUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 54C349931575C2E20022032C /* PRGUtilities.m */; };
+		54C3499715779F5F0022032C /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54C3499615779F5E0022032C /* MobileCoreServices.framework */; };
+		54C3499915779F670022032C /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54C3499815779F670022032C /* MessageUI.framework */; };
 		54E4FD4D1572BCEB00765FF1 /* HashValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E4FD4C1572BCEB00765FF1 /* HashValue.m */; };
 		8F0ED2E814FC195800563787 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED2E714FC195800563787 /* UIKit.framework */; };
 		8F0ED2EA14FC195800563787 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED2E914FC195800563787 /* Foundation.framework */; };
 		8F0ED2EC14FC195800563787 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED2EB14FC195800563787 /* CoreGraphics.framework */; };
 		8F0ED2F214FC195800563787 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8F0ED2F014FC195800563787 /* InfoPlist.strings */; };
 		8F0ED2F414FC195800563787 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F0ED2F314FC195800563787 /* main.m */; };
-		8F0ED2F814FC195800563787 /* ABSAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F0ED2F714FC195800563787 /* ABSAppDelegate.m */; };
-		8F0ED2FB14FC195800563787 /* ABSViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F0ED2FA14FC195800563787 /* ABSViewController.m */; };
-		8F0ED2FE14FC195800563787 /* ABSViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8F0ED2FC14FC195800563787 /* ABSViewController.xib */; };
+		8F0ED2F814FC195800563787 /* PRGAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F0ED2F714FC195800563787 /* PRGAppDelegate.m */; };
+		8F0ED2FB14FC195800563787 /* PRGViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F0ED2FA14FC195800563787 /* PRGViewController.m */; };
+		8F0ED2FE14FC195800563787 /* PRGViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8F0ED2FC14FC195800563787 /* PRGViewController.xib */; };
 		8F0ED30714FC1A9300563787 /* libiOSJavaScriptCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED30614FC1A9300563787 /* libiOSJavaScriptCore.a */; };
 		8F0ED31714FC1FB500563787 /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED31614FC1FB500563787 /* libstdc++.dylib */; };
 		8F0ED31914FC1FC600563787 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED31814FC1FC600563787 /* libicucore.dylib */; };
 		8F0ED31B14FC1FD800563787 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED31A14FC1FD800563787 /* AddressBook.framework */; };
-		8F0ED31E14FC2A0300563787 /* ABSEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F0ED31D14FC2A0300563787 /* ABSEngine.m */; };
+		8F0ED31E14FC2A0300563787 /* PRGEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F0ED31D14FC2A0300563787 /* PRGEngine.m */; };
 		8F0ED32514FC3D4D00563787 /* sjcl.js in Resources */ = {isa = PBXBuildFile; fileRef = 8F0ED32314FC3C2800563787 /* sjcl.js */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +44,10 @@
 		54111C221571C70800443EAA /* QSStrings.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = QSStrings.m; path = AddressBookSpy/QSStrings.m; sourceTree = "<group>"; };
 		54111C231571C70F00443EAA /* QSUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = QSUtilities.h; path = AddressBookSpy/QSUtilities.h; sourceTree = "<group>"; };
 		54111C691572A4A100443EAA /* green.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = green.jpg; sourceTree = "<group>"; };
+		54C349921575C2E20022032C /* PRGUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PRGUtilities.h; path = AddressBookSpy/PRGUtilities.h; sourceTree = "<group>"; };
+		54C349931575C2E20022032C /* PRGUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PRGUtilities.m; path = AddressBookSpy/PRGUtilities.m; sourceTree = "<group>"; };
+		54C3499615779F5E0022032C /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		54C3499815779F670022032C /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		54E4FD4B1572BCEB00765FF1 /* HashValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashValue.h; sourceTree = "<group>"; };
 		54E4FD4C1572BCEB00765FF1 /* HashValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HashValue.m; sourceTree = "<group>"; };
 		8F0ED2E314FC195800563787 /* Cryptogram.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cryptogram.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -51,11 +58,11 @@
 		8F0ED2F114FC195800563787 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		8F0ED2F314FC195800563787 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		8F0ED2F514FC195800563787 /* Cryptogram-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Cryptogram-Prefix.pch"; sourceTree = "<group>"; };
-		8F0ED2F614FC195800563787 /* ABSAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ABSAppDelegate.h; sourceTree = "<group>"; };
-		8F0ED2F714FC195800563787 /* ABSAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ABSAppDelegate.m; sourceTree = "<group>"; };
-		8F0ED2F914FC195800563787 /* ABSViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ABSViewController.h; sourceTree = "<group>"; };
-		8F0ED2FA14FC195800563787 /* ABSViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ABSViewController.m; sourceTree = "<group>"; };
-		8F0ED2FD14FC195800563787 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ABSViewController.xib; sourceTree = "<group>"; };
+		8F0ED2F614FC195800563787 /* PRGAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRGAppDelegate.h; sourceTree = "<group>"; };
+		8F0ED2F714FC195800563787 /* PRGAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PRGAppDelegate.m; sourceTree = "<group>"; };
+		8F0ED2F914FC195800563787 /* PRGViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRGViewController.h; sourceTree = "<group>"; };
+		8F0ED2FA14FC195800563787 /* PRGViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PRGViewController.m; sourceTree = "<group>"; };
+		8F0ED2FD14FC195800563787 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/PRGViewController.xib; sourceTree = "<group>"; };
 		8F0ED30614FC1A9300563787 /* libiOSJavaScriptCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libiOSJavaScriptCore.a; sourceTree = "<group>"; };
 		8F0ED30D14FC1C2C00563787 /* JavaScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScript.h; sourceTree = "<group>"; };
 		8F0ED30E14FC1C2C00563787 /* JavaScriptCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScriptCore.h; sourceTree = "<group>"; };
@@ -69,8 +76,8 @@
 		8F0ED31614FC1FB500563787 /* libstdc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libstdc++.dylib"; path = "usr/lib/libstdc++.dylib"; sourceTree = SDKROOT; };
 		8F0ED31814FC1FC600563787 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		8F0ED31A14FC1FD800563787 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
-		8F0ED31C14FC2A0300563787 /* ABSEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ABSEngine.h; sourceTree = "<group>"; };
-		8F0ED31D14FC2A0300563787 /* ABSEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ABSEngine.m; sourceTree = "<group>"; };
+		8F0ED31C14FC2A0300563787 /* PRGEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRGEngine.h; sourceTree = "<group>"; };
+		8F0ED31D14FC2A0300563787 /* PRGEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRGEngine.m; sourceTree = "<group>"; };
 		8F0ED32314FC3C2800563787 /* sjcl.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = sjcl.js; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -79,6 +86,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				54C3499915779F670022032C /* MessageUI.framework in Frameworks */,
+				54C3499715779F5F0022032C /* MobileCoreServices.framework in Frameworks */,
 				8F0ED31B14FC1FD800563787 /* AddressBook.framework in Frameworks */,
 				8F0ED2E814FC195800563787 /* UIKit.framework in Frameworks */,
 				8F0ED2EA14FC195800563787 /* Foundation.framework in Frameworks */,
@@ -106,6 +115,8 @@
 		8F0ED2D814FC195800563787 = {
 			isa = PBXGroup;
 			children = (
+				54C349921575C2E20022032C /* PRGUtilities.h */,
+				54C349931575C2E20022032C /* PRGUtilities.m */,
 				54E4FD4B1572BCEB00765FF1 /* HashValue.h */,
 				54E4FD4C1572BCEB00765FF1 /* HashValue.m */,
 				54111C191571C6F300443EAA /* GTM */,
@@ -135,6 +146,8 @@
 		8F0ED2E614FC195800563787 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				54C3499815779F670022032C /* MessageUI.framework */,
+				54C3499615779F5E0022032C /* MobileCoreServices.framework */,
 				8F0ED31A14FC1FD800563787 /* AddressBook.framework */,
 				8F0ED31814FC1FC600563787 /* libicucore.dylib */,
 				8F0ED31614FC1FB500563787 /* libstdc++.dylib */,
@@ -149,14 +162,14 @@
 		8F0ED2ED14FC195800563787 /* Cryptogram */ = {
 			isa = PBXGroup;
 			children = (
-				8F0ED2F614FC195800563787 /* ABSAppDelegate.h */,
-				8F0ED2F714FC195800563787 /* ABSAppDelegate.m */,
-				8F0ED2F914FC195800563787 /* ABSViewController.h */,
-				8F0ED2FA14FC195800563787 /* ABSViewController.m */,
-				8F0ED2FC14FC195800563787 /* ABSViewController.xib */,
+				8F0ED2F614FC195800563787 /* PRGAppDelegate.h */,
+				8F0ED2F714FC195800563787 /* PRGAppDelegate.m */,
+				8F0ED2F914FC195800563787 /* PRGViewController.h */,
+				8F0ED2FA14FC195800563787 /* PRGViewController.m */,
+				8F0ED2FC14FC195800563787 /* PRGViewController.xib */,
 				8F0ED2EE14FC195800563787 /* Supporting Files */,
-				8F0ED31C14FC2A0300563787 /* ABSEngine.h */,
-				8F0ED31D14FC2A0300563787 /* ABSEngine.m */,
+				8F0ED31C14FC2A0300563787 /* PRGEngine.h */,
+				8F0ED31D14FC2A0300563787 /* PRGEngine.m */,
 			);
 			name = Cryptogram;
 			path = AddressBookSpy;
@@ -252,7 +265,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8F0ED2F214FC195800563787 /* InfoPlist.strings in Resources */,
-				8F0ED2FE14FC195800563787 /* ABSViewController.xib in Resources */,
+				8F0ED2FE14FC195800563787 /* PRGViewController.xib in Resources */,
 				8F0ED32514FC3D4D00563787 /* sjcl.js in Resources */,
 				54111C15157190CD00443EAA /* koi.jpg in Resources */,
 				54111C6A1572A4A100443EAA /* green.jpg in Resources */,
@@ -269,10 +282,11 @@
 				54111C5B1571D2ED00443EAA /* QSUtilities.h in Sources */,
 				54111C5A1571D2C100443EAA /* QSStrings.m in Sources */,
 				8F0ED2F414FC195800563787 /* main.m in Sources */,
-				8F0ED2F814FC195800563787 /* ABSAppDelegate.m in Sources */,
-				8F0ED2FB14FC195800563787 /* ABSViewController.m in Sources */,
-				8F0ED31E14FC2A0300563787 /* ABSEngine.m in Sources */,
+				8F0ED2F814FC195800563787 /* PRGAppDelegate.m in Sources */,
+				8F0ED2FB14FC195800563787 /* PRGViewController.m in Sources */,
+				8F0ED31E14FC2A0300563787 /* PRGEngine.m in Sources */,
 				54E4FD4D1572BCEB00765FF1 /* HashValue.m in Sources */,
+				54C349941575C2E20022032C /* PRGUtilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,12 +301,12 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		8F0ED2FC14FC195800563787 /* ABSViewController.xib */ = {
+		8F0ED2FC14FC195800563787 /* PRGViewController.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
 				8F0ED2FD14FC195800563787 /* en */,
 			);
-			name = ABSViewController.xib;
+			name = PRGViewController.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

@@ -1,3 +1,8 @@
+//  PRGEngine.m
+//  Cryptogram
+//  Author: tierney@cs.nyu.edu (Matt Tierney)
+//
+//  Based on the following:
 //
 //  ABSEngine.m
 //  AddressBookSpy
@@ -6,12 +11,12 @@
 //  Copyright (c) 2012 Springenwerk. All rights reserved.
 //
 
-#import "ABSEngine.h"
+#import "PRGEngine.h"
 #import <AddressBook/AddressBook.h>
 
-@implementation ABSEngine
+@implementation PRGEngine
 
-JSValueRef ABSFindPersonMethod(JSContextRef ctx, 
+JSValueRef PRGFindPersonMethod(JSContextRef ctx, 
                                JSObjectRef function, 
                                JSObjectRef thisObject, 
                                size_t argumentCount, 
@@ -64,7 +69,7 @@ JSValueRef ABSFindPersonMethod(JSContextRef ctx,
         
         // Expose a native function to the JS context
         JSStringRef str = JSStringCreateWithUTF8CString("findPerson");
-        JSObjectRef func = JSObjectMakeFunctionWithCallback(_JSContext, str, ABSFindPersonMethod);
+        JSObjectRef func = JSObjectMakeFunctionWithCallback(_JSContext, str, PRGFindPersonMethod);
         JSObjectSetProperty(_JSContext, JSContextGetGlobalObject(_JSContext), str, func, kJSPropertyAttributeNone, NULL);
         JSStringRelease(str);
     }
