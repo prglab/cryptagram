@@ -222,7 +222,7 @@ CGPoint CGRectGetCenter(CGRect rect)
 }
 const float kRedColor[] = { 1.0, 0.0, 0.0, 1.0}; 
 const int SYMBOL_HEIGHT = 2;
-const int SYMBOL_WIDTH = 4;
+const int SYMBOL_WIDTH = 2;
 
 // Update image and for iPhone, dismiss the controller
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
@@ -355,7 +355,11 @@ const int SYMBOL_WIDTH = 4;
             base_x = x_coord * 4;
         }
         base_y = y_coord * 2;
-     
+
+        if (i < 20) {
+            NSLog(@"%d %d %d %d", base_x, base_y, fill0, fill1);
+        }
+        
         CGContextSetGrayFillColor(context, fill0 / 256.0, 1.0);
         CGContextFillRect(context, CGRectMake(base_x, base_y, 2.0f, 2.0f));
         
