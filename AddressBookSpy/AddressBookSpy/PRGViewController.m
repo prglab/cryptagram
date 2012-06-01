@@ -242,7 +242,7 @@ const int SYMBOL_WIDTH = 2;
     int iteration = 0;
     NSData *jpeg_data = nil;
     while (YES) {
-        jpeg_data = UIImageJPEGRepresentation(image, 0.72);
+        jpeg_data = UIImageJPEGRepresentation(image, 0.72 ? iteration > 0 : 1.0);
         long estimated_length = [jpeg_data length] * pow(1.334, 2);
         if (estimated_length * 8 < DIMENSION_LIMIT * DIMENSION_LIMIT) {
             break;
@@ -290,7 +290,7 @@ const int SYMBOL_WIDTH = 2;
     int sym_width = (int)ceil(num_symbols_wide);
     
     int new_height = SYMBOL_HEIGHT * sym_height;
-    int new_width = SYMBOL_WIDTH * sym_width;
+    int new_width = 4 * sym_width;
     if (new_width / (float)new_height > _width_height_ratio) {
         double _desired_height = new_width / _width_height_ratio;
         int symbol_rows_to_add = (_desired_height - new_height) / SYMBOL_HEIGHT;
@@ -305,7 +305,7 @@ const int SYMBOL_WIDTH = 2;
     
     // TODO(tierney): Create the Cryptogram image.
     UIImage *cryptogram_image = nil;
-    UIGraphicsBeginImageContextWithOptions(CGSizeMake(new_width, new_height), NO, 0.0f);
+    UIGraphicsBeginImageContext(CGSizeMake(new_width, new_height));
     CGContextRef context = UIGraphicsGetCurrentContext();
 
     // Initialize everything to black.
@@ -350,24 +350,17 @@ const int SYMBOL_WIDTH = 2;
             base_x = 8 + (x_coord * 4);
         } else {
             i_ = i + 8;
-            y_coord = i_ / new_image_num_symbols_wide;
+            y_coord = i_ / (float) new_image_num_symbols_wide;
             x_coord = i_ - (y_coord * new_image_num_symbols_wide);
             base_x = x_coord * 4;
         }
         base_y = y_coord * 2;
-
-        if (i < 20) {
-            NSLog(@"%d %d %d %d", base_x, base_y, fill0, fill1);
-        }
         
         CGContextSetGrayFillColor(context, fill0 / 256.0, 1.0);
         CGContextFillRect(context, CGRectMake(base_x, base_y, 2.0f, 2.0f));
         
         CGContextSetGrayFillColor(context, fill1 / 256.0, 1.0);
         CGContextFillRect(context, CGRectMake(base_x + 2, base_y, 2.0f, 2.0f));
-        if (encrypt_len - i < 20) {
-            NSLog(@"last values written: %d, %d", base_x, base_y);            
-        }
     }
     
     cryptogram_image = UIGraphicsGetImageFromCurrentImageContext();
@@ -411,9 +404,10 @@ const int SYMBOL_WIDTH = 2;
                          [encrypted_data objectForKey:@"salt"],
                          [encrypted_data objectForKey:@"ct"]];
     
-    HashValue *data_to_hash = [HashValue sha256HashWithData:[to_hash dataUsingEncoding:NSUTF8StringEncoding]];
+    NSLog(@"To hash: %@.", to_hash);
+    HashValue *data_to_hash = [HashValue sha256HashWithData:[to_hash dataUsingEncoding:NSASCIIStringEncoding]];
     NSString *integrity_check_value = [data_to_hash description];
-    
+    NSLog(@"Integrity check: %@.", integrity_check_value);
     NSString *to_encrypt = [NSString stringWithFormat:@"%@%@%@%@",
                             integrity_check_value,
                             [encrypted_data objectForKey:@"iv"],
