@@ -3,7 +3,7 @@
 //  Cryptogram
 //
 //  Created by Matt Tierney on 5/29/12.
-//  Copyright (c) 2012 Springenwerk. All rights reserved.
+//  Copyright (c) 2012 NYU. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
