@@ -7,51 +7,45 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5465310E157A609D004CC2FB /* PRGUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 5465310D157A609D004CC2FB /* PRGUtilities.m */; };
-		54653118157A60CE004CC2FB /* QSStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 54653114157A60CE004CC2FB /* QSStrings.m */; };
-		54653122157A6102004CC2FB /* PRGAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5465311F157A6102004CC2FB /* PRGAppDelegate.m */; };
-		54653123157A6102004CC2FB /* PRGViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 54653121157A6102004CC2FB /* PRGViewController.m */; };
-		54653126157A6116004CC2FB /* PRGEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 54653125157A6116004CC2FB /* PRGEngine.m */; };
-		54653128157A6123004CC2FB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 54653127157A6123004CC2FB /* main.m */; };
-		5465312E157A615F004CC2FB /* PRGViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5465312C157A615F004CC2FB /* PRGViewController.xib */; };
-		54653132157A6172004CC2FB /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 54653130157A6172004CC2FB /* InfoPlist.strings */; };
+		54111C15157190CD00443EAA /* koi.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 54111C14157190CD00443EAA /* koi.jpg */; };
+		54111C5A1571D2C100443EAA /* QSStrings.m in Sources */ = {isa = PBXBuildFile; fileRef = 54111C221571C70800443EAA /* QSStrings.m */; };
+		54111C5B1571D2ED00443EAA /* QSUtilities.h in Sources */ = {isa = PBXBuildFile; fileRef = 54111C231571C70F00443EAA /* QSUtilities.h */; };
+		54111C6A1572A4A100443EAA /* green.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 54111C691572A4A100443EAA /* green.jpg */; };
+		54C349941575C2E20022032C /* PRGUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 54C349931575C2E20022032C /* PRGUtilities.m */; };
 		54C3499715779F5F0022032C /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54C3499615779F5E0022032C /* MobileCoreServices.framework */; };
 		54C3499915779F670022032C /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54C3499815779F670022032C /* MessageUI.framework */; };
 		54E4FD4D1572BCEB00765FF1 /* HashValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E4FD4C1572BCEB00765FF1 /* HashValue.m */; };
 		8F0ED2E814FC195800563787 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED2E714FC195800563787 /* UIKit.framework */; };
 		8F0ED2EA14FC195800563787 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED2E914FC195800563787 /* Foundation.framework */; };
 		8F0ED2EC14FC195800563787 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED2EB14FC195800563787 /* CoreGraphics.framework */; };
+		8F0ED2F214FC195800563787 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8F0ED2F014FC195800563787 /* InfoPlist.strings */; };
+		8F0ED2F414FC195800563787 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F0ED2F314FC195800563787 /* main.m */; };
+		8F0ED2F814FC195800563787 /* PRGAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F0ED2F714FC195800563787 /* PRGAppDelegate.m */; };
+		8F0ED2FB14FC195800563787 /* PRGViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F0ED2FA14FC195800563787 /* PRGViewController.m */; };
+		8F0ED2FE14FC195800563787 /* PRGViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8F0ED2FC14FC195800563787 /* PRGViewController.xib */; };
 		8F0ED30714FC1A9300563787 /* libiOSJavaScriptCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED30614FC1A9300563787 /* libiOSJavaScriptCore.a */; };
 		8F0ED31714FC1FB500563787 /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED31614FC1FB500563787 /* libstdc++.dylib */; };
 		8F0ED31914FC1FC600563787 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED31814FC1FC600563787 /* libicucore.dylib */; };
 		8F0ED31B14FC1FD800563787 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED31A14FC1FD800563787 /* AddressBook.framework */; };
+		8F0ED31E14FC2A0300563787 /* PRGEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F0ED31D14FC2A0300563787 /* PRGEngine.m */; };
 		8F0ED32514FC3D4D00563787 /* sjcl.js in Resources */ = {isa = PBXBuildFile; fileRef = 8F0ED32314FC3C2800563787 /* sjcl.js */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		5465310C157A609D004CC2FB /* PRGUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PRGUtilities.h; path = Cryptogram/PRGUtilities.h; sourceTree = "<group>"; };
-		5465310D157A609D004CC2FB /* PRGUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PRGUtilities.m; path = Cryptogram/PRGUtilities.m; sourceTree = "<group>"; };
-		5465310F157A60CE004CC2FB /* QSFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QSFileManager.h; path = Cryptogram/QSFileManager.h; sourceTree = "<group>"; };
-		54653110157A60CE004CC2FB /* QSFileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = QSFileManager.m; path = Cryptogram/QSFileManager.m; sourceTree = "<group>"; };
-		54653111157A60CE004CC2FB /* QSHttpClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QSHttpClient.h; path = Cryptogram/QSHttpClient.h; sourceTree = "<group>"; };
-		54653112157A60CE004CC2FB /* QSHttpClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = QSHttpClient.m; path = Cryptogram/QSHttpClient.m; sourceTree = "<group>"; };
-		54653113157A60CE004CC2FB /* QSStrings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QSStrings.h; path = Cryptogram/QSStrings.h; sourceTree = "<group>"; };
-		54653114157A60CE004CC2FB /* QSStrings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = QSStrings.m; path = Cryptogram/QSStrings.m; sourceTree = "<group>"; };
-		54653115157A60CE004CC2FB /* QSUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QSUtilities.h; path = Cryptogram/QSUtilities.h; sourceTree = "<group>"; };
-		5465311A157A60DE004CC2FB /* GTMDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMDefines.h; sourceTree = "<group>"; };
-		5465311B157A60DE004CC2FB /* GTMNSString+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GTMNSString+HTML.h"; sourceTree = "<group>"; };
-		5465311C157A60DE004CC2FB /* GTMNSString+HTML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "GTMNSString+HTML.m"; sourceTree = "<group>"; };
-		5465311E157A6102004CC2FB /* PRGAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PRGAppDelegate.h; path = Cryptogram/PRGAppDelegate.h; sourceTree = SOURCE_ROOT; };
-		5465311F157A6102004CC2FB /* PRGAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PRGAppDelegate.m; path = Cryptogram/PRGAppDelegate.m; sourceTree = SOURCE_ROOT; };
-		54653120157A6102004CC2FB /* PRGViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PRGViewController.h; path = Cryptogram/PRGViewController.h; sourceTree = SOURCE_ROOT; };
-		54653121157A6102004CC2FB /* PRGViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PRGViewController.m; path = Cryptogram/PRGViewController.m; sourceTree = SOURCE_ROOT; };
-		54653124157A6116004CC2FB /* PRGEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PRGEngine.h; path = Cryptogram/PRGEngine.h; sourceTree = SOURCE_ROOT; };
-		54653125157A6116004CC2FB /* PRGEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PRGEngine.m; path = Cryptogram/PRGEngine.m; sourceTree = SOURCE_ROOT; };
-		54653127157A6123004CC2FB /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Cryptogram/main.m; sourceTree = SOURCE_ROOT; };
-		5465312D157A615F004CC2FB /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = Cryptogram/en.lproj/PRGViewController.xib; sourceTree = SOURCE_ROOT; };
-		54653131157A6172004CC2FB /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Cryptogram/en.lproj/InfoPlist.strings; sourceTree = SOURCE_ROOT; };
-		54653133157A6187004CC2FB /* Cryptogram-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Cryptogram-Info.plist"; path = "Cryptogram/Cryptogram-Info.plist"; sourceTree = SOURCE_ROOT; };
-		54653134157A6187004CC2FB /* Cryptogram-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Cryptogram-Prefix.pch"; path = "Cryptogram/Cryptogram-Prefix.pch"; sourceTree = SOURCE_ROOT; };
+		54111C14157190CD00443EAA /* koi.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = koi.jpg; sourceTree = "<group>"; };
+		54111C1A1571C6F400443EAA /* GTMDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GTMDefines.h; sourceTree = "<group>"; };
+		54111C1B1571C6F400443EAA /* GTMNSString+HTML.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "GTMNSString+HTML.h"; sourceTree = "<group>"; };
+		54111C1C1571C6F400443EAA /* GTMNSString+HTML.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "GTMNSString+HTML.m"; sourceTree = "<group>"; };
+		54111C1D1571C6F400443EAA /* QSFileManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = QSFileManager.h; path = AddressBookSpy/QSFileManager.h; sourceTree = "<group>"; };
+		54111C1E1571C6F600443EAA /* QSFileManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = QSFileManager.m; path = AddressBookSpy/QSFileManager.m; sourceTree = "<group>"; };
+		54111C1F1571C6F800443EAA /* QSHttpClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = QSHttpClient.h; path = AddressBookSpy/QSHttpClient.h; sourceTree = "<group>"; };
+		54111C201571C6FC00443EAA /* QSHttpClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = QSHttpClient.m; path = AddressBookSpy/QSHttpClient.m; sourceTree = "<group>"; };
+		54111C211571C70100443EAA /* QSStrings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = QSStrings.h; path = AddressBookSpy/QSStrings.h; sourceTree = "<group>"; };
+		54111C221571C70800443EAA /* QSStrings.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = QSStrings.m; path = AddressBookSpy/QSStrings.m; sourceTree = "<group>"; };
+		54111C231571C70F00443EAA /* QSUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = QSUtilities.h; path = AddressBookSpy/QSUtilities.h; sourceTree = "<group>"; };
+		54111C691572A4A100443EAA /* green.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = green.jpg; sourceTree = "<group>"; };
+		54C349921575C2E20022032C /* PRGUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PRGUtilities.h; path = AddressBookSpy/PRGUtilities.h; sourceTree = "<group>"; };
+		54C349931575C2E20022032C /* PRGUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PRGUtilities.m; path = AddressBookSpy/PRGUtilities.m; sourceTree = "<group>"; };
 		54C3499615779F5E0022032C /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		54C3499815779F670022032C /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		54E4FD4B1572BCEB00765FF1 /* HashValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashValue.h; sourceTree = "<group>"; };
@@ -60,6 +54,15 @@
 		8F0ED2E714FC195800563787 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		8F0ED2E914FC195800563787 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		8F0ED2EB14FC195800563787 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		8F0ED2EF14FC195800563787 /* Cryptogram-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Cryptogram-Info.plist"; sourceTree = "<group>"; };
+		8F0ED2F114FC195800563787 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		8F0ED2F314FC195800563787 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		8F0ED2F514FC195800563787 /* Cryptogram-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Cryptogram-Prefix.pch"; sourceTree = "<group>"; };
+		8F0ED2F614FC195800563787 /* PRGAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRGAppDelegate.h; sourceTree = "<group>"; };
+		8F0ED2F714FC195800563787 /* PRGAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PRGAppDelegate.m; sourceTree = "<group>"; };
+		8F0ED2F914FC195800563787 /* PRGViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRGViewController.h; sourceTree = "<group>"; };
+		8F0ED2FA14FC195800563787 /* PRGViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PRGViewController.m; sourceTree = "<group>"; };
+		8F0ED2FD14FC195800563787 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/PRGViewController.xib; sourceTree = "<group>"; };
 		8F0ED30614FC1A9300563787 /* libiOSJavaScriptCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libiOSJavaScriptCore.a; sourceTree = "<group>"; };
 		8F0ED30D14FC1C2C00563787 /* JavaScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScript.h; sourceTree = "<group>"; };
 		8F0ED30E14FC1C2C00563787 /* JavaScriptCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScriptCore.h; sourceTree = "<group>"; };
@@ -73,6 +76,8 @@
 		8F0ED31614FC1FB500563787 /* libstdc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libstdc++.dylib"; path = "usr/lib/libstdc++.dylib"; sourceTree = SDKROOT; };
 		8F0ED31814FC1FC600563787 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		8F0ED31A14FC1FD800563787 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
+		8F0ED31C14FC2A0300563787 /* PRGEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRGEngine.h; sourceTree = "<group>"; };
+		8F0ED31D14FC2A0300563787 /* PRGEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRGEngine.m; sourceTree = "<group>"; };
 		8F0ED32314FC3C2800563787 /* sjcl.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = sjcl.js; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -96,32 +101,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		54653119157A60DE004CC2FB /* GTM */ = {
+		54111C191571C6F300443EAA /* GTM */ = {
 			isa = PBXGroup;
 			children = (
-				5465311A157A60DE004CC2FB /* GTMDefines.h */,
-				5465311B157A60DE004CC2FB /* GTMNSString+HTML.h */,
-				5465311C157A60DE004CC2FB /* GTMNSString+HTML.m */,
+				54111C1A1571C6F400443EAA /* GTMDefines.h */,
+				54111C1B1571C6F400443EAA /* GTMNSString+HTML.h */,
+				54111C1C1571C6F400443EAA /* GTMNSString+HTML.m */,
 			);
 			name = GTM;
-			path = Cryptogram/GTM;
+			path = AddressBookSpy/GTM;
 			sourceTree = "<group>";
 		};
 		8F0ED2D814FC195800563787 = {
 			isa = PBXGroup;
 			children = (
-				54653119157A60DE004CC2FB /* GTM */,
-				5465310F157A60CE004CC2FB /* QSFileManager.h */,
-				54653110157A60CE004CC2FB /* QSFileManager.m */,
-				54653111157A60CE004CC2FB /* QSHttpClient.h */,
-				54653112157A60CE004CC2FB /* QSHttpClient.m */,
-				54653113157A60CE004CC2FB /* QSStrings.h */,
-				54653114157A60CE004CC2FB /* QSStrings.m */,
-				54653115157A60CE004CC2FB /* QSUtilities.h */,
-				5465310C157A609D004CC2FB /* PRGUtilities.h */,
-				5465310D157A609D004CC2FB /* PRGUtilities.m */,
+				54C349921575C2E20022032C /* PRGUtilities.h */,
+				54C349931575C2E20022032C /* PRGUtilities.m */,
 				54E4FD4B1572BCEB00765FF1 /* HashValue.h */,
 				54E4FD4C1572BCEB00765FF1 /* HashValue.m */,
+				54111C191571C6F300443EAA /* GTM */,
+				54111C1D1571C6F400443EAA /* QSFileManager.h */,
+				54111C1E1571C6F600443EAA /* QSFileManager.m */,
+				54111C1F1571C6F800443EAA /* QSHttpClient.h */,
+				54111C201571C6FC00443EAA /* QSHttpClient.m */,
+				54111C211571C70100443EAA /* QSStrings.h */,
+				54111C221571C70800443EAA /* QSStrings.m */,
+				54111C231571C70F00443EAA /* QSUtilities.h */,
 				8F0ED31F14FC356200563787 /* Resources */,
 				8F0ED30C14FC1C2C00563787 /* JavaScriptCore */,
 				8F0ED2ED14FC195800563787 /* Cryptogram */,
@@ -157,14 +162,14 @@
 		8F0ED2ED14FC195800563787 /* Cryptogram */ = {
 			isa = PBXGroup;
 			children = (
-				5465311E157A6102004CC2FB /* PRGAppDelegate.h */,
-				5465311F157A6102004CC2FB /* PRGAppDelegate.m */,
-				54653120157A6102004CC2FB /* PRGViewController.h */,
-				5465312C157A615F004CC2FB /* PRGViewController.xib */,
-				54653121157A6102004CC2FB /* PRGViewController.m */,
+				8F0ED2F614FC195800563787 /* PRGAppDelegate.h */,
+				8F0ED2F714FC195800563787 /* PRGAppDelegate.m */,
+				8F0ED2F914FC195800563787 /* PRGViewController.h */,
+				8F0ED2FA14FC195800563787 /* PRGViewController.m */,
+				8F0ED2FC14FC195800563787 /* PRGViewController.xib */,
 				8F0ED2EE14FC195800563787 /* Supporting Files */,
-				54653124157A6116004CC2FB /* PRGEngine.h */,
-				54653125157A6116004CC2FB /* PRGEngine.m */,
+				8F0ED31C14FC2A0300563787 /* PRGEngine.h */,
+				8F0ED31D14FC2A0300563787 /* PRGEngine.m */,
 			);
 			name = Cryptogram;
 			path = AddressBookSpy;
@@ -173,10 +178,10 @@
 		8F0ED2EE14FC195800563787 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				54653133157A6187004CC2FB /* Cryptogram-Info.plist */,
-				54653134157A6187004CC2FB /* Cryptogram-Prefix.pch */,
-				54653130157A6172004CC2FB /* InfoPlist.strings */,
-				54653127157A6123004CC2FB /* main.m */,
+				8F0ED2EF14FC195800563787 /* Cryptogram-Info.plist */,
+				8F0ED2F014FC195800563787 /* InfoPlist.strings */,
+				8F0ED2F314FC195800563787 /* main.m */,
+				8F0ED2F514FC195800563787 /* Cryptogram-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -200,6 +205,8 @@
 		8F0ED31F14FC356200563787 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				54111C691572A4A100443EAA /* green.jpg */,
+				54111C14157190CD00443EAA /* koi.jpg */,
 				8F0ED32314FC3C2800563787 /* sjcl.js */,
 			);
 			name = Resources;
@@ -257,9 +264,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8F0ED2F214FC195800563787 /* InfoPlist.strings in Resources */,
+				8F0ED2FE14FC195800563787 /* PRGViewController.xib in Resources */,
 				8F0ED32514FC3D4D00563787 /* sjcl.js in Resources */,
-				5465312E157A615F004CC2FB /* PRGViewController.xib in Resources */,
-				54653132157A6172004CC2FB /* InfoPlist.strings in Resources */,
+				54111C15157190CD00443EAA /* koi.jpg in Resources */,
+				54111C6A1572A4A100443EAA /* green.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,33 +279,34 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				54111C5B1571D2ED00443EAA /* QSUtilities.h in Sources */,
+				54111C5A1571D2C100443EAA /* QSStrings.m in Sources */,
+				8F0ED2F414FC195800563787 /* main.m in Sources */,
+				8F0ED2F814FC195800563787 /* PRGAppDelegate.m in Sources */,
+				8F0ED2FB14FC195800563787 /* PRGViewController.m in Sources */,
+				8F0ED31E14FC2A0300563787 /* PRGEngine.m in Sources */,
 				54E4FD4D1572BCEB00765FF1 /* HashValue.m in Sources */,
-				5465310E157A609D004CC2FB /* PRGUtilities.m in Sources */,
-				54653118157A60CE004CC2FB /* QSStrings.m in Sources */,
-				54653122157A6102004CC2FB /* PRGAppDelegate.m in Sources */,
-				54653123157A6102004CC2FB /* PRGViewController.m in Sources */,
-				54653126157A6116004CC2FB /* PRGEngine.m in Sources */,
-				54653128157A6123004CC2FB /* main.m in Sources */,
+				54C349941575C2E20022032C /* PRGUtilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		5465312C157A615F004CC2FB /* PRGViewController.xib */ = {
+		8F0ED2F014FC195800563787 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				5465312D157A615F004CC2FB /* en */,
-			);
-			name = PRGViewController.xib;
-			sourceTree = "<group>";
-		};
-		54653130157A6172004CC2FB /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				54653131157A6172004CC2FB /* en */,
+				8F0ED2F114FC195800563787 /* en */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		8F0ED2FC14FC195800563787 /* PRGViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8F0ED2FD14FC195800563787 /* en */,
+			);
+			name = PRGViewController.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -351,9 +361,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Cryptogram/Cryptogram-Prefix.pch";
+				GCC_PREFIX_HEADER = "AddressBookSpy/Cryptogram-Prefix.pch";
 				HEADER_SEARCH_PATHS = "${SOURCE_ROOT}";
-				INFOPLIST_FILE = "Cryptogram/Cryptogram-Info.plist";
+				INFOPLIST_FILE = "AddressBookSpy/Cryptogram-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
@@ -367,9 +377,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Cryptogram/Cryptogram-Prefix.pch";
+				GCC_PREFIX_HEADER = "AddressBookSpy/Cryptogram-Prefix.pch";
 				HEADER_SEARCH_PATHS = "${SOURCE_ROOT}";
-				INFOPLIST_FILE = "Cryptogram/Cryptogram-Info.plist";
+				INFOPLIST_FILE = "AddressBookSpy/Cryptogram-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",

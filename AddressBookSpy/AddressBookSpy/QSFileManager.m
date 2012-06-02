@@ -35,6 +35,7 @@ static NSString * _strOfflineContentPath = nil;
 	if (_strDocumentsPath == nil) {
 		NSArray * objPaths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true);
 		_strDocumentsPath = [objPaths objectAtIndex:0];
+		[_strDocumentsPath retain];
 	}
 	
 	return [_strDocumentsPath stringByAppendingPathComponent:strFile];
@@ -45,6 +46,7 @@ static NSString * _strOfflineContentPath = nil;
 	if (_strOfflineContentPath == nil) {
 		NSArray * objPaths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, true);
 		_strOfflineContentPath = [[objPaths objectAtIndex:0] stringByAppendingPathComponent:@"Offline Content"];
+		[_strOfflineContentPath retain];
 	}
 
 	return [_strOfflineContentPath stringByAppendingPathComponent:strFile];
