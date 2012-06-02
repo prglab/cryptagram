@@ -8,6 +8,19 @@
 	<string>${PRODUCT_NAME}</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>Default.png</string>
+				<string>Default@2x.png</string>
+				<string>icon57.png</string>
+				<string>icon114.png</string>
+			</array>
+		</dict>
+	</dict>
 	<key>CFBundleIdentifier</key>
 	<string>org.prglab.cryptogram</string>
 	<key>CFBundleInfoDictionaryVersion</key>
