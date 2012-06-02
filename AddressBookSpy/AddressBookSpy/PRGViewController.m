@@ -282,7 +282,7 @@ const int SYMBOL_WIDTH = 2;
     NSLog(@"n_header_values_in_row: %d.", n_header_values_in_row);
     
     int data_len = ([header_values length] + [to_encrypt length]);
-    double num_symbols_wide = pow(_width_height_ratio * SYMBOL_HEIGHT * data_len / SYMBOL_WIDTH, 0.5);
+    double num_symbols_wide = pow(_width_height_ratio * SYMBOL_HEIGHT * data_len / 4., 0.5);
     double num_symbols_high = data_len / num_symbols_wide;
     NSLog(@"SYMS W %.2f H %.2f data_len %d", num_symbols_wide, num_symbols_high, data_len);
     
