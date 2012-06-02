@@ -182,8 +182,8 @@ CGPoint CGRectGetCenter(CGRect rect)
     mcvc.mailComposeDelegate = self;
     [mcvc setSubject:@"Here’s a great photo!"];
     NSString *body = @"<h1>Check this out</h1>\
-    <p>I selected this image from the\
-    <code><b>UIImagePickerController</b></code>.</p>";
+    <p>I encrypted an image on my iOS device with \
+    <code><b>Cryptogram</b></code>.</p>";
     [mcvc setSubject:@"Cryptogram iOS Photos!"];
     [mcvc setMessageBody:body isHTML:YES];
     [mcvc addAttachmentData:UIImageJPEGRepresentation(image, 1.0f)
@@ -282,7 +282,7 @@ const int SYMBOL_WIDTH = 2;
     NSLog(@"n_header_values_in_row: %d.", n_header_values_in_row);
     
     int data_len = ([header_values length] + [to_encrypt length]);
-    double num_symbols_wide = pow(_width_height_ratio * SYMBOL_HEIGHT * data_len / SYMBOL_WIDTH, 0.5);
+    double num_symbols_wide = pow(_width_height_ratio * SYMBOL_HEIGHT * data_len / 4.0, 0.5);
     double num_symbols_high = data_len / num_symbols_wide;
     NSLog(@"SYMS W %.2f H %.2f data_len %d", num_symbols_wide, num_symbols_high, data_len);
     
@@ -404,7 +404,7 @@ const int SYMBOL_WIDTH = 2;
                          [encrypted_data objectForKey:@"salt"],
                          [encrypted_data objectForKey:@"ct"]];
     
-    NSLog(@"To hash: %@.", to_hash);
+    NSLog(@"To hash: %@...", [to_hash substringToIndex:48]);
     HashValue *data_to_hash = [HashValue sha256HashWithData:[to_hash dataUsingEncoding:NSASCIIStringEncoding]];
     NSString *integrity_check_value = [data_to_hash description];
     NSLog(@"Integrity check: %@.", integrity_check_value);
