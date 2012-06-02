@@ -14,6 +14,10 @@
 		54C349941575C2E20022032C /* PRGUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 54C349931575C2E20022032C /* PRGUtilities.m */; };
 		54C3499715779F5F0022032C /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54C3499615779F5E0022032C /* MobileCoreServices.framework */; };
 		54C3499915779F670022032C /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54C3499815779F670022032C /* MessageUI.framework */; };
+		54E2243F157A86BC0078FE17 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 54E2243E157A86BC0078FE17 /* Default.png */; };
+		54E22442157A86F70078FE17 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 54E22441157A86F70078FE17 /* Default@2x.png */; };
+		54E22444157A870C0078FE17 /* icon57.png in Resources */ = {isa = PBXBuildFile; fileRef = 54E22443157A870C0078FE17 /* icon57.png */; };
+		54E22446157A870F0078FE17 /* icon114.png in Resources */ = {isa = PBXBuildFile; fileRef = 54E22445157A870E0078FE17 /* icon114.png */; };
 		54E4FD4D1572BCEB00765FF1 /* HashValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E4FD4C1572BCEB00765FF1 /* HashValue.m */; };
 		8F0ED2E814FC195800563787 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED2E714FC195800563787 /* UIKit.framework */; };
 		8F0ED2EA14FC195800563787 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F0ED2E914FC195800563787 /* Foundation.framework */; };
@@ -48,6 +52,10 @@
 		54C349931575C2E20022032C /* PRGUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PRGUtilities.m; path = Cryptogram/PRGUtilities.m; sourceTree = "<group>"; };
 		54C3499615779F5E0022032C /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		54C3499815779F670022032C /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		54E2243E157A86BC0078FE17 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		54E22441157A86F70078FE17 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		54E22443157A870C0078FE17 /* icon57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon57.png; sourceTree = "<group>"; };
+		54E22445157A870E0078FE17 /* icon114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon114.png; sourceTree = "<group>"; };
 		54E4FD4B1572BCEB00765FF1 /* HashValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashValue.h; sourceTree = "<group>"; };
 		54E4FD4C1572BCEB00765FF1 /* HashValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HashValue.m; sourceTree = "<group>"; };
 		8F0ED2E314FC195800563787 /* Cryptogram.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cryptogram.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -115,6 +123,10 @@
 		8F0ED2D814FC195800563787 = {
 			isa = PBXGroup;
 			children = (
+				54E22445157A870E0078FE17 /* icon114.png */,
+				54E22443157A870C0078FE17 /* icon57.png */,
+				54E22441157A86F70078FE17 /* Default@2x.png */,
+				54E2243E157A86BC0078FE17 /* Default.png */,
 				54C349921575C2E20022032C /* PRGUtilities.h */,
 				54C349931575C2E20022032C /* PRGUtilities.m */,
 				54E4FD4B1572BCEB00765FF1 /* HashValue.h */,
@@ -171,7 +183,6 @@
 				8F0ED31C14FC2A0300563787 /* PRGEngine.h */,
 				8F0ED31D14FC2A0300563787 /* PRGEngine.m */,
 			);
-			name = Cryptogram;
 			path = Cryptogram;
 			sourceTree = "<group>";
 		};
@@ -269,6 +280,10 @@
 				8F0ED32514FC3D4D00563787 /* sjcl.js in Resources */,
 				54111C15157190CD00443EAA /* koi.jpg in Resources */,
 				54111C6A1572A4A100443EAA /* green.jpg in Resources */,
+				54E2243F157A86BC0078FE17 /* Default.png in Resources */,
+				54E22442157A86F70078FE17 /* Default@2x.png in Resources */,
+				54E22444157A870C0078FE17 /* icon57.png in Resources */,
+				54E22446157A870F0078FE17 /* icon114.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
