@@ -134,9 +134,10 @@ function encode(data, width_to_height_ratio, header_string, block_width,
     for (var x = 0; x < header_width; x += block_width) {
       value_idx = x / block_width + (y  / block_height) *
 				(header_width / block_width);
+			level = 8;
       if (value_idx < n_header_values) {
         level =  octal_symbol_thresholds[header_values[value_idx]];
-      } else { level = 0; }
+      }
       set_block(x, y, level);
     }
   }
