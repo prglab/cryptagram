@@ -57,6 +57,7 @@ class NewImageDimensions(object):
                                float(self.symbol_height))
       logging.info('symbol_rows_to_add %d.' % symbol_rows_to_add)
       sym_height += symbol_rows_to_add
+      self.new_height = self.symbol_height * sym_height
 
     self.num_symbols_wide = sym_width
     self.num_symbols_high = sym_height
