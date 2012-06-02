@@ -1,6 +1,8 @@
+//
 //  PRGEngine.h
 //  Cryptogram
 //  Author: tierney@cs.nyu.edu (Matt Tierney)
+//  Copyright (c) 2012 NYU. All rights reserved.
 //
 //  Based on the following:
 //
