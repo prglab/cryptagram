@@ -1,4 +1,17 @@
 README for Cryptogram Library.
 
 Dependencies
- o ImageMagick
+ o Magic++ (ImageMagick)
+ o Crypto++ (libcryptopp)
+
+Image Interface
+ o iOS : CGImage.h
+ o Android : android/bitmap.h (libjnigraphics)
+ o UNIX: Magic++
+ o Windows: ?
+
+ bool Cryptogram::Encode(const Image& input, Image* output, void* callback);
+
+Threads
+ o Android: POSIX threads.
+ o iOS: POSIX threads.
