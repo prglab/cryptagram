@@ -5,7 +5,6 @@ import util
 
 from numpy import array
 from scipy.cluster.vq import kmeans
-import google.protobuf as protobuf
 
 class ColorSpace(object):
   @staticmethod
@@ -24,6 +23,13 @@ class ColorSpace(object):
     return [lum, cb, cr]
 
   @staticmethod
+  def YCCtoRGB(lum, cb, cr):
+    red = lum + 1.402 * (cr - 128)
+    green = lum - 0.34414 * (cb - 128) - 0.71414 * (cr - 128)
+    blue = lum + 1.772 * (cb - 128)
+    return [red, green, blue]
+
+  @staticmethod
   def GenerateObservations(valid_observations):
     if (valid_observations != []):
       return False
@@ -34,6 +40,7 @@ class ColorSpace(object):
           valid_observations.append(ColorSpace.RGBtoYCC(red, green, blue))
 
     return util.InflateObservations(valid_observations)
+
 
 class KmeansExperiment(object):
   # Maps the image to the "error set," which is information about the
@@ -49,21 +56,24 @@ class KmeansExperiment(object):
     self.images = images
     self.quality = quality
 
-  def Start(self):
-    pass
+
+def GenerateCoordinates(bins):
+  observations = []
+  ColorSpace.GenerateObservations(observations)
+
+  print "Starting with ", bins
+  codebook, distortion = kmeans(array(observations), bins)
+  print "  Done with ", bins
+  observations = list(codebook)
+  util.DeflateObservations(observations)
+  with open("Bins_%02d.txt" % bins, 'w') as fh:
+    for obs in observations:
+      print >>fh, "%d,%d,%d" % [int(x) for x in ColorSpace.YCCtoRGB(*obs)]
 
 def main(argv):
-  observations = []
-  print "Generating observations."
-  ColorSpace.GenerateObservations(observations)
-  print len(observations)
-  codebook, distortion = kmeans(array(observations), 9)
-  observations = list(codebook)
-  print "Distortion", distortion
-  util.DeflateObservations(observations)
-  print observations
-  for obs in observations:
-    print [int(x) for x in obs]
+  from multiprocessing import Pool
+  p = Pool(5)
+  p.map(GenerateCoordinates, range(16, 33))
 
 if __name__=='__main__':
   main(sys.argv)
