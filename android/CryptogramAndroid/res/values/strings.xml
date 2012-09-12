@@ -6,6 +6,7 @@
     <string name="title_activity_main">Cryptogram Main</string>
     <string name="button_snap_photo">Take a photo</string>
     <string name="button_select_photo">Select a photo</string>
-    <string name="button_upload_photo">Encrypt and upload</string>
+    <string name="button_upload_photo">Encrypt and Share</string>
+    <string name="preview_content_description">A preview of the image to be uploaded</string>
 
 </resources>
