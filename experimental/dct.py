@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 import sys
+
+from scikits.statsmodels.tsa.stattools import acf
 from scipy.fftpack import dct
 import numpy
-from scikits.statsmodels.tsa.stattools import acf
 
 LuminanceQuantizationTable = numpy.array([
   [16, 11, 10, 16, 24, 40, 51, 61],
@@ -39,12 +40,6 @@ def test_TwoDDCTMethods():
   # Tests that TwoDDCT and TwoDIDCT are inverses of each other.
   matrix = numpy.random.random_integers(0, high = 255, size = (8,8)).astype(float)
   assert False not in (numpy.absolute((matrix - TwoDIDCT(TwoDDCT(matrix)))) < 1)
-
-
-def AutoCorrelate(vector):
-  # vector: One dimensional array.
-  result = numpy.correlate(vector, vector, mode='full')
-  return result[result.size/2:]
 
 
 def JpegQualityScaling(quality):
