@@ -46,4 +46,4 @@ bool ColorSpace::RgbToYcc(const ColorSpace::RGB& rgb, ColorSpace::YCC* ycc) {
   return true;
 }
 
-}	// namespace cryptogram
+} // namespace cryptogram
