@@ -7,31 +7,31 @@
 namespace cryptogram {
 
 class ColorSpace {
-public:
-	struct RGB {
+ public:
+  struct RGB {
     RGB(int red, int green, int blue);
-		int red;
-		int green;
-		int blue;
-	};
+    int red;
+    int green;
+    int blue;
+  };
 
-	struct YCC {
-		float lum;
-		float cb;
-		float cr;
-	};
+  struct YCC {
+    float lum;
+    float cb;
+    float cr;
+  };
 
-	ColorSpace();
-	virtual ~ColorSpace();
+  ColorSpace();
+  virtual ~ColorSpace();
 
-	bool GenerateObservations(std::vector<YCC>* observations);
+  bool GenerateObservations(std::vector<YCC>* observations);
 
-private:
-	bool IsValidColor(float value);
-	bool RgbToYcc(const RGB& rgb, YCC* ycc);
+ private:
+  bool IsValidColor(float value);
+  bool RgbToYcc(const RGB& rgb, YCC* ycc);
 
 };
 
-}	// namespace cryptogram
+} // namespace cryptogram
 
-#endif	// _CRYPTOGRAM_COLORSPACE_H_
+#endif  // _CRYPTOGRAM_COLORSPACE_H_
