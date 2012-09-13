@@ -19,6 +19,7 @@
 
     <Button
         android:id="@+id/button_upload_photo"
+        android:onClick="encryptPhoto"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/button_upload_photo" />
@@ -30,5 +31,11 @@
         android:layout_gravity="center_horizontal"
         android:src="@drawable/no_image_selected"
         android:contentDescription="@string/preview_content_description" />
+    
+    <WebView 
+        android:id="@+id/js_encryption_webview"
+        android:layout_width="0px"
+        android:layout_height="0px"       
+        />
 
 </LinearLayout>
