@@ -3,6 +3,7 @@
 import sys
 import numpy as np
 from random import choice
+import dct
 
 # def find_nearest(array,value):
 #   idx=(np.abs(array-value)).argmin()
@@ -36,7 +37,6 @@ def Encode(discretizations):
 # Count different discretizations and how big the error is.
 
 # Measure average error.
-
 
 def main(argv):
   Encode([(30,40,50),(6,7,8),(1,2,3)])
