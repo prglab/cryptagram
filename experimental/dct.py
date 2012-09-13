@@ -101,6 +101,18 @@ def RandomMatrixDctAndQuantize():
   quantized_values = numpy.round(numpy.divide(dct_output, quant_table))
   return to_use, quantized_values
 
+def JpegCompress(matrix, quant_table):
+  dct_output = TwoDDCT(matrix)
+  return numpy.round(numpy.divide(dct_output, quant_table))
+
+def JpegDecompress(matrix, quant_table):
+  return TwoDIDCT(numpy.multiply(matrix, quant_table))
+
+def Subsample(matrix):
+  pass
+
+def Supersample(matrix):
+  pass
 
 def main(argv):
   matrix = numpy.array([
