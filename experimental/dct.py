@@ -108,12 +108,11 @@ def JpegCompress(matrix, quant_table):
 def JpegDecompress(matrix, quant_table):
   return TwoDIDCT(numpy.multiply(matrix, quant_table))
 
-def Subsample(matrix):
-  width, height = matrix.size
-  width / 2
+def Downsample(matrix):
+  # Include smoothing.
   pass
 
-def Supersample(matrix):
+def Upsample(matrix):
   pass
 
 def main(argv):
