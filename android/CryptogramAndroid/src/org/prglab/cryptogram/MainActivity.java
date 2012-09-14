@@ -1,6 +1,7 @@
 package org.prglab.cryptogram;
 
 import java.io.ByteArrayOutputStream;
+import java.util.StringTokenizer;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.view.Menu;
 import android.view.View;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.util.Base64;
@@ -26,6 +28,42 @@ public class MainActivity extends Activity {
 	public final String DEBUG_TAG = "Cryptogram Main Activity";
 	private final int GALLERY_IMAGE_CODE = 1;
 	private final int CAMERA_IMAGE_CODE = 2;
+	
+	/**
+	 * Workaround for broken addJavascriptInterface
+	 * @see http://code.google.com/p/android/issues/detail?id=12987
+	 */
+	private class workaroundWebViewClient extends WebViewClient {
+		   @Override
+		   public boolean shouldOverrideUrlLoading(WebView view, String url) {
+		        //Toast.makeText(getBaseContext(), "shouldOverrideUrlLoadin url: " + url, Toast.LENGTH_SHORT).show();
+		        StringTokenizer st = new StringTokenizer(url, "|");
+		        String garbage = st.nextToken();
+		        String function = st.nextToken();
+		        String parameter = st.nextToken();
+		        
+		        Toast.makeText(getApplicationContext(), function, Toast.LENGTH_SHORT ).show();
+		        if ( function.equalsIgnoreCase("setIv") ) {
+		           Toast.makeText(getApplicationContext(), "android call 01 value received: " + parameter, Toast.LENGTH_SHORT).show();
+		           // do your stuff here.....
+		           dataAccessor.setIv(parameter);
+		           return true;
+		        } else if ( function.equalsIgnoreCase("setSalt") ) {
+		           Toast.makeText(getApplicationContext(), "android call 02 value received: " + parameter, Toast.LENGTH_SHORT).show();
+		           dataAccessor.setSalt(parameter);
+		           return true;  
+		           
+		        }else if ( function.equalsIgnoreCase("setCt")){
+		           Toast.makeText(getApplicationContext(), "android call 03 value received: " + parameter, Toast.LENGTH_SHORT).show();
+			       dataAccessor.setCt(parameter);
+		           return true;
+		        } else {
+		           // its not an android call back 
+		           // let the browser navigate normally
+		           return false;
+		        }
+		   }   
+		}
 	
 	/**
 	 * A class to share data with the sjcl javascript library. Passed with
@@ -65,7 +103,7 @@ public class MainActivity extends Activity {
 		}
 		
 		public synchronized void setCt(String ct){
-			this.ct = encrypted;
+			this.ct = ct;
 		}
 		
 		public synchronized boolean isDone(){
@@ -154,7 +192,8 @@ public class MainActivity extends Activity {
 		// Send the string to the WebView here using DataAccessor
 		jsExecutionView.addJavascriptInterface(dataAccessor, "dataAccessor");
 		jsExecutionView.getSettings().setJavaScriptEnabled(true);
-		jsExecutionView.loadUrl("file:///android_asset/run_sjcl.html");
+		jsExecutionView.setWebViewClient(new workaroundWebViewClient());
+		jsExecutionView.loadUrl("file:///android_asset/run_sjcl.html?password="+"password"+"&data="+base64String);
     }
 
 	/**
