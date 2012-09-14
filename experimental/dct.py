@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 import sys
+import random
 
-from scikits.statsmodels.tsa.stattools import acf
+#from scikits.statsmodels.tsa.stattools import acf
 from scipy.fftpack import dct
 import numpy
 
@@ -119,7 +120,7 @@ def CreateRandomMatrix(seeds):
   matrix = numpy.ndarray((8,8))
   for row in range(8):
     for col in range(8):
-      matrix[row][col] = numpy.random.choice(seeds)
+      matrix[row][col] = random.choice(seeds)
   return matrix
 
 def main(argv):
@@ -132,8 +133,7 @@ def main(argv):
     [79.0, 65.0, 60.0, 70.0, 77.0, 68.0, 58.0, 75],
     [85.0, 71.0, 64.0, 59.0, 55.0, 61.0, 65.0, 83],
     [87.0, 79.0, 69.0, 68.0, 65.0, 76.0, 78.0, 94]])
-  print CreateRandomMatrix([127, 130])
-  return
+  original_matrix = CreateRandomMatrix([127, 130])
 
   to_use, quant_val = RandomMatrixDctAndQuantize()
 
@@ -145,6 +145,7 @@ def main(argv):
 
   print to_use
   quant_table = QuantizationTableFromQuality(LuminanceQuantizationTable, 75)
+
   uncompressed = TwoDIDCT(numpy.multiply(quant_val, quant_table))
   print uncompressed
   print uncompressed - to_use
