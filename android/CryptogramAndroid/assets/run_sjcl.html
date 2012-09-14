@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<script src="sjcl.js" type="text/javascript"></script>
+</head>
+
+<body>
+	<p id="output"></p>
+	
+	<script type="text/javascript">
+	
+	if (window.dataAccessor !== undefined){
+		var encoded = sjcl.encrypt(dataAccessor.getPassword(), dataAccessor.getData());
+		dataAccessor.setIv(encoded['iv']);
+		dataAccessor.setCt
+		document.getElementById("output").innerHTML = encoded;
+	}
+	else{
+		//Debug stuff
+		document.getElementById("output").innerHTML = "failed";
+	}
+	</script>
+
+</body>
+
+</html>
