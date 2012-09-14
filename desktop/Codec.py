@@ -127,9 +127,10 @@ class Codec(threading.Thread):
       pixel[base_x + 3, base_y + 1] = fill_1
       pixel[base_x + 2, base_y + 1] = fill_1
 
-    num_header_row_symbols = \
-        ((new_image_width - 8) / shape_width) * (8 / shape_height)
     _num_header_row_symbols_wide = (new_image_width - 8) / shape_width
+    num_header_row_symbols = \
+        _num_header_row_symbols_wide * (8 / shape_height)
+
     logging.info('num_header_row_symbols: %d (num sym wide: %d).' % \
                    (num_header_row_symbols, _num_header_row_symbols_wide))
 

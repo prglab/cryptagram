@@ -2,7 +2,6 @@
 
 {% block body %}
 
-		
 		<script type="text/javascript" src="{{ static_url("validate-password.js") }}"></script>
 
 		<script type="text/javascript">
@@ -108,51 +107,51 @@
 
 	<div id="container">
 		<div class="stage">
-		
+
 		  <center>
-		       
+
 			<form name="quitform" action="exit" method="get">
 				<input type="submit" value="X"  style="float: right">
 			</form>
-		
+
 	   <h1>Cryptogram Encoder</h1>
      <br />
 
       <!-- Choose output location. -->
-      
+
        <table style="font-size: 14px">
        <tr><td colspan=3>Output Directory</td></tr>
        <tr><td colspan=2><input class="required" id="output_dir_path"
-       name="output_dir_path"value="~/Desktop/Cryptogram" size="56"
+       name="output_dir_path" value="{{ output_directory_default }}" size="56"
        type="text"></input></td>
        <td width=220><a href="#" id="output_dir_dialog_link" class="ui-state-default
          ui-corner-all" style="text-decoration: none; padding: 5px; margin-left: 20px;">Set location . . . </a>
-         
+
          </td>
        </tr>
-       
-       
+
+
        <form name="password">
        <tr><td>Password</td><td>Verify Password</td></tr>
        <tr>
        <td><input type="password" name="password" id="password" size=25 /></input></td>
        <td><input type="password" name="password_again" id="password_again" size=25 /></input></td>
-       <td> 
-       
+       <td>
+
       <a href="#" id="start_encryption" class="ui-state-default
          ui-corner-all" style="text-decoration: none; padding: 5px; margin-left: 20px;">Start encrypting</a>
-       
+
        </td>
        </tr>
        </form>
-       
-             
+
+
 
       </table>
 
-      
-      
-    
+
+
+
 		<!-- ui-dialog -->
 		<div id="input_dir_dialog" title="Inputs">
       <td colspan="2">
@@ -171,9 +170,9 @@
     </center>
     <div class="stage" id="stage"></div>
 	</div>
-		
-		
-		
-		
-		
+
+
+
+
+
 {% end %}
