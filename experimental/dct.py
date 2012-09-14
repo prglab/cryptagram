@@ -115,6 +115,13 @@ def Downsample(matrix):
 def Upsample(matrix):
   pass
 
+def CreateRandomMatrix(seeds):
+  matrix = numpy.ndarray((8,8))
+  for row in range(8):
+    for col in range(8):
+      matrix[row][col] = numpy.random.choice(seeds)
+  return matrix
+
 def main(argv):
   matrix = numpy.array([
     [52.0, 55.0, 61.0, 66.0, 70.0, 61.0, 64.0, 73],
@@ -125,6 +132,8 @@ def main(argv):
     [79.0, 65.0, 60.0, 70.0, 77.0, 68.0, 58.0, 75],
     [85.0, 71.0, 64.0, 59.0, 55.0, 61.0, 65.0, 83],
     [87.0, 79.0, 69.0, 68.0, 65.0, 76.0, 78.0, 94]])
+  print CreateRandomMatrix([127, 130])
+  return
 
   to_use, quant_val = RandomMatrixDctAndQuantize()
 
