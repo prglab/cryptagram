@@ -2,7 +2,7 @@
 
 import sys
 
-from scikits.statsmodels.tsa.stattools import acf
+#from scikits.statsmodels.tsa.stattools import acf
 from scipy.fftpack import dct
 import numpy
 
