@@ -15,3 +15,9 @@
   * v8 http://code.google.com/p/v8/
 * python-pyexiv2
 
+#### Mac OS X ####
+* port install py27-macholib
+* port install py27-tornado
+* port install py27-py2app
+* port install py27-pyobjc
+* port install py27-pyobjc-cocoa
