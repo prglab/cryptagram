@@ -1,6 +1,7 @@
 package org.prglab.cryptogram;
 
 import java.io.ByteArrayOutputStream;
+import java.net.URLDecoder;
 import java.util.StringTokenizer;
 
 import android.net.Uri;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 
 import android.webkit.MimeTypeMap;
 
+
 public class MainActivity extends Activity {
 	
 	public final String DEBUG_TAG = "Cryptogram Main Activity";
@@ -35,32 +37,36 @@ public class MainActivity extends Activity {
 	 */
 	private class workaroundWebViewClient extends WebViewClient {
 		   @Override
-		   public boolean shouldOverrideUrlLoading(WebView view, String url) {
+		   public void onLoadResource(WebView view, String url) {
 		        //Toast.makeText(getBaseContext(), "shouldOverrideUrlLoadin url: " + url, Toast.LENGTH_SHORT).show();
+			    
 		        StringTokenizer st = new StringTokenizer(url, "|");
-		        String garbage = st.nextToken();
-		        String function = st.nextToken();
-		        String parameter = st.nextToken();
+		        //Toast.makeText(getApplicationContext(), "Recieved request " + url, Toast.LENGTH_LONG ).show();
+		        if (st.countTokens() < 3)
+		        	return;
+		        st.nextToken();
+		        String func = st.nextToken();
+		        String parameter = URLDecoder.decode(st.nextToken());
 		        
-		        Toast.makeText(getApplicationContext(), function, Toast.LENGTH_SHORT ).show();
-		        if ( function.equalsIgnoreCase("setIv") ) {
+		        Toast.makeText(getApplicationContext(), func + " " + parameter, Toast.LENGTH_SHORT ).show();
+		        if ( func.equalsIgnoreCase("setIv") ) {
 		           Toast.makeText(getApplicationContext(), "android call 01 value received: " + parameter, Toast.LENGTH_SHORT).show();
 		           // do your stuff here.....
 		           dataAccessor.setIv(parameter);
-		           return true;
-		        } else if ( function.equalsIgnoreCase("setSalt") ) {
+		           //return true;
+		        } else if ( func.equalsIgnoreCase("setSalt") ) {
 		           Toast.makeText(getApplicationContext(), "android call 02 value received: " + parameter, Toast.LENGTH_SHORT).show();
 		           dataAccessor.setSalt(parameter);
-		           return true;  
+		           //return true;  
 		           
-		        }else if ( function.equalsIgnoreCase("setCt")){
+		        }else if ( func.equalsIgnoreCase("setCt")){
 		           Toast.makeText(getApplicationContext(), "android call 03 value received: " + parameter, Toast.LENGTH_SHORT).show();
 			       dataAccessor.setCt(parameter);
-		           return true;
+		           //return true;
 		        } else {
 		           // its not an android call back 
 		           // let the browser navigate normally
-		           return false;
+		           //return false;
 		        }
 		   }   
 		}

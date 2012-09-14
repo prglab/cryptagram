@@ -26,15 +26,17 @@
 	
 	var args = getUrlVars();
 	if (args.password !== undefined && args.data !== undefined){
-		var encoded = sjcl.encrypt(args.password, args.data);
-		alert("encoded");
+		var encoded = JSON.parse(sjcl.encrypt(args.password, args.data));
 		//call functions with workaround
-		//window.location = "http://example.com/|setIv|"+encoded.iv;
+		img = new Image();
+		img.src = "|setIv|"+encoded['iv'];
+		img.src = "|setCt|"+encoded['ct'];
+		img.src = "|setSalt|"+encoded['salt'];
 		//window.location = "http://example.com/|setSalt|"+encoded.salt;
 		//window.location = "http://example.com/|setCt|"+encoded.ct;
 		//dataAccessor.setIv(encoded['iv']);
 		//dataAccessor.setCt
-		document.getElementById("output").innerHTML = '<a href="http://example.com/|setIv|' + encoded.iv +'"></a>';
+		document.getElementById("output").innerHTML = '<a href="http://example.com/|setIv|' + encoded.iv +'">Link</a>';
 	}
 	else{
 		//Debug stuff
