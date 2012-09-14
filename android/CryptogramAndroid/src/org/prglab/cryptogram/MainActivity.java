@@ -34,19 +34,38 @@ public class MainActivity extends Activity {
 	 */
 	public class DataAccessor{
 		String inputData;
-		String encryptedData;
+		String iv;
+		String salt;
+		String ct;
+		String passwordString;
 		boolean done = false;
 		
-		public DataAccessor(String input){
-			this.inputData = input;
+		public synchronized void setData(String data){
+			inputData = data;
+		}
+		
+		public synchronized void setPassword(String password){
+			passwordString = password;
 		}
 		
 		public synchronized String getData(){
 			return inputData;
 		}
 		
-		public synchronized void setEncryptedData(String encrypted){
-			this.encryptedData = encrypted;
+		public synchronized String getPassword(){
+			return passwordString;
+		}
+		
+		public synchronized void setIv(String iv){
+			this.iv = iv;
+		}
+		
+		public synchronized void setSalt(String salt){
+			this.salt = salt;
+		}
+		
+		public synchronized void setCt(String ct){
+			this.ct = encrypted;
 		}
 		
 		public synchronized boolean isDone(){
@@ -66,6 +85,8 @@ public class MainActivity extends Activity {
 	
 	Bitmap imageBitmap;
 	
+	DataAccessor dataAccessor;
+	
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,8 +97,10 @@ public class MainActivity extends Activity {
         buttonSelectPhoto = (Button) findViewById(R.id.button_select_photo);
         buttonUploadPhoto = (Button) findViewById(R.id.button_upload_photo);
         
-        imagePreview = (ImageView) findViewById(R.id.image_preview);
         jsExecutionView = (WebView) findViewById(R.id.js_encryption_webview);
+        imagePreview = (ImageView) findViewById(R.id.image_preview);
+        
+        dataAccessor = new DataAccessor();
     }
     
     /**
@@ -103,6 +126,7 @@ public class MainActivity extends Activity {
      * @param v
      */
     public void encryptPhoto(View v){
+    	Toast.makeText(this, "Starting encode", Toast.LENGTH_SHORT).show();
     	// Convert the image to jpeg if it is not already. Then turn it into a base-64 stream   	
     	String base64String;    	
 
@@ -123,7 +147,14 @@ public class MainActivity extends Activity {
 			return;
 		}
 		
+		dataAccessor.setData(base64String);
+		//TODO:Implement password prompt
+		dataAccessor.setPassword("password");
+		
 		// Send the string to the WebView here using DataAccessor
+		jsExecutionView.addJavascriptInterface(dataAccessor, "dataAccessor");
+		jsExecutionView.getSettings().setJavaScriptEnabled(true);
+		jsExecutionView.loadUrl("file:///android_asset/run_sjcl.html");
     }
 
 	/**
