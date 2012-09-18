@@ -1,0 +1,21 @@
+body {
+  font: 12px arial;
+}
+
+#original_image {
+  width: 400px;
+  float: left;
+  margin-right: 20px;
+}
+
+#encoded_image {
+  width: 400px;
+  float: left;
+}
+
+#original_image img, #encoded_image img {
+  border: 1px solid black;
+  max-width: 400px;
+  height: 400px;
+}
+
