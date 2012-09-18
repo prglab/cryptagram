@@ -41,7 +41,8 @@ cryptogram.decoder.prototype.decodeDataToContainer = function(data, password, co
         
     var protocol = _decoder.getHeader();
     cryptogram.log("Found '"+ protocol + "' protocol");
-        
+    
+    
     if (protocol != "aesthete") {
       cryptogram.log("Error: Unknown Protocol");
       cryptogram.context.get().setStatus();

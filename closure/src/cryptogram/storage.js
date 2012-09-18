@@ -1,7 +1,11 @@
 goog.provide('cryptogram.storage');
 
 
+/**
+ * @constructor
+ */
 cryptogram.storage = function() {};
+
 cryptogram.storage.callback = null;
 cryptogram.storage.lookup = {};
 

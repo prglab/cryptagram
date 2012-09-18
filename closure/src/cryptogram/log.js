@@ -2,6 +2,10 @@ goog.provide('cryptogram.log');
 
 cryptogram.log.report = "";
 
+/**
+ * @param{string} str1
+ * @param{string} str2
+ */
 cryptogram.log = function(str1, str2) {
   
   cryptogram.log.report += str1 + "%0D%0A";

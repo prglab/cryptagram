@@ -6,4 +6,10 @@
 {template .demo}
 <input type="button" value="Decrypt" onClick="cryptogram.demo.decrypt()" id="button">
 <br><img src='{$image}' id=image>
+<br /><br /><hr />
+<input type="file" id="file_selector" name="file_selector" multiple/>
+<br />
+<div id="original_image"></div>
+<div id="encoded_image"></div>
+<div id="alerts" style="color:red;"></div>
 {/template}
