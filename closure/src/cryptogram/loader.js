@@ -2,6 +2,9 @@ goog.provide('cryptogram.loader');
 
 goog.require('cryptogram.log');
 
+/**
+ * @constructor
+ */
 cryptogram.loader = function() {};
 
 cryptogram.loader.updateProgress = function(e) {
@@ -28,6 +31,7 @@ cryptogram.loader.createRequest = function() {
 // Binary parsing code borrowed from 
 // http://jsperf.com/encoding-xhr-image-data
 cryptogram.loader.arrayBufferDataUri = function(raw) {
+
    var base64 = ''
    var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
   
