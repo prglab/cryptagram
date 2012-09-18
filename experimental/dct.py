@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
-import sys
 import random
+import sys
+import threading
 
 #from scikits.statsmodels.tsa.stattools import acf
+import Bits
 from scipy.fftpack import dct
 import numpy
 
@@ -123,33 +125,62 @@ def CreateRandomMatrix(seeds):
       matrix[row][col] = random.choice(seeds)
   return matrix
 
-def main(argv):
-  matrix = numpy.array([
-    [52.0, 55.0, 61.0, 66.0, 70.0, 61.0, 64.0, 73],
-    [63.0, 59.0, 55.0, 90.0, 109.0, 85.0, 69.0, 72],
-    [62.0, 59.0, 68.0, 113.0, 144.0, 104.0, 66.0, 73],
-    [63.0, 58.0, 71.0, 122.0, 154.0, 106.0, 70.0, 69],
-    [67.0, 61.0, 68.0, 104.0, 126.0, 88.0, 68.0, 70],
-    [79.0, 65.0, 60.0, 70.0, 77.0, 68.0, 58.0, 75],
-    [85.0, 71.0, 64.0, 59.0, 55.0, 61.0, 65.0, 83],
-    [87.0, 79.0, 69.0, 68.0, 65.0, 76.0, 78.0, 94]])
-  original_matrix = CreateRandomMatrix([127, 130])
-
-  to_use, quant_val = RandomMatrixDctAndQuantize()
-
-  print "Autocorrelation:"
-  print acf(to_use.flatten())
-  print acf(matrix.flatten())
-  return
-  # GenerateRandomPostData(1000000000)
-
-  print to_use
-  quant_table = QuantizationTableFromQuality(LuminanceQuantizationTable, 75)
-
-  uncompressed = TwoDIDCT(numpy.multiply(quant_val, quant_table))
-  print uncompressed
-  print uncompressed - to_use
+def PickTwoDistanceMedian():
   pass
+
+
+class Discretizations(object):
+  values = []
+
+class Experiment(object):
+  discretizations = []
+
+  def __init__(self):
+    pass
+
+
+def main(argv):
+  print "Generating messages"
+  num_matrices = 100000
+
+  random_matrices = [CreateRandomMatrix([32, 32 + 64, 32 + 128, 32 + 128 + 64])
+                     for i in range(num_matrices)]
+
+  with open('matrices.log', 'w') as fh:
+    for i in range(num_matrices):
+      print >>fh, '%d ' * 64 % tuple(random_matrices[i].flatten())
+
+  experiments = []
+  for quality in range(50, 99, 2):
+    experiments.append(Experiment(quality, random_matrices))
+
+  print "Starting experiments."
+  [experiment.start() for experiment in experiments]
+  print "Joining experiments."
+  [experiment.join() for experiment in experiments]
+
+
+class Experiment(threading.Thread):
+  def __init__(self, quality, random_matrices):
+    self.quality = quality
+    self.random_matrices = random_matrices
+    threading.Thread.__init__(self)
+
+  def run(self):
+    quant_table = QuantizationTableFromQuality(LuminanceQuantizationTable,
+                                               self.quality)
+
+    with open('quad_pix_%d.log' % self.quality,'w') as fh:
+      for i in range(len(self.random_matrices)):
+
+        jpeg = JpegCompress(self.random_matrices[i], quant_table)
+        decompressed = JpegDecompress(jpeg, quant_table)
+
+        mismatch_table = numpy.absolute(
+          decompressed - self.random_matrices[i]) < 32
+        num_mismatches, num_matches = numpy.bincount(mismatch_table.flatten())
+
+        print >>fh, num_mismatches
 
 if __name__=='__main__':
   main(sys.argv)
