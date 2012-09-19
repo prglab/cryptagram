@@ -7,6 +7,8 @@
 
 namespace cryptogram {
 
+typedef char Byte;                      // One byte.
+
 const int kBytesPerWidthEntry = 3;      // Byte per R, G, B.
 
 inline bool UcharVectorToArray(const std::vector<unsigned char>& input,

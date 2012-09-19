@@ -32,22 +32,44 @@ void GenerateRandomRgbArray(
   }
 }
 
+class RgbImageMatrix {
+ public:
+  struct Pixel {
+    Pixel(Byte red, Byte green, Byte blue);
+    
+    Byte red;
+    Byte green;
+    Byte blue;
+  };
+
+  
+ private:
+  int width_;
+  int height_;
+
+  // GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(RgbImageMatrix);
+};
+
 } // namespace cryptogram
 
 int main(int argc, char** argv) {
-  google::InitGoogleLogging(*argv);
+  google::InitGoogleLogging(argv[0]);
   LOG(INFO) << "Initializng the random number generator.";
   srand(0);
 
   const int values[] = { 64, 172 };
+  const int num_values = 3;
   const int num_rgb_pixels = 8 * 8;
   const int num_bytes = num_rgb_pixels * 3;
+
   unsigned char array[num_bytes];
+  bzero(array, num_bytes);
+  
   for (int trial = 0; trial < 1000000; trial++) {
     if (trial % 100000 == 0) {
       printf("Trial: %d\n", trial);
     }
-    cryptogram::GenerateRandomRgbArray(values, 2, num_rgb_pixels, array);
+    cryptogram::GenerateRandomRgbArray(values, num_values, num_rgb_pixels, array);
 
     std::vector<unsigned char> output;
 
