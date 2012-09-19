@@ -3,12 +3,19 @@
 /**
  * @param image
  */
-{template .demo}
-<input type="button" value="Decrypt" onClick="cryptogram.demo.decrypt()" id="button">
+{template .decrypt}
+<input type="button" value="Decrypt" onClick="cryptogram.demo.runDecrypt()" id="button">
 <br><img src='{$image}' id=image>
-<br /><br /><hr />
-<input type="file" id="file_selector" name="file_selector" multiple/>
-<br />
+{/template}
+
+/**
+ */
+{template .encrypt}
+<div id="drop_zone"><b>Drop Files Here</b><br>
+<br><span id="or">or <input type="file" id="file_selector" name="file_selector" multiple/></span>
+</div>
+<div id="downloadify"></div>
+<hr>
 <div id="original_image"></div>
 <div id="encoded_image"></div>
 <div id="alerts" style="color:red;"></div>
