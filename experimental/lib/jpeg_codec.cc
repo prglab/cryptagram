@@ -1,3 +1,6 @@
+// Copyright (c) 2012 The Cryptogram Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 // Copyright (c) 2011 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -8,9 +11,14 @@
 
 #include "glog/logging.h"
 #include "boost/scoped_ptr.hpp"
+
+/*
+  NOTE(tierney): Removed the Skia references. May want to add back if
+  we use this library in the core of Cryptogram.
+  
 #include "skia/include/core/SkBitmap.h"
 #include "skia/include/core/SkColorPriv.h"
-
+*/
 namespace gfx {
 
 // Encoder/decoder shared stuff ------------------------------------------------
@@ -216,12 +224,10 @@ bool JPEGCodec::Encode(const unsigned char* input, ColorFormat format,
   if (format == FORMAT_RGB) {
     cinfo.input_components = 3;
     cinfo.in_color_space = JCS_RGB;
-  } else if (format == FORMAT_RGBA ||
-             (format == FORMAT_SkBitmap && SK_R32_SHIFT == 0)) {
+  } else if (format == FORMAT_RGBA) {
     cinfo.input_components = 4;
     cinfo.in_color_space = JCS_EXT_RGBX;
-  } else if (format == FORMAT_BGRA ||
-             (format == FORMAT_SkBitmap && SK_B32_SHIFT == 0)) {
+  } else if (format == FORMAT_BGRA) {
     cinfo.input_components = 4;
     cinfo.in_color_space = JCS_EXT_BGRX;
   } else {
@@ -269,11 +275,9 @@ bool JPEGCodec::Encode(const unsigned char* input, ColorFormat format,
   } else {
     // get the correct format converter
     void (*converter)(const unsigned char* in, int w, unsigned char* rgb);
-    if (format == FORMAT_RGBA ||
-        (format == FORMAT_SkBitmap && SK_R32_SHIFT == 0)) {
+    if (format == FORMAT_RGBA) {
       converter = StripAlpha;
-    } else if (format == FORMAT_BGRA ||
-               (format == FORMAT_SkBitmap && SK_B32_SHIFT == 0)) {
+    } else if (format == FORMAT_BGRA) {
       converter = BGRAtoRGB;
     } else {
       NOTREACHED() << "Invalid pixel format";
@@ -480,12 +484,10 @@ bool JPEGCodec::Decode(const unsigned char* input, size_t input_size,
       if (format == FORMAT_RGB) {
         cinfo.out_color_space = JCS_RGB;
         cinfo.output_components = 3;
-      } else if (format == FORMAT_RGBA ||
-                 (format == FORMAT_SkBitmap && SK_R32_SHIFT == 0)) {
+      } else if (format == FORMAT_RGBA) {
         cinfo.out_color_space = JCS_EXT_RGBX;
         cinfo.output_components = 4;
-      } else if (format == FORMAT_BGRA ||
-                 (format == FORMAT_SkBitmap && SK_B32_SHIFT == 0)) {
+      } else if (format == FORMAT_BGRA) {
         cinfo.out_color_space = JCS_EXT_BGRX;
         cinfo.output_components = 4;
       } else {
