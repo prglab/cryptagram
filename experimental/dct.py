@@ -9,6 +9,13 @@ import Bits
 from scipy.fftpack import dct
 import numpy
 
+import matplotlib
+# Calling matplotlib.use() before import pyplot frees us from requiring a
+# $DISPLAY environment variable; i.e, makes it easier to script this process.
+# TODO(tierney): This image backend should be made more portable.
+import matplotlib.pyplot as plt
+
+
 LuminanceQuantizationTable = numpy.array([
   [16, 11, 10, 16, 24, 40, 51, 61],
   [12, 12, 14, 19, 26, 58, 60, 55],
@@ -59,6 +66,9 @@ def JpegQualityScaling(quality):
   return quality
 
 
+def ScaleFactorEntry(entry, scale_factor):
+  return ((1. * entry * scale_factor) + 50.) / 100.
+
 def QuantizationTableFromQuality(table, quality, force_baseline = False):
   scale_factor = JpegQualityScaling(quality)
 
@@ -70,7 +80,7 @@ def QuantizationTableFromQuality(table, quality, force_baseline = False):
     for entry in row:
       entry_index += 1
 
-      temp = ((1. * entry * scale_factor) + 50.) / 100.
+      temp = ScaleFactorEntry(entry, scale_factor)
       if (temp < 0):
         temp = 1.
       if (temp > 32767):
@@ -142,6 +152,73 @@ class Experiment(object):
 def main(argv):
   print "Generating messages"
   num_matrices = 100000
+
+# Quality = 95
+# [[  2.   1.   1.   2.   2.   4.   5.   6.]
+#  [  1.   1.   1.   2.   3.   6.   6.   6.]
+#  [  1.   1.   2.   2.   4.   6.   7.   6.]
+#  [  1.   2.   2.   3.   5.   9.   8.   6.]
+#  [  2.   2.   4.   6.   7.  11.  10.   8.]
+#  [  2.   4.   6.   6.   8.  10.  11.   9.]
+#  [  5.   6.   8.   9.  10.  12.  12.  10.]
+#  [  7.   9.  10.  10.  11.  10.  10.  10.]]
+
+# Quality = 1
+# [[  800.   550.   500.   800.  1200.  2000.  2550.  3050.]
+#  [  600.   600.   700.   950.  1300.  2900.  3000.  2750.]
+#  [  700.   650.   800.  1200.  2000.  2850.  3450.  2800.]
+#  [  700.   850.  1100.  1450.  2550.  4350.  4000.  3100.]
+#  [  900.  1100.  1850.  2800.  3400.  5450.  5150.  3850.]
+#  [ 1200.  1750.  2750.  3200.  4050.  5200.  5650.  4600.]
+#  [ 2450.  3200.  3900.  4350.  5150.  6050.  6000.  5050.]
+#  [ 3600.  4600.  4750.  4900.  5600.  5000.  5150.  4950.]]
+
+
+  orig_quality = 95
+  quant_table = QuantizationTableFromQuality(LuminanceQuantizationTable,
+                                             orig_quality)
+
+  coeff = (1. * orig_quality)
+  SmallDiskImage = numpy.array([
+    [coeff, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0]])
+
+  SmallDiskImage[4][4] = coeff / (1. * quant_table[4][4] / (1. * quant_table[0][0]))
+
+  print "SmallDiskImage"
+  print SmallDiskImage
+
+  print "Quant table at quality"
+  print quant_table
+  matrix = SmallDiskImage
+  print "Intermediate Matrix (to be IDCT'd)"
+  print numpy.multiply(matrix, quant_table)
+  decompressed = JpegDecompress(matrix, quant_table)
+  print "Luminance Decompressed"
+  print decompressed
+
+  new_quant_table = QuantizationTableFromQuality(LuminanceQuantizationTable,
+                                                 50)
+
+  print "Recompressed on disk"
+  print JpegCompress(decompressed, new_quant_table).astype(int)
+
+  # fig = plt.figure()
+  # ax = fig.add_subplot(111)
+  # cax = ax.imshow(decompressed, interpolation='nearest', origin='lower') # This could also be upper.
+  # cbar = fig.colorbar(cax)
+
+  # plt.xlabel("X")
+  # plt.ylabel("Y")
+
+  # plt.show()
+
 
   random_matrices = [CreateRandomMatrix([32, 32 + 64, 32 + 128, 32 + 128 + 64])
                      for i in range(num_matrices)]

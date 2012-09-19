@@ -1,5 +1,5 @@
 CXX=clang++
-CXXFLAGS=-Wall -O3 \
+CXXFLAGS=-Wall -O2 \
 	-I/usr/local/include/skia/include/config \
 	-I/usr/local/include/glog \
 	-I/usr/local/opt/jpeg-turbo/include
