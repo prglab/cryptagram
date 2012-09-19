@@ -1,5 +1,5 @@
 CXX=clang++
-CXXFLAGS=-Wall -O2 \
+CXXFLAGS=-Wall -O3 \
 	-I/usr/local/include/skia/include/config \
 	-I/usr/local/include/glog \
 	-I/usr/local/opt/jpeg-turbo/include
@@ -19,6 +19,7 @@ main.o: main.cc
 experiment.o: experiment.cc
 discretizations.o: discretizations.cc
 jpeg_codec.o: jpeg_codec.cc
+jpeg_file.o: jpeg_file.cc
 
 clean:
 	rm -f *.o main
