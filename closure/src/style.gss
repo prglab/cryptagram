@@ -19,3 +19,37 @@ body {
   height: 400px;
 }
 
+#downloadify {
+  margin-left: 100px;
+  margin-top: 20px;
+}
+
+#drop_zone {
+  width: 310px; 
+  height: 80px; 
+  border: 1px solid black; 
+  background: #EEEEEE; 
+  text-align: center; 
+  padding-top: 50px;
+  border-radius: 15px;
+  -moz-box-shadow: inset 0 0 10px #000000;
+  -webkit-box-shadow: inset 0 0 10px #000000;
+  box-shadow: inset 0 0 10px #000000;
+  text-align: center;
+  color: #bbbbbb;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+#drop_zone b {
+  font-size: 18px;
+}
+
+#drop_zone input {
+  margin-left: 10px;
+}
+
+#drop_zone #or {
+  padding-top: 20px;
+  margin-left: 40px;
+}
