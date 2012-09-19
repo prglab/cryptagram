@@ -273,9 +273,10 @@ public class MainActivity extends Activity {
     private void encodeToImage(){
     	String encodeData = dataAccessor.getIv() + dataAccessor.getSalt() + dataAccessor.getCt();
     	String hash = HashGenerator.generateSha256(encodeData);
-    	encodeData = HEADER + hash + encodeData; 
+    	encodeData = hash + encodeData; 
   
-    	cryptogramImage = ImageEncoder.encodeBase64(encodeData);
+    	cryptogramImage = ImageEncoder.encodeBase64(encodeData, HEADER, imageBitmap.getWidth()/((double)imageBitmap.getHeight()));
+    	imagePreview.setImageBitmap(cryptogramImage);
     }
     
     @Override
