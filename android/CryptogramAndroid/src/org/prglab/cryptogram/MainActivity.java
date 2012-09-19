@@ -6,9 +6,11 @@ import java.util.StringTokenizer;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
@@ -30,6 +32,8 @@ public class MainActivity extends Activity {
 	public final String DEBUG_TAG = "Cryptogram Main Activity";
 	private final int GALLERY_IMAGE_CODE = 1;
 	private final int CAMERA_IMAGE_CODE = 2;
+	
+	private final String HEADER = "aesthete";
 	
 	/**
 	 * Workaround for broken addJavascriptInterface
@@ -63,6 +67,10 @@ public class MainActivity extends Activity {
 		           Toast.makeText(getApplicationContext(), "android call 03 value received: " + parameter, Toast.LENGTH_SHORT).show();
 			       dataAccessor.setCt(parameter);
 		           //return true;
+			       
+		        }else if ( func.equalsIgnoreCase("setDone") ) {
+		        	dataAccessor.setDone();
+		        	
 		        } else {
 		           // its not an android call back 
 		           // let the browser navigate normally
@@ -104,12 +112,44 @@ public class MainActivity extends Activity {
 			this.iv = iv;
 		}
 		
+		public synchronized String getIv(){
+			return iv;
+		}
+		
 		public synchronized void setSalt(String salt){
 			this.salt = salt;
 		}
 		
+		public synchronized String getSalt(){
+			return salt;
+		}
+		
 		public synchronized void setCt(String ct){
 			this.ct = ct;
+		}
+		
+		public synchronized String getCt(){
+			return ct;
+		}
+		
+		public synchronized void setDone(){
+			done = true;
+			
+			// Run code on the main thread
+			// Get a handler that can be used to post to the main thread
+			Handler mainHandler = new Handler(context.getMainLooper());
+
+			// Currently running the encode on the main thread - this will hang the UI for a bit
+			// Will thread it later
+			Runnable myRunnable = new Runnable(){
+				
+				public void run(){
+					encodeToImage();
+				}
+				
+			}; 
+			mainHandler.post(myRunnable);
+
 		}
 		
 		public synchronized boolean isDone(){
@@ -131,6 +171,9 @@ public class MainActivity extends Activity {
 	
 	DataAccessor dataAccessor;
 	
+	Context context;
+	
+	Bitmap cryptogramImage;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -145,6 +188,8 @@ public class MainActivity extends Activity {
         imagePreview = (ImageView) findViewById(R.id.image_preview);
         
         dataAccessor = new DataAccessor();
+        
+        context = this;
     }
     
     /**
@@ -223,6 +268,14 @@ public class MainActivity extends Activity {
 	   	
 	   	
 	   	imageUri = targetUri;
+    }
+    
+    private void encodeToImage(){
+    	String encodeData = dataAccessor.getIv() + dataAccessor.getSalt() + dataAccessor.getCt();
+    	String hash = HashGenerator.generateSha256(encodeData);
+    	encodeData = HEADER + hash + encodeData; 
+  
+    	cryptogramImage = ImageEncoder.encodeBase64(encodeData);
     }
     
     @Override
