@@ -2,25 +2,28 @@ body {
   font: 12px arial;
 }
 
+#main {
+  margin-top: 20px;
+}
+
 #original_image {
-  width: 400px;
+  width: 150px;
   float: left;
   margin-right: 20px;
 }
 
 #encoded_image {
-  width: 400px;
+  width: 150px;
   float: left;
 }
 
 #original_image img, #encoded_image img {
   border: 1px solid black;
-  max-width: 400px;
-  height: 400px;
+  height: 100px;
+  max-width: 160px;
 }
 
 #downloadify {
-  margin-left: 100px;
   margin-top: 20px;
 }
 

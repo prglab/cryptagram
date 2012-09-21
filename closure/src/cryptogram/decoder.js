@@ -10,16 +10,21 @@ cryptogram.decoder = function() {};
 
 cryptogram.decoder.URIHeader = "data:image/jpeg;base64,";
 
-/** @this{cryptogram.decoder} */
-cryptogram.decoder.prototype.decodeDataToContainer = function(data, password, container) {
+/**
+ * Decodes the supplied base64 data and applies the callback.
+ * @param data The input base64 data.
+ * @param password The cryptogram password.
+ * @param callback The function to call on the resulting data.
+ */
+cryptogram.decoder.prototype.decodeData = function(data, password, callback) {
 
   this.base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  var _decoder = this;
+  var self = this;
 
   var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
   var img = new Image();
-  blockSize = 2;
+  var blockSize = 2;
       
   img.onload = function(){
 
@@ -28,26 +33,26 @@ cryptogram.decoder.prototype.decodeDataToContainer = function(data, password, co
     ctx.drawImage(img,0,0);
     
     var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;               
-
-    _decoder.img = img;
-    _decoder.imageData = imageData;
-    _decoder.blockSize = blockSize;
-    _decoder.headerSize = blockSize * 4;
-    _decoder.password = password;
-    _decoder.container = container;
-    _decoder.chunkSize = img.height / 40.0;
-    _decoder.y = 0;
-    _decoder.newBase64 = "";
+  
+    self.callback = callback;
+    self.img = img;
+    self.imageData = imageData;
+    self.blockSize = blockSize;
+    self.headerSize = blockSize * 4;
+    self.password = password;
+    self.chunkSize = img.height / 40.0;
+    self.y = 0;
+    self.newBase64 = "";
         
-    var protocol = _decoder.getHeader();
+    var protocol = self.getHeader();
     cryptogram.log("Found '"+ protocol + "' protocol");
     
     
     if (protocol != "aesthete") {
       cryptogram.log("Error: Unknown Protocol");
-      cryptogram.context.get().setStatus();
+      cryptogram.context.setStatus();
     } else {
-      _decoder.processImage();    
+      self.processImage();    
     }
   };
   
@@ -55,19 +60,18 @@ cryptogram.decoder.prototype.decodeDataToContainer = function(data, password, co
 }
 
 
-/** @this{cryptogram.decoder} */
+/** 
+ * @private
+ */
 cryptogram.decoder.prototype.getHeader = function() {
 
-    var img = this.img;
-    var imageData = this.imageData;
-    var blockSize = this.blockSize;
     var newBase64 = "";
     
     for (y = 0; y < 8; y+= this.blockSize) {
       for (x = 0; x < 8; x+= 2*this.blockSize) {
         
-        base8_0 = cryptogram.decoder.getBase8Value(imageData, img.width, x, y, blockSize, blockSize);
-        base8_1 = cryptogram.decoder.getBase8Value(imageData, img.width, x + blockSize, y, blockSize, blockSize);
+        base8_0 = this.getBase8Value(x, y);
+        base8_1 = this.getBase8Value(x + this.blockSize, y);
   
         base64Num = base8_0 * 8 + base8_1 ;
         base64 = this.base64Values.charAt(base64Num);                    
@@ -78,27 +82,26 @@ cryptogram.decoder.prototype.getHeader = function() {
     return newBase64;       
 }
 
-/** @this{cryptogram.decoder} */
+/** 
+ * @private
+ */
 cryptogram.decoder.prototype.processImage = function() {
 
-  var img = this.img;
-  var imageData = this.imageData;
-  var blockSize = this.blockSize;
   var count = 0;
   var y = this.y;
   var done = false;
     
   while (this.chunkSize == 0 || count < this.chunkSize) {
       
-    for (x = 0; x < img.width; x+= (blockSize * 2)) {
+    for (x = 0; x < this.img.width; x+= (this.blockSize * 2)) {
         
         // Skip over header super-block
         if (y < this.headerSize && x < this.headerSize) {
           continue;
         }
                         
-        base8_0 = cryptogram.decoder.getBase8Value(imageData, img.width, x, y, blockSize, blockSize);
-        base8_1 = cryptogram.decoder.getBase8Value(imageData, img.width, x + blockSize, y, blockSize, blockSize);
+        base8_0 = this.getBase8Value(x, y);
+        base8_1 = this.getBase8Value(x + this.blockSize, y);
         
         // Found black, stop
         if (base8_0 == -1 || base8_1 == -1) break;  
@@ -108,9 +111,9 @@ cryptogram.decoder.prototype.processImage = function() {
         this.newBase64 += base64;
       } 
     count++;  
-    y+= blockSize;
+    y+= this.blockSize;
     
-    if (y >= img.height) {
+    if (y >= this.img.height) {
       done = true;
       break;
     }
@@ -121,7 +124,7 @@ cryptogram.decoder.prototype.processImage = function() {
 
   if (!done) {
       // Artificially inflate the percent so it gets to 100
-      var percent = Math.ceil(100.0 * ((y + (4*blockSize)) / img.height));
+      var percent = Math.ceil(100.0 * ((y + (4 * this.blockSize)) / this.img.height));
       if (percent > 100) percent = 100;
       cryptogram.context.setStatus("Decode<br>" + percent + "%");
       setTimeout(function () { _decoder.processImage() }, 1);
@@ -134,7 +137,9 @@ cryptogram.decoder.prototype.processImage = function() {
   
 }
 
-/** @this{cryptogram.decoder} */
+/** 
+ * @private
+ */
 cryptogram.decoder.prototype.decryptImage = function () {
 
   var newBase64 = this.newBase64;
@@ -171,8 +176,8 @@ cryptogram.decoder.prototype.decryptImage = function () {
   }
   
   cryptogram.log("Decrypted " + decrypted.length + " Base64 characters:", decrypted);
-  cryptogram.storage.savePassword(this.container.src, this.password);
-  cryptogram.context.setSrc(cryptogram.decoder.URIHeader + decrypted);
+  var payload = cryptogram.decoder.URIHeader + decrypted;
+  this.callback(payload);
 }
 
     
@@ -181,19 +186,22 @@ cryptogram.decoder.prototype.decryptImage = function () {
 //  -1 is black
 //  0-7 are decoded base8 values. 0 is white, 7 dark gray, etc
 
-cryptogram.decoder.getBase8Value = function(block, width, x, y, blockW, blockH) {
+/** 
+ * @private
+ */
+cryptogram.decoder.prototype.getBase8Value = function(x, y) {
 
   var count = 0.0;
   var vt = 0.0;
   var avg;
   
-  for (i = 0; i < blockW; i++) {
-    for (j = 0; j < blockH; j++) {
+  for (i = 0; i < this.blockSize; i++) {
+    for (j = 0; j < this.blockSize; j++) {
       
-      base = (y + j) * width + (x + i);
+      base = (y + j) * this.img.width + (x + i);
       
       //Use green to estimate the luminance
-      green = block[4*base + 1];
+      green = this.imageData[4*base + 1];
   
       vt += green;
       count++;
@@ -201,7 +209,7 @@ cryptogram.decoder.getBase8Value = function(block, width, x, y, blockW, blockH) 
   }
   
   v = vt / count;
-  var bin = Math.floor(v / 28.0)
+  var bin = Math.floor(v / 28.0);
     
   if (bin == 0) return -1;
   if (bin > 8) return 0;
