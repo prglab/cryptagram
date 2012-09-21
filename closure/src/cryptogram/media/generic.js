@@ -1,12 +1,12 @@
 goog.provide('cryptogram.media.generic');
 
 goog.require('goog.Uri');
+goog.require('goog.dom');
 
 /**
  * @constructor
  */
-cryptogram.media.generic = function() {
-};
+cryptogram.media.generic = function() {};
 
 cryptogram.media.generic.prototype.matchesURL = function(URL) {
   return true;
@@ -25,7 +25,6 @@ cryptogram.media.generic.prototype.getAlbumName = function() {
 };
 
 cryptogram.media.generic.prototype.getContainers = function() {
-  var elements = document.getElementById('img');  
   var element = goog.dom.getElement('image');
   this.container = element;
   var ret = new Array();
@@ -34,7 +33,6 @@ cryptogram.media.generic.prototype.getContainers = function() {
  };
 
 cryptogram.media.generic.prototype.setSrc = function(src) {
-  
     this.container.previousSrc = this.container.src;
     this.container.src = src;
 };

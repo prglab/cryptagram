@@ -4,11 +4,14 @@
 <title>Cryptogram Demo</title>
 <link href="style.css" rel="stylesheet" type="text/css" />
 </head>
-<body>
-  <div id="main"></div>
+<body onLoad="demo.showEncrypt()">
   <script src="cryptogram-compiled.js"></script>
   <script>
-    cryptogram.demo.encryptDemo();
+    var demo = new cryptogram.demo();
   </script>
-  </body>
+  Demo:
+  <a href="#" onClick="demo.showEncrypt()">Encrypt</a> | 
+  <a href="#" onClick="demo.showDecrypt()">Decrypt</a>
+  <div id="main"></div>
+</body>
 </html>
