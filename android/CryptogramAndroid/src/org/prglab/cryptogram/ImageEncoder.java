@@ -13,6 +13,7 @@ import android.graphics.Canvas;
  */
 public class ImageEncoder {
 
+	/**RL Grayscale bins */
 	private final int[] THRESHOLDS = {	
 	238,
     210,

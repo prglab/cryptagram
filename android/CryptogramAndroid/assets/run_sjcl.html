@@ -2,12 +2,13 @@
 <html>
 
 <head>
-	<script src="sjcl.js" type="text/javascript"></script>
+    <script src="sjcl.js" type="text/javascript"></script>
+    <script src="encoder.js" type="text/javascript"></script>
 </head>
 
 <body>
 	<p id="output"></p>
-	
+    <img id="test"></img>	
 	<script type="text/javascript">
 	
 	// Read a page's GET URL variables and return them as an object.
@@ -28,20 +29,24 @@
 	if (args.password !== undefined && args.data !== undefined){
 		var encoded = JSON.parse(sjcl.encrypt(args.password, args.data));
 		//call functions with workaround
-		img = new Image();
-		img.src = "|setIv|"+encoded['iv'];
-		img.src = "|setCt|"+encoded['ct'];
-		img.src = "|setSalt|"+encoded['salt'];
+		//img = new Image();
+		//img.src = "|setIv|"+encoded['iv'];
+		//img.src = "|setCt|"+encoded['ct'];
+		//img.src = "|setSalt|"+encoded['salt'];
 		//window.location = "http://example.com/|setSalt|"+encoded.salt;
 		//window.location = "http://example.com/|setCt|"+encoded.ct;
 		//dataAccessor.setIv(encoded['iv']);
 		//dataAccessor.setCt
-		document.getElementById("output").innerHTML = '<a href="http://example.com/|setIv|' + encoded.iv +'">Link</a>';
+		//document.getElementById("output").innerHTML = '<a href="http://example.com/|setIv|' + encoded.iv +'">Link</a>';
 	}
 	else{
 		//Debug stuff
 		document.getElementById("output").innerHTML = "failed";
-	}
+    }
+
+    // Test some data
+    var dataurl = encode(encrypt("Test data", "password"));
+    document.getElementById("test").src = dataurl;
 	</script>
 
 </body>
