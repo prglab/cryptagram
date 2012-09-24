@@ -16,6 +16,8 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.view.Menu;
 import android.view.View;
+import android.webkit.ConsoleMessage;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -53,21 +55,11 @@ public class MainActivity extends Activity {
 		        String parameter = URLDecoder.decode(st.nextToken());
 		        
 		        Toast.makeText(getApplicationContext(), func + " " + parameter, Toast.LENGTH_SHORT ).show();
-		        if ( func.equalsIgnoreCase("setIv") ) {
+		        if ( func.equalsIgnoreCase("setDataUrl") ) {
 		           Toast.makeText(getApplicationContext(), "android call 01 value received: " + parameter, Toast.LENGTH_SHORT).show();
 		           // do your stuff here.....
-		           dataAccessor.setIv(parameter);
-		           //return true;
-		        } else if ( func.equalsIgnoreCase("setSalt") ) {
-		           Toast.makeText(getApplicationContext(), "android call 02 value received: " + parameter, Toast.LENGTH_SHORT).show();
-		           dataAccessor.setSalt(parameter);
-		           //return true;  
-		           
-		        }else if ( func.equalsIgnoreCase("setCt")){
-		           Toast.makeText(getApplicationContext(), "android call 03 value received: " + parameter, Toast.LENGTH_SHORT).show();
-			       dataAccessor.setCt(parameter);
-		           //return true;
-			       
+		           dataAccessor.setDataUrl(parameter);
+		           //return true;			       
 		        }else if ( func.equalsIgnoreCase("setDone") ) {
 		        	dataAccessor.setDone();
 		        	
@@ -80,16 +72,14 @@ public class MainActivity extends Activity {
 		}
 	
 	/**
-	 * A class to share data with the sjcl javascript library. Passed with
+	 * A class to share data with the javascript cryptogram encoder library.
 	 * @author david
 	 *
 	 */
 	public class DataAccessor{
 		String inputData;
-		String iv;
-		String salt;
-		String ct;
 		String passwordString;
+		String dataUrl;
 		boolean done = false;
 		
 		public synchronized void setData(String data){
@@ -108,28 +98,8 @@ public class MainActivity extends Activity {
 			return passwordString;
 		}
 		
-		public synchronized void setIv(String iv){
-			this.iv = iv;
-		}
-		
-		public synchronized String getIv(){
-			return iv;
-		}
-		
-		public synchronized void setSalt(String salt){
-			this.salt = salt;
-		}
-		
-		public synchronized String getSalt(){
-			return salt;
-		}
-		
-		public synchronized void setCt(String ct){
-			this.ct = ct;
-		}
-		
-		public synchronized String getCt(){
-			return ct;
+		public synchronized void setDataUrl(String dataUrl){
+			this.dataUrl = dataUrl;
 		}
 		
 		public synchronized void setDone(){
@@ -244,6 +214,19 @@ public class MainActivity extends Activity {
 		jsExecutionView.addJavascriptInterface(dataAccessor, "dataAccessor");
 		jsExecutionView.getSettings().setJavaScriptEnabled(true);
 		jsExecutionView.setWebViewClient(new workaroundWebViewClient());
+		
+		jsExecutionView.setWebChromeClient(new WebChromeClient() {
+			
+			@Override
+			public boolean onConsoleMessage(ConsoleMessage consoleMessage){
+				Toast.makeText(context, consoleMessage.message() + ":" + Integer.toString(consoleMessage.lineNumber()), Toast.LENGTH_SHORT).show();
+				
+				return true;
+			}
+			
+			
+		});
+		
 		jsExecutionView.loadUrl("file:///android_asset/run_sjcl.html?password="+"password"+"&data="+base64String);
     }
 
@@ -271,12 +254,7 @@ public class MainActivity extends Activity {
     }
     
     private void encodeToImage(){
-    	String encodeData = dataAccessor.getIv() + dataAccessor.getSalt() + dataAccessor.getCt();
-    	String hash = HashGenerator.generateSha256(encodeData);
-    	encodeData = hash + encodeData; 
-  
-    	cryptogramImage = ImageEncoder.encodeBase64(encodeData, HEADER, imageBitmap.getWidth()/((double)imageBitmap.getHeight()));
-    	imagePreview.setImageBitmap(cryptogramImage);
+    	return;
     }
     
     @Override

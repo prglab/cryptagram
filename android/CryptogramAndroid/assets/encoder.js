@@ -106,8 +106,18 @@ function encode(data, width_to_height_ratio, header_string, block_width,
   c.width = width;
   c.height = height;
   var cxt = c.getContext('2d');
-  var imageData = cxt.createImageData(width, height);
-  var d = imageData.data;
+  var imageData = cxt.getImageData(0, 0, width, height);
+  console.log(imageData.data.length);
+  console.log("width " + width + "height " + height);
+
+  // The newer APIs return CanvasPixelArray directly instead of 
+  // imageData
+  if (imageData.data !== undefined){
+      var d = imageData.data;
+  }
+  else{
+      var d = imageData;
+  }
 
   function set_pixel(x, y, level) {
     idx = 4 * (x + y * width);
@@ -163,9 +173,14 @@ function encode(data, width_to_height_ratio, header_string, block_width,
     y = y_coord * block_height;
     set_block(x,y,level);
   }
+
   cxt.putImageData(imageData, 0, 0);
+  console.log(c.width + " " + c.height);
   var img = new Image();
-  return c.toDataURL('image/jpeg', 0.95);
+  console.log(c.toDataURL());
+  //return c.toDataURL('image/jpeg', 0.95);
+  // Stupid Android browser doesn't implement toDataURL
+  return imageData;
 }
 
 // Draw image onto canvas and optionally resize it into a thumbnail.

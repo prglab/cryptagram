@@ -8,7 +8,10 @@
 
 <body>
 	<p id="output"></p>
-    <img id="test"></img>	
+    <img id="cryptImg"></img>
+    <img id="extra"></img>   
+    <canvas id="drawCanvas"></canvas
+     <canvas id="drawCanvas"></canvas> 
 	<script type="text/javascript">
 	
 	// Read a page's GET URL variables and return them as an object.
@@ -26,9 +29,16 @@
 	}
 	
 	var args = getUrlVars();
-	if (args.password !== undefined && args.data !== undefined){
-		var encoded = JSON.parse(sjcl.encrypt(args.password, args.data));
-		//call functions with workaround
+    if (args.password !== undefined && args.data !== undefined){
+    	document.getElementById("output").innerHTML = args.password;
+        var imageData = encode(encrypt(args.data, args.password));
+        // call functions with workaround
+        var img = new Image();
+        //img.src = "|setDataUrl|" + encode(encrypt(args.data, args.password));//dataUrl;
+        //document.getElementById("output").innerHTML = dataUrl;
+        //#DEBUG
+        //document.getElementById("cryptImg").src = dataUrl;   
+		//var encoded = JSON.parse(sjcl.encrypt(args.password, args.data));
 		//img = new Image();
 		//img.src = "|setIv|"+encoded['iv'];
 		//img.src = "|setCt|"+encoded['ct'];
@@ -41,12 +51,23 @@
 	}
 	else{
 		//Debug stuff
+        
 		document.getElementById("output").innerHTML = "failed";
+        var imageData = encode(encrypt("Test data", "password"));
+        document.getElementById("output").innerHTML = imageData;
+        document.getElementById("output").innerHTML = imageData;
+
     }
 
     // Test some data
-    var dataurl = encode(encrypt("Test data", "password"));
-    document.getElementById("test").src = dataurl;
+    
+        //document.getElementById("cryptImg").src = dataurl;
+    canv = document.getElementById("drawCanvas");
+    canv.width = imageData.width;
+    canv.height = imageData.height;
+
+    ctx = canv.getContext('2d');
+    ctx.putImageData(imageData, 0, 0);
 	</script>
 
 </body>
