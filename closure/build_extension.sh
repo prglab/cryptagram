@@ -1,0 +1,1 @@
+java -jar ../../plovr/build/plovr.jar build cryptogram-config.js > extension/cryptogram-compiled.js

@@ -85,18 +85,26 @@ cryptogram.demo.prototype.runDecrypt = function() {
 
   if (this.decrypted) {
     this.decrypted = false;
-    this.button.value = 'Decrypt'; 
-    cryptogram.context.setSrc(cryptogram.context.container.previousSrc);
+    this.button.value = 'Decrypt';
+    cryptogram.context.revertContainer(this.container);
   } else {
     this.decrypted = true;
     this.button.value = 'Reset'; 
+    var image = this.settings.image;
     var loader = new cryptogram.loader();
-    loader.getImageData(this.settings.image, function(data) {
+    var self = this;
+    loader.getImageData(image, function(data) {
       var password = 'cryptogram';      
       var decoder = new cryptogram.decoder();
+      
       decoder.decodeData(data, password, function(result) {
-        cryptogram.context.getContainers();
-        cryptogram.context.setSrc(result);
+      
+          var URL = new goog.Uri(image);
+          console.log(URL.toString());
+      
+        var containers = cryptogram.context.getContainers(image);
+        self.container = containers[0];
+        cryptogram.context.setContainerSrc(containers[0], result);
       });
    });
   }    

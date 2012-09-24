@@ -14,7 +14,7 @@ cryptogram.storage.load = function(localStorage) {
 }
 
 cryptogram.storage.getPasswordForURL = function(URL) {
-    
+        
     var photoId = cryptogram.context.getPhotoName(URL);
     var albumId = cryptogram.context.getAlbumName(URL);
     
