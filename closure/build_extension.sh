@@ -1,1 +1,2 @@
-java -jar ../../plovr/build/plovr.jar build cryptogram-config.js > extension/cryptogram-compiled.js
+java -jar ../../plovr/build/plovr.jar build cryptogram-content-config.js > extension/cryptogram-content.js
+java -jar ../../plovr/build/plovr.jar build cryptogram-background-config.js > extension/cryptogram-background.js

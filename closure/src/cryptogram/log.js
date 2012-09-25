@@ -1,6 +1,6 @@
 goog.provide('cryptogram.log');
 
-cryptogram.log.report = "";
+//cryptogram.log.report = "";
 
 /**
  * @param{string} str1

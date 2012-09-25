@@ -5,19 +5,19 @@ goog.require('cryptogram.log');
 /**
  * @constructor
  */
-cryptogram.loader = function() {};
+cryptogram.loader = function(context) {
+  this.context = context;
+};
 
 
 /**
  * @private
  */
 cryptogram.loader.prototype.updateProgress = function(e) {
-
   if (e.lengthComputable) {  
     var percentComplete = Math.ceil(100.0 * (e.loaded / e.total));
-    cryptogram.context.setStatus("Download<br>" + percentComplete + "%");
+    this.context.setStatus("Download<br>" + percentComplete + "%");
   }
-
 }
 
 
@@ -26,10 +26,11 @@ cryptogram.loader.prototype.updateProgress = function(e) {
  */
 cryptogram.loader.prototype.createRequest = function() {
   var oHTTP = null;
+  var self = this;
   if (window.XMLHttpRequest) {
     oHTTP = new XMLHttpRequest();
     oHTTP.responseType = "arraybuffer";  
-    oHTTP.addEventListener("progress", this.updateProgress, false);  
+    oHTTP.addEventListener("progress", function(e){ self.updateProgress(e) }, false);  
   } else if (window.ActiveXObject) {
     oHTTP = new ActiveXObject("Microsoft.XMLHTTP");
     }
@@ -98,7 +99,7 @@ cryptogram.loader.prototype.bytesToBase64 = function() {
  */
 cryptogram.loader.prototype.getImageData = function(src, callback) {
 
-  cryptogram.context.setStatus("Download<br>...");
+  this.context.setStatus("Download<br>...");
 
   var oHTTP = this.createRequest();
   var self = this;
