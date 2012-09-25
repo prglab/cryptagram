@@ -14,14 +14,14 @@ goog.require('goog.events.EventType');
  * @constructor
  */
 cryptogram.demo = function() {
-    cryptogram.init();
+
     document.body.innerHTML += cryptogram.templates.demo();
         
     goog.events.listen(goog.dom.getElement('encrypt_link'),
                        goog.events.EventType.CLICK, this.showEncrypt, false, this);
     
     goog.events.listen(goog.dom.getElement('decrypt_link'),
-                       goog.events.EventType.CLICK, this.showDecrypt, false, this);      
+                       goog.events.EventType.CLICK, this.showDecrypt, false, this);
 };
 
 
@@ -33,6 +33,7 @@ cryptogram.demo.prototype.showDecrypt = function() {
   goog.dom.getElement('main').innerHTML = cryptogram.templates.decrypt(this.settings);
   this.decrypted = false;
   this.button = goog.dom.getElement('decrypt_button');
+  this.container = goog.dom.getElement('image');
   goog.events.listen(this.button, goog.events.EventType.CLICK, this.runDecrypt, false, this);
 };
 
@@ -76,6 +77,11 @@ cryptogram.demo.prototype.showEncrypt = function() {
 };
 
 
+cryptogram.demo.prototype.setStatus = function(message) {
+  console.log(message);
+};
+
+
 /**
  * Runs decryption on the loaded image, replacing it with the
  * decrypted image. If the image is already decrypted, it reverts
@@ -86,25 +92,19 @@ cryptogram.demo.prototype.runDecrypt = function() {
   if (this.decrypted) {
     this.decrypted = false;
     this.button.value = 'Decrypt';
-    cryptogram.context.revertContainer(this.container);
+    this.container.src = this.settings.image;
   } else {
     this.decrypted = true;
     this.button.value = 'Reset'; 
     var image = this.settings.image;
-    var loader = new cryptogram.loader();
+    var loader = new cryptogram.loader(this);
     var self = this;
     loader.getImageData(image, function(data) {
       var password = 'cryptogram';      
-      var decoder = new cryptogram.decoder();
+      var decoder = new cryptogram.decoder(self);
       
-      decoder.decodeData(data, password, function(result) {
-      
-          var URL = new goog.Uri(image);
-          console.log(URL.toString());
-      
-        var containers = cryptogram.context.getContainers(image);
-        self.container = containers[0];
-        cryptogram.context.setContainerSrc(containers[0], result);
+      decoder.decodeData(data, password, function(result) {     
+        self.container.src = result;
       });
    });
   }    

@@ -13,6 +13,6 @@
               "externs/downloadify-externs.js", 
               "externs/swfobject-externs.js",
               "externs/chrome_extensions.js"],
-  "mode": "advanced",
+  "mode": "simple",
   "jsdoc-html-output-path": "docs"
 }

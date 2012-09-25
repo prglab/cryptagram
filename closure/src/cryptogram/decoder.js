@@ -6,7 +6,9 @@ goog.require('cryptogram.storage');
 /**
  * @constructor
  */
-cryptogram.decoder = function() {};
+cryptogram.decoder = function(context) {
+  this.context = context;
+};
 
 cryptogram.decoder.URIHeader = "data:image/jpeg;base64,";
 
@@ -50,7 +52,7 @@ cryptogram.decoder.prototype.decodeData = function(data, password, callback) {
     
     if (protocol != "aesthete") {
       cryptogram.log("Error: Unknown Protocol");
-      cryptogram.context.setStatus();
+      self.context.setStatus();
     } else {
       self.processImage();    
     }
@@ -126,10 +128,10 @@ cryptogram.decoder.prototype.processImage = function() {
       // Artificially inflate the percent so it gets to 100
       var percent = Math.ceil(100.0 * ((y + (4 * this.blockSize)) / this.img.height));
       if (percent > 100) percent = 100;
-      cryptogram.context.setStatus("Decode<br>" + percent + "%");
+      this.context.setStatus("Decode<br>" + percent + "%");
       setTimeout(function () { _decoder.processImage() }, 1);
   } else {
-      cryptogram.context.setStatus();
+      this.context.setStatus();
       cryptogram.log("Decoded " + this.newBase64.length + " Base64 characters:", this.newBase64);
       _decoder.decryptImage();
   }
