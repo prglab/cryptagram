@@ -7,12 +7,12 @@
               "src/thirdparty/swfobject.js",
               "soy/demo.soy"],
   "css-inputs": ["gss/style.gss"],
-  "css-output-file": "style.css",
+  "css-output-file": "build/demo/style.css",
   "paths": ["src", "soy"],
   "externs": ["externs/sjcl-externs.js", 
               "externs/downloadify-externs.js", 
               "externs/swfobject-externs.js",
               "externs/chrome_extensions.js"],
-  "mode": "simple",
+  "mode": "advanced",
   "jsdoc-html-output-path": "docs"
 }
