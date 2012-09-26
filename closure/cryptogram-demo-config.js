@@ -9,9 +9,9 @@
   "css-inputs": ["gss/style.gss"],
   "css-output-file": "build/demo/style.css",
   "paths": ["src", "soy"],
-  "externs": ["externs/sjcl-externs.js", 
-              "externs/downloadify-externs.js", 
-              "externs/swfobject-externs.js",
+  "externs": ["externs/sjcl_externs.js", 
+              "externs/downloadify_externs.js", 
+              "externs/swfobject_externs.js",
               "externs/chrome_extensions.js"],
   "mode": "advanced",
   "jsdoc-html-output-path": "docs"
