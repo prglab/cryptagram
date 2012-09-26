@@ -27,11 +27,11 @@ cryptogram.extension.init = function() {
 
 // Sends the decodeURL message request to the current tabIndex
 cryptogram.extension.getClickHandler = function() {
-  
+    
   return function(info, tab) {
   
     chrome.tabs.getSelected(null, function(tab) {  
-      chrome.tabs.sendRequest(tab.id, {"decryptURL":info.srcUrl, "storage": localStorage}, function(response) {
+      chrome.tabs.sendRequest(tab.id, {"decryptURL":info['srcUrl'], "storage": localStorage}, function(response) {
         if (response.outcome == "success") {
           localStorage[response.id] = response.password;
           if (response.album != null) {

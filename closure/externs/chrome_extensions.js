@@ -23,6 +23,10 @@
 /** namespace */
 var chrome = {};
 
+
+chrome.contextMenus = {};
+chrome.contextMenus.create = function(obj){};
+
 /** @see http://code.google.com/chrome/extensions/extension.html */
 chrome.extension = {};
 

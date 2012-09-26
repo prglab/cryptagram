@@ -10,6 +10,9 @@ goog.require('cryptogram.media.googleplus');
 
 var context_;
 
+/**
+ * @constructor
+ */
 cryptogram.context = function() {
   
   //if (cryptogram.context.media) return;
@@ -26,7 +29,7 @@ cryptogram.context = function() {
       this.media = testMedia;
     }
   }
-}
+};
 
 
 cryptogram.context.prototype.handleRequest = function(request, sender, callback) {
@@ -71,7 +74,7 @@ cryptogram.context.prototype.handleRequest = function(request, sender, callback)
 
 cryptogram.context.prototype.setStatus = function(message) {
   this.media.setStatus(message);
-}
+};
 
 
 chrome.extension.onRequest.addListener(function(request, sender, callback) {
