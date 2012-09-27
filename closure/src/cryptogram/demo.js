@@ -95,19 +95,13 @@ cryptogram.demo.prototype.runDecrypt = function() {
     this.container.src = this.settings.image;
   } else {
     this.decrypted = true;
-    this.button.value = 'Reset'; 
-    var image = this.settings.image;
-    var loader = new cryptogram.loader(this);
+    this.button.value = 'Reset';
+    var password = 'cryptogram';
     var self = this;
-    loader.getImageData(image, function(data) {
-      var password = 'cryptogram';      
-      var decoder = new cryptogram.decoder(self);
-      
-      decoder.decodeData(data, password, function(result) {     
-        self.container.src = result;
-      });
-   });
-  }    
+    cryptogram.decryptByURL(this.settings.image, password, this, function(result) {
+      self.container.src = result;
+    });
+  }   
 };
 
 
