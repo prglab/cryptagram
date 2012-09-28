@@ -3,19 +3,21 @@ set VERTICAL;
 
 set ENTRIES := HORIZONTAL cross VERTICAL;
 
-param alpha{HORIZONTAL} >= 0;
-param PI;
+param alpha{HORIZONTAL};
 
-var x1 >= 0;
-var x2 >= 0;
+param PI;
 
 var F {(x,y) in HORIZONTAL cross VERTICAL};
 
-maximize z: x1 + 2*x2;
-  s.t. Foo: x1 <= 48;
-  s.t. Bar: x2 <= 20;
-  s.t. Baz {h in HORIZONTAL}: x1*cos(h * PI/8) + alpha[h] - x2 <= 20;
-  s.t. DCT {(eh,ev) in ENTRIES}: sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[eh,ev] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 127;
-  s.t. NDCT {(eh,ev) in ENTRIES}: -1 * sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[eh,ev] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 128;
+var slacks{(x,y) in HORIZONTAL cross VERTICAL};
 
-end;
+# maximize z: sum{(h,v) in HORIZONTAL cross VERTICAL}(F[h,v]);
+# maximize z: sum{(h,v) in HORIZONTAL cross VERTICAL}(slacks[h,v]);
+maximize z: F[4,4];
+  s.t. F00: F[0,0] = 1016;
+  s.t. DCT {(eh,ev) in ENTRIES}: sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 127;
+  s.t. NDCT {(eh,ev) in ENTRIES}: -1 * sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 128;
+  s.t. US{(eh,ev) in HORIZONTAL cross VERTICAL}: slacks[eh,ev] >= sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v)));
+  s.t. LS{(eh,ev) in HORIZONTAL cross VERTICAL}: slacks[eh,ev] >= -1 * sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v)));
+
+# end;
