@@ -6,18 +6,14 @@ goog.require('cryptogram.loader');
 goog.require('cryptogram.decoder');
 
 
-cryptogram.decryptByURL = function(URL, password, context, callback) {
-  
-  cryptogram.log("Request to decrypt:", URL);
 
-  var loader = new cryptogram.loader(context);
-  loader.getImageData(URL, function(data) {
-    var decoder = new cryptogram.decoder(context);
+cryptogram.decodeContainer = function(container, password) {
+  
+  var loader = new cryptogram.loader(container);
+  loader.getImageData(container.getSrc(), function(data) {
+    var decoder = new cryptogram.decoder(container);
     decoder.decodeData(data, password, function(result) {
-      callback(result);
+      container.setSrc(result);
     });
   });
 };
-
-
-goog.exportSymbol('cryptogram.decryptByURL', cryptogram.decryptByURL);

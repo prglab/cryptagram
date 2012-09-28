@@ -56,3 +56,24 @@ body {
   padding-top: 20px;
   margin-left: 40px;
 }
+
+.status {
+  position: absolute;
+  width: 50px;
+  top: 0px;
+  left: 50%;
+  margin: 5px;
+  margin-left: -25px;
+  padding: 5px;
+  color: black;
+  background: white;
+  opacity: 0.8;
+  font: 10px arial;  
+  text-align: center;
+  border-radius: 3px;
+}
+
+.frame {
+  position: relative;
+  display: inline-block;
+}

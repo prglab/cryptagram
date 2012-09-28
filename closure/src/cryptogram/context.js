@@ -14,11 +14,9 @@ var context_;
  * @constructor
  */
 cryptogram.context = function() {
-  
-  //if (cryptogram.context.media) return;
     
   var URL = new goog.Uri(window.location);
-  
+ 
   var knownMedia = [cryptogram.media.facebook,
                     cryptogram.media.googleplus,
                     cryptogram.media.generic];
@@ -27,47 +25,30 @@ cryptogram.context = function() {
     testMedia = new knownMedia[i](URL);
     if (testMedia.matchesURL()) {
       this.media = testMedia;
+      return;
     }
-  }
+  }  
 };
 
 
 cryptogram.context.prototype.handleRequest = function(request, sender, callback) {
-      
-
-  //if (request['checkForSaved'] == "1") {
-    //cryptogram.storage.load(request.storage);
-    //cryptogram.storage.autoDecrypt();
-  //}
-  var self = this;
-
+        
   var password = null;
   
   if (request['decryptURL']) {
-    
+         
     if (request['decryptURL'].search('data:') == 0) {
-      var containers = self.media.getContainers(request['decryptURL']);
-      self.media.revertContainer(containers[0]);
+      this.container.revertSrc();
       return;
     }
-  
-    //if (request['storage']) {
-    //  cryptogram.storage.load(request['storage']);
-    //}
-                
-    //if (cryptogram.storage) {    
-    //  password = cryptogram.storage.getPasswordForURL(request.decryptURL);
-    //}
     
     if (!password) {
       password = prompt("Enter password for\n" + request['decryptURL'], "cryptogram");
     }
     if (!password) return;
  
-    cryptogram.decryptByURL(request['decryptURL'], password, self, function(result) {
-      var containers = self.media.getContainers(request['decryptURL']);  
-      self.media.setContainerSrc(containers[0], result);
-    });
+    this.decryptByURL(request['decryptURL'], password);
+    
   }
 };
 
@@ -77,35 +58,30 @@ cryptogram.context.prototype.setStatus = function(message) {
 };
 
 
+cryptogram.context.prototype.decryptByURL = function(URL, password) {
+  
+  cryptogram.log("Request to decrypt:", URL);
+    
+  var self = this;
+  if (this.container) {
+    this.container.remove();
+    this.container = null;
+  }
+  this.container = this.media.loadContainer(URL);
+  var loader = new cryptogram.loader(this.container);
+  var fullURL = this.media.fixURL(URL);
+  loader.getImageData(fullURL, function(data) {
+    var decoder = new cryptogram.decoder(self.container);
+    decoder.decodeData(data, password, function(result) {
+      self.container.setSrc(result);
+    });
+  });
+};
+
+
 chrome.extension.onRequest.addListener(function(request, sender, callback) {
   context_.handleRequest(request, sender, callback);
 });
 
 
 context_ = new cryptogram.context();
-
-
-
-/*cryptogram.revertByURL = function(URL) {
-  
-  cryptogram.log("Reverting:", URL);
-    
-  var containers = cryptogram.context.getContainers(URL);  
-  cryptogram.context.revertContainer(containers[0]);
-};
-
-
-cryptogram.decryptByURL = function(URL, password) {
-  
-  cryptogram.log("Request to decrypt:", URL);
-
-  var loader = new cryptogram.loader();
-  loader.getImageData(URL, function(data) {
-    var decoder = new cryptogram.decoder();
-    decoder.decodeData(data, password, function(result) {
-      var containers = cryptogram.context.getContainers(URL);
-      cryptogram.context.setContainerSrc(containers[0],result);
-    });
-  });
-};
-*/
