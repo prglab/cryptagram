@@ -135,6 +135,9 @@ def CreateRandomMatrix(seeds):
       matrix[row][col] = random.choice(seeds)
   return matrix
 
+def CreateMatrixFromValue(value):
+  return numpy.multiply(value, numpy.ones((8,8)))
+
 def PickTwoDistanceMedian():
   pass
 
@@ -260,4 +263,10 @@ class Experiment(threading.Thread):
         print >>fh, num_mismatches
 
 if __name__=='__main__':
-  main(sys.argv)
+  # main(sys.argv)
+  # print QuantizationTableFromQuality(LuminanceQuantizationTable, 76)
+  # print numpy.divide(8000, QuantizationTableFromQuality(LuminanceQuantizationTable, 70))
+
+  for i in range(-128,128):
+    matrix = CreateMatrixFromValue(i)
+    print TwoDDCT(matrix)
