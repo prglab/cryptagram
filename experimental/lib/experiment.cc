@@ -12,4 +12,9 @@ namespace cryptogram {
 Experiment::Experiment() {
 }
 
+void Experiment::Run() {
+	// Do some work.
+	return;
+}
+
 } // namespace cryptogram
