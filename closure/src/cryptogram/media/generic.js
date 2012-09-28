@@ -2,6 +2,7 @@ goog.provide('cryptogram.media.generic');
 
 goog.require('goog.Uri');
 goog.require('goog.dom');
+goog.require('cryptogram.container');
 
 /**
  * @constructor
@@ -14,8 +15,12 @@ cryptogram.media.generic.prototype.matchesURL = function() {
   return true;
 };
 
-cryptogram.media.generic.prototype.name = function() {
-  return "Generic";
+cryptogram.media.generic.prototype.fixURL = function(URL) {
+  return URL;
+};
+
+cryptogram.media.generic.prototype.getAlbumName = function() {
+  return "untitled album";
 };
 
 cryptogram.media.generic.prototype.getPhotoName = function() {
@@ -26,8 +31,14 @@ cryptogram.media.generic.prototype.getAlbumName = function() {
   return "untitled album";
 };
 
-cryptogram.media.generic.prototype.getContainers = function(URL) {
+cryptogram.media.generic.prototype.loadContainer = function(URL) {
   
+  var images = this.getImages(URL);
+  this.container = new cryptogram.container(images[0]);
+  return this.container;
+};
+
+cryptogram.media.generic.prototype.getImages = function(URL) {
   
   if (URL.search("http") != 0 && URL.search("data:") != 0) {
     URL = this.URL.getScheme() + "://" + this.URL.getDomain() + ":" + this.URL.getPort() + "/" + URL;
@@ -56,6 +67,14 @@ cryptogram.media.generic.prototype.revertContainer = function(container) {
 };
 
 cryptogram.media.generic.prototype.setStatus = function(status) {
-  if (status) console.log(status);
+  
+  if (!status) {
+    status = '';
+  }
+  if (this.status) {
+    this.status.innerHTML = status;  
+  } else {
+    console.log(status);
+  }   
 };
 

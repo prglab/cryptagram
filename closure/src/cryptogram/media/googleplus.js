@@ -19,5 +19,5 @@ cryptogram.media.googleplus.prototype.matchesURL = function() {
 
 /** @inheritDoc */
 cryptogram.media.googleplus.prototype.name = function() {
-  return "Google Plus context";
+  return "Google Plus";
 };

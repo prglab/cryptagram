@@ -8,33 +8,19 @@ goog.require('cryptogram.log');
  */
 cryptogram.encoder = function() {};
 
+
 cryptogram.encoder.octal_symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14];
 // Each base-64 character gets split into two octal symbols, so we have one
 // function to turn an octal symbol into a single threshold and a base-64
 // character into a short array of thresholds.
-cryptogram.encoder.base64_values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+cryptogram.encoder.base64_values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-function resize( imagewidth, imageheight, thumbwidth, thumbheight ) {
-  var w = 0, h = 0, x = 0, y = 0,
-  widthratio  = imagewidth / thumbwidth,
-  heightratio = imageheight / thumbheight,
-  maxratio    = Math.max( widthratio, heightratio );
+cryptogram.encoder.prototype.encrypt = function(data, password) {
 
-  if ( maxratio > 1 ) {
-    w = imagewidth / maxratio;
-    h = imageheight / maxratio;
-  } else {
-   w = imagewidth;
-   h = imageheight;
-  }
-  x = ( thumbwidth - w ) / 2;
-  y = ( thumbheight - h ) / 2;
-  return { w:w, h:h, x:x, y:y };
-}
+  // Get rid of data type information (for now assuming always JPEG.
+  var withoutMimeHeader = data.split('base64,')[1];
 
-
-function encrypt (data, password) {
-  var encrypted_data = JSON.parse(sjcl.encrypt(password, data));
+  var encrypted_data = JSON.parse(sjcl.encrypt(password, withoutMimeHeader));
   var iv = encrypted_data['iv'];
   var salt = encrypted_data['salt'];
   var ct = encrypted_data['ct'];
@@ -43,16 +29,10 @@ function encrypt (data, password) {
 	var bits = sjcl.hash.sha256.hash(to_hash);
   var integrity_check_value = sjcl.codec.hex.fromBits(bits);
   return integrity_check_value + to_hash;
-}
+};
 
-function write(text) {
-  document.getElementById('alerts').innerHTML += '<p>' + text + '</p>';
-}
-function clear_alerts() {
-    document.getElementById('alerts').innerHTML = "";
-}
 
-cryptogram.encoder.encode = function(data, width_to_height_ratio, header_string, block_width,
+cryptogram.encoder.prototype.encode = function(data, width_to_height_ratio, header_string, block_width,
 								block_height) {
 
   width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
@@ -115,6 +95,7 @@ cryptogram.encoder.encode = function(data, width_to_height_ratio, header_string,
   c.width = width;
   c.height = height;
   var cxt = c.getContext('2d');
+  
   var imageData = cxt.createImageData(width, height);
   var d = imageData.data;
 
@@ -172,33 +153,15 @@ cryptogram.encoder.encode = function(data, width_to_height_ratio, header_string,
     y = y_coord * block_height;
     set_block(x,y,level);
   }
+    
   cxt.putImageData(imageData, 0, 0);
   var img = new Image();
   img.src = c.toDataURL('image/jpeg', 0.95);
   return img;
-}
+};
 
-// Draw image onto canvas and optionally resize it into a thumbnail.
-function image_to_canvas( img, thumb_width, thumb_height) {
-  var c = document.getElementById('cancan');
-  var cx = c.getContext('2d');
-  if (thumb_width && thumb_height) {
-    c.width = thumb_width;
-    c.height = thumb_height;
-    var dimensions = resize( img.width, img.height, thumb_width, thumb_height );
-    cx.drawImage(
-      img, dimensions.x, dimensions.y, dimensions.w, dimensions.h
-    );
-  }
-  else {
-    c.width = img.width;
-    c.height = img.height;
-    cx.drawImage(img, 0, 0);
-  }
-}
 
-function show_error(msg, url, linenumber) {
-  write('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber)
+cryptogram.encoder.show_error = function(msg, url, linenumber) {
+  console.log('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber)
   return true;
-}
-    
+};
