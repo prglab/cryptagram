@@ -1,21 +1,117 @@
 #!/usr/bin/env python
 import subprocess
+import numpy
+from dct import QuantizationTableFromQuality
+import re
 
-contents = ''
+
+kReObjectiveFunction = re.compile('Objective:.*z = (.*) \(MAXimum\)')
+
+LuminanceQuantizationTable = numpy.array([
+  [16, 11, 10, 16, 24, 40, 51, 61],
+  [12, 12, 14, 19, 26, 58, 60, 55],
+  [14, 13, 16, 24, 40, 57, 69, 56],
+  [14, 17, 22, 29, 51, 87, 80, 62],
+  [18, 22, 37, 56, 68, 109, 103, 77],
+  [24, 35, 55, 64, 81, 104, 113, 92],
+  [49, 64, 78, 87, 103, 121, 120, 101],
+  [72, 92, 95, 98, 112, 100, 103, 99]])
+
+quality = 76
+quant_table = QuantizationTableFromQuality(LuminanceQuantizationTable, quality)
+print quant_table
+for i in range(0,8):
+  for j in range(0,8):
+    print i, j, int(quant_table[i,j])
+
+import sys
+sys.exit(0)
+
+model_base = ''
 with open("jpeg.mod",'r') as fh:
-  contents = fh.read()
+  model_base = fh.read()
+
+# print model_base
+
+class Model(object):
+  def __init__(self, base):
+    self.base = base
+
+  def _AppendToModel(self, line):
+    self.base += '\n' + line
+
+  def AddConstraint(self, constraint):
+    self._AppendToModel('s.t. ' + constraint)
+
+  def SetObjective(self, objective):
+    self._AppendToModel(objective)
+
+  def Run(self):
+    # Write out the model and execute.
+    with open('temp.mod', 'w') as fh:
+      fh.write(self.base)
+    proc = subprocess.Popen("glpsol -m temp.mod -d jpeg.dat -o temp.sol", shell=True)
+    proc.communicate()
+    return self._ParseForObjective()
+
+  def _ParseForObjective(self):
+    # Objective:  z = 942.3571232 (MAXimum)
+    results = ''
+    with open('temp.sol', 'r') as fh:
+      for result in fh.readlines():
+        m = re.match(kReObjectiveFunction, result)
+        if m:
+          return m.groups()[0]
+
+kDctConstraint = 'DCT {(eh,ev) in ENTRIES}: sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 127;'
+kNdctConstraint = 'NDCT {(eh,ev) in ENTRIES}: -1 * sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 128;'
+
+# Begin program
+
+# tuple -> objective value
+objective_results = {}
 
 for i in range(0,8):
   for j in range(0,8):
-    model = 'jpeg_%d_%d.mod' % (i,j)
-    with open(model,'w') as fh:
-      print >>fh, contents
-      print >>fh, """
-maximize z: F[%d,%d];
-  s.t. DCT {(eh,ev) in ENTRIES}: sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 127;
-  s.t. NDCT {(eh,ev) in ENTRIES}: -1 * sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 128;
-""" % (i,j)
+    model = Model(model_base)
+    model.SetObjective('maximize z: F[%d,%d];' % (i,j))
+    model.AddConstraint(kDctConstraint)
+    model.AddConstraint(kNdctConstraint)
+    objective_results[(i,j)] = model.Run()
 
-    proc = subprocess.Popen("glpsol -m %s -d jpeg.dat -o %s.sol" % (model, model), shell=True)
-    proc.communicate()
+for key in objective_results:
+  print key, objective_results[key]
 
+#print max(objective_results, key=objective_results.get)
+import operator
+print max(objective_results.iteritems(), key=operator.itemgetter(1))[0]
+
+
+# for i in range(0,8):
+#   for j in range(0,8):
+#     model = 'jpeg_%d_%d.mod' % (i,j)
+
+#     with open(model,'w') as fh:
+#       print >>fh, contents
+#       print >>fh, """
+# maximize z: F[%d,%d];
+#   s.t. DCT {(eh,ev) in ENTRIES}: sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 127;
+#   s.t. NDCT {(eh,ev) in ENTRIES}: -1 * sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 128;
+# """ % (i,j)
+
+#     proc = subprocess.Popen("glpsol -m %s -d jpeg.dat -o %s.sol" % (model, model), shell=True)
+#     proc.communicate()
+
+
+
+
+# def ChooseBiggestSolutionPerQuantization():
+#   pass
+
+# i, j, quant_table
+
+# def AddConstraint():
+#   pass
+
+
+# def WriteObjective(model):
