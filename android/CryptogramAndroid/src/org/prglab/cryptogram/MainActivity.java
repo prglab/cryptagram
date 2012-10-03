@@ -231,7 +231,7 @@ public class MainActivity extends Activity {
 			imageBitmap.compress(CompressFormat.JPEG, 80, byteOut);
 			byte[] readBuffer = byteOut.toByteArray();
 			
-    		base64String = Base64.encodeToString(readBuffer, Base64.DEFAULT);
+    		base64String = Base64.encodeToString(readBuffer, Base64.NO_WRAP | Base64.NO_PADDING);
     		
     		// Debugging with toasts: the best way to debug
     		Toast.makeText(this, base64String, Toast.LENGTH_SHORT).show();
@@ -242,12 +242,15 @@ public class MainActivity extends Activity {
 			return;
 		}
 		
-		dataAccessor.setData(base64String);
-		//TODO:Implement password prompt
-		dataAccessor.setPassword("password");
+		Bitmap encodedBitmap = ImageEncoder.encodeBase64(base64String, "aesthete", imageBitmap.getWidth()/(double)imageBitmap.getHeight());
+
+		imagePreview.setImageBitmap(encodedBitmap);
 		
-//		// Stupid JS interface is utterly broken damn you google
-//		// Send the string to the WebView here using DataAccessor
+//		dataAccessor.setData(base64String);
+//		TODO:Implement password prompt
+//		dataAccessor.setPassword("password");
+		
+		// Send the string to the WebView here using DataAccessor
 //		jsExecutionView.addJavascriptInterface(dataAccessor, "dataAccessor");
 //		jsExecutionView.getSettings().setJavaScriptEnabled(true);
 //		jsExecutionView.setWebViewClient(new workaroundWebViewClient());
@@ -259,18 +262,12 @@ public class MainActivity extends Activity {
 //				Toast.makeText(context, consoleMessage.message() + ":" + Integer.toString(consoleMessage.lineNumber()), Toast.LENGTH_SHORT).show();
 //				
 //				return true;
-//			}	
-//			
+//			}
+			
+			
 //		});
-//		
+		
 //		jsExecutionView.loadUrl("file:///android_asset/run_sjcl.html?password="+"password"+"&data="+base64String);
-		
-		
-		
-		// Save memory
-		imagePreview.setImageBitmap(null);
-		imageBitmap = null;
-
     }
 
 	/**
