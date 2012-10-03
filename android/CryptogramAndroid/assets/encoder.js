@@ -107,8 +107,8 @@ function encode(data, width_to_height_ratio, header_string, block_width,
   c.height = height;
   var cxt = c.getContext('2d');
   var imageData = cxt.getImageData(0, 0, width, height);
-  console.log(imageData.data.length);
-  console.log("width " + width + "height " + height);
+  //console.log(imageData.data.length);
+  //console.log("width " + width + ", height " + height);
 
   // The newer APIs return CanvasPixelArray directly instead of 
   // imageData
@@ -175,9 +175,9 @@ function encode(data, width_to_height_ratio, header_string, block_width,
   }
 
   cxt.putImageData(imageData, 0, 0);
-  console.log(c.width + " " + c.height);
+  //console.log(c.width + " " + c.height);
   var img = new Image();
-  console.log(c.toDataURL());
+  //console.log(c.toDataURL());
   //return c.toDataURL('image/jpeg', 0.95);
   // Stupid Android browser doesn't implement toDataURL
   return imageData;
