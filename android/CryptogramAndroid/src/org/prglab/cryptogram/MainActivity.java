@@ -2,6 +2,7 @@ package org.prglab.cryptogram;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import android.net.Uri;
@@ -54,13 +55,23 @@ public class MainActivity extends Activity {
 		        String func = st.nextToken();
 		        String parameter = URLDecoder.decode(st.nextToken());
 		        
-		        Toast.makeText(getApplicationContext(), func + " " + parameter, Toast.LENGTH_SHORT ).show();
+		        //Toast.makeText(getApplicationContext(), func + " " + parameter, Toast.LENGTH_SHORT ).show();
 		        if ( func.equalsIgnoreCase("setDataUrl") ) {
 		           Toast.makeText(getApplicationContext(), "android call 01 value received: " + parameter, Toast.LENGTH_SHORT).show();
 		           // do your stuff here.....
 		           dataAccessor.setDataUrl(parameter);
 		           //return true;			       
+		           
+		        }else if ( func.equalsIgnoreCase("buildRGB") ){
+		        	
+		        	dataAccessor.buildRGB(parameter);
+		        	
+		        }else if ( func.equals("setWidthHeight")){
+		        	Toast.makeText(getApplicationContext(), "width/height received: " + parameter, Toast.LENGTH_SHORT).show();
+		        	dataAccessor.setWidthHeight(parameter);
+		        	
 		        }else if ( func.equalsIgnoreCase("setDone") ) {
+		        	Toast.makeText(getApplicationContext(), "Done sending!", Toast.LENGTH_SHORT).show();
 		        	dataAccessor.setDone();
 		        	
 		        } else {
@@ -82,6 +93,15 @@ public class MainActivity extends Activity {
 		String dataUrl;
 		boolean done = false;
 		
+		int width;
+		int height;
+
+		ArrayList<Short> RgbAl;
+		
+		public DataAccessor(){
+			RgbAl = new ArrayList<Short>();		
+		}
+		
 		public synchronized void setData(String data){
 			inputData = data;
 		}
@@ -102,8 +122,24 @@ public class MainActivity extends Activity {
 			this.dataUrl = dataUrl;
 		}
 		
+		public synchronized void setWidthHeight(String widthHeight){
+			String[] wh = widthHeight.split(",");
+			width = Integer.parseInt(wh[0]);
+			height = Integer.parseInt(wh[1]);
+				
+		}
+		
+		public synchronized void buildRGB(String data){
+			String[] tokens = data.split(",");
+			for (int i = 0; i < tokens.length; i++){
+				RgbAl.add(Short.parseShort(tokens[i]));
+			}		
+		}
+		
 		public synchronized void setDone(){
 			done = true;
+			
+			Toast.makeText(getApplicationContext(), "# data points received: " + RgbAl.size(), Toast.LENGTH_SHORT).show();
 			
 			// Run code on the main thread
 			// Get a handler that can be used to post to the main thread
@@ -210,24 +246,31 @@ public class MainActivity extends Activity {
 		//TODO:Implement password prompt
 		dataAccessor.setPassword("password");
 		
-		// Send the string to the WebView here using DataAccessor
-		jsExecutionView.addJavascriptInterface(dataAccessor, "dataAccessor");
-		jsExecutionView.getSettings().setJavaScriptEnabled(true);
-		jsExecutionView.setWebViewClient(new workaroundWebViewClient());
+//		// Stupid JS interface is utterly broken damn you google
+//		// Send the string to the WebView here using DataAccessor
+//		jsExecutionView.addJavascriptInterface(dataAccessor, "dataAccessor");
+//		jsExecutionView.getSettings().setJavaScriptEnabled(true);
+//		jsExecutionView.setWebViewClient(new workaroundWebViewClient());
+//		
+//		jsExecutionView.setWebChromeClient(new WebChromeClient() {
+//			
+//			@Override
+//			public boolean onConsoleMessage(ConsoleMessage consoleMessage){
+//				Toast.makeText(context, consoleMessage.message() + ":" + Integer.toString(consoleMessage.lineNumber()), Toast.LENGTH_SHORT).show();
+//				
+//				return true;
+//			}	
+//			
+//		});
+//		
+//		jsExecutionView.loadUrl("file:///android_asset/run_sjcl.html?password="+"password"+"&data="+base64String);
 		
-		jsExecutionView.setWebChromeClient(new WebChromeClient() {
-			
-			@Override
-			public boolean onConsoleMessage(ConsoleMessage consoleMessage){
-				Toast.makeText(context, consoleMessage.message() + ":" + Integer.toString(consoleMessage.lineNumber()), Toast.LENGTH_SHORT).show();
-				
-				return true;
-			}
-			
-			
-		});
 		
-		jsExecutionView.loadUrl("file:///android_asset/run_sjcl.html?password="+"password"+"&data="+base64String);
+		
+		// Save memory
+		imagePreview.setImageBitmap(null);
+		imageBitmap = null;
+
     }
 
 	/**

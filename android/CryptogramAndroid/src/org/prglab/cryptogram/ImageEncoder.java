@@ -48,9 +48,11 @@ public class ImageEncoder {
 	
 	public static Bitmap encodeToBitmap(String data, String header, double widthHeightRatio){
 		int length = data.length() + header.length();
+		int numPixels = 2*2*length;
 		// Add a little extra space
-		int width = (int) Math.sqrt(length*widthHeightRatio) + 10;
-		int height = (int)(width/widthHeightRatio);
+		int width = (int) Math.sqrt(numPixels*widthHeightRatio);
+		int height = (int)(width/widthHeightRatio) + 1;
+		
 		
 		Bitmap encodedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 		
@@ -62,6 +64,8 @@ public class ImageEncoder {
 	public static Bitmap encodeBase64(String data, String header, double widthHeightRatio){
 		ArrayList<Integer> headerOctal = getOctalArray(header);
 	    ArrayList<Integer> dataOctal = getOctalArray(data);
+	    
+	    
 	    
 	    return encodeToBitmap(data, header, widthHeightRatio);
 	}

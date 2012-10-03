@@ -4,6 +4,7 @@
 <head>
     <script src="sjcl.js" type="text/javascript"></script>
     <script src="encoder.js" type="text/javascript"></script>
+    <script src="json2.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -65,9 +66,25 @@
     canv = document.getElementById("drawCanvas");
     canv.width = imageData.width;
     canv.height = imageData.height;
+    
+    var img = new Image();
+    
+    img.src = "|setWidthHeight|" + imageData.width + "," + imageData.height;
+
+	var str = ""
+ //   for (var i = 0; i < imageData.data.length; i++){
+//		str += imageData.data[i] + ",";
+		
+//    }
+    
+    img.src = "|buildRGB|" + str;
+    //var str = imageDataToString(imageData, 1024);
+   	//
 
     ctx = canv.getContext('2d');
     ctx.putImageData(imageData, 0, 0);
+    //console.log("got it");
+    img.src = "|setDone|" + "none";
 	</script>
 
 </body>
