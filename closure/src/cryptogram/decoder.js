@@ -42,7 +42,7 @@ cryptogram.decoder.prototype.decodeData = function(data, password, callback) {
     self.blockSize = blockSize;
     self.headerSize = blockSize * 4;
     self.password = password;
-    self.chunkSize = img.height / 40.0;
+    self.chunkSize = img.height / 20.0;
     self.y = 0;
     self.newBase64 = "";
         

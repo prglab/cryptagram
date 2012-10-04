@@ -29,11 +29,3 @@ cryptogram.log.sendDebugReport = function() {
   var href = "mailto:" + addresses + "?subject=" + subject + "&body=" + cryptogram.log.report;
   window.open(href, "_blank");
 }
-
-
-// Add a contains function to simplify URL searching
-String.prototype.contains = function(str1) {
-  return (this.search(str1) != -1);
-};
-
-
