@@ -1,4 +1,4 @@
-body {
+#demo {
   font: 12px arial;
 }
 
