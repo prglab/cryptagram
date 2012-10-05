@@ -1,6 +1,7 @@
 goog.provide('cryptogram.media.facebook');
 
 goog.require('cryptogram.media.generic');
+goog.require('goog.dom');
 
 
 /**
@@ -11,6 +12,19 @@ cryptogram.media.facebook = function(URL) {
   cryptogram.media.generic.call(this, URL);
 };
 goog.inherits(cryptogram.media.facebook, cryptogram.media.generic);
+
+
+
+/**
+ * Enum for possible Facebook states
+ * @enum {string}
+ */
+cryptogram.media.facebook.state = {
+  PHOTO:      'Photo',
+  SPOTLIGHT:  'Photo Spotlight',
+  ALBUM:      'Album',
+  TIMELINE:   'Timeline'
+};
 
 
 /** @inheritDoc */
@@ -27,19 +41,23 @@ cryptogram.media.facebook.prototype.name = function() {
 
 
 /** @inheritDoc */
-cryptogram.media.facebook.prototype.getImages = function(URL) {
-  
+cryptogram.media.facebook.prototype.getImages = function(opt_URL) {
+    
   var valid = [];
-  var images = goog.dom.getElementsByClass('fbPhotoImage');
+  var images;
   
-  if (!images.length) {
+  if (this.state == cryptogram.media.facebook.state.SPOTLIGHT) {
     images = goog.dom.getElementsByClass('spotlight');
+  } else if (this.state == cryptogram.media.facebook.state.PHOTO) {
+    images = goog.dom.getElementsByClass('fbPhotoImage');
+  } else {
+    return [];
   }
     
   for (var i = 0; i < images.length; i++) {
     var testURL = images[i].src;
-    
-    if (URL) {
+        
+    if (opt_URL) {
       if (testURL == URL) {
         valid.push(images[i]);
       }
@@ -55,34 +73,67 @@ cryptogram.media.facebook.prototype.getImages = function(URL) {
 
 cryptogram.media.facebook.prototype.parseMedia = function() {
 
-  this.spotlight = null;
   this.actions = null;
-  this.projector = null;
-  this.album = null;
-    
-  var regex=new RegExp(/^https?:\/\/www.facebook.com\/media\/set\/\?set=a\.[0-9]*\.[0-9]*\.[0-9]*/);
+  this.state = null;
+  this.downloadSrc = null;
+  
+  var albumRegex=new RegExp(/^https?:\/\/www.facebook.com\/media\/set\/\?set=a\.[0-9]*\.[0-9]*\.[0-9]*/);
   var URL = new goog.Uri(window.location);
   
-  if (regex.test(URL)) {
-    this.album = true;
+  if (albumRegex.test(URL)) {
+    this.state = cryptogram.media.facebook.state.ALBUM;
     return true;
   }
+  
+  
 
   var spotlight = document.getElementsByClassName('spotlight');  
   if (goog.isDef(spotlight[0])) {
-    this.spotlight = spotlight[0];
-    var FBURLParts = this.spotlight.src.split("/");      
-    var FBFilename = FBURLParts[FBURLParts.length-1];
-    var FBFilenameParts = FBFilename.split("_");
-    var FBFileID = FBFilenameParts[1];
-    var FBAName = "pic_" + FBFileID;
-    this.projector = document.getElementById(FBAName);
-    if (this.projector) return true;
+  
+    if (spotlight[0].className.indexOf('hidden_elem') != -1) {
+      this.state = cryptogram.media.facebook.state.PHOTO;
+      return true;
+    }
+    
+    this.state = cryptogram.media.facebook.state.SPOTLIGHT;
+    return true;
   }
-         
+/*    this.spotlightSrc = spotlight[0].src;
+    
+    var s = document.getElementById("snowliftStageActions");
+    var child = goog.dom.findNode(s, function(n) {
+      return n.className == 'uiButtonText';
+    });
+    if (child) {
+        child.click();
+        child.click();
+
+      var menu = document.getElementsByClassName('uiMenuX');
+      var download;
+      if (goog.isDef(menu[0])) {
+        console.log("Menu");
+        console.log(menu);
+        download = goog.dom.findNode(menu[menu.length-1], function(n) {
+          return n.className == 'itemLabel' && n.innerHTML == 'Download';
+        });
+      }
+      
+      if (!download) {
+        console.log("No Download yet");
+        return false;
+      } else {
+        console.log("Grabbed " + download.parentNode.href);
+        this.downloadSrc = download.parentNode.href;
+        return true;      
+      }        
+    }
+  return false;  */
+  
+ 
   var actions = document.getElementsByClassName('fbPhotosPhotoActionsItem');
   if (goog.isDef(actions[5])) {
     this.actions = actions;
+    this.state = cryptogram.media.facebook.state.PHOTO;
     return true;
   }
 
@@ -93,6 +144,7 @@ cryptogram.media.facebook.prototype.parseMedia = function() {
 cryptogram.media.facebook.prototype.checkIfReady = function(callback) {
   
   if (this.parseMedia()) {
+    console.log("Media found: " + this.name() + "(" + this.state + ")");
     callback();
     return;
   }
@@ -159,21 +211,39 @@ cryptogram.media.facebook.prototype.fixURL = function(URL) {
       return URL;
     }    
     
-    if (this.spotlight && this.spotlight.src == URL && this.projector) {
-        
-      var ajax = this.projector.getAttribute("ajaxify");
-      // Ajaxify parameter contains the full src, but escaped
-      if (ajax) {
-        var ajaxParts = ajax.split("&");
-        var escapedSrc = ajaxParts[3];
-        var escapedURL = escapedSrc.substring(4,escapedSrc.length);
-        var fullURL = unescape(escapedURL);
-        cryptogram.log("Extracted Facebook URL from Ajax:", fullURL);
-        return fullURL;
+    if (this.state == cryptogram.media.facebook.state.SPOTLIGHT) {
+      return URL;
+      /*console.log("Trying to exit Spotlight mode");
+      
+      document.getElementsByClassName("fbPhotoSnowliftControls")[0].children[0].click();
+      
+      var close = document.getElementsByClassName("fbPhotoSnowliftControls");
+      if (close && close[0]) {      
+        close[0].children[0].click();
+        return
       }
+      
+      var actions = document.getElementsByClassName('fbPhotosPhotoActionsItem');
+      
+      if (actions && actions.length > 0) {
+        console.log(actions);
+      
+        for (var i = 0; i < actions.length; i++) {
+          var fullURL = actions[i].href;
+          if (fullURL) {
+            if (fullURL.search('_o.jpg') != -1 || fullURL.search('_n.jpg') != -1) {
+              cryptogram.log('Extracted full URL from Download link:', fullURL);
+              return fullURL;
+            }
+          }   
+        }
+      }
+      */
+      
+      return URL;  
     }
     
-    if (this.actions) {
+    if (this.state == cryptogram.media.facebook.state.PHOTO) {
           
       for (var i = 0; i < this.actions.length; i++) {
         var fullURL = this.actions[i].href;

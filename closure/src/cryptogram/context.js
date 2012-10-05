@@ -100,6 +100,7 @@ cryptogram.context.prototype.decryptImage = function(image, password) {
   var loader = new cryptogram.loader(this.container);
    
   var fullURL = this.media.fixURL(image.src);
+  if (!fullURL) return;
   loader.getImageData(fullURL, function(data) {
     var decoder = new cryptogram.decoder(self.container);
     decoder.decodeData(data, password, function(result) {
@@ -130,7 +131,6 @@ cryptogram.context.prototype.decryptByURL = function(URL, password) {
     decoder.decodeData(data, password, function(result) {
       
       if (result) {
-        console.log("Got result!");
         self.container.setSrc(result);
         self.callback({'outcome': 'success', 'id' : self.photoId, 'password' : password, 'album' : self.albumId});
       }
