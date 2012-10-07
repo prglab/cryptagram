@@ -58,7 +58,7 @@ cryptogram.media.facebook.prototype.getImages = function(opt_URL) {
     var testURL = images[i].src;
         
     if (opt_URL) {
-      if (testURL == URL) {
+      if (testURL == opt_URL) {
         valid.push(images[i]);
       }
     } else {  
@@ -96,43 +96,45 @@ cryptogram.media.facebook.prototype.parseMedia = function() {
     }
     
     this.state = cryptogram.media.facebook.state.SPOTLIGHT;
-    return true;
-  }
-/*    this.spotlightSrc = spotlight[0].src;
     
-    var s = document.getElementById("snowliftStageActions");
+    var s = document.getElementById("snowliftStageActions");    
     var child = goog.dom.findNode(s, function(n) {
       return n.className == 'uiButtonText';
     });
+    
+    // Ultimate hack! Click the Options button to trigger the creation of Download button
     if (child) {
         child.click();
         child.click();
-
-      var menu = document.getElementsByClassName('uiMenuX');
-      var download;
-      if (goog.isDef(menu[0])) {
-        console.log("Menu");
-        console.log(menu);
-        download = goog.dom.findNode(menu[menu.length-1], function(n) {
-          return n.className == 'itemLabel' && n.innerHTML == 'Download';
-        });
-      }
-      
-      if (!download) {
-        console.log("No Download yet");
-        return false;
-      } else {
-        console.log("Grabbed " + download.parentNode.href);
-        this.downloadSrc = download.parentNode.href;
-        return true;      
-      }        
     }
-  return false;  */
-  
+    
+    var menu = document.getElementsByClassName('uiMenuX');
+    if (goog.isDef(menu[0])) {
+      var download = goog.dom.findNode(menu[menu.length-1], function(n) {
+        return n.className == 'itemLabel' && n.innerHTML == 'Download';
+      });
+    
+      if (download) {
+        this.fullURL = download.parentNode.href;
+        return true;
+      } else {
+        return false;
+      }
+    }
+     
+    return true;
+  }
  
   var actions = document.getElementsByClassName('fbPhotosPhotoActionsItem');
-  if (goog.isDef(actions[5])) {
-    this.actions = actions;
+  if (goog.isDef(actions[0])) {     
+    for (var i = 0; i < actions.length; i++) {
+      var fullURL = actions[i].href;
+      if (fullURL) {
+        if (fullURL.search('_o.jpg') != -1 || fullURL.search('_n.jpg') != -1) {
+          this.fullURL = fullURL;
+        }
+      }  
+    }
     this.state = cryptogram.media.facebook.state.PHOTO;
     return true;
   }
@@ -144,7 +146,7 @@ cryptogram.media.facebook.prototype.parseMedia = function() {
 cryptogram.media.facebook.prototype.checkIfReady = function(callback) {
   
   if (this.parseMedia()) {
-    console.log("Media found: " + this.name() + "(" + this.state + ")");
+    cryptogram.log("Media found: " + this.name() + ":" + this.state);
     callback();
     return;
   }
@@ -186,7 +188,6 @@ cryptogram.media.facebook.prototype.getAlbumName = function(URL) {
   if (!albumIDParts) {
     var info = document.getElementById('fbPhotoPageMediaInfo');
     if (info) {
-      console.log(info);
       var URL = info.children[0].children[1].children[1].href;
       albumIDParts = URL.match(/set=a.([0-9a.]*)/);
        cryptogram.log('Extracted album name from album link.');
@@ -203,57 +204,25 @@ cryptogram.media.facebook.prototype.getAlbumName = function(URL) {
 
 /** @inheritDoc */
 cryptogram.media.facebook.prototype.fixURL = function(URL) {
-
-    cryptogram.log("Trying to fix:", URL);
-    
-    if (URL.search('_o.jpg') != -1) {
-      cryptogram.log('Facebook URL appears to be full size.')
-      return URL;
-    }    
-    
-    if (this.state == cryptogram.media.facebook.state.SPOTLIGHT) {
-      return URL;
-      /*console.log("Trying to exit Spotlight mode");
-      
-      document.getElementsByClassName("fbPhotoSnowliftControls")[0].children[0].click();
-      
-      var close = document.getElementsByClassName("fbPhotoSnowliftControls");
-      if (close && close[0]) {      
-        close[0].children[0].click();
-        return
-      }
-      
-      var actions = document.getElementsByClassName('fbPhotosPhotoActionsItem');
-      
-      if (actions && actions.length > 0) {
-        console.log(actions);
-      
-        for (var i = 0; i < actions.length; i++) {
-          var fullURL = actions[i].href;
-          if (fullURL) {
-            if (fullURL.search('_o.jpg') != -1 || fullURL.search('_n.jpg') != -1) {
-              cryptogram.log('Extracted full URL from Download link:', fullURL);
-              return fullURL;
-            }
-          }   
-        }
-      }
-      */
-      
-      return URL;  
-    }
-    
-    if (this.state == cryptogram.media.facebook.state.PHOTO) {
-          
-      for (var i = 0; i < this.actions.length; i++) {
-        var fullURL = this.actions[i].href;
-        if (fullURL) {
-          if (fullURL.search('_o.jpg') != -1 || fullURL.search('_n.jpg') != -1) {
-            cryptogram.log('Extracted full URL from Download link:', fullURL);
-            return fullURL;
-          }
-        }   
-      }
-    }
+  
+  if (URL.search('_o.jpg') != -1) {
+    cryptogram.log('Facebook URL is already full size.')
     return URL;
+  }    
+  
+  if (this.state == cryptogram.media.facebook.state.SPOTLIGHT) {
+    if (this.fullURL) {
+      cryptogram.log('Extracted full URL from Download link:', this.fullURL);
+      return this.fullURL;
+    }
+  }
+  
+  if (this.state == cryptogram.media.facebook.state.PHOTO) {
+    if (this.fullURL) {
+      cryptogram.log('Extracted full URL from Download link:', this.fullURL);
+      return this.fullURL;
+    }
+  }
+
+  return URL;
 };
