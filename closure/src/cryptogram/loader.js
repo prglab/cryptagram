@@ -5,8 +5,8 @@ goog.require('cryptogram.log');
 /**
  * @constructor
  */
-cryptogram.loader = function(context) {
-  this.context = context;
+cryptogram.loader = function(container) {
+  this.container = container;
 };
 
 
@@ -16,7 +16,7 @@ cryptogram.loader = function(context) {
 cryptogram.loader.prototype.updateProgress = function(e) {
   if (e.lengthComputable) {  
     var percentComplete = Math.ceil(100.0 * (e.loaded / e.total));
-    this.context.setStatus("Download<br>" + percentComplete + "%");
+    this.container.setStatus("Download<br>" + percentComplete + "%");
   }
 }
 
@@ -99,7 +99,7 @@ cryptogram.loader.prototype.bytesToBase64 = function() {
  */
 cryptogram.loader.prototype.getImageData = function(src, callback) {
 
-  this.context.setStatus("Download<br>...");
+  this.container.setStatus("Download<br>...");
 
   var oHTTP = this.createRequest();
   var self = this;
