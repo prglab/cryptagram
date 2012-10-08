@@ -1,4 +1,4 @@
-goog.provide('cryptogram.context');
+goog.provide('cryptogram.content');
 
 goog.require('goog.Uri');
 goog.require('goog.dom');
@@ -9,13 +9,13 @@ goog.require('cryptogram.media.facebook');
 goog.require('cryptogram.media.googleplus');
 
 
-var context_;
+var content_;
 
 
 /**
  * @constructor
  */
-cryptogram.context = function() {
+cryptogram.content = function() {
   
   var URL = new goog.Uri(window.location);
   var knownMedia = [cryptogram.media.facebook,
@@ -40,7 +40,7 @@ cryptogram.context = function() {
 };
 
 
-cryptogram.context.prototype.handleRequest = function(request, sender, callback) {
+cryptogram.content.prototype.handleRequest = function(request, sender, callback) {
   
   var self = this;
   var password = null;
@@ -84,12 +84,12 @@ cryptogram.context.prototype.handleRequest = function(request, sender, callback)
 };
 
 
-cryptogram.context.prototype.setStatus = function(message) {
+cryptogram.content.prototype.setStatus = function(message) {
   this.media.setStatus(message);
 };
 
 
-cryptogram.context.prototype.decryptImage = function(image, password) {
+cryptogram.content.prototype.decryptImage = function(image, password) {
 
  if (this.container) {
     this.container.remove();
@@ -112,7 +112,7 @@ cryptogram.context.prototype.decryptImage = function(image, password) {
 };
 
 
-cryptogram.context.prototype.decryptByURL = function(URL, password) {
+cryptogram.content.prototype.decryptByURL = function(URL, password) {
   
   cryptogram.log("Request to decrypt:", URL);
     
@@ -139,7 +139,7 @@ cryptogram.context.prototype.decryptByURL = function(URL, password) {
 };
 
 
-cryptogram.context.prototype.autoDecrypt = function() {
+cryptogram.content.prototype.autoDecrypt = function() {
       
   var images = this.media.getImages();
   
@@ -156,4 +156,4 @@ cryptogram.context.prototype.autoDecrypt = function() {
 };
 
 
-context_ = new cryptogram.context();
+content_ = new cryptogram.content();
