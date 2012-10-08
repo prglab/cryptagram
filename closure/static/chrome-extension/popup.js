@@ -2,14 +2,8 @@ var page = chrome.extension.getBackgroundPage();
 
 document.addEventListener('DOMContentLoaded', function () {
   
-  var settings = page.background.settings;
+  var settings = page.cryptogram.extension.settings;
     
-  //var debug = document.getElementById("debug");
-    
-  //debug.addEventListener('mouseup', function(e) { 
-  //  page.background.sendDebugReport();
-  //});
-  
   for (i = 0; i < settings.length; i++) {
     var setting = settings[i];
     var checkboxName = "checkbox_" + setting;
@@ -26,4 +20,3 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
-

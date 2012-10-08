@@ -33,7 +33,7 @@ cryptogram.content = function() {
   this.lastAutoDecrypt = '';
   this.storage = new cryptogram.storage(this.media);
   var self = this;
-  
+      
   chrome.extension.onRequest.addListener(function(request, sender, callback) {
     self.handleRequest(request, sender, callback);
   });

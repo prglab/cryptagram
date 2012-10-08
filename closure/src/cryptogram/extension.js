@@ -24,13 +24,19 @@ cryptogram.extension.init = function() {
   }
       
   chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
-  
     if (info['status'] == 'complete') {
       if (localStorage['auto_decrypt'] == 'true') {
         chrome.tabs.sendRequest(tabId, {'autoDecrypt': tab.url, 'storage': localStorage}, null);
       }
     }
   });
+  
+  chrome.browserAction.setPopup({'popup':"popup.html"});
+  
+//chrome.browserAction.onClicked.addListener(function(tab) {
+//  chrome.tabs.create({url:chrome.extension.getURL("popup.html")});
+//});
+
 };
 
 
@@ -60,4 +66,8 @@ cryptogram.extension.sendDebugReport = function() {
 };
 
 
+goog.exportSymbol('cryptogram.extension.settings', cryptogram.extension.settings);
+
+
 cryptogram.extension.init();
+

@@ -24,6 +24,11 @@
 var chrome = {};
 
 
+
+/* Additional externs (ispiro) */
+chrome.browserAction = {};
+chrome.browserAction.onClicked = {};
+chrome.browserAction.setPopup = {};
 chrome.contextMenus = {};
 chrome.contextMenus.create = function(obj){};
 
