@@ -21,7 +21,7 @@ goog.inherits(cryptogram.media.facebook, cryptogram.media.generic);
  */
 cryptogram.media.facebook.state = {
   PHOTO:      'Photo',
-  SPOTLIGHT:  'Photo Spotlight',
+  SPOTLIGHT:  'Spotlight',
   ALBUM:      'Album',
   TIMELINE:   'Timeline'
 };
@@ -75,7 +75,7 @@ cryptogram.media.facebook.prototype.parseMedia = function() {
 
   this.actions = null;
   this.state = null;
-  this.downloadSrc = null;
+  this.fullURL = null;
   
   var albumRegex=new RegExp(/^https?:\/\/www.facebook.com\/media\/set\/\?set=a\.[0-9]*\.[0-9]*\.[0-9]*/);
   var URL = new goog.Uri(window.location);
@@ -84,17 +84,11 @@ cryptogram.media.facebook.prototype.parseMedia = function() {
     this.state = cryptogram.media.facebook.state.ALBUM;
     return true;
   }
-  
-  
 
-  var spotlight = document.getElementsByClassName('spotlight');  
-  if (goog.isDef(spotlight[0])) {
-  
-    if (spotlight[0].className.indexOf('hidden_elem') != -1) {
-      this.state = cryptogram.media.facebook.state.PHOTO;
-      return true;
-    }
-    
+  var spotlight = document.getElementsByClassName('spotlight');
+  if (goog.isDef(spotlight[0]) && 
+      spotlight[0].className.indexOf('hidden_elem') == -1) {
+
     this.state = cryptogram.media.facebook.state.SPOTLIGHT;
     
     var s = document.getElementById("snowliftStageActions");    
@@ -146,7 +140,7 @@ cryptogram.media.facebook.prototype.parseMedia = function() {
 cryptogram.media.facebook.prototype.checkIfReady = function(callback) {
   
   if (this.parseMedia()) {
-    cryptogram.log("Media found: " + this.name() + ":" + this.state);
+    cryptogram.log("Media found: " + this.name() + "/" + this.state);
     callback();
     return;
   }
@@ -166,7 +160,7 @@ cryptogram.media.facebook.prototype.onReady = function(callback) {
     
   this.tries = 0;
   this.maxTries = 5;
-  this.delay = 100;
+  this.delay = 250;
   this.checkIfReady(callback);
 }
 
@@ -212,14 +206,14 @@ cryptogram.media.facebook.prototype.fixURL = function(URL) {
   
   if (this.state == cryptogram.media.facebook.state.SPOTLIGHT) {
     if (this.fullURL) {
-      cryptogram.log('Extracted full URL from Download link:', this.fullURL);
+      cryptogram.log('Extracted full URL from Spotlight download link:', this.fullURL);
       return this.fullURL;
     }
   }
   
   if (this.state == cryptogram.media.facebook.state.PHOTO) {
     if (this.fullURL) {
-      cryptogram.log('Extracted full URL from Download link:', this.fullURL);
+      cryptogram.log('Extracted full URL from Photo download link:', this.fullURL);
       return this.fullURL;
     }
   }
