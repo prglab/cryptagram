@@ -1,12 +1,13 @@
 goog.provide('cryptogram.demo');
 
 goog.require('goog.dom');
-goog.require('cryptogram');
+goog.require('goog.events.FileDropHandler');
+goog.require('goog.events.EventType');
+
 goog.require('cryptogram.container');
 goog.require('cryptogram.decoder');
 goog.require('cryptogram.encoder');
-goog.require('goog.events.FileDropHandler');
-goog.require('goog.events.EventType');
+goog.require('cryptogram.loader');
 
 
 /**
@@ -95,8 +96,16 @@ cryptogram.demo.prototype.runDecrypt = function() {
     this.button.value = 'Decrypt';
     this.container.revertSrc();
   } else {
+    var self = this;
     var password = 'cryptogram';
-    cryptogram.decodeContainer(this.container, password);  
+    var loader = new cryptogram.loader(self.container);
+    loader.getImageData(self.container.getSrc(), function(data) {
+      var decoder = new cryptogram.decoder(self.container);
+      decoder.decodeData(data, password, function(result) {
+        self.container.setSrc(result);
+      });
+    });
+    
     this.decrypted = true;
     this.button.value = 'Reset';
   }   

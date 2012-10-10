@@ -10,32 +10,11 @@ cryptogram.storage = function(media) {
   this.media = media;
 };
 
+
 cryptogram.storage.prototype.load = function(localStorage) {
   this.lookup = localStorage;
 }
 
-/*
-cryptogram.storage.prototype.getPasswordForImage = function(photoId, albumId) {
-    var password = null;
-    var albumPassword = null;
-    
-    if (photoId) password = this.lookup[photoId];
-    if (albumId) albumPassword = this.lookup[albumId];
-
-    if (password) {
-        cryptogram.log('Found saved photo password for photo:', photoId);        
-        return password;
-		}
-		
-		if (albumPassword) {
-        cryptogram.log('Found saved album password for photo:', photoId);
-        cryptogram.log('Album id:', albumId);
-        return albumPassword;
-		}
-		
-		return null;
-};
-*/
 
 cryptogram.storage.prototype.getPasswordForURL = function(URL) {    
     var photoId = this.media.getPhotoName(URL);
@@ -57,9 +36,9 @@ cryptogram.storage.prototype.getPasswordForURL = function(URL) {
         cryptogram.log('Album id:', albumId);
         return albumPassword;
 		}
-		
 		return null;
 };
+
 
 cryptogram.storage.prototype.savePassword = function(id, password) {
   if (this.lookup['save_passwords'] == 'true') {
@@ -96,12 +75,11 @@ cryptogram.storage.prototype.autoDecrypt = function() {
   for (i = 0; i < images.length; i++) {
     
     var testURL = images[i].src;
-    
     var password = this.getPasswordForURL(testURL);
-      
+
     if (password) {
-        cryptogram.decryptByURL(testURL, password);
-        return;
+      cryptogram.decryptByURL(testURL, password);
+      return;
 		}		
   }
 };
