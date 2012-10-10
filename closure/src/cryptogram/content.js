@@ -2,7 +2,10 @@ goog.provide('cryptogram.content');
 
 goog.require('goog.Uri');
 goog.require('goog.dom');
+goog.require('goog.ui.Dialog');
+
 goog.require('cryptogram');
+goog.require('cryptogram.demo');
 goog.require('cryptogram.storage');
 goog.require('cryptogram.media.generic');
 goog.require('cryptogram.media.facebook');
@@ -40,6 +43,8 @@ cryptogram.content = function() {
 };
 
 
+
+
 cryptogram.content.prototype.handleRequest = function(request, sender, callback) {
   
   var self = this;
@@ -49,6 +54,31 @@ cryptogram.content.prototype.handleRequest = function(request, sender, callback)
   if (request['storage']) {
     this.storage.load(request['storage']);
   }
+
+  if (request['showEncoder']) {
+     console.log("Encoder");
+          
+
+    var dialog1 = new goog.ui.Dialog();
+    dialog1.setContent('<img src="http://images.icanhascheezburger.com/' +
+        'completestore/2009/3/25/128825075025577352.jpg" ' +
+        'width="400" height="255"><br>' +
+        'Lorem ipsum dolor sit amet, consectetuer' +
+        'adipiscing elit. Aenean sollicitudin ultrices urna. Proin vehicula ' +
+        'mauris ac est. Ut scelerisque, risus ut facilisis dictum, est massa ' +
+        'lacinia lorem, in fermentum purus ligula quis nunc. Duis porttitor ' +
+        'euismod risus. Nam hendrerit lacus vehicula augue. Duis ante.');
+    dialog1.setTitle('My favorite LOLCat');
+    dialog1.setButtonSet(goog.ui.Dialog.ButtonSet.CONTINUE_SAVE_CANCEL);
+    goog.events.listen(dialog1, goog.ui.Dialog.EventType.SELECT, function(e) {
+      alert('You chose: ' + e.key);
+    });
+
+    dialog1.setVisible(true);
+
+//      var demo = new cryptogram.demo();
+//      demo.showEncrypt();
+      }
 
   if (request['autoDecrypt']) {
       

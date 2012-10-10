@@ -2,7 +2,6 @@ goog.provide('cryptogram.demo');
 
 goog.require('goog.dom');
 goog.require('cryptogram');
-goog.require('cryptogram.loader');
 goog.require('cryptogram.container');
 goog.require('cryptogram.decoder');
 goog.require('cryptogram.encoder');

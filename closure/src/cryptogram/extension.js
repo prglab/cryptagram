@@ -34,9 +34,16 @@ cryptogram.extension.init = function() {
   chrome.browserAction.setPopup({'popup':"popup.html"});
   
 //chrome.browserAction.onClicked.addListener(function(tab) {
-//  chrome.tabs.create({url:chrome.extension.getURL("popup.html")});
+//  chrome.tabs.create({url:chrome.extension.getURL("encoder.html")});
 //});
+};
 
+cryptogram.extension.showEncoder = function() {
+
+  
+  chrome.tabs.getSelected(null, function(tab) {
+      chrome.tabs.sendRequest(tab.id, {'showEncoder':1});
+  });
 };
 
 
@@ -67,6 +74,7 @@ cryptogram.extension.sendDebugReport = function() {
 
 
 goog.exportSymbol('cryptogram.extension.settings', cryptogram.extension.settings);
+goog.exportSymbol('cryptogram.extension.showEncoder', cryptogram.extension.showEncoder);
 
 
 cryptogram.extension.init();
