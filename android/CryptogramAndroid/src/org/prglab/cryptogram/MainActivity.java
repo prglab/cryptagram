@@ -1,6 +1,9 @@
 package org.prglab.cryptogram;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -9,8 +12,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.provider.MediaStore.Images;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -245,6 +250,28 @@ public class MainActivity extends Activity {
 		Bitmap encodedBitmap = ImageEncoder.encodeBase64(base64String, "aesthete", imageBitmap.getWidth()/(double)imageBitmap.getHeight());
 
 		imagePreview.setImageBitmap(encodedBitmap);
+		
+		Toast.makeText(this, "Exporting image to gallery", Toast.LENGTH_SHORT).show();
+		
+		String filename = String.valueOf(System.currentTimeMillis());
+		ContentValues values = new ContentValues();
+		values.put(Images.Media.TITLE, filename);
+		values.put(Images.Media.DATE_ADDED, System.currentTimeMillis());
+		values.put(Images.Media.MIME_TYPE, "image/jpeg");
+		
+		Uri uri = context.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+		try {
+			OutputStream outStream = context.getContentResolver().openOutputStream(uri);
+			encodedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, outStream);
+			outStream.flush();
+			outStream.close();			
+		} catch (FileNotFoundException e){
+			
+			e.printStackTrace();
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+		
 		
 //		dataAccessor.setData(base64String);
 //		TODO:Implement password prompt
