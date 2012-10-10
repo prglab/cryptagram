@@ -20,6 +20,7 @@ cryptogram.container.prototype.getSrc = function() {
   return this.img.src;
 };
 
+
 cryptogram.container.prototype.setSrc = function(src) {
     this.previousSrc = this.img.src;
     this.img.src = src;    

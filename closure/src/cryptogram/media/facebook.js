@@ -76,7 +76,6 @@ cryptogram.media.facebook.prototype.parseMedia = function() {
   this.actions = null;
   this.state = null;
   this.fullURL = null;
-  
   var albumRegex=new RegExp(/^https?:\/\/www.facebook.com\/media\/set\/\?set=a\.[0-9]*\.[0-9]*\.[0-9]*/);
   var URL = new goog.Uri(window.location);
   
@@ -132,7 +131,6 @@ cryptogram.media.facebook.prototype.parseMedia = function() {
     this.state = cryptogram.media.facebook.state.PHOTO;
     return true;
   }
-
   return false;
 };
 
@@ -154,6 +152,7 @@ cryptogram.media.facebook.prototype.checkIfReady = function(callback) {
     cryptogram.log("Media failed.");
   }  
 };
+
 
 /** @inheritDoc */
 cryptogram.media.facebook.prototype.onReady = function(callback) {
@@ -189,7 +188,6 @@ cryptogram.media.facebook.prototype.getAlbumName = function(URL) {
       return null;
     }
   }
-  
   var albumID = albumIDParts[1];
   var albumParts = albumID.split(".");
   return "fb_album://" + albumParts[0] + "." + albumParts[1];
