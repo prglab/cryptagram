@@ -160,19 +160,6 @@ public class ImageEncoder {
 		
 		String checksum = "";
 		
-		try {
-			checksum = computeHash(data);
-			if (!checksum.equals(hash)){
-				Toast.makeText(context, "Hash mismatch", Toast.LENGTH_SHORT).show();
-			}
-			
-		
-		}
-		catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException("Can't encode sha-256!!");
-			
-		}
-		
 		ArrayList<Integer> headerOctal = getOctalArray(header);
 	    ArrayList<Integer> dataOctal = getOctalArray(hash + data);//checksum + data);
 	    
