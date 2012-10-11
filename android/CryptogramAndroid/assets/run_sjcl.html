@@ -31,7 +31,7 @@
 	
 	var args = getUrlVars();
     if (args.password !== undefined && args.data !== undefined){
-    	document.getElementById("output").innerHTML = args.password;
+    	
         encoded =  JSON.parse(sjcl.encrypt(args.password, args.data));//encrypt(args.data, args.password));
         // call functions with workaround
 
@@ -44,7 +44,12 @@
 		img.src = "|setIv|"+encoded['iv'];
 		img.src = "|setCt|"+encoded['ct'];
 		img.src = "|setSalt|"+encoded['salt'];
+    var integrity_check_value = sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(encoded['iv'] + encoded['salt'] +  encoded['ct']));
+    img.src = "|setHash|" + integrity_check_value;
 		img.src = "|setDone|"+"empty";
+
+    document.getElementById("output").innerHTML = integrity_check_value;
+    
 		//window.location = "http://example.com/|setSalt|"+encoded.salt;
 		//window.location = "http://example.com/|setCt|"+encoded.ct;
 		//dataAccessor.setIv(encoded['iv']);

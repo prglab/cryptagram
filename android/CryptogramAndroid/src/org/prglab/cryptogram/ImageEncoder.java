@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.widget.Toast;
 
 /**
  * Encodes a data stream to a Cryptogram-compliant bitmap
@@ -152,7 +153,7 @@ public class ImageEncoder {
 	}
 
 	
-	public static Bitmap encodeBase64(String data, String header, double widthHeightRatio){
+	public static Bitmap encodeBase64(String data, String hash, String header, double widthHeightRatio){
 		// get rid of those pesky spaces
 		data = data.replace(" ", "");
 		header = header.replace(" ", "");
@@ -161,6 +162,10 @@ public class ImageEncoder {
 		
 		try {
 			checksum = computeHash(data);
+			if (!checksum.equals(hash)){
+				Toast.makeText(context, "Hash mismatch", Toast.LENGTH_SHORT).show();
+			}
+			
 		
 		}
 		catch (NoSuchAlgorithmException e) {
@@ -169,7 +174,7 @@ public class ImageEncoder {
 		}
 		
 		ArrayList<Integer> headerOctal = getOctalArray(header);
-	    ArrayList<Integer> dataOctal = getOctalArray(checksum + data);
+	    ArrayList<Integer> dataOctal = getOctalArray(hash + data);//checksum + data);
 	    
 	    return encodeToBitmap(dataOctal, headerOctal, widthHeightRatio);
 	}

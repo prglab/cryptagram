@@ -78,6 +78,11 @@ public class MainActivity extends Activity {
 		        else if ( func.equalsIgnoreCase("setSalt")){
 		        	dataAccessor.setSalt(parameter);
 		        }
+		        
+		        else if ( func.equalsIgnoreCase("setHash")){
+		        	Toast.makeText(context, "Got Hash" + parameter, Toast.LENGTH_SHORT).show();
+		        	dataAccessor.setHash(parameter);
+		        }
 		        		
 		        
 		        else if ( func.equalsIgnoreCase("setDone") ) {
@@ -98,6 +103,10 @@ public class MainActivity extends Activity {
 	 *
 	 */
 	public class DataAccessor{
+		
+		// Synchronizing access function in case real JS interface is implemented later,
+		// functions may be called asynchronously.
+		
 		String inputData;
 		String passwordString;
 		String dataUrl;
@@ -106,6 +115,7 @@ public class MainActivity extends Activity {
 		String ct;
 		String iv;
 		String salt;
+		String hash;
 		
 		int width;
 		int height;
@@ -139,6 +149,14 @@ public class MainActivity extends Activity {
 		
 		public synchronized String getCt(){
 			return ct;
+		}
+		
+		public synchronized void setHash(String hash){
+			this.hash = hash;
+		}
+		
+		public synchronized String getHash(){
+			return hash;
 		}
 		
 		public synchronized void setData(String data){
@@ -329,9 +347,9 @@ public class MainActivity extends Activity {
     }
     
     private void encodeToImage(){
-    	String base64String = dataAccessor.getIv() + dataAccessor.getSalt() + dataAccessor.getCt() ;
+    	String base64String =  dataAccessor.getIv() + dataAccessor.getSalt() + dataAccessor.getCt() ;
     	
-    	Bitmap encodedBitmap = ImageEncoder.encodeBase64(base64String, "aesthete", imageBitmap.getWidth()/(double)imageBitmap.getHeight());
+    	Bitmap encodedBitmap = ImageEncoder.encodeBase64(base64String, dataAccessor.getHash(), "aesthete", imageBitmap.getWidth()/(double)imageBitmap.getHeight());
 
 		imagePreview.setImageBitmap(encodedBitmap);
 		
