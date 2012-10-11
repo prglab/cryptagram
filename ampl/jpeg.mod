@@ -4,6 +4,7 @@ set VERTICAL;
 set ENTRIES := HORIZONTAL cross VERTICAL;
 
 param alpha{HORIZONTAL};
+param quant{HORIZONTAL cross VERTICAL};
 
 param PI;
 

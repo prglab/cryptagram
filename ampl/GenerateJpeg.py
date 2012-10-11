@@ -1,11 +1,17 @@
 #!/usr/bin/env python
-import subprocess
-import numpy
 from dct import QuantizationTableFromQuality
+import numpy
+import operator
 import re
-
+import subprocess
 
 kReObjectiveFunction = re.compile('Objective:.*z = (.*) \(MAXimum\)')
+kDctConstraint = 'DCT {(eh,ev) in ENTRIES}: sum{h in HORIZONTAL}('\
+                 'sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *'\
+                 'cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 127;'
+kNdctConstraint = 'NDCT {(eh,ev) in ENTRIES}: -1 * sum{h in HORIZONTAL}'\
+                  '(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*'\
+                  '(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 128;'
 
 LuminanceQuantizationTable = numpy.array([
   [16, 11, 10, 16, 24, 40, 51, 61],
@@ -19,19 +25,10 @@ LuminanceQuantizationTable = numpy.array([
 
 quality = 76
 quant_table = QuantizationTableFromQuality(LuminanceQuantizationTable, quality)
-print quant_table
-for i in range(0,8):
-  for j in range(0,8):
-    print i, j, int(quant_table[i,j])
-
-import sys
-sys.exit(0)
 
 model_base = ''
 with open("jpeg.mod",'r') as fh:
   model_base = fh.read()
-
-# print model_base
 
 class Model(object):
   def __init__(self, base):
@@ -49,8 +46,10 @@ class Model(object):
   def Run(self):
     # Write out the model and execute.
     with open('temp.mod', 'w') as fh:
-      fh.write(self.base)
-    proc = subprocess.Popen("glpsol -m temp.mod -d jpeg.dat -o temp.sol", shell=True)
+      fh.write(self.base + '\nend;\n')
+
+    proc = subprocess.Popen("glpsol -m temp.mod -d jpeg.dat -o temp.sol",
+                            shell=True, stdout=subprocess.PIPE)
     proc.communicate()
     return self._ParseForObjective()
 
@@ -61,57 +60,24 @@ class Model(object):
       for result in fh.readlines():
         m = re.match(kReObjectiveFunction, result)
         if m:
-          return m.groups()[0]
+          return float(m.groups()[0])
 
-kDctConstraint = 'DCT {(eh,ev) in ENTRIES}: sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 127;'
-kNdctConstraint = 'NDCT {(eh,ev) in ENTRIES}: -1 * sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 128;'
+def main():
+  objective_results = {}
 
-# Begin program
+  for i in range(0,8):
+    for j in range(0,8):
+      model = Model(model_base)
+      model.SetObjective('maximize z: F[%d,%d];' % (i,j))
+      model.AddConstraint(kDctConstraint)
+      model.AddConstraint(kNdctConstraint)
+      objective_results[(i,j)] = model.Run()
 
-# tuple -> objective value
-objective_results = {}
+  (coeff_h, coeff_v), max_val = max(objective_results.iteritems(),
+                                    key=operator.itemgetter(1))
 
-for i in range(0,8):
-  for j in range(0,8):
-    model = Model(model_base)
-    model.SetObjective('maximize z: F[%d,%d];' % (i,j))
-    model.AddConstraint(kDctConstraint)
-    model.AddConstraint(kNdctConstraint)
-    objective_results[(i,j)] = model.Run()
+  quantiz_ = quant_table[coeff_h, coeff_v]
+  print max_val
+  print max_val / quantiz_
 
-for key in objective_results:
-  print key, objective_results[key]
-
-#print max(objective_results, key=objective_results.get)
-import operator
-print max(objective_results.iteritems(), key=operator.itemgetter(1))[0]
-
-
-# for i in range(0,8):
-#   for j in range(0,8):
-#     model = 'jpeg_%d_%d.mod' % (i,j)
-
-#     with open(model,'w') as fh:
-#       print >>fh, contents
-#       print >>fh, """
-# maximize z: F[%d,%d];
-#   s.t. DCT {(eh,ev) in ENTRIES}: sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 127;
-#   s.t. NDCT {(eh,ev) in ENTRIES}: -1 * sum{h in HORIZONTAL}(sum{v in VERTICAL}(alpha[h]*alpha[v]* F[h,v] *cos((PI/8)*(eh + 0.5)*h)*cos((PI/8)*(ev + 0.5)*v))) <= 128;
-# """ % (i,j)
-
-#     proc = subprocess.Popen("glpsol -m %s -d jpeg.dat -o %s.sol" % (model, model), shell=True)
-#     proc.communicate()
-
-
-
-
-# def ChooseBiggestSolutionPerQuantization():
-#   pass
-
-# i, j, quant_table
-
-# def AddConstraint():
-#   pass
-
-
-# def WriteObjective(model):
+main()
