@@ -67,15 +67,20 @@ public class MainActivity extends Activity {
 		           dataAccessor.setDataUrl(parameter);
 		           //return true;			       
 		           
-		        }else if ( func.equalsIgnoreCase("buildRGB") ){
+		        }else if ( func.equalsIgnoreCase("setIv") ){
 		        	
-		        	dataAccessor.buildRGB(parameter);
+		        	dataAccessor.setIv(parameter);
 		        	
-		        }else if ( func.equals("setWidthHeight")){
-		        	Toast.makeText(getApplicationContext(), "width/height received: " + parameter, Toast.LENGTH_SHORT).show();
-		        	dataAccessor.setWidthHeight(parameter);
-		        	
-		        }else if ( func.equalsIgnoreCase("setDone") ) {
+		        }else if ( func.equalsIgnoreCase("setCt")) {
+		        	dataAccessor.setCt(parameter);
+		        }
+		        
+		        else if ( func.equalsIgnoreCase("setSalt")){
+		        	dataAccessor.setSalt(parameter);
+		        }
+		        		
+		        
+		        else if ( func.equalsIgnoreCase("setDone") ) {
 		        	Toast.makeText(getApplicationContext(), "Done sending!", Toast.LENGTH_SHORT).show();
 		        	dataAccessor.setDone();
 		        	
@@ -98,6 +103,10 @@ public class MainActivity extends Activity {
 		String dataUrl;
 		boolean done = false;
 		
+		String ct;
+		String iv;
+		String salt;
+		
 		int width;
 		int height;
 
@@ -105,6 +114,31 @@ public class MainActivity extends Activity {
 		
 		public DataAccessor(){
 			RgbAl = new ArrayList<Short>();		
+		}
+		
+		public synchronized void setIv(String jsIv){
+			iv = jsIv;
+		}
+		
+		public synchronized String getIv(){
+			return iv;
+		}
+		
+		public synchronized void setSalt(String jsSalt){
+			salt = jsSalt;
+		}
+		
+		public synchronized String getSalt(){
+			return salt;
+		}
+		
+		public synchronized void setCt(String jsCt){
+			Toast.makeText(context, jsCt, Toast.LENGTH_SHORT).show();
+			ct = jsCt;
+		}
+		
+		public synchronized String getCt(){
+			return ct;
 		}
 		
 		public synchronized void setData(String data){
@@ -144,7 +178,6 @@ public class MainActivity extends Activity {
 		public synchronized void setDone(){
 			done = true;
 			
-			Toast.makeText(getApplicationContext(), "# data points received: " + RgbAl.size(), Toast.LENGTH_SHORT).show();
 			
 			// Run code on the main thread
 			// Get a handler that can be used to post to the main thread
@@ -239,7 +272,7 @@ public class MainActivity extends Activity {
     		base64String = Base64.encodeToString(readBuffer, Base64.NO_WRAP | Base64.NO_PADDING);
     		
     		// Debugging with toasts: the best way to debug
-    		Toast.makeText(this, base64String, Toast.LENGTH_SHORT).show();
+    		//Toast.makeText(this, base64String, Toast.LENGTH_SHORT).show();
 		}
 		
 		catch (Exception e){
@@ -247,54 +280,29 @@ public class MainActivity extends Activity {
 			return;
 		}
 		
-		Bitmap encodedBitmap = ImageEncoder.encodeBase64(base64String, "aesthete", imageBitmap.getWidth()/(double)imageBitmap.getHeight());
-
-		imagePreview.setImageBitmap(encodedBitmap);
 		
-		Toast.makeText(this, "Exporting image to gallery", Toast.LENGTH_SHORT).show();
-		
-		String filename = String.valueOf(System.currentTimeMillis());
-		ContentValues values = new ContentValues();
-		values.put(Images.Media.TITLE, filename);
-		values.put(Images.Media.DATE_ADDED, System.currentTimeMillis());
-		values.put(Images.Media.MIME_TYPE, "image/jpeg");
-		
-		Uri uri = context.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-		try {
-			OutputStream outStream = context.getContentResolver().openOutputStream(uri);
-			encodedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, outStream);
-			outStream.flush();
-			outStream.close();			
-		} catch (FileNotFoundException e){
-			
-			e.printStackTrace();
-		} catch (IOException e){
-			e.printStackTrace();
-		}
-		
-		
-//		dataAccessor.setData(base64String);
-//		TODO:Implement password prompt
-//		dataAccessor.setPassword("password");
+		dataAccessor.setData(base64String);
+		//TODO:Implement password prompt
+		dataAccessor.setPassword("password");
 		
 		// Send the string to the WebView here using DataAccessor
-//		jsExecutionView.addJavascriptInterface(dataAccessor, "dataAccessor");
-//		jsExecutionView.getSettings().setJavaScriptEnabled(true);
-//		jsExecutionView.setWebViewClient(new workaroundWebViewClient());
-//		
-//		jsExecutionView.setWebChromeClient(new WebChromeClient() {
-//			
-//			@Override
-//			public boolean onConsoleMessage(ConsoleMessage consoleMessage){
-//				Toast.makeText(context, consoleMessage.message() + ":" + Integer.toString(consoleMessage.lineNumber()), Toast.LENGTH_SHORT).show();
-//				
-//				return true;
-//			}
-			
-			
-//		});
+		//jsExecutionView.addJavascriptInterface(dataAccessor, "dataAccessor");
+		jsExecutionView.getSettings().setJavaScriptEnabled(true);
+		jsExecutionView.setWebViewClient(new workaroundWebViewClient());
 		
-//		jsExecutionView.loadUrl("file:///android_asset/run_sjcl.html?password="+"password"+"&data="+base64String);
+		jsExecutionView.setWebChromeClient(new WebChromeClient() {
+			
+			@Override
+			public boolean onConsoleMessage(ConsoleMessage consoleMessage){
+				Toast.makeText(context, consoleMessage.message() + ":" + Integer.toString(consoleMessage.lineNumber()), Toast.LENGTH_SHORT).show();
+				
+				return true;
+			}
+			
+			
+		});
+		
+		jsExecutionView.loadUrl("file:///android_asset/run_sjcl.html?password="+"password"+"&data="+base64String);
     }
 
 	/**
@@ -321,7 +329,32 @@ public class MainActivity extends Activity {
     }
     
     private void encodeToImage(){
-    	return;
+    	String base64String = dataAccessor.getIv() + dataAccessor.getSalt() + dataAccessor.getCt() ;
+    	
+    	Bitmap encodedBitmap = ImageEncoder.encodeBase64(base64String, "aesthete", imageBitmap.getWidth()/(double)imageBitmap.getHeight());
+
+		imagePreview.setImageBitmap(encodedBitmap);
+		
+		Toast.makeText(this, "Exporting image to gallery", Toast.LENGTH_SHORT).show();
+		
+		String filename = String.valueOf(System.currentTimeMillis());
+		ContentValues values = new ContentValues();
+		values.put(Images.Media.TITLE, filename);
+		values.put(Images.Media.DATE_ADDED, System.currentTimeMillis());
+		values.put(Images.Media.MIME_TYPE, "image/jpeg");
+		
+		Uri uri = context.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+		try {
+			OutputStream outStream = context.getContentResolver().openOutputStream(uri);
+			encodedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, outStream);
+			outStream.flush();
+			outStream.close();			
+		} catch (FileNotFoundException e){
+			
+			e.printStackTrace();
+		} catch (IOException e){
+			e.printStackTrace();
+		}
     }
     
     @Override

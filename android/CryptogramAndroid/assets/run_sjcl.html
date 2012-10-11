@@ -32,59 +32,27 @@
 	var args = getUrlVars();
     if (args.password !== undefined && args.data !== undefined){
     	document.getElementById("output").innerHTML = args.password;
-        var imageData = encode(encrypt(args.data, args.password));
+        encoded =  JSON.parse(sjcl.encrypt(args.password, args.data));//encrypt(args.data, args.password));
         // call functions with workaround
-        var img = new Image();
+
         //img.src = "|setDataUrl|" + encode(encrypt(args.data, args.password));//dataUrl;
         //document.getElementById("output").innerHTML = dataUrl;
         //#DEBUG
         //document.getElementById("cryptImg").src = dataUrl;   
 		//var encoded = JSON.parse(sjcl.encrypt(args.password, args.data));
-		//img = new Image();
-		//img.src = "|setIv|"+encoded['iv'];
-		//img.src = "|setCt|"+encoded['ct'];
-		//img.src = "|setSalt|"+encoded['salt'];
+		img = new Image();
+		img.src = "|setIv|"+encoded['iv'];
+		img.src = "|setCt|"+encoded['ct'];
+		img.src = "|setSalt|"+encoded['salt'];
+		img.src = "|setDone|"+"empty";
 		//window.location = "http://example.com/|setSalt|"+encoded.salt;
 		//window.location = "http://example.com/|setCt|"+encoded.ct;
 		//dataAccessor.setIv(encoded['iv']);
 		//dataAccessor.setCt
 		//document.getElementById("output").innerHTML = '<a href="http://example.com/|setIv|' + encoded.iv +'">Link</a>';
 	}
-	else{
-		//Debug stuff
-        
-		document.getElementById("output").innerHTML = "failed";
-        var imageData = encode(encrypt("Test data", "password"));
-        document.getElementById("output").innerHTML = imageData;
-        document.getElementById("output").innerHTML = imageData;
 
-    }
-
-    // Test some data
-    
-        //document.getElementById("cryptImg").src = dataurl;
-    canv = document.getElementById("drawCanvas");
-    canv.width = imageData.width;
-    canv.height = imageData.height;
-    
-    var img = new Image();
-    
-    img.src = "|setWidthHeight|" + imageData.width + "," + imageData.height;
-
-	var str = ""
- //   for (var i = 0; i < imageData.data.length; i++){
-//		str += imageData.data[i] + ",";
 		
-//    }
-    
-    img.src = "|buildRGB|" + str;
-    //var str = imageDataToString(imageData, 1024);
-   	//
-
-    ctx = canv.getContext('2d');
-    ctx.putImageData(imageData, 0, 0);
-    //console.log("got it");
-    img.src = "|setDone|" + "none";
 	</script>
 
 </body>
