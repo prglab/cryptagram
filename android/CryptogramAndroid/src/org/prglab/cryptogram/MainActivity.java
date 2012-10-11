@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLDecoder;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -348,6 +349,20 @@ public class MainActivity extends Activity {
     
     private void encodeToImage(){
     	String base64String =  dataAccessor.getIv() + dataAccessor.getSalt() + dataAccessor.getCt() ;
+    	
+    	
+    	// Debug: check hashing in java vs. sjcl
+    	try {
+			String checksum = ImageEncoder.computeHash(base64String);
+			if (!checksum.equals(dataAccessor.getHash())){
+				Toast.makeText(context, "Hash mismatch", Toast.LENGTH_SHORT).show();
+			}		
+		}
+		catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException("Can't encode sha-256!!");
+			
+		}
+    	
     	
     	Bitmap encodedBitmap = ImageEncoder.encodeBase64(base64String, dataAccessor.getHash(), "aesthete", imageBitmap.getWidth()/(double)imageBitmap.getHeight());
 
