@@ -4,6 +4,9 @@ goog.require('goog.Uri');
 goog.require('goog.dom');
 goog.require('goog.ui.Dialog');
 
+goog.require('goog.debug.Logger');
+goog.require('goog.debug.DebugWindow');
+
 goog.require('cryptogram.container');
 goog.require('cryptogram.decoder');
 goog.require('cryptogram.loader');
@@ -16,11 +19,22 @@ goog.require('cryptogram.storage');
 
 var content_;
 
-
 /**
  * @constructor
  */
 cryptogram.content = function() {
+ 
+ // chrome.contentSettings.popups.set({
+ //   'primaryPattern': '<all_urls>',
+ //   'setting': 'allow'
+ // }
+  
+  //document.body.innerHTML += "<input type=button value=Debug id=debug_link>";
+  
+  //goog.events.listen(goog.dom.getElement('decrypt_link'),
+  //                     goog.events.EventType.CLICK, cryptogram.content.debug, false, this);
+   
+  this.logger.info('Initializing injected content.');
   
   var URL = new goog.Uri(window.location);
   var knownMedia = [cryptogram.media.facebook,
@@ -45,7 +59,13 @@ cryptogram.content = function() {
 };
 
 
+cryptogram.content.debug = function() {
+  var debugWindow = new goog.debug.DebugWindow('main');
+  debugWindow.setEnabled(true);
+  debugWindow.init();
+}
 
+cryptogram.content.prototype.logger = goog.debug.Logger.getLogger('cryptogram.content');
 
 cryptogram.content.prototype.handleRequest = function(request, sender, callback) {
   
@@ -60,10 +80,11 @@ cryptogram.content.prototype.handleRequest = function(request, sender, callback)
   if (request['autoDecrypt']) {
       
     if (request['autoDecrypt'] == this.lastAutoDecrypt) {
-      cryptogram.log("Ignoring redundant autodecrypt request.");
+      this.logger.info('Ignoring redundant autodecrypt request.');
       return;
     }
-    cryptogram.log("Autodecrypting:", request['autoDecrypt']);
+    this.logger.info('Autodecrypting: ' + request['autoDecrypt']);
+    
     this.lastAutoDecrypt = request['autoDecrypt'];
     this.media.onReady(function() {
       self.autoDecrypt(request['autoDecrypt']);
@@ -161,6 +182,9 @@ cryptogram.content.prototype.autoDecrypt = function() {
     }
   }
 };
+
+
+goog.exportSymbol('cryptogram.content.debug', cryptogram.content.debug);
 
 
 content_ = new cryptogram.content();
