@@ -4,9 +4,6 @@ goog.require('cryptogram.log');
 goog.require('cryptogram.storage');
 
 
-cryptogram.decoder.URIHeader = "data:image/jpeg;base64,";
-
-
 /**
  * @constructor
  */
@@ -14,6 +11,7 @@ cryptogram.decoder = function(container) {
   this.container = container;
 };
 
+cryptogram.decoder.URIHeader = "data:image/jpeg;base64,";
 
 /**
  * Decodes the supplied base64 data and applies the callback.

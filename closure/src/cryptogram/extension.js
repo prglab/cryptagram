@@ -2,12 +2,25 @@ goog.provide('cryptogram.extension');
 
 goog.require('goog.dom');
 
+goog.require('goog.debug.Logger');
+goog.require('goog.debug.FancyWindow');
+
+
+
 
 cryptogram.extension.settings = ['save_passwords', 'auto_decrypt', 'album_passwords'];
 cryptogram.extension.lastCheck = '';
 
+cryptogram.extension.logger = goog.debug.Logger.getLogger('cryptogram.extension');
 
 cryptogram.extension.init = function() {
+    
+  var debugWindow = new goog.debug.FancyWindow('main');
+  debugWindow.setEnabled(true);
+  debugWindow.init();
+  
+  cryptogram.extension.logger.info('Initializing extension.');
+
     
   // Create a context menu which will only show up for images and link the menu
   // item to getClickHandler
@@ -22,7 +35,7 @@ cryptogram.extension.init = function() {
     var setting = cryptogram.extension.settings[i];
     if (!localStorage[setting]) localStorage[setting] = 'true';
   }
-      
+    
   chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
     if (info['status'] == 'complete') {
       if (localStorage['auto_decrypt'] == 'true') {
