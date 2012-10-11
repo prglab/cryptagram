@@ -1,5 +1,8 @@
 package org.prglab.cryptogram;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import android.graphics.Bitmap;
@@ -130,9 +133,43 @@ public class ImageEncoder {
 		return encodedBitmap;
 	}
 	
+	public static String computeHash(String input) throws NoSuchAlgorithmException{
+	    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+	    digest.reset();
+	    try{
+	      digest.update(input.getBytes("UTF-8"));
+	    } catch (UnsupportedEncodingException e){
+	      e.printStackTrace();
+	    }
+
+	    byte[] byteData = digest.digest(input.getBytes());
+	    StringBuffer sb = new StringBuffer();
+
+	    for (int i = 0; i < byteData.length; i++){
+	      sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+	    }
+	    return sb.toString();
+	}
+
+	
 	public static Bitmap encodeBase64(String data, String header, double widthHeightRatio){
+		// get rid of those pesky spaces
+		data = data.replace(" ", "");
+		header = header.replace(" ", "");
+		
+		String checksum = "";
+		
+		try {
+			checksum = computeHash(data);
+		
+		}
+		catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException("Can't encode sha-256!!");
+			
+		}
+		
 		ArrayList<Integer> headerOctal = getOctalArray(header);
-	    ArrayList<Integer> dataOctal = getOctalArray(data);
+	    ArrayList<Integer> dataOctal = getOctalArray(checksum + data);
 	    
 	    return encodeToBitmap(dataOctal, headerOctal, widthHeightRatio);
 	}
