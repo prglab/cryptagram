@@ -4,9 +4,9 @@
 
 #include <math.h>
 
-#include "base/basictypes.h"
-#include "testing/gtest/include/gtest/gtest.h"
-#include "ui/gfx/codec/jpeg_codec.h"
+#include "basictypes.h"
+#include "gtest/gtest.h"
+#include "jpeg_codec.h"
 
 namespace {
 
@@ -215,3 +215,8 @@ TEST(JPEGCodec, InvalidRead) {
 }
 
 }  // namespace gfx
+
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}
