@@ -14,15 +14,13 @@ AC_PROG_INSTALL
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
 
-# Checks for libraries.
+dnl TODO(tierney): Need a better to check for libraries (glog and gtest).
 AC_CHECK_LIB([glog], [_ZN6google17InitGoogleLoggingEPKc])
 AC_CHECK_LIB([jpeg], [jpeg_finish_compress])
 
 # Checks for header files.
 AC_CHECK_HEADERS(stddef.h)
 AC_CHECK_HEADERS(pthread.h)
-AC_CHECK_HEADERS(glog/logging.h)
-AC_CHECK_HEADERS(google/gflags.h)
 AC_CHECK_HEADERS(jpeglib.h)
 
 # Checks for typedefs, structures, and compiler characteristics.
