@@ -1,6 +1,9 @@
 #ifndef _JPEG_DELTA_H_
 #define _JPEG_DELTA_H_
 
+#include <stddef.h>
+#include <vector>
+
 #include "basictypes.h"
 
 namespace cryptogram {
