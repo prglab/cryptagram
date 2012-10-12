@@ -10,8 +10,9 @@ AC_CONFIG_HEADERS([config.h])
 # Checks for programs.
 AC_PROG_CXX([clang++])
 AC_PROG_CC
-AC_PROG_RANLIB
 AC_PROG_INSTALL
+AC_PROG_RANLIB
+AM_PROG_CC_C_O
 
 # Checks for libraries.
 AC_CHECK_LIB([glog], [_ZN6google17InitGoogleLoggingEPKc])
