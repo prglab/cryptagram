@@ -14,11 +14,15 @@ AC_PROG_RANLIB
 AC_PROG_INSTALL
 
 # Checks for libraries.
+AC_CHECK_LIB([glog], [_ZN6google17InitGoogleLoggingEPKc])
+AC_CHECK_LIB([jpeg], [jpeg_finish_compress])
 
 # Checks for header files.
-AC_CHECK_HEADERS([stddef.h glog/logging.h])
-
-AC_SEARCH_LIBS([InitGoogleLogging], [glog])
+AC_CHECK_HEADERS(stddef.h)
+AC_CHECK_HEADERS(pthread.h)
+AC_CHECK_HEADERS(glog/logging.h)
+AC_CHECK_HEADERS(google/gflags.h)
+AC_CHECK_HEADERS(jpeglib.h)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
