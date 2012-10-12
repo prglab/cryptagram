@@ -2,20 +2,23 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([Cryptogram], [1.0], [tierney@cs.nyu.edu])
-AC_CONFIG_SRCDIR([src/jpeg_delta.cc
-                  config.h.in])
+AC_INIT([Jupiter], [1.0], [jupiter-bugs@example.org])
+AM_INIT_AUTOMAKE
+AC_CONFIG_SRCDIR([src/main.cc])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
-AC_PROG_CXX
+AC_PROG_CXX([clang++])
 AC_PROG_CC
+AC_PROG_RANLIB
 AC_PROG_INSTALL
 
 # Checks for libraries.
 
 # Checks for header files.
-AC_CHECK_HEADERS([stddef.h])
+AC_CHECK_HEADERS([stddef.h glog/logging.h])
+
+AC_SEARCH_LIBS([InitGoogleLogging], [glog])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -25,6 +28,5 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_CHECK_FUNCS([bzero])
 
-AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT
