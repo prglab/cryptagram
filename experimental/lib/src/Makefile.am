@@ -6,9 +6,12 @@ cryptogram_main_LDADD = libjpeg_delta.a libjpeg_codec.a
 
 # Libraries.
 
-noinst_LIBRARIES = libjpeg_delta.a libjpeg_codec.a
+noinst_LIBRARIES = libjpeg_delta.a libjpeg_codec.a libCoder.a
 libjpeg_delta_a_SOURCES = jpeg_delta.cc jpeg_delta.h basictypes.h
+
 libjpeg_codec_a_SOURCES = jpeg_codec.cc jpeg_codec.h
+
+libCoder_a_SOURCES = Coder.h
 
 # Tests.
 
