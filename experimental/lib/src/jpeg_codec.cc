@@ -15,7 +15,7 @@
 /*
   NOTE(tierney): Removed the Skia references. May want to add back if
   we use this library in the core of Cryptogram.
-  
+
 #include "skia/include/core/SkBitmap.h"
 #include "skia/include/core/SkColorPriv.h"
 */
@@ -550,12 +550,10 @@ bool JPEGCodec::Decode(const unsigned char* input, size_t input_size,
     // allocation by doing the expansion in-place.
     int row_write_stride;
     void (*converter)(const unsigned char* rgb, int w, unsigned char* out);
-    if (format == FORMAT_RGBA ||
-        (format == FORMAT_SkBitmap && SK_R32_SHIFT == 0)) {
+    if (format == FORMAT_RGBA) {
       row_write_stride = cinfo.output_width * 4;
       converter = AddAlpha;
-    } else if (format == FORMAT_BGRA ||
-               (format == FORMAT_SkBitmap && SK_B32_SHIFT == 0)) {
+    } else if (format == FORMAT_BGRA) {
       row_write_stride = cinfo.output_width * 4;
       converter = RGBtoBGRA;
     } else {
