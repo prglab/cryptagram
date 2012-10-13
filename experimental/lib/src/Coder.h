@@ -6,8 +6,8 @@ namespace cryptogram {
 
 class SymbolSignalCoderInterface {
  public:
-  virtual bool SymbolToSignal(const char symbol, int* signal) = 0;
-  virtual bool SignalToSymbol(const int signal, char* symbol) = 0;
+  virtual int SymbolToSignal(const char symbol) = 0;
+  virtual char SignalToSymbol(const int signal) = 0;
 
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(SymbolSignalCoderInterface);
@@ -26,8 +26,8 @@ class Base64SymbolSignalCoder : public SymbolSignalCoderInterface {
  public:
   Base64SymbolSignalCoder();
   virtual ~Base64SymbolSignalCoder();
-  virtual bool SymbolToSignal(const char symbol, int* signal);
-  virtual bool SignalToSymbol(const int signal, char* symbol);
+  virtual int SymbolToSignal(const char symbol);
+  virtual char SignalToSymbol(const int signal);
 
  private:
   map<char, int> symbol_to_signal_;

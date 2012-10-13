@@ -281,7 +281,7 @@ bool JPEGCodec::Encode(const unsigned char* input, ColorFormat format,
     } else if (format == FORMAT_BGRA) {
       converter = BGRAtoRGB;
     } else {
-      NOTREACHED() << "Invalid pixel format";
+      LOG(ERROR) << "Invalid pixel format";
       return false;
     }
 
@@ -494,7 +494,7 @@ bool JPEGCodec::Decode(const unsigned char* input, size_t input_size,
       } else {
         // We can exit this function without calling jpeg_destroy_decompress()
         // because DecompressDestroyer automaticaly calls it.
-        NOTREACHED() << "Invalid pixel format";
+        LOG(ERROR) << "Invalid pixel format";
         return false;
       }
 #else
@@ -558,7 +558,7 @@ bool JPEGCodec::Decode(const unsigned char* input, size_t input_size,
       row_write_stride = cinfo.output_width * 4;
       converter = RGBtoBGRA;
     } else {
-      NOTREACHED() << "Invalid pixel format";
+      LOG(ERROR) << "Invalid pixel format";
       jpeg_destroy_decompress(&cinfo);
       return false;
     }
