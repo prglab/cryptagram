@@ -35,4 +35,11 @@ char Base64SymbolSignalCoder::SignalToSymbol(const int signal) {
   return 0;
 }
 
+Base64MessageSymbolCoder::Base64MessageSymbolCoder() {
+}
+
+Base64MessageSymbolCoder::~Base64MessageSymbolCoder() {
+}
+
+
 } // namespace cryptogram

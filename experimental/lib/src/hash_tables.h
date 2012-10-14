@@ -22,9 +22,9 @@
 #define BASE_HASH_TABLES_H_
 #pragma once
 
-#include "build/build_config.h"
+#include "build_config.h"
 
-#include "base/string16.h"
+#include "string16.h"
 
 #if defined(COMPILER_MSVC)
 #include <hash_map>
