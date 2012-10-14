@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/base64.h"
+#include "base64.h"
 
-#include "third_party/modp_b64/modp_b64.h"
+#include "modp_b64.h"
 
 namespace base {
 
