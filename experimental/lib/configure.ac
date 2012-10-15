@@ -15,10 +15,18 @@ AC_PROG_RANLIB
 AM_PROG_CC_C_O
 
 # Checks for libraries.
-AC_CHECK_LIB([glog], [_ZN6google17InitGoogleLoggingEPKc])
-AC_CHECK_LIB([jpeg], [jpeg_finish_compress])
-AC_CHECK_LIB([gtest], [__ZN7testing14InitGoogleTestEPiPPc])
-AC_CHECK_LIB([gtest_main], [main])
+AC_CHECK_LIB([glog], [_ZN6google17InitGoogleLoggingEPKc], , 
+  AC_MSG_ERROR([Missing glog library.]))
+AC_CHECK_LIB([jpeg], [jpeg_finish_compress], ,
+  AC_MSG_ERROR([Missing jpeg library.]))
+AC_CHECK_LIB([gtest], [_ZN7testing14InitGoogleTestEPiPPc], ,
+  AC_MSG_WARN([
+
+Missing gtest library. (TODO(tierney): Figure out a correct function name.)
+
+]))
+AC_CHECK_LIB([gtest_main], [main], ,
+  AC_MSG_ERROR([Missing gtest_main.]))
 
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h stddef.h stdint.h string.h jpeglib.h])
