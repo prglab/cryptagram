@@ -1,7 +1,7 @@
 goog.provide('cryptogram.decoder');
 
-goog.require('cryptogram.log');
 goog.require('cryptogram.storage');
+goog.require('goog.debug.Logger');
 
 
 /**
@@ -10,6 +10,9 @@ goog.require('cryptogram.storage');
 cryptogram.decoder = function(container) {
   this.container = container;
 };
+
+cryptogram.decoder.prototype.logger = goog.debug.Logger.getLogger('cryptogram.decoder');
+
 
 cryptogram.decoder.URIHeader = "data:image/jpeg;base64,";
 
@@ -48,11 +51,10 @@ cryptogram.decoder.prototype.decodeData = function(data, password, callback) {
     self.newBase64 = "";
         
     var protocol = self.getHeader();
-    cryptogram.log("Found '"+ protocol + "' protocol");
-    
     
     if (protocol != "aesthete") {
-      cryptogram.log("Error: Unknown Protocol");
+
+      this.logger.severe("Unknown Protocol");
       self.container.setStatus();
     } else {
       self.processImage();    
@@ -133,7 +135,8 @@ cryptogram.decoder.prototype.processImage = function() {
       setTimeout(function () { _decoder.processImage() }, 1);
   } else {
       this.container.setStatus();
-      cryptogram.log("Decoded " + this.newBase64.length + " Base64 characters:", this.newBase64);
+      this.logger.info("Decoded image. " + this.newBase64.length + " base64 characters");
+      //this.logger.info(this.newBase64);
       _decoder.decryptImage();
   }
   
@@ -156,10 +159,10 @@ cryptogram.decoder.prototype.decryptImage = function () {
   var hexHash = sjcl.codec.hex.fromBits(bits);
     
   if (hexHash != check) {
-    cryptogram.log("Checksum failed. Image is corrupted.");
+    this.logger.severe("Checksum failed. Image is corrupted.");
     return;
   } else {
-    cryptogram.log("Checksum passed.");
+    this.logger.info("Checksum passed.");
   }
     
   var obj = new Object();
@@ -174,11 +177,11 @@ cryptogram.decoder.prototype.decryptImage = function () {
   } 
   
   catch(err) {
-    cryptogram.log("Error decrypting:" , err.toString());
+    this.logger.severe("Error decrypting:" + err.toString());
     return;
   }
   
-  cryptogram.log("Decrypted " + decrypted.length + " Base64 characters:", decrypted);
+  this.logger.info("Decrypted " + decrypted.length + " base64 characters");
   var payload = cryptogram.decoder.URIHeader + decrypted;
   this.callback(payload);
 }

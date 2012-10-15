@@ -15,9 +15,9 @@ cryptogram.extension.logger = goog.debug.Logger.getLogger('cryptogram.extension'
 
 cryptogram.extension.init = function() {
     
-  var debugWindow = new goog.debug.FancyWindow('main');
-  debugWindow.setEnabled(true);
-  debugWindow.init();
+  //var debugWindow = new goog.debug.FancyWindow('main');
+  //debugWindow.setEnabled(true);
+  //debugWindow.init();
   
   cryptogram.extension.logger.info('Initializing extension.');
 

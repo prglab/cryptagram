@@ -5,12 +5,12 @@ goog.require('goog.dom');
 goog.require('goog.ui.Dialog');
 
 goog.require('goog.debug.Logger');
-goog.require('goog.debug.DebugWindow');
+goog.require('goog.debug.Console');
 
 goog.require('cryptogram.container');
 goog.require('cryptogram.decoder');
 goog.require('cryptogram.loader');
-goog.require('cryptogram.log');
+
 goog.require('cryptogram.media.generic');
 goog.require('cryptogram.media.facebook');
 goog.require('cryptogram.media.googleplus');
@@ -29,11 +29,16 @@ cryptogram.content = function() {
  //   'setting': 'allow'
  // }
   
-  //document.body.innerHTML += "<input type=button value=Debug id=debug_link>";
+//  document.body.innerHTML = "<div id=log></div>";
   
-  //goog.events.listen(goog.dom.getElement('decrypt_link'),
-  //                     goog.events.EventType.CLICK, cryptogram.content.debug, false, this);
-   
+  
+  var logconsole = new goog.debug.Console();
+  logconsole.setCapturing(true);
+  /*
+  goog.events.listen(goog.dom.getElement('debugger'),
+                       goog.events.EventType.CLICK, cryptogram.content.debug, false, this);
+   */
+  
   this.logger.info('Initializing injected content.');
   
   var URL = new goog.Uri(window.location);
@@ -58,6 +63,7 @@ cryptogram.content = function() {
   });
 };
 
+cryptogram.content.prototype.logger = goog.debug.Logger.getLogger('cryptogram.content');
 
 cryptogram.content.debug = function() {
   var debugWindow = new goog.debug.DebugWindow('main');
@@ -65,7 +71,6 @@ cryptogram.content.debug = function() {
   debugWindow.init();
 }
 
-cryptogram.content.prototype.logger = goog.debug.Logger.getLogger('cryptogram.content');
 
 cryptogram.content.prototype.handleRequest = function(request, sender, callback) {
   
@@ -83,7 +88,7 @@ cryptogram.content.prototype.handleRequest = function(request, sender, callback)
       this.logger.info('Ignoring redundant autodecrypt request.');
       return;
     }
-    this.logger.info('Autodecrypting: ' + request['autoDecrypt']);
+    this.logger.info('Autodecrypting.');
     
     this.lastAutoDecrypt = request['autoDecrypt'];
     this.media.onReady(function() {
@@ -142,7 +147,7 @@ cryptogram.content.prototype.decryptImage = function(image, password) {
 
 cryptogram.content.prototype.decryptByURL = function(URL, password) {
   
-  cryptogram.log("Request to decrypt:", URL);
+  this.logger.info("Request to decrypt: " + URL);
     
   if (this.container) {
     this.container.remove();
@@ -172,7 +177,7 @@ cryptogram.content.prototype.autoDecrypt = function() {
   var images = this.media.getImages();
   
   if (images) {
-    cryptogram.log("Checking "+ images.length +" images against saved passwords.");
+    this.logger.info("Checking "+ images.length +" images against saved passwords.");
   }
   
   for (var i = 0; i < images.length; i++) {
