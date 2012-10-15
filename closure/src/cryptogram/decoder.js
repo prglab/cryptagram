@@ -54,7 +54,7 @@ cryptogram.decoder.prototype.decodeData = function(data, password, callback) {
     
     if (protocol != "aesthete") {
 
-      this.logger.severe("Unknown Protocol");
+      self.logger.severe("Unknown Protocol");
       self.container.setStatus();
     } else {
       self.processImage();    
