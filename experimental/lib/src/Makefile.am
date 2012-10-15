@@ -8,7 +8,8 @@ cryptogram_main_LDADD = libjpeg_delta.a libjpeg_codec.a -ljpeg -lglog
 # Libraries.
 
 noinst_LIBRARIES = libjpeg_delta.a libjpeg_codec.a libCoder.a libmodp_b64.a
-noinst_LIBRARIES += libbase64.a libstring_piece.a 
+noinst_LIBRARIES += libbase64.a libstring_piece.a libSjclCryptoBridge.a
+noinst_LIBRARIES += libcrypto.a libutils.a
 
 libjpeg_delta_a_SOURCES = jpeg_delta.cc jpeg_delta.h basictypes.h
 libjpeg_delta_a_CPPFLAGS = -Wall
@@ -26,3 +27,8 @@ libbase64_a_SOURCES = base64.h base64.cc
 libstring_piece_a_SOURCES = string_piece.h string_piece.cc base_export.h 
 libstring_piece_a_SOURCES += hash_tables.h build_config.h string16.h
 
+libSjclCryptoBridge_a_SOURCES = SjclCryptoBridge.h SjclCryptoBridge.cc
+
+libcrypto_a_SOURCES = crypto.cc crypto.h
+
+libutils_a_SOURCES = utils.h utils.cc
