@@ -3,7 +3,7 @@
 bin_PROGRAMS = cryptogram_main
 cryptogram_main_SOURCES = main.cc discretizations.h experiment.h util.h
 cryptogram_main_CPPFLAGS = -Wall
-cryptogram_main_LDADD = libjpeg_delta.a libjpeg_codec.a
+cryptogram_main_LDADD = libjpeg_delta.a libjpeg_codec.a -ljpeg -lglog
 
 # Libraries.
 
@@ -23,7 +23,8 @@ libmodp_b64_a_SOURCES = modp_b64.h modp_b64.cc modp_b64_data.h
 
 libbase64_a_SOURCES = base64.h base64.cc
 
-libstring_piece_a_SOURCES = string_piece.h string_piece.cc
+libstring_piece_a_SOURCES = string_piece.h string_piece.cc base_export.h 
+libstring_piece_a_SOURCES += hash_tables.h build_config.h string16.h
 
 # Tests.
 
