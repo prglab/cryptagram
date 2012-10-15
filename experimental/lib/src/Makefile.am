@@ -26,14 +26,3 @@ libbase64_a_SOURCES = base64.h base64.cc
 libstring_piece_a_SOURCES = string_piece.h string_piece.cc base_export.h 
 libstring_piece_a_SOURCES += hash_tables.h build_config.h string16.h
 
-# Tests.
-
-noinst_PROGRAMS = jpeg_codec_unittest base64_unittest
-
-jpeg_codec_unittest_SOURCES = jpeg_codec_unittest.cc
-jpeg_codec_unittest_LDADD = -lgtest libjpeg_codec.a
-
-base64_unittest_SOURCES = base64_unittest.cc
-base64_unittest_LDADD = -lgtest_main -lgtest libbase64.a libmodp_b64.a
-
-TESTS = jpeg_codec_unittest base64_unittest
