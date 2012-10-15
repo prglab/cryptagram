@@ -44,13 +44,13 @@ class RgbImageMatrix {
  public:
   struct Pixel {
     Pixel(Byte red, Byte green, Byte blue);
-    
+
     Byte red;
     Byte green;
     Byte blue;
   };
 
-  
+
  private:
   int width_;
   int height_;
@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
   std::string password("helloworld");
   std::string salt("saltyworld");
   boost::uint32_t pin(100);
-  crypto::Crypto::SecurePassword(password, salt, pin);
+  std::cout << crypto::Crypto::SecurePassword(password, salt, pin) << "\n";
 
   CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> myhash;
 
@@ -97,7 +97,7 @@ int unused() {
 
   unsigned char array[num_bytes];
   bzero(array, num_bytes);
-  
+
   for (int trial = 0; trial < 1000000; trial++) {
     if (trial % 100000 == 0) {
       printf("Trial: %d\n", trial);
@@ -142,7 +142,7 @@ int unused() {
     //   uchars[i] = buffer.get()[i];
     // }
     cryptogram::UcharVectorToArray(output, length, uchars);
-  
+
     output.clear();
     result = gfx::JPEGCodec::Decode(uchars,
                                     length,
