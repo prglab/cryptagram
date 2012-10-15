@@ -1,6 +1,6 @@
 goog.provide('cryptogram.loader');
 
-goog.require('cryptogram.log');
+goog.require('goog.debug.Logger');
 
 /**
  * @constructor
@@ -9,6 +9,7 @@ cryptogram.loader = function(container) {
   this.container = container;
 };
 
+cryptogram.loader.prototype.logger = goog.debug.Logger.getLogger('cryptogram.loader');
 
 /**
  * @private
@@ -109,10 +110,10 @@ cryptogram.loader.prototype.getImageData = function(src, callback) {
         //var arrayBuffer = oHTTP.response;
         self.bytes = oHTTP.response;
         self.bytesToBase64();
-        cryptogram.log("Downloaded image as Base64:", self.base64);
+        self.logger.info("Downloaded image. " + self.base64.length + " base64 characters");
         callback(self.base64);
       } else {
-        console.error("Download failed");
+        self.logger.severe("Download failed");
       } 
       oHTTP = null;
     }

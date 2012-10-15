@@ -11,6 +11,8 @@ cryptogram.media.generic = function(URL) {
   this.URL = URL;
 };
 
+cryptogram.media.generic.prototype.logger = goog.debug.Logger.getLogger('cryptogram.media.generic');
+
 cryptogram.media.generic.prototype.matchesURL = function() {
   return true;
 };

@@ -2,6 +2,7 @@ goog.provide('cryptogram.media.facebook');
 
 goog.require('cryptogram.media.generic');
 goog.require('goog.dom');
+goog.require('goog.debug.Logger');
 
 
 /**
@@ -13,7 +14,7 @@ cryptogram.media.facebook = function(URL) {
 };
 goog.inherits(cryptogram.media.facebook, cryptogram.media.generic);
 
-
+cryptogram.media.facebook.prototype.logger = goog.debug.Logger.getLogger('cryptogram.media.facebook');
 
 /**
  * Enum for possible Facebook states
@@ -138,7 +139,7 @@ cryptogram.media.facebook.prototype.parseMedia = function() {
 cryptogram.media.facebook.prototype.checkIfReady = function(callback) {
   
   if (this.parseMedia()) {
-    cryptogram.log("Media found: " + this.name() + "/" + this.state);
+    this.logger.info("Media found: " + this.name() + "/" + this.state);
     callback();
     return;
   }
@@ -146,10 +147,10 @@ cryptogram.media.facebook.prototype.checkIfReady = function(callback) {
   var self = this;
   this.tries++;
   if (this.tries < this.maxTries) {
-    cryptogram.log("Media not ready. Trying again. #" + this.tries);
+    this.logger.info("Media not ready. Trying again. #" + this.tries);
     setTimeout(function() { self.checkIfReady(callback); }, self.delay);
   }  else {
-    cryptogram.log("Media failed.");
+    this.logger.info("Media failed.");
   }  
 };
 
@@ -183,7 +184,7 @@ cryptogram.media.facebook.prototype.getAlbumName = function(URL) {
     if (info) {
       var URL = info.children[0].children[1].children[1].href;
       albumIDParts = URL.match(/set=a.([0-9a.]*)/);
-       cryptogram.log('Extracted album name from album link.');
+       this.logger.info('Extracted album name from album link.');
     } else {
       return null;
     }
@@ -198,20 +199,20 @@ cryptogram.media.facebook.prototype.getAlbumName = function(URL) {
 cryptogram.media.facebook.prototype.fixURL = function(URL) {
   
   if (URL.search('_o.jpg') != -1) {
-    cryptogram.log('Facebook URL is already full size.')
+    this.logger.info('Facebook URL is already full size.')
     return URL;
   }    
   
   if (this.state == cryptogram.media.facebook.state.SPOTLIGHT) {
     if (this.fullURL) {
-      cryptogram.log('Extracted full URL from Spotlight download link:', this.fullURL);
+      this.logger.info('Extracted full URL from Spotlight Download.');
       return this.fullURL;
     }
   }
   
   if (this.state == cryptogram.media.facebook.state.PHOTO) {
     if (this.fullURL) {
-      cryptogram.log('Extracted full URL from Photo download link:', this.fullURL);
+      this.logger.info('Extracted full URL from Photo Download.');
       return this.fullURL;
     }
   }
