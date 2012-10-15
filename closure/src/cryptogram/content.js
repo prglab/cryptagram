@@ -1,20 +1,18 @@
 goog.provide('cryptogram.content');
 
-goog.require('goog.Uri');
-goog.require('goog.dom');
-goog.require('goog.ui.Dialog');
-
-goog.require('goog.debug.Logger');
-goog.require('goog.debug.Console');
-
 goog.require('cryptogram.container');
 goog.require('cryptogram.decoder');
 goog.require('cryptogram.loader');
-
 goog.require('cryptogram.media.generic');
 goog.require('cryptogram.media.facebook');
 goog.require('cryptogram.media.googleplus');
 goog.require('cryptogram.storage');
+
+goog.require('goog.debug.Console');
+goog.require('goog.debug.Logger');
+goog.require('goog.dom');
+goog.require('goog.ui.Dialog');
+goog.require('goog.Uri');
 
 
 var content_;
@@ -23,21 +21,9 @@ var content_;
  * @constructor
  */
 cryptogram.content = function() {
- 
- // chrome.contentSettings.popups.set({
- //   'primaryPattern': '<all_urls>',
- //   'setting': 'allow'
- // }
-  
-//  document.body.innerHTML = "<div id=log></div>";
-  
-  
+
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
-  /*
-  goog.events.listen(goog.dom.getElement('debugger'),
-                       goog.events.EventType.CLICK, cryptogram.content.debug, false, this);
-   */
   
   this.logger.info('Initializing injected content.');
   
@@ -64,13 +50,6 @@ cryptogram.content = function() {
 };
 
 cryptogram.content.prototype.logger = goog.debug.Logger.getLogger('cryptogram.content');
-
-cryptogram.content.debug = function() {
-  var debugWindow = new goog.debug.DebugWindow('main');
-  debugWindow.setEnabled(true);
-  debugWindow.init();
-}
-
 
 cryptogram.content.prototype.handleRequest = function(request, sender, callback) {
   
@@ -108,7 +87,7 @@ cryptogram.content.prototype.handleRequest = function(request, sender, callback)
     password = this.storage.getPasswordForURL((URL));
 
     if (!password) {
-      password = prompt("Enter password for\n" + URL, "cryptogram");
+      password = prompt('Enter password for\n' + URL, 'cryptogram');
     }
     if (!password) return;
     
@@ -147,7 +126,7 @@ cryptogram.content.prototype.decryptImage = function(image, password) {
 
 cryptogram.content.prototype.decryptByURL = function(URL, password) {
   
-  this.logger.info("Request to decrypt: " + URL);
+  this.logger.info('Request to decrypt ' + URL + '.');
     
   if (this.container) {
     this.container.remove();
@@ -177,7 +156,7 @@ cryptogram.content.prototype.autoDecrypt = function() {
   var images = this.media.getImages();
   
   if (images) {
-    this.logger.info("Checking "+ images.length +" images against saved passwords.");
+    this.logger.info('Checking '+ images.length +' images against saved passwords.');
   }
   
   for (var i = 0; i < images.length; i++) {
@@ -187,9 +166,6 @@ cryptogram.content.prototype.autoDecrypt = function() {
     }
   }
 };
-
-
-goog.exportSymbol('cryptogram.content.debug', cryptogram.content.debug);
 
 
 content_ = new cryptogram.content();

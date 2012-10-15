@@ -135,8 +135,7 @@ cryptogram.decoder.prototype.processImage = function() {
       setTimeout(function () { _decoder.processImage() }, 1);
   } else {
       this.container.setStatus();
-      this.logger.info("Decoded image. " + this.newBase64.length + " base64 characters");
-      //this.logger.info(this.newBase64);
+      this.logger.info("Decoded image. " + this.newBase64.length + " base64 characters.");
       _decoder.decryptImage();
   }
   
@@ -181,7 +180,7 @@ cryptogram.decoder.prototype.decryptImage = function () {
     return;
   }
   
-  this.logger.info("Decrypted " + decrypted.length + " base64 characters");
+  this.logger.info("Decrypted " + decrypted.length + " base64 characters.");
   var payload = cryptogram.decoder.URIHeader + decrypted;
   this.callback(payload);
 }

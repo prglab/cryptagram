@@ -110,7 +110,7 @@ cryptogram.loader.prototype.getImageData = function(src, callback) {
         //var arrayBuffer = oHTTP.response;
         self.bytes = oHTTP.response;
         self.bytesToBase64();
-        self.logger.info("Downloaded image. " + self.base64.length + " base64 characters");
+        self.logger.info("Downloaded image. " + self.base64.length + " base64 characters.");
         callback(self.base64);
       } else {
         self.logger.severe("Download failed");

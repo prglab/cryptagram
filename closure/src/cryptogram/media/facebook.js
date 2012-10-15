@@ -1,6 +1,7 @@
 goog.provide('cryptogram.media.facebook');
 
 goog.require('cryptogram.media.generic');
+
 goog.require('goog.dom');
 goog.require('goog.debug.Logger');
 
@@ -15,6 +16,7 @@ cryptogram.media.facebook = function(URL) {
 goog.inherits(cryptogram.media.facebook, cryptogram.media.generic);
 
 cryptogram.media.facebook.prototype.logger = goog.debug.Logger.getLogger('cryptogram.media.facebook');
+
 
 /**
  * Enum for possible Facebook states
