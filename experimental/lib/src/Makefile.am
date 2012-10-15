@@ -3,7 +3,8 @@
 bin_PROGRAMS = cryptogram_main
 cryptogram_main_SOURCES = main.cc discretizations.h experiment.h util.h
 cryptogram_main_CPPFLAGS = -Wall
-cryptogram_main_LDADD = libjpeg_delta.a libjpeg_codec.a -ljpeg -lglog
+cryptogram_main_LDADD = libjpeg_delta.a libjpeg_codec.a libcrypto.a libutils.a \
+											  -lglog -ljpeg -lboost_system-mt -lcryptopp
 
 # Libraries.
 
