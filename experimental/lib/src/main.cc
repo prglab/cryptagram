@@ -5,6 +5,14 @@
 #include <vector>
 
 #include "boost/scoped_ptr.hpp"
+#include "crypto.h"
+
+#include "cryptopp/pwdbased.h"
+#include "cryptopp/cryptlib.h"
+#include "cryptopp/filters.h"
+#include "cryptopp/hmac.h"
+#include "cryptopp/sha.h"
+
 #include "discretizations.h"
 #include "experiment.h"
 #include "glog/logging.h"
@@ -53,7 +61,32 @@ class RgbImageMatrix {
 } // namespace cryptogram
 
 int main(int argc, char** argv) {
-  google::InitGoogleLogging(argv[0]);
+  // google::InitGoogleLogging(argv[0]);
+
+  // crypto::Crypto crypto_obj;
+  std::string password("helloworld");
+  std::string salt("saltyworld");
+  boost::uint32_t pin(100);
+  crypto::Crypto::SecurePassword(password, salt, pin);
+
+  CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> myhash;
+
+  byte purpose = 0;
+  boost::uint16_t iter = (pin % 1000) + 1000;
+  CryptoPP::SecByteBlock derived(crypto::AES256_KeySize + crypto::AES256_IVSize);
+  myhash.DeriveKey(derived, derived.size(), purpose,
+                  reinterpret_cast<const byte*>(password.data()),
+                  password.size(), reinterpret_cast<const byte*>(salt.data()),
+                  salt.size(), iter);
+  std::string derived_password;
+  CryptoPP::StringSink string_sink(derived_password);
+  string_sink.Put(derived, derived.size());
+
+  std::cout << derived_password << "\n";
+  return 0;
+}
+
+int unused() {
   LOG(INFO) << "Initializng the random number generator.";
   srand(0);
 
