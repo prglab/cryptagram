@@ -14,22 +14,26 @@ AC_PROG_INSTALL
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
 
-dnl TODO(tierney): Need a better to check for libraries (glog and gtest).
+# Checks for libraries.
 AC_CHECK_LIB([glog], [_ZN6google17InitGoogleLoggingEPKc])
 AC_CHECK_LIB([jpeg], [jpeg_finish_compress])
+AC_CHECK_LIB([gtest], [__ZN7testing14InitGoogleTestEPiPPc])
+AC_CHECK_LIB([gtest_main], [main])
 
 # Checks for header files.
-AC_CHECK_HEADERS(stddef.h)
-AC_CHECK_HEADERS(pthread.h)
-AC_CHECK_HEADERS(jpeglib.h)
+AC_CHECK_HEADERS([limits.h stddef.h stdint.h string.h jpeglib.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
 AC_C_INLINE
 AC_TYPE_SIZE_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT8_T
+AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
-AC_CHECK_FUNCS([bzero])
+AC_CHECK_FUNCS([bzero memmove])
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile 
+                 src/Makefile])
 AC_OUTPUT
