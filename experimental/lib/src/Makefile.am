@@ -2,15 +2,17 @@
 
 bin_PROGRAMS = cryptogram_main
 cryptogram_main_SOURCES = main.cc discretizations.h experiment.h util.h
-cryptogram_main_CPPFLAGS = -Wall
+cryptogram_main_CPPFLAGS = -Wall -Lcryptopp
 cryptogram_main_LDADD = libjpeg_delta.a libjpeg_codec.a libcrypto.a libutils.a \
-											  -lglog -ljpeg -lboost_system-mt -lcryptopp
+											  cryptopp/libcryptopp.a -lglog -ljpeg -lboost_system-mt 
+
+SUBDIRS = cryptopp
 
 # Libraries.
 
 noinst_LIBRARIES = libjpeg_delta.a libjpeg_codec.a libCoder.a libmodp_b64.a
 noinst_LIBRARIES += libbase64.a libstring_piece.a libSjclCryptoBridge.a
-noinst_LIBRARIES += libcrypto.a libutils.a
+noinst_LIBRARIES += libcrypto.a libutils.a 
 
 libjpeg_delta_a_SOURCES = jpeg_delta.cc jpeg_delta.h basictypes.h
 libjpeg_delta_a_CPPFLAGS = -Wall

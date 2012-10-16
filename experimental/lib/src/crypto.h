@@ -95,9 +95,9 @@ class Crypto {
   * @param PIN from which the number of iterations is derived.
   * @return The derived key
   */
-  static std::string SecurePassword(const std::string &password,
-                                    const std::string &salt,
-                                    const boost::uint32_t &pin);
+  std::string SecurePassword(const std::string &password,
+                             const std::string &salt,
+                             const boost::uint32_t &pin);
   void set_hash_algorithm(HashType type) { hash_algorithm_ = type; }
   HashType hash_algorithm() const { return hash_algorithm_; }
   /**

@@ -84,6 +84,7 @@ AC_CHECK_TYPES([ptrdiff_t])
 AC_CHECK_FUNCS([bzero memmove])
 
 AC_CONFIG_FILES([Makefile 
-                 src/Makefile])
+                 src/Makefile
+								 src/cryptopp/Makefile])
 AC_CONFIG_FILES([scripts/gtest-config], [chmod +x scripts/gtest-config])
 AC_OUTPUT
