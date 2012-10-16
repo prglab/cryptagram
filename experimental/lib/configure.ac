@@ -16,7 +16,6 @@ AC_PROG_CXX([clang++])
 AC_LANG([C++])
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
-AC_PROG_RANLIB
 AM_PROG_CC_C_O
 
 # TODO(chandlerc@google.com): Currently we aren't running the Python tests
@@ -50,7 +49,7 @@ AC_SUBST(PTHREAD_CFLAGS)
 AC_SUBST(PTHREAD_LIBS)
 
 # Checks for libraries.
-AC_CHECK_LIB([glog], [_ZN6google17InitGoogleLoggingEPKc], , 
+AC_CHECK_LIB([glog], [_ZN6google17InitGoogleLoggingEPKc], ,
   AC_MSG_ERROR([Missing glog library.]))
 AC_CHECK_LIB([jpeg], [jpeg_finish_compress], ,
   AC_MSG_ERROR([Missing jpeg library.]))
@@ -83,7 +82,7 @@ AC_CHECK_TYPES([ptrdiff_t])
 # Checks for library functions.
 AC_CHECK_FUNCS([bzero memmove])
 
-AC_CONFIG_FILES([Makefile 
+AC_CONFIG_FILES([Makefile
                  src/Makefile
 								 src/cryptopp/Makefile])
 AC_CONFIG_FILES([scripts/gtest-config], [chmod +x scripts/gtest-config])
