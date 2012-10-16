@@ -51,6 +51,7 @@ class Model(object):
     with open('temp.mod', 'w') as fh:
       fh.write(self.base + '\nend;\n')
 
+    # print "glpsol -m temp.mod -d jpeg.dat -o ID_%d.sol" % id
     proc = subprocess.Popen("glpsol -m temp.mod -d jpeg.dat -o ID_%d.sol" % id,
                             shell=True,
                             stdout=subprocess.PIPE)
@@ -103,13 +104,19 @@ def main():
 
         quantiz_ = int(quant_table[coeff_h, coeff_v])
         coeffs_order.append(coeffs)
-        print coeffs, max_val
+        import math
+        print coeffs, max_val, quantiz_,
+        try:
+          print math.floor(math.log(max_val / quantiz_, 2))
+        except ValueError:
+          pass
 
         # Joined discretization values.
         joined_values = range(0, int(floor(max_val)), quantiz_) + \
                         range(-quantiz_, -int(floor(max_val)), -quantiz_)
 
         constraints[(coeff_h, coeff_v)] = random.choice(joined_values)
+        print "  Chose: ", constraints[(coeff_h, coeff_v)]
         break
 
   except IndexError:
