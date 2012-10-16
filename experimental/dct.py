@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from PIL import Image
 import random
 import sys
 import threading
@@ -135,6 +136,17 @@ def CreateRandomMatrix(seeds):
       matrix[row][col] = random.choice(seeds)
   return matrix
 
+def CreateAestheteRandomMatrix(seeds):
+  matrix = numpy.ndarray((8,8))
+  for row in range(0, 8, 2):
+    for col in range(0, 8, 2):
+      chosen_ = random.choice(seeds)
+      matrix[row][col] = chosen_
+      matrix[row + 1][col] = chosen_
+      matrix[row][col + 1] = chosen_
+      matrix[row + 1][col + 1] = chosen_
+  return matrix
+
 def CreateMatrixFromValue(value):
   return numpy.multiply(value, numpy.ones((8,8)))
 
@@ -156,61 +168,40 @@ def main(argv):
   print "Generating messages"
   num_matrices = 100000
 
-# Quality = 95
-# [[  2.   1.   1.   2.   2.   4.   5.   6.]
-#  [  1.   1.   1.   2.   3.   6.   6.   6.]
-#  [  1.   1.   2.   2.   4.   6.   7.   6.]
-#  [  1.   2.   2.   3.   5.   9.   8.   6.]
-#  [  2.   2.   4.   6.   7.  11.  10.   8.]
-#  [  2.   4.   6.   6.   8.  10.  11.   9.]
-#  [  5.   6.   8.   9.  10.  12.  12.  10.]
-#  [  7.   9.  10.  10.  11.  10.  10.  10.]]
+  # orig_quality = 95
+  # quant_table = QuantizationTableFromQuality(LuminanceQuantizationTable,
+  #                                            orig_quality)
 
-# Quality = 1
-# [[  800.   550.   500.   800.  1200.  2000.  2550.  3050.]
-#  [  600.   600.   700.   950.  1300.  2900.  3000.  2750.]
-#  [  700.   650.   800.  1200.  2000.  2850.  3450.  2800.]
-#  [  700.   850.  1100.  1450.  2550.  4350.  4000.  3100.]
-#  [  900.  1100.  1850.  2800.  3400.  5450.  5150.  3850.]
-#  [ 1200.  1750.  2750.  3200.  4050.  5200.  5650.  4600.]
-#  [ 2450.  3200.  3900.  4350.  5150.  6050.  6000.  5050.]
-#  [ 3600.  4600.  4750.  4900.  5600.  5000.  5150.  4950.]]
+  # coeff = (1. * orig_quality)
+  # SmallDiskImage = numpy.array([
+  #   [coeff, 0, 0, 0, 0, 0, 0, 0],
+  #   [0, 0, 0, 0, 0, 0, 0, 0],
+  #   [0, 0, 0, 0, 0, 0, 0, 0],
+  #   [0, 0, 0, 0, 0, 0, 0, 0],
+  #   [0, 0, 0, 0, 0, 0, 0, 0],
+  #   [0, 0, 0, 0, 0, 0, 0, 0],
+  #   [0, 0, 0, 0, 0, 0, 0, 0],
+  #   [0, 0, 0, 0, 0, 0, 0, 0]])
 
+  # SmallDiskImage[4][4] = coeff / (1. * quant_table[4][4] / (1. * quant_table[0][0]))
 
-  orig_quality = 95
-  quant_table = QuantizationTableFromQuality(LuminanceQuantizationTable,
-                                             orig_quality)
+  # print "SmallDiskImage"
+  # print SmallDiskImage
 
-  coeff = (1. * orig_quality)
-  SmallDiskImage = numpy.array([
-    [coeff, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0]])
+  # print "Quant table at quality"
+  # print quant_table
+  # matrix = SmallDiskImage
+  # print "Intermediate Matrix (to be IDCT'd)"
+  # print numpy.multiply(matrix, quant_table)
+  # decompressed = JpegDecompress(matrix, quant_table)
+  # print "Luminance Decompressed"
+  # print decompressed
 
-  SmallDiskImage[4][4] = coeff / (1. * quant_table[4][4] / (1. * quant_table[0][0]))
+  # new_quant_table = QuantizationTableFromQuality(LuminanceQuantizationTable,
+  #                                                50)
 
-  print "SmallDiskImage"
-  print SmallDiskImage
-
-  print "Quant table at quality"
-  print quant_table
-  matrix = SmallDiskImage
-  print "Intermediate Matrix (to be IDCT'd)"
-  print numpy.multiply(matrix, quant_table)
-  decompressed = JpegDecompress(matrix, quant_table)
-  print "Luminance Decompressed"
-  print decompressed
-
-  new_quant_table = QuantizationTableFromQuality(LuminanceQuantizationTable,
-                                                 50)
-
-  print "Recompressed on disk"
-  print JpegCompress(decompressed, new_quant_table).astype(int)
+  # print "Recompressed on disk"
+  # print JpegCompress(decompressed, new_quant_table).astype(int)
 
   # fig = plt.figure()
   # ax = fig.add_subplot(111)
@@ -223,15 +214,29 @@ def main(argv):
   # plt.show()
 
 
-  random_matrices = [CreateRandomMatrix([32, 32 + 64, 32 + 128, 32 + 128 + 64])
+  # These are the discrete values written in luminance.
+  discrete_values = [
+    238,
+    210,
+    182,
+    154,
+    126,
+    98,
+    70,
+    42,
+    14]
+
+  random_matrices = [CreateAestheteRandomMatrix(discrete_values)
                      for i in range(num_matrices)]
 
   with open('matrices.log', 'w') as fh:
     for i in range(num_matrices):
+      if i % 1000 == 0:
+        print "  ", i
       print >>fh, '%d ' * 64 % tuple(random_matrices[i].flatten())
 
   experiments = []
-  for quality in range(50, 99, 2):
+  for quality in range(50, 97, 2):
     experiments.append(Experiment(quality, random_matrices))
 
   print "Starting experiments."
@@ -239,6 +244,35 @@ def main(argv):
   print "Joining experiments."
   [experiment.join() for experiment in experiments]
 
+
+def AverageAestheteBlocks(matrix):
+  ret = numpy.zeros((4,4))
+  for i in range(0, 8, 2):
+    for j in range(0, 8, 2):
+      try:
+        temp = (matrix[i,j][0] + matrix[i+1, j][0] + matrix[i, j+1][0] +
+                matrix[i+1, j+1][0]) / 4.
+        ret[i/2,j/2] += temp
+      except IndexError:
+        print "-->", matrix
+        print "-->", ret
+        print "-->", i
+        print "-->", j
+        raise
+      except TypeError:
+        print "==>", matrix[i,j][0]
+
+  return ret
+
+def AverageAestheteBlocksGenerated(matrix):
+  ret = numpy.zeros((4,4))
+  for i in range(0, 8, 2):
+    for j in range(0, 8, 2):
+      temp = (matrix[i,j] + matrix[i+1, j] + matrix[i, j+1] +
+              matrix[i+1, j+1]) / 4.
+      ret[i/2,j/2] += temp
+
+  return ret
 
 class Experiment(threading.Thread):
   def __init__(self, quality, random_matrices):
@@ -252,21 +286,46 @@ class Experiment(threading.Thread):
 
     with open('quad_pix_%d.log' % self.quality,'w') as fh:
       for i in range(len(self.random_matrices)):
+        new_image = Image.new('RGB', (8, 8))
+        pixel = new_image.load()
+        for j in range(8):
+          for k in range(8):
+            lum = self.random_matrices[i][j,k]
+            pixel[j,k] = tuple(map(int, [lum, lum, lum]))
 
-        jpeg = JpegCompress(self.random_matrices[i], quant_table)
-        decompressed = JpegDecompress(jpeg, quant_table)
+        import cStringIO
+        new_file = cStringIO.StringIO()
+        new_image.save(new_file, 'jpeg', quality=self.quality)
+        new_file.seek(0)
+        decompressed = Image.open(new_file)
+
+        decompressed_pixel = decompressed.load()
+        decompressed_averaged_ = AverageAestheteBlocks(decompressed_pixel)
+
+        # jpeg = JpegCompress(self.random_matrices[i], quant_table)
+        # decompressed = JpegDecompress(jpeg, quant_table)
+
+        # TODO(tierney): This computation of the diff ought to be the average of
+        # the values in the 2x2 blocks.
+        orig_averaged_ = AverageAestheteBlocksGenerated(self.random_matrices[i])
+        # decompressed_averaged_ = AverageAestheteBlocks(decompressed)
 
         mismatch_table = numpy.absolute(
-          decompressed - self.random_matrices[i]) < 32
-        num_mismatches, num_matches = numpy.bincount(mismatch_table.flatten())
+          decompressed_averaged_ - orig_averaged_) < 14
+        try:
+          num_mismatches, num_matches = numpy.bincount(mismatch_table.flatten())
+        except ValueError:
+          print mismatch_table, self.quality
+          return
 
         print >>fh, num_mismatches
 
 if __name__=='__main__':
-  # main(sys.argv)
+  main(sys.argv)
+
   # print QuantizationTableFromQuality(LuminanceQuantizationTable, 76)
   # print numpy.divide(8000, QuantizationTableFromQuality(LuminanceQuantizationTable, 70))
 
-  for i in range(-128,128):
-    matrix = CreateMatrixFromValue(i)
-    print TwoDDCT(matrix)
+  # for i in range(-128,128):
+  #   matrix = CreateMatrixFromValue(i)
+  #   print TwoDDCT(matrix)
