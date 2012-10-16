@@ -70,6 +70,7 @@ int main(int argc, char** argv) {
   for (int i = 0; i < res.size(); i++) {
     printf("%x ", res[i]);
   }
+
   return 0;
 }
 

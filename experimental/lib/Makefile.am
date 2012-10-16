@@ -306,6 +306,15 @@ install-data-local:
 SUBDIRS = src
 
 noinst_PROGRAMS = jpeg_codec_unittest base64_unittest
+noinst_PROGRAMS += utils_test crypto_test
+
+utils_test_SOURCES = src/utils_test.cc
+utils_test_CPPFLAGS = -I$(top_srcdir)/include
+utils_test_LDADD = lib/libgtest.la src/libutils.a 
+
+crypto_test_SOURCES = src/crypto_test.cc
+crypto_test_CPPFLAGS = -I$(top_srcdir)/include
+crypto_test_LDADD = lib/libgtest.la src/libcrypto.a src/libutils.a -lboost_system-mt -lboost_filesystem-mt src/cryptopp/libcryptopp.a lib/libgtest_main.la
 
 jpeg_codec_unittest_SOURCES = src/jpeg_codec_unittest.cc 
 jpeg_codec_unittest_CPPFLAGS = -I$(top_srcdir)/include
@@ -316,4 +325,4 @@ base64_unittest_CPPFLAGS = -I$(top_srcdir)/include
 base64_unittest_LDADD = lib/libgtest.la lib/libgtest_main.la src/libbase64.a \
 												src/libmodp_b64.a
 
-TESTS += jpeg_codec_unittest base64_unittest
+TESTS += jpeg_codec_unittest base64_unittest utils_test crypto_test
