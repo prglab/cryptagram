@@ -13,11 +13,13 @@
 #include "cryptopp/hmac.h"
 #include "cryptopp/sha.h"
 
+#include "base64.h"
 #include "discretizations.h"
 #include "experiment.h"
 #include "glog/logging.h"
 #include "jpeg_codec.h"
 #include "util.h"
+#include "utils.h"
 
 namespace cryptogram {
 
@@ -64,12 +66,37 @@ int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
 
   crypto::Crypto crypto_obj;
+  std::string salt = base::RandomString(16);
+  std::cout << "salt: " << base::Base64Encode(salt) << std::endl;
+  // std::cout << "gen salt: " << base::Base64Decode("rB4gxPpRiqU") << std::endl;
+
   std::string res = crypto_obj.SecurePassword("hello world",
-                                              "salt",
+                                              salt,
                                               100);
+  std::cout << "Size of SecurePassword " << res.size() << std::endl;
+
+  std::string key = base::RandomString(crypto::AES256_KeySize);
+  std::cout << "key: " << base::Base64Encode(key) << std::endl;
+
+  std::string iv = base::RandomString(crypto::AES256_IVSize);
+  std::cout << "iv: " << base::Base64Encode(iv) << std::endl;
+
+  crypto::Crypto crypto;
+  std::string encrypted = crypto.SymmEncrypt("hello world my name is computer",
+                                             "",
+                                             crypto::STRING_STRING,
+                                             key + iv);
+  std::string base64_encrypted;
+  CHECK(base::Base64Encode(encrypted, &base64_encrypted));
+  std::cout << base64_encrypted << std::endl;
+
   for (int i = 0; i < res.size(); i++) {
     printf("%x ", res[i]);
   }
+
+
+
+
 
   return 0;
 }

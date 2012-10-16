@@ -26,7 +26,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "crypto.h"
-
+#include "cryptopp/ccm.h"
 #include <cryptopp/integer.h>
 #include <cryptopp/pwdbased.h>
 #include <cryptopp/sha.h>
@@ -180,6 +180,9 @@ std::string Crypto::SymmEncrypt(const std::string &input,
     std::string result;
     CryptoPP::CFB_Mode<CryptoPP::AES>::Encryption encryptor(byte_key,
         sizeof(byte_key), byte_iv);
+    // CryptoPP::CCM<CryptoPP::AES>::Encryption encryptor(byte_key,
+    //     sizeof(byte_key), byte_iv);
+
     switch (operation_type) {
       case STRING_STRING:
         CryptoPP::StringSource(input, true,
