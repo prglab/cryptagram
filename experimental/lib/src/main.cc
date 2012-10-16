@@ -61,28 +61,15 @@ class RgbImageMatrix {
 } // namespace cryptogram
 
 int main(int argc, char** argv) {
-  // google::InitGoogleLogging(argv[0]);
+  google::InitGoogleLogging(argv[0]);
 
-  // crypto::Crypto crypto_obj;
-  std::string password("helloworld");
-  std::string salt("saltyworld");
-  boost::uint32_t pin(100);
-  std::cout << crypto::Crypto::SecurePassword(password, salt, pin) << "\n";
-
-  CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> myhash;
-
-  byte purpose = 0;
-  boost::uint16_t iter = (pin % 1000) + 1000;
-  CryptoPP::SecByteBlock derived(crypto::AES256_KeySize + crypto::AES256_IVSize);
-  myhash.DeriveKey(derived, derived.size(), purpose,
-                  reinterpret_cast<const byte*>(password.data()),
-                  password.size(), reinterpret_cast<const byte*>(salt.data()),
-                  salt.size(), iter);
-  std::string derived_password;
-  CryptoPP::StringSink string_sink(derived_password);
-  string_sink.Put(derived, derived.size());
-
-  std::cout << derived_password << "\n";
+  crypto::Crypto crypto_obj;
+  std::string res = crypto_obj.SecurePassword("hello world",
+                                              "salt",
+                                              100);
+  for (int i = 0; i < res.size(); i++) {
+    printf("%x ", res[i]);
+  }
   return 0;
 }
 
