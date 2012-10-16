@@ -35,3 +35,4 @@ libSjclCryptoBridge_a_SOURCES = SjclCryptoBridge.h SjclCryptoBridge.cc
 libcrypto_a_SOURCES = crypto.cc crypto.h
 
 libutils_a_SOURCES = utils.h utils.cc
+
