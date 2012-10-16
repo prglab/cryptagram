@@ -20,6 +20,9 @@ bool Base64Encode(const StringPiece& input, std::string* output);
 // otherwise.  The output string is only modified if successful.
 bool Base64Decode(const StringPiece& input, std::string* output);
 
+std::string Base64Encode(const StringPiece& input);
+std::string Base64Decode(const StringPiece& input);
+
 }  // namespace base
 
 #endif  // BASE_BASE64_H__

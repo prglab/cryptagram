@@ -4,6 +4,7 @@
 
 #include "base64.h"
 
+#include "glog/logging.h"
 #include "modp_b64.h"
 
 namespace base {
@@ -23,6 +24,12 @@ bool Base64Encode(const StringPiece& input, std::string* output) {
   return true;
 }
 
+std::string Base64Encode(const StringPiece& input) {
+  std::string temp;
+  Base64Encode(input, &temp);
+  return temp;
+}
+
 bool Base64Decode(const StringPiece& input, std::string* output) {
   std::string temp;
   temp.resize(modp_b64_decode_len(input.size()));
@@ -36,6 +43,12 @@ bool Base64Decode(const StringPiece& input, std::string* output) {
   temp.resize(output_size);
   output->swap(temp);
   return true;
+}
+
+std::string Base64Decode(const StringPiece& input) {
+  std::string temp;
+  CHECK(Base64Decode(input, &temp));
+  return temp;
 }
 
 }  // namespace base
