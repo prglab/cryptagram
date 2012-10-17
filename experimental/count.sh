@@ -1,0 +1,1 @@
+grep -vc 0 $(find quad*) | sed 's/:/	/'
