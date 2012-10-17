@@ -1,0 +1,39 @@
+{namespace cryptogram.templates}
+
+
+/**
+ * Displays links for different demos and creates necessary DOM Objects
+ */
+{template .demo}
+<div id="demo">
+ Demo: <a href="#" id="encrypt_link">Encrypt</a> | <a href="#"  id="decrypt_link">Decrypt</a>
+  <div id="main"></div>
+</div>
+{/template}
+
+
+/**
+ * Displays HTML for the decryption demo
+ * @param image
+ */
+{template .decrypt}
+<input type="button" value="Decrypt" id="decrypt_button">
+<br><div class="frame"><img src="{$image}" id="image"></div>
+{/template}
+
+
+/**
+ * Displays HTML for the encryption demo including file selection and
+ * a container for drag & drop interactions.
+ */
+{template .encrypt}
+<div id="drop_zone"><b>Drop Files Here</b><br>
+<br><span id="or">or 
+<input type="file" id="file_selector" name="file_selector" multiple/></span>
+</div>
+<div id="downloadify"></div>
+<hr>
+<div id="original_image"></div>
+<div id="encoded_image"></div>
+<div id="alerts" style="color:red;"></div>
+{/template}
