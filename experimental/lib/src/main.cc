@@ -1,3 +1,39 @@
+// Copyright (c) 2012 The Cryptogram Authors. BSD-Style License.
+//
+// TODO(tierney): Match parity with cryptopp with what we get from SJCL.
+//
+// In Objective C, this probably looks like the following for the PBKDF2
+// production.
+//
+// #import <CommonCrypto/CommonKeyDerivation.h>
+
+// ...
+
+// // Makes a random 256-bit salt
+// - (NSData*)generateSalt256 {
+//     unsigned char salt[32];
+//     for (int i=0; i<32; i++) {
+//         salt[i] = (unsigned char)arc4random();
+//     }
+//     return [NSData dataWithBytes:salt length:32];
+// }
+
+// ...
+
+// // Make keys!
+// NSString* myPass = @"MyPassword1234";
+// NSData* myPassData = [myPass dataUsingEncoding:NSUTF8StringEncoding];
+// NSData* salt = [self generateSalt256];
+
+// // How many rounds to use so that it takes 0.1s ?
+// int rounds = CCCalibratePBKDF(kCCPBKDF2, myPassData.length, salt.length,
+//                               kCCPRFHmacAlgSHA256, 32, 100);
+
+// // Open CommonKeyDerivation.h for help
+// unsigned char key[32];
+// CCKeyDerivationPBKDF(kCCPBKDF2, myPassData.bytes, myPassData.length, salt.bytes,
+//                      salt.length, kCCPRFHmacAlgSHA256, rounds, key, 32);
+
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
@@ -113,7 +149,7 @@ int main(int argc, char** argv) {
 
   // { 7, 8, 9, 10, 11, 12, 13 }
   byte iv[ 9 ];
-  prng.GenerateBlock( iv, sizeof(iv) );    
+  prng.GenerateBlock( iv, sizeof(iv) );
 
   // { 4, 6, 8, 10, 12, 14, 16 }
   const int TAG_SIZE = 8;
@@ -156,7 +192,7 @@ int main(int argc, char** argv) {
   // }
 
   std::string civ;
-  
+
   std::cout << civ << std::endl;
   std::cout << key.size() << std::endl;
   std::cout << base::EncodeToBase64(cipher) << std::endl;
