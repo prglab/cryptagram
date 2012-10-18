@@ -142,9 +142,8 @@ int main(int argc, char** argv) {
   //                                 key + iv) << std::endl;
 
   CryptoPP::AutoSeededRandomPool prng;
-
-  // 16 byte keys.
-  CryptoPP::SecByteBlock key( CryptoPP::AES::DEFAULT_KEYLENGTH );
+  std::cout << "Default keylength " << CryptoPP::AES::DEFAULT_KEYLENGTH << std::endl;
+  CryptoPP::SecByteBlock key( CryptoPP::AES::DEFAULT_KEYLENGTH );  // 16 bytes.
   prng.GenerateBlock( key, key.size() );
 
   // { 7, 8, 9, 10, 11, 12, 13 }
@@ -152,7 +151,7 @@ int main(int argc, char** argv) {
   prng.GenerateBlock( iv, sizeof(iv) );
 
   // { 4, 6, 8, 10, 12, 14, 16 }
-  const int TAG_SIZE = 8;
+  const int TAG_SIZE = 8;  // bytes.
 
   // Plain text
   std::string pdata = "Authenticated Encryption";
@@ -231,6 +230,25 @@ int main(int argc, char** argv) {
     std::cerr << std::endl;
   }
 
+  std::string password("hello world");
+  std::string salt(base::RandomString(crypto::AES256_IVSize));
+  CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> pbkdf;
+  CryptoPP::SecByteBlock derived(crypto::AES256_KeySize +
+                                 crypto::AES256_IVSize);
+  pbkdf.DeriveKey(derived, derived.size(), 0,
+                  reinterpret_cast<const byte*>(password.data()),
+                  password.size(), reinterpret_cast<const byte*>(salt.data()),
+                  salt.size(), 1000);
+  std::string derived_password;
+  CryptoPP::StringSink string_sink(derived_password);
+  string_sink.Put(derived, derived.size());
+
+  std::cout <<
+      base::EncodeToBase64(derived_password.substr(0, crypto::AES256_KeySize))
+            << std::endl;
+  std::cout << derived_password.substr(crypto::AES256_KeySize,
+                                       crypto::AES256_KeySize +
+                                       crypto::AES256_IVSize) << std::endl;
 
   return 0;
 }

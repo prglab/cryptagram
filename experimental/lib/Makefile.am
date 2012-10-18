@@ -316,7 +316,7 @@ utils_test_LDADD = lib/libgtest.la lib/libgtest_main.la src/libutils.a \
 crypto_test_SOURCES = src/crypto_test.cc
 crypto_test_CPPFLAGS = -I$(top_srcdir)/include
 crypto_test_LDADD = lib/libgtest.la src/libcrypto.a src/libutils.a \
-										-lboost_system-mt -lboost_filesystem-mt \
+										-lboost_system -lboost_filesystem \
 										src/cryptopp/libcryptopp.a lib/libgtest_main.la
 
 jpeg_codec_unittest_SOURCES = src/jpeg_codec_unittest.cc
