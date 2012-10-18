@@ -1,10 +1,14 @@
 #include <iostream>
+#include <time.h>
 #include <vector>
 
+#include "boost/numeric/ublas/io.hpp"
+#include "boost/numeric/ublas/matrix.hpp"
 #include "boost/scoped_array.hpp"
 #include "glog/logging.h"
 #include "jpeg_codec.h"
 
+using boost::numeric::ublas::matrix;
 
 namespace cryptogram {
 
@@ -51,51 +55,37 @@ struct array {
   void RandomAesthete(const std::vector<int>& values);
 };
 
-class RGB {
- public:
-  RGB(unsigned char red, unsigned char green, unsigned char blue) {
-    pixels_.reset(new unsigned char[3]);
-    pixels_[0] = red;
-    pixels_[1] = green;
-    pixels_[2] = blue;
-  }
-
-  unsigned char* values() const {
-    return pixels_.get();
-  }
-
-  void operator=(const RGB& rgb) {
-    pixels_.reset(new unsigned char[3]);
-    pixels_[0] = rgb.values()[0];
-    pixels_[1] = rgb.values()[1];
-    pixels_[2] = rgb.values()[2];
-  }
-  
- private:
-  RGB();
-  boost::scoped_array<unsigned char> pixels_;
-};
-
 template<>
 void array<unsigned char>::RandomAesthete(const std::vector<int>& values) {
-  for (int i = 0; i < h; i += 2) {
-    for (int j = 0; j < w; j += 2) {
+  for (int i = 0; i < 8; i += 2) {
+    for (int j = 0; j < 8; j += 2) {
       int value = values[rand() % values.size()];
-      this->data[i * w + (3 * j)] = value;
-      this->data[i * w + (3 * j) + 1] = value;
-      this->data[i * w + (3 * j) + 2] = value;
 
-      this->data[(i + 1) * w + (3 * j)] = value;
-      this->data[(i + 1) * w + (3 * j) + 1] = value;
-      this->data[(i + 1) * w + (3 * j) + 2] = value;
-            
-      this->data[i * w + ((3 * j))] = value;
-      this->data[i * w + ((3 * j) + 1)] = value;
-      this->data[i * w + ((3 * j) + 2)] = value;
-      
-      this->data[(i + 1) * w + ((3 * j))] = value;
-      this->data[(i + 1) * w + ((3 * j) + 1)] = value;
-      this->data[(i + 1) * w + ((3 * j) + 2)] = value;
+      data[(i * w + (3 * j))] = value;
+      data[(i * w + (3 * j)) + 1] = value;
+      data[(i * w + (3 * j)) + 2] = value;
+      data[(i * w + (3 * j)) + 3] = value;
+      data[(i * w + (3 * j)) + 4] = value;
+      data[(i * w + (3 * j)) + 5] = value;
+
+      data[((i + 1) * w + (3 * j))] = value;
+      data[((i + 1) * w + (3 * j)) + 1] = value;
+      data[((i + 1) * w + (3 * j)) + 2] = value;
+      data[((i + 1) * w + (3 * j)) + 3] = value;
+      data[((i + 1) * w + (3 * j)) + 4] = value;
+      data[((i + 1) * w + (3 * j)) + 5] = value;
+    }
+  }
+}
+
+void AverageAestheteBlocks(const matrix<unsigned char>& input,
+              matrix<double>* output) {
+  CHECK_NOTNULL(output);
+  for (int i = 0; i < 8; i += 2) {
+    for (int j = 0; j < 8; j += 2) {
+      float temp = (input(i,j) + input(i+1,j) + input(i,j+1) +
+                    input(i+1,j+1)) / 4.;
+      (*output)(i/2,j/2) = temp;
     }
   }
 }
@@ -103,6 +93,7 @@ void array<unsigned char>::RandomAesthete(const std::vector<int>& values) {
 } // namespace cryptogram
 
 int main(int argc, char** argv) {
+  srand(time(NULL));
   // Generate images.
   std::vector<int> values;
   values.push_back(238);
@@ -114,36 +105,56 @@ int main(int argc, char** argv) {
   values.push_back(70);
   values.push_back(42);
   values.push_back(14);
-  
-  cryptogram::array<unsigned char> image(8 * 3, 8);
-  image.RandomAesthete(values);
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 24; j++) {
-      printf("%3d ", image(j,i));
-    }
-    std::cout << std::endl;    
-  }
-  std::cout << std::endl;
-  
-  std::vector<unsigned char> output;
-  gfx::JPEGCodec::Encode(image.data,
-                         gfx::JPEGCodec::FORMAT_RGB,
-                         8, 8, 24,
-                         95,
-                         &output);
-  int w = 0, h = 0;
-  std::vector<unsigned char> decoded;
-  gfx::JPEGCodec::Decode(&output[0], output.size(),
-                         gfx::JPEGCodec::FORMAT_RGB,
-                         &decoded,
-                         &w, &h);
 
-  for (int i = 0; i < w; i++) {
-    for (int j = 0; j < h; j++) {
-      printf("%3d ", decoded[j * 8 + i]);
+  for (int iter = 0; iter < 10000; iter++) {
+    cryptogram::array<unsigned char> image(8 * 3, 8);
+    image.RandomAesthete(values);
+
+    matrix<unsigned char> orig_matrix(8, 8);
+    for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 24; j += 3) {
+        orig_matrix(i, j/3) = image(j,i);
+      }
     }
-    std::cout << std::endl;
+    matrix<double> orig_aes(4, 4);
+    cryptogram::AverageAestheteBlocks(orig_matrix, &orig_aes);
+
+    std::vector<unsigned char> output;
+    gfx::JPEGCodec::Encode(image.data,
+                           gfx::JPEGCodec::FORMAT_RGB,
+                           8, 8, 24,
+                           66,
+                           &output);
+    int w = 0, h = 0;
+    std::vector<unsigned char> decoded;
+    gfx::JPEGCodec::Decode(&output[0], output.size(),
+                           gfx::JPEGCodec::FORMAT_RGB,
+                           &decoded,
+                           &w, &h);
+
+    matrix<unsigned char> decoded_matrix(8, 8);
+    for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
+        decoded_matrix(i,j) = decoded[i * 24 + 3 * j];
+      }
+    }
+
+    matrix<double> decoded_aes(4, 4);
+    cryptogram::AverageAestheteBlocks(decoded_matrix, &decoded_aes);
+
+    matrix<unsigned char> diff = orig_aes - decoded_aes;
+    unsigned int nerrors = 0;
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+        if (abs((int)(char)diff(i,j)) > 14) {
+          nerrors++;
+        }
+      }
+    }
+    if (nerrors > 0) {
+      std::cout << nerrors << std::endl;
+    }
   }
-  
+
   return 0;
 }
