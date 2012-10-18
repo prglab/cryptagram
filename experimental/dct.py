@@ -147,6 +147,12 @@ def CreateAestheteRandomMatrix(seeds):
       matrix[row + 1][col + 1] = chosen_
   return matrix
 
+def CreateAestheteRandomMatrixShifted(seeds):
+  matrix = CreateAestheteRandomMatrix(seeds)
+  vshift = numpy.row_stack((matrix[1:8,:],matrix[0,:]))
+  hshift = numpy.column_stack((vshift[:,1:8],vshift[:,0]))
+  return hshift
+
 def CreateMatrixFromValue(value):
   return numpy.multiply(value, numpy.ones((8,8)))
 
@@ -226,7 +232,7 @@ def main(argv):
     42,
     14]
 
-  random_matrices = [CreateAestheteRandomMatrix(discrete_values)
+  random_matrices = [CreateAestheteRandomMatrixShifted(discrete_values)
                      for i in range(num_matrices)]
 
   with open('matrices.log', 'w') as fh:
