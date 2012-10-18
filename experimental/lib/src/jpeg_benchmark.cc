@@ -5,8 +5,14 @@
 #include "boost/numeric/ublas/io.hpp"
 #include "boost/numeric/ublas/matrix.hpp"
 #include "boost/scoped_array.hpp"
+#include "google/gflags.h"
 #include "glog/logging.h"
 #include "jpeg_codec.h"
+
+DEFINE_string(matrices, "matrices.log",
+              "Where to read/write matrices used. NOT IMPLEMENTED.");
+DEFINE_int32(quality, 95, "JPEG Quality level to use.");
+DEFINE_int64(iters, 1000, "Number of iterations.");
 
 using boost::numeric::ublas::matrix;
 
@@ -93,6 +99,9 @@ void AverageAestheteBlocks(const matrix<unsigned char>& input,
 } // namespace cryptogram
 
 int main(int argc, char** argv) {
+  google::InitGoogleLogging(argv[0]);
+  google::ParseCommandLineFlags(&argc, &argv, false);
+
   srand(time(NULL));
   // Generate images.
   std::vector<int> values;
@@ -106,7 +115,7 @@ int main(int argc, char** argv) {
   values.push_back(42);
   values.push_back(14);
 
-  for (int iter = 0; iter < 10000; iter++) {
+  for (int iter = 0; iter < FLAGS_iters; iter++) {
     cryptogram::array<unsigned char> image(8 * 3, 8);
     image.RandomAesthete(values);
 
@@ -123,7 +132,7 @@ int main(int argc, char** argv) {
     gfx::JPEGCodec::Encode(image.data,
                            gfx::JPEGCodec::FORMAT_RGB,
                            8, 8, 24,
-                           66,
+                           FLAGS_quality,
                            &output);
     int w = 0, h = 0;
     std::vector<unsigned char> decoded;
