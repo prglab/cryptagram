@@ -71,6 +71,7 @@ TEST(CryptoTest, BEH_BASE_SecurePasswordGeneration) {
   EXPECT_TRUE(test_crypto.SecurePassword("", "salt", 100).empty());
   EXPECT_TRUE(test_crypto.SecurePassword("password", "", 100).empty());
   EXPECT_TRUE(test_crypto.SecurePassword("password", "salt", 0).empty());
+
   const std::string kKnownPassword1(base::DecodeFromHex("70617373776f7264"));
   const std::string kKnownSalt1(base::DecodeFromHex("1234567878563412"));
   const boost::uint32_t kKnownIterations1(5);
@@ -79,6 +80,7 @@ TEST(CryptoTest, BEH_BASE_SecurePasswordGeneration) {
       "c"));
   EXPECT_EQ(kKnownDerived1, test_crypto.SecurePassword(kKnownPassword1,
             kKnownSalt1, kKnownIterations1));
+
   const std::string kKnownPassword2(base::DecodeFromHex("416c6c206e2d656e746974"
       "696573206d75737420636f6d6d756e69636174652077697468206f74686572206e2d656e"
       "74697469657320766961206e2d3120656e746974656568656568656573"));
@@ -1075,6 +1077,19 @@ TEST(RSAKeysTest, BEH_BASE_RsaKeyPair) {
   rsakp.ClearKeys();
   EXPECT_TRUE(rsakp.public_key().empty());
   EXPECT_TRUE(rsakp.private_key().empty());
+}
+
+
+TEST(CryptoTest, TIERNEY_SecurePasswordGeneration) {
+  Crypto test_crypto;
+  const std::string kKnownPassword1(base::DecodeFromHex("70617373776f7264"));
+  const std::string kKnownSalt1(base::DecodeFromHex("1234567878563412"));
+  const boost::uint32_t kKnownIterations1(1000);
+  const std::string kKnownDerived1(base::DecodeFromHex("0a89927670e292af98080a3"
+      "c3e2bdee4289b768de74570f9f470282756390fe36de6da2cbc407f4ecf6a9f62ef6249c"
+      "c"));
+  EXPECT_EQ(kKnownDerived1, test_crypto.SecurePassword(kKnownPassword1,
+            kKnownSalt1, kKnownIterations1));
 }
 
 }  // namespace test

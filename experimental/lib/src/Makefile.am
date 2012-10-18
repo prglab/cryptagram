@@ -1,11 +1,15 @@
 # Binaries.
 
-bin_PROGRAMS = cryptogram_main
+bin_PROGRAMS = cryptogram_main jpeg_benchmark
+
 cryptogram_main_SOURCES = main.cc discretizations.h experiment.h util.h
 cryptogram_main_CPPFLAGS = -Wall
 cryptogram_main_LDADD = libjpeg_delta.a libjpeg_codec.a libcrypto.a libutils.a \
 											  cryptopp/libcryptopp.a -lglog -ljpeg -lboost_system \
 												libbase64.a libmodp_b64.a libstring_piece.a
+
+jpeg_benchmark_SOURCES = jpeg_benchmark.cc
+jpeg_benchmark_LDADD = libjpeg_codec.a -lboost
 
 SUBDIRS = cryptopp
 
