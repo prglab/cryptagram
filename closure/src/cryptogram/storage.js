@@ -1,5 +1,7 @@
 goog.provide('cryptogram.storage');
 
+goog.require('goog.debug.Logger');
+
 
 /**
  * @constructor
@@ -10,6 +12,7 @@ cryptogram.storage = function(media) {
   this.media = media;
 };
 
+cryptogram.storage.prototype.logger = goog.debug.Logger.getLogger('cryptogram.storage');
 
 cryptogram.storage.prototype.load = function(localStorage) {
   this.lookup = localStorage;
@@ -27,13 +30,13 @@ cryptogram.storage.prototype.getPasswordForURL = function(URL) {
     if (albumId) albumPassword = this.lookup[albumId];
 
     if (password) {
-        cryptogram.log('Found saved photo password for photo:', photoId);        
+        this.logger.info('Found photo password for photo: ' + photoId);        
         return password;
 		}
 		
 		if (albumPassword) {
-        cryptogram.log('Found saved album password for photo:', URL);
-        cryptogram.log('Album id:', albumId);
+        this.logger.info('Found album password for photo: ' + photoId);
+        this.logger.info('Album ID: ' + albumId);
         return albumPassword;
 		}
 		return null;
@@ -48,7 +51,7 @@ cryptogram.storage.prototype.savePassword = function(id, password) {
     
     if (albumId && this.lookup[albumId]) return;
     
-    cryptogram.log('Saving password for photo: ', photoId);
+    this.logger.info('Saving password for photo: ' + photoId);
 
     if (albumId && this.lookup['album_passwords'] == 'true' &&
         !this.lookup[albumId]) { 
@@ -56,7 +59,7 @@ cryptogram.storage.prototype.savePassword = function(id, password) {
       if (!saveAlbum) {
         albumId = null;
       } else {
-        cryptogram.log('Saving password for album: ', albumId);
+        this.logger.info('Saving password for album: ' + albumId);
       }
     } else {
       albumId = null;
@@ -69,7 +72,7 @@ cryptogram.storage.prototype.autoDecrypt = function() {
   var images = this.media.getImages();
   
   if (images) {
-    cryptogram.log('Checking '+ images.length +' images against saved passwords.');
+    this.logger.info('Checking '+ images.length +' images against saved passwords.');
   }
   
   for (i = 0; i < images.length; i++) {
