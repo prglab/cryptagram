@@ -11,29 +11,34 @@ cryptogram.media.generic = function(URL) {
   this.URL = URL;
 };
 
+cryptogram.media.generic.prototype.logger = goog.debug.Logger.getLogger('cryptogram.media.generic');
+
+
 cryptogram.media.generic.prototype.matchesURL = function() {
   return true;
 };
+
 
 cryptogram.media.generic.prototype.fixURL = function(URL) {
   return URL;
 };
 
+
 cryptogram.media.generic.prototype.getAlbumName = function() {
   return "untitled album";
 };
+
 
 cryptogram.media.generic.prototype.getPhotoName = function() {
   return "untitled image";
 };
 
+
 cryptogram.media.generic.prototype.loadContainer = function(URL) {
-  var images = this.getImages(URL);
-  
-  console.log(images.length);
-  
+  var images = this.getImages(URL);  
   return new cryptogram.container(images[0]);
 };
+
 
 cryptogram.media.generic.prototype.getImages = function(URL) {
 
@@ -53,16 +58,17 @@ cryptogram.media.generic.prototype.onReady = function(callback) {
   callback();
 };
 
+
 cryptogram.media.generic.prototype.setContainerSrc = function(container, src) {
     container.setSrc(src);
 };
+
 
 cryptogram.media.generic.prototype.getPhotoName = function(URL) {
   return URL;
 };
 
+
 cryptogram.media.generic.prototype.getAlbumName = function(URL) {
   return URL;
 };
-
-

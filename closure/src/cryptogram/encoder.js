@@ -1,7 +1,5 @@
 goog.provide('cryptogram.encoder');
 
-goog.require('cryptogram.log');
-
 
 /**
  * @constructor
