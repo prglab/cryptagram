@@ -147,11 +147,15 @@ def CreateAestheteRandomMatrix(seeds):
       matrix[row + 1][col + 1] = chosen_
   return matrix
 
-def CreateAestheteRandomMatrixShifted(seeds):
-  matrix = CreateAestheteRandomMatrix(seeds)
+def Shift(matrix):
   vshift = numpy.row_stack((matrix[1:8,:],matrix[0,:]))
   hshift = numpy.column_stack((vshift[:,1:8],vshift[:,0]))
   return hshift
+
+def Unshift(matrix):
+  hshift = numpy.column_stack((matrix[:,7],matrix[:,0:7]))
+  vshift = numpy.row_stack((hshift[7,:],hshift[0:7,:]))
+  return vshift
 
 def CreateMatrixFromValue(value):
   return numpy.multiply(value, numpy.ones((8,8)))
@@ -232,7 +236,7 @@ def main(argv):
     42,
     14]
 
-  random_matrices = [CreateAestheteRandomMatrixShifted(discrete_values)
+  random_matrices = [CreateAestheteRandomMatrix(discrete_values)
                      for i in range(num_matrices)]
 
   with open('matrices.log', 'w') as fh:
@@ -250,34 +254,29 @@ def main(argv):
   print "Joining experiments."
   [experiment.join() for experiment in experiments]
 
-
-def AverageAestheteBlocks(matrix):
-  ret = numpy.zeros((4,4))
-  for i in range(0, 8, 2):
-    for j in range(0, 8, 2):
-      try:
-        temp = (matrix[i,j][0] + matrix[i+1, j][0] + matrix[i, j+1][0] +
-                matrix[i+1, j+1][0]) / 4.
-        ret[i/2,j/2] += temp
-      except IndexError:
-        print "-->", matrix
-        print "-->", ret
-        print "-->", i
-        print "-->", j
-        raise
-      except TypeError:
-        print "==>", matrix[i,j][0]
-
+def Flatten(matrix):
+  ret = numpy.zeros((8,8))
+  for i in range(0, 8):
+    for j in range(0, 8):
+      ret[i,j] = matrix[i,j][0]
   return ret
 
-def AverageAestheteBlocksGenerated(matrix):
+def AverageAestheteBlocksFlat(matrix):
   ret = numpy.zeros((4,4))
   for i in range(0, 8, 2):
     for j in range(0, 8, 2):
       temp = (matrix[i,j] + matrix[i+1, j] + matrix[i, j+1] +
               matrix[i+1, j+1]) / 4.
       ret[i/2,j/2] += temp
+  return ret
 
+def AverageAestheteBlocks(matrix):
+  ret = numpy.zeros((4,4))
+  for i in range(0, 8, 2):
+    for j in range(0, 8, 2):
+      temp = (matrix[i,j][0] + matrix[i+1,j][0] + matrix[i,j+1][0] +
+              matrix[i+1,j+1][0]) / 4.
+      ret[i/2,j/2] += temp
   return ret
 
 class Experiment(threading.Thread):
@@ -292,6 +291,7 @@ class Experiment(threading.Thread):
 
     with open('quad_pix_%d.log' % self.quality,'w') as fh:
       for i in range(len(self.random_matrices)):
+
         new_image = Image.new('RGB', (8, 8))
         pixel = new_image.load()
         for j in range(8):
@@ -313,7 +313,7 @@ class Experiment(threading.Thread):
 
         # TODO(tierney): This computation of the diff ought to be the average of
         # the values in the 2x2 blocks.
-        orig_averaged_ = AverageAestheteBlocksGenerated(self.random_matrices[i])
+        orig_averaged_ = AverageAestheteBlocksFlat(self.random_matrices[i])
         # decompressed_averaged_ = AverageAestheteBlocks(decompressed)
 
         mismatch_table = numpy.absolute(
