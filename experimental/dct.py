@@ -246,7 +246,7 @@ def main(argv):
       print >>fh, '%d ' * 64 % tuple(random_matrices[i].flatten())
 
   experiments = []
-  for quality in range(50, 97, 2):
+  for quality in range(64, 97, 2):
     experiments.append(Experiment(quality, random_matrices))
 
   print "Starting experiments."
@@ -320,6 +320,22 @@ class Experiment(threading.Thread):
           decompressed_averaged_ - orig_averaged_) < 14
         try:
           num_mismatches, num_matches = numpy.bincount(mismatch_table.flatten())
+          if num_mismatches > 0:
+            base = "debug/" + str(self.quality) + "_" + str(i) + "_"
+            #im_in = decompressed.resize((256,256),'NEAREST')
+
+            decompressed = decompressed.resize((256,256), Image.NEAREST)
+            for xx in range(0,4):
+              for yy in range(0,4):
+                if (mismatch_table[xx,yy] == False):
+                  xb = xx * 64 + 24
+                  yb = yy * 64 + 24
+                  decompressed.paste((255,0,0),(xb,yb,xb+16,yb+16))
+            decompressed.save(base + "out.png")
+
+            new_image = new_image.resize((256,256), Image.NEAREST)
+            new_image.save(base + "in.png")
+
         except ValueError:
           print mismatch_table, self.quality
           return
