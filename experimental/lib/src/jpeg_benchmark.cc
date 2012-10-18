@@ -96,16 +96,16 @@ void AverageAestheteBlocks(const matrix<unsigned char>& input,
   }
 }
 
-class Experiment {
- public:
-  void Start() {
-    thread_ = boost::thread(&
-  }
+// class Experiment {
+//  public:
+//   void Start() {
+//     thread_ = boost::thread(&
+//   }
 
 
- private:
-  boost::thread thread_;
-};
+//  private:
+//   boost::thread thread_;
+// };
 
 } // namespace cryptogram
 
