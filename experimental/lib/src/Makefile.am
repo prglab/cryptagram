@@ -9,7 +9,7 @@ cryptogram_main_LDADD = libjpeg_delta.a libjpeg_codec.a libcrypto.a libutils.a \
 												libbase64.a libmodp_b64.a libstring_piece.a
 
 jpeg_benchmark_SOURCES = jpeg_benchmark.cc
-jpeg_benchmark_LDADD = libjpeg_codec.a -lboost_system -lgflags
+jpeg_benchmark_LDADD = libjpeg_codec.a -lboost_system -lboost_thread -lgflags
 
 SUBDIRS = cryptopp base
 

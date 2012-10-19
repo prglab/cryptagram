@@ -86,7 +86,7 @@ void array<unsigned char>::RandomAesthete(const std::vector<int>& values) {
 }
 
 void AverageAestheteBlocks(const matrix<unsigned char>& input,
-              matrix<double>* output) {
+                           matrix<double>* output) {
   CHECK_NOTNULL(output);
   for (int i = 0; i < 8; i += 2) {
     for (int j = 0; j < 8; j += 2) {
@@ -99,12 +99,24 @@ void AverageAestheteBlocks(const matrix<unsigned char>& input,
 
 class Experiment {
  public:
-  // void Start() {
-  //   thread_ = boost::thread
-  // }
+  Experiment(int i) : i_(i) {}
 
+  virtual ~Experiment() {}
+
+  void Start() {
+    thread_ = boost::thread(&Experiment::Run, this);
+  }
+
+  void Wait() {
+    thread_.join();
+  }
+
+  void Run() {
+    printf("Work %d\n", i_);
+  }
 
  private:
+  int i_;
   boost::thread thread_;
 };
 
@@ -112,6 +124,17 @@ class Experiment {
 
 
 int main(int argc, char** argv) {
+  // std::vector<cryptogram::Experiment*> exps;
+  // for (int i = 0; i < 10; i++) {
+  //   exps.push_back(new cryptogram::Experiment(i));
+  // }
+  // for (int i = 0; i < 10; i++) {
+  //   exps[i]->Start();
+  // }
+  // for (int i = 0; i < 10; i++) {
+  //   exps[i]->Wait();
+  // }
+  // return 0;
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, false);
 
