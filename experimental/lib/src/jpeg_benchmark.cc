@@ -5,6 +5,7 @@
 #include "boost/numeric/ublas/io.hpp"
 #include "boost/numeric/ublas/matrix.hpp"
 #include "boost/scoped_array.hpp"
+#include "boost/thread.hpp"
 #include "google/gflags.h"
 #include "glog/logging.h"
 #include "jpeg_codec.h"
@@ -96,16 +97,16 @@ void AverageAestheteBlocks(const matrix<unsigned char>& input,
   }
 }
 
-// class Experiment {
-//  public:
-//   void Start() {
-//     thread_ = boost::thread(&
-//   }
+class Experiment {
+ public:
+  // void Start() {
+  //   thread_ = boost::thread
+  // }
 
 
-//  private:
-//   boost::thread thread_;
-// };
+ private:
+  boost::thread thread_;
+};
 
 } // namespace cryptogram
 
