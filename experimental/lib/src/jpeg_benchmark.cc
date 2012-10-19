@@ -141,16 +141,15 @@ int main(int argc, char** argv) {
   srand(time(NULL));
   // Generate images.
   std::vector<int> values;
-  values.push_back(238);
-  values.push_back(210);
-  values.push_back(182);
-  values.push_back(154);
-  values.push_back(126);
-  values.push_back(98);
-  values.push_back(70);
-  values.push_back(42);
-  values.push_back(14);
-
+  values.push_back(240);
+  values.push_back(208);
+  values.push_back(176);
+  values.push_back(144);
+  values.push_back(112);
+  values.push_back(80);
+  values.push_back(48);
+  values.push_back(16);
+    
   for (int iter = 0; iter < FLAGS_iters; iter++) {
     cryptogram::array<unsigned char> image(8 * 3, 8);
     image.RandomAesthete(values);
@@ -191,13 +190,13 @@ int main(int argc, char** argv) {
     unsigned int nerrors = 0;
     for (int i = 0; i < 4; i++) {
       for (int j = 0; j < 4; j++) {
-        if (abs((int)(char)diff(i,j)) > 14) {
+        if (abs((int)(char)diff(i,j)) > 16) {
           nerrors++;
         }
       }
     }
     if (nerrors > 0) {
-      std::cout << nerrors << std::endl;
+      std::cout << nerrors << " / " << orig_aes << std::endl;
     }
   }
 
