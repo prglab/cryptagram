@@ -1,3 +1,6 @@
+// Copyright 2012. The Cryptogram Authors. BSD-Style License.
+// JPEG Benchmark C++ Code.
+
 #include <iostream>
 #include <time.h>
 #include <vector>
@@ -135,6 +138,7 @@ int main(int argc, char** argv) {
   //   exps[i]->Wait();
   // }
   // return 0;
+
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, false);
 
@@ -149,7 +153,7 @@ int main(int argc, char** argv) {
   values.push_back(80);
   values.push_back(48);
   values.push_back(16);
-    
+
   for (int iter = 0; iter < FLAGS_iters; iter++) {
     cryptogram::array<unsigned char> image(8 * 3, 8);
     image.RandomAesthete(values);
