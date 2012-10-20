@@ -96,7 +96,19 @@ void AverageAestheteBlocks(const matrix<unsigned char>& input,
   }
 }
 
+// class Experiment {
+//  public:
+//   void Start() {
+//     thread_ = boost::thread(&
+//   }
+
+
+//  private:
+//   boost::thread thread_;
+// };
+
 } // namespace cryptogram
+
 
 int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
