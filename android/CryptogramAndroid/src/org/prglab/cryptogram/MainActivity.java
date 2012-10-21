@@ -349,14 +349,25 @@ public class MainActivity extends Activity {
     
     private void encodeToImage(){
     	String base64String =  dataAccessor.getIv() + dataAccessor.getSalt() + dataAccessor.getCt() ;
-    	
-    	
+    	//Toast.makeText(context, "Java ct length " + Integer.toString(dataAccessor.getCt().length()), Toast.LENGTH_SHORT).show();
+    	//Toast.makeText(context, Integer.toString(dataAccessor.getCt().indexOf(' ')), Toast.LENGTH_SHORT).show();
     	// Debug: check hashing in java vs. sjcl
+    	
+    	base64String = base64String.replace(' ', '+');
     	try {
 			String checksum = ImageEncoder.computeHash(base64String);
 			if (!checksum.equals(dataAccessor.getHash())){
 				Toast.makeText(context, "Hash mismatch", Toast.LENGTH_SHORT).show();
-			}		
+				checksum = ImageEncoder.computeHash(ImageEncoder.trimSpaces(base64String));
+				if (checksum.equals(dataAccessor.getHash())){
+					Toast.makeText(context, "Hash of trimmed matched!", Toast.LENGTH_SHORT).show();
+				}
+				else{
+					Toast.makeText(context, "Hash of trimmed mismatch!", Toast.LENGTH_SHORT).show();
+				}
+			}else{
+				Toast.makeText(context, "Hash matched!", Toast.LENGTH_SHORT).show();
+			}
 		}
 		catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException("Can't encode sha-256!!");

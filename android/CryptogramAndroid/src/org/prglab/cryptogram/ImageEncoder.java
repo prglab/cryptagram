@@ -44,6 +44,16 @@ public class ImageEncoder {
 	
 	public static final String base64Symbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	
+	/** Trims blank spaces from an input string */
+	public static String trimSpaces(String s){
+		String[] choppedUpString = s.trim().split(" ");
+		StringBuilder trimmedString = new StringBuilder();
+		for (int i = 0; i < choppedUpString.length; i++){
+			trimmedString.append(choppedUpString[i]);
+		}
+		return trimmedString.toString();
+	} 
+	
 	private static ArrayList<Integer> getOctalArray(String data){
 		ArrayList<Integer> builder = new ArrayList<Integer>();
 		for (int i = 0; i < data.length(); i++){
@@ -143,7 +153,7 @@ public class ImageEncoder {
 	      e.printStackTrace();
 	    }
 
-	    byte[] byteData = digest.digest(input.getBytes());
+	    byte[] byteData = digest.digest();
 	    StringBuffer sb = new StringBuffer();
 
 	    for (int i = 0; i < byteData.length; i++){
@@ -155,10 +165,16 @@ public class ImageEncoder {
 	
 	public static Bitmap encodeBase64(String data, String hash, String header, double widthHeightRatio){
 		// get rid of those pesky spaces
-		data = data.replace(" ", "");
-		header = header.replace(" ", "");
+		data = trimSpaces(data);
 		
-		String checksum = "";
+		try {
+			hash = computeHash(data);
+		}		
+		catch ( NoSuchAlgorithmException e ) {
+			throw new RuntimeException("No hash algorithm found panic!");
+		}	
+		
+		//String checksum = "";
 		
 		ArrayList<Integer> headerOctal = getOctalArray(header);
 	    ArrayList<Integer> dataOctal = getOctalArray(hash + data);//checksum + data);
