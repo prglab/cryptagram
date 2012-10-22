@@ -44,8 +44,9 @@ cryptogram.content = function() {
   this.storage = new cryptogram.storage(this.media);
   var self = this;
       
-  chrome.extension.onRequest.addListener(function(request, sender, callback) {
+  chrome.extension.onMessage.addListener(function(request, sender, callback) {
     self.handleRequest(request, sender, callback);
+    return true;
   });
 };
 
@@ -91,8 +92,8 @@ cryptogram.content.prototype.handleRequest = function(request, sender, callback)
     }
     if (!password) return;
     
-    this.decryptByURL(request['decryptURL'], password);  
-  }  
+    this.decryptByURL(request['decryptURL'], password);
+  }
 };
 
 
