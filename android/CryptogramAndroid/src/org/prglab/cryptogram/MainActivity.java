@@ -390,7 +390,7 @@ public class MainActivity extends Activity {
 		Uri uri = context.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 		try {
 			OutputStream outStream = context.getContentResolver().openOutputStream(uri);
-			encodedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, outStream);
+			encodedBitmap.compress(Bitmap.CompressFormat.JPEG, 98, outStream);
 			outStream.flush();
 			outStream.close();			
 		} catch (FileNotFoundException e){

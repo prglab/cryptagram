@@ -41,13 +41,13 @@
         //document.getElementById("cryptImg").src = dataUrl;   
 		//var encoded = JSON.parse(sjcl.encrypt(args.password, args.data));
         img = new Image();
-        console.log("First space: " + encoded['iv'].indexOf(' '));
+        //console.log("First space: " + encoded['iv'].indexOf(' '));
 		img.src = "|setIv|"+encoded['iv'];
 		img.src = "|setCt|"+encoded['ct'];
 		img.src = "|setSalt|"+encoded['salt'];
-    var integrity_check_value = sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(encoded['iv'] + encoded['salt'] +  encoded['ct']));
-    console.log("ct len " + encoded['ct'].length);
-    img.src = "|setHash|" + integrity_check_value;
+    //var integrity_check_value = sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(encoded['iv'] + encoded['salt'] +  encoded['ct']));
+    //console.log("ct len " + encoded['ct'].length);
+    //img.src = "|setHash|" + integrity_check_value;
 		img.src = "|setDone|"+"empty";
 
     document.getElementById("output").innerHTML = integrity_check_value;
@@ -59,7 +59,7 @@
 		//document.getElementById("output").innerHTML = '<a href="http://example.com/|setIv|' + encoded.iv +'">Link</a>';
 	}
   else { // Default, non-processing page
-    console.log("No args");
+    //console.log("No args");
     var data = encrypt( "Eat it!", "password" );
     var encoded = encode(data);
 
