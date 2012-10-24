@@ -1,15 +1,33 @@
 goog.provide('cryptogram.loader');
 
 goog.require('goog.debug.Logger');
+goog.require('goog.net.XhrIo');
+goog.require('goog.events');
+goog.require('goog.events.EventType');
+goog.require('goog.net.EventType');
 
 /**
  * @constructor
  */
 cryptogram.loader = function(container) {
   this.container = container;
+  this.state = cryptogram.loader.state.WAITING;
 };
 
 cryptogram.loader.prototype.logger = goog.debug.Logger.getLogger('cryptogram.loader');
+
+/**
+ * Enum for possible loader states
+ * @enum {string}
+ */
+cryptogram.loader.state = {
+  WAITING:      'Waiting',
+  LOADING:  'Loading',
+  LOADED:  'Loaded',
+  DONE:      'Done'
+};
+
+
 
 /**
  * @private
@@ -26,16 +44,15 @@ cryptogram.loader.prototype.updateProgress = function(e) {
  * @private
  */
 cryptogram.loader.prototype.createRequest = function() {
-  var oHTTP = null;
+  this.oHTTP = null;
   var self = this;
   if (window.XMLHttpRequest) {
-    oHTTP = new XMLHttpRequest();
-    oHTTP.responseType = "arraybuffer";  
-    oHTTP.addEventListener("progress", function(e){ self.updateProgress(e) }, false);  
+    this.oHTTP = new XMLHttpRequest();
+    this.oHTTP.responseType = "arraybuffer";  
+    this.oHTTP.addEventListener("progress", function(e){ self.updateProgress(e) }, false);  
   } else if (window.ActiveXObject) {
-    oHTTP = new ActiveXObject("Microsoft.XMLHTTP");
-    }
-  return oHTTP;
+    this.oHTTP = new ActiveXObject("Microsoft.XMLHTTP");
+  }
 }
 
 
@@ -92,6 +109,65 @@ cryptogram.loader.prototype.bytesToBase64 = function() {
   this.base64 = "data:image/jpeg;base64," + base64;
 }
 
+/**
+ * Retrieves image data from a URL and applies the callback.
+ * @param src The URL of the image
+ * @param callback The function to call on the resulting data
+ */
+cryptogram.loader.prototype.queue = function(src, callback) {
+
+  this.logger.info("Queued " + src);
+  this.src = src;
+  this.container.setStatus("Waiting");
+
+  this.createRequest();
+  var self = this;
+  self.oHTTP.onreadystatechange = function() {
+    if (self.oHTTP.readyState == 4) {
+      if (self.oHTTP.status == "200" || self.oHTTP.status == "206") {
+        self.bytes = self.oHTTP.response;
+        self.bytesToBase64();
+        self.logger.info("Downloaded " + self.base64.length + " base64 characters.");
+        callback(self.base64);
+        self.state = cryptogram.loader.state.LOADED;
+      } else {
+        self.logger.severe("Download failed");
+      }
+      //self.oHTTP = null;
+    }
+  };
+};
+
+/**
+ *
+ */
+cryptogram.loader.prototype.start = function() {
+  var self = this;
+  
+  /*
+  var io = new goog.net.XhrIo();
+  console.log(io.getBinaryMode);
+
+  goog.events.listen(io, goog.net.EventType.COMPLETE, function(e) {
+    console.log(e);
+    var xhr = e.target;
+    var obj = xhr.getResponseText();
+    console.log(obj.substring(0,100));
+  }, 'GET', null, {'mimeType':'text/plain; charset=x-user-defined'});
+  
+  io.send(this.src);*/
+  
+  this.logger.info("Downloading " + this.src);
+  this.state = cryptogram.loader.state.LOADING;
+  this.oHTTP.open("GET", this.src, true);
+  if (this.oHTTP.overrideMimeType) this.oHTTP.overrideMimeType('text/plain; charset=x-user-defined');
+  console.log(this.oHTTP);
+  this.oHTTP.send(null);
+};
+
+
+
+
 
 /**
  * Retrieves image data from a URL and applies the callback.
@@ -100,28 +176,30 @@ cryptogram.loader.prototype.bytesToBase64 = function() {
  */
 cryptogram.loader.prototype.getImageData = function(src, callback) {
 
+  this.logger.info("Downloading " + src);
+
   this.container.setStatus("Download<br>...");
 
-  var oHTTP = this.createRequest();
+  this.createRequest();
   var self = this;
-  oHTTP.onreadystatechange = function() {
-    if (oHTTP.readyState == 4) {
-      if (oHTTP.status == "200" || oHTTP.status == "206") {
+  self.oHTTP.onreadystatechange = function() {
+    if (self.oHTTP.readyState == 4) {
+      if (self.oHTTP.status == "200" || self.oHTTP.status == "206") {
         //var arrayBuffer = oHTTP.response;
-        self.bytes = oHTTP.response;
+        self.bytes = self.oHTTP.response;
         self.bytesToBase64();
-        self.logger.info("Downloaded image. " + self.base64.length + " base64 characters.");
+        self.logger.info("Downloaded " + self.base64.length + " base64 characters.");
         callback(self.base64);
       } else {
         self.logger.severe("Download failed");
       } 
-      oHTTP = null;
+      self.oHTTP = null;
     }
   };
            
-  oHTTP.open("GET", src, true);
-  if (oHTTP.overrideMimeType) oHTTP.overrideMimeType('text/plain; charset=x-user-defined');
-  oHTTP.send(null);
+  self.oHTTP.open("GET", src, true);
+  if (self.oHTTP.overrideMimeType) self.oHTTP.overrideMimeType('text/plain; charset=x-user-defined');
+  self.oHTTP.send(null);
 };
 
 

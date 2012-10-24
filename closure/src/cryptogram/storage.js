@@ -22,7 +22,9 @@ cryptogram.storage.prototype.load = function(localStorage) {
 cryptogram.storage.prototype.getPasswordForURL = function(URL) {    
     var photoId = this.media.getPhotoName(URL);
     var albumId = this.media.getAlbumName(URL);
-        
+    
+    this.logger.info('Looking up password for photo: ' + photoId + " (album: " + albumId +")");        
+
     var password = null;
     var albumPassword = null;
     
@@ -30,13 +32,12 @@ cryptogram.storage.prototype.getPasswordForURL = function(URL) {
     if (albumId) albumPassword = this.lookup[albumId];
 
     if (password) {
-        this.logger.info('Found photo password for photo: ' + photoId);        
+        this.logger.info('Found photo password.');        
         return password;
 		}
 		
 		if (albumPassword) {
-        this.logger.info('Found album password for photo: ' + photoId);
-        this.logger.info('Album ID: ' + albumId);
+        this.logger.info('Found album password.');
         return albumPassword;
 		}
 		return null;
