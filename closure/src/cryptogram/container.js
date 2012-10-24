@@ -6,6 +6,13 @@ goog.require('goog.dom');
  * @constructor
  */
 cryptogram.container = function(img, node) {
+
+  this.backgroundMode = false;
+  
+  if (img.tagName != "IMG") {
+    this.backgroundMode = true;
+  }
+
   this.img = img;
   this.div = goog.dom.createDom('div', { 'class': 'status'});
   this.div.style.display = 'none';
@@ -15,20 +22,28 @@ cryptogram.container = function(img, node) {
   node.appendChild(this.div);
 };
 
-
 cryptogram.container.prototype.getSrc = function() {
   return this.img.src;
 };
 
 
 cryptogram.container.prototype.setSrc = function(src) {
+    
     this.previousSrc = this.img.src;
-    this.img.src = src;    
+
+    if (this.backgroundMode) {
+      this.img.style.background = "url(" + src + ")";
+      this.img.style.backgroundRepeat = "no-repeat";
+      this.img.style.backgroundSize = "100%";
+      this.img.style.verticalAlign = "middle";
+    } else {
+      this.img.src = src;    
+    }
 };
 
 
 cryptogram.container.prototype.revertSrc = function() {
-    if (!this.previousSrc) return;
+    if (!this.previousSrc) return;    
     this.img.src = this.previousSrc;
     this.previousSrc = null;
 };

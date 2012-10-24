@@ -57,6 +57,7 @@ cryptogram.decoder.prototype.decodeData = function(data, password, callback) {
       self.logger.severe("Unknown Protocol");
       self.container.setStatus();
     } else {
+      self.logger.info("Found Protocol " + protocol);
       self.processImage();    
     }
   };
@@ -95,7 +96,7 @@ cryptogram.decoder.prototype.processImage = function() {
   var count = 0;
   var y = this.y;
   var done = false;
-    
+      
   while (this.chunkSize == 0 || count < this.chunkSize) {
       
     for (x = 0; x < this.img.width; x+= (this.blockSize * 2)) {
@@ -118,6 +119,7 @@ cryptogram.decoder.prototype.processImage = function() {
     count++;  
     y+= this.blockSize;
     
+    
     if (y >= this.img.height) {
       done = true;
       break;
@@ -125,7 +127,7 @@ cryptogram.decoder.prototype.processImage = function() {
   }
   
   this.y = y;
-  _decoder = this;
+  var _decoder = this;
 
   if (!done) {
       // Artificially inflate the percent so it gets to 100
@@ -156,7 +158,7 @@ cryptogram.decoder.prototype.decryptImage = function () {
   var full = newBase64.substring(64,newBase64.length);
   var bits = sjcl.hash.sha256.hash(full);
   var hexHash = sjcl.codec.hex.fromBits(bits);
-    
+      
   if (hexHash != check) {
     this.logger.severe("Checksum failed. Image is corrupted.");
     return;

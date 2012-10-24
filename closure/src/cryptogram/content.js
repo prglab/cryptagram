@@ -39,13 +39,14 @@ cryptogram.content = function() {
       break;
     }
   }
-  
+  this.loaders = [];
   this.lastAutoDecrypt = '';
   this.storage = new cryptogram.storage(this.media);
   var self = this;
       
-  chrome.extension.onRequest.addListener(function(request, sender, callback) {
+  chrome.extension.onMessage.addListener(function(request, sender, callback) {
     self.handleRequest(request, sender, callback);
+    return true;
   });
 };
 
@@ -91,8 +92,8 @@ cryptogram.content.prototype.handleRequest = function(request, sender, callback)
     }
     if (!password) return;
     
-    this.decryptByURL(request['decryptURL'], password);  
-  }  
+    this.decryptByURL(request['decryptURL'], password);
+  }
 };
 
 
@@ -101,26 +102,43 @@ cryptogram.content.prototype.setStatus = function(message) {
 };
 
 
-cryptogram.content.prototype.decryptImage = function(image, password) {
+cryptogram.content.prototype.decryptImage = function(image, password, queue) {
 
- if (this.container) {
-    this.container.remove();
-    this.container = null;
-  }
-  this.container = new cryptogram.container(image);
+  var container = new cryptogram.container(image);
   var self = this;
-  var loader = new cryptogram.loader(this.container);
-   
+  var loader = new cryptogram.loader(container);
+  
+  
   var fullURL = this.media.fixURL(image.src);
   if (!fullURL) return;
-  loader.getImageData(fullURL, function(data) {
-    var decoder = new cryptogram.decoder(self.container);
-    decoder.decodeData(data, password, function(result) {
-      if (result) {
-        self.container.setSrc(result);
-      }
+  
+  if (queue) {
+  
+    loader.queue(fullURL, function(data) {
+      var decoder = new cryptogram.decoder(container);
+      decoder.decodeData(data, password, function(result) {
+      loader.state = cryptogram.loader.state.DONE;
+
+        if (result) {
+          self.media.setContainerSrc(container, result);
+        }
+      });
     });
-  });
+    this.loaders.push(loader);
+    
+  } else {
+  
+    loader.getImageData(fullURL, function(data) {
+      var decoder = new cryptogram.decoder(container);
+      decoder.decodeData(data, password, function(result) {
+        if (result) {
+          self.media.setContainerSrc(container, result);
+        }
+      });
+    });
+
+  }
+  
 };
 
 
@@ -132,23 +150,54 @@ cryptogram.content.prototype.decryptByURL = function(URL, password) {
     this.container.remove();
     this.container = null;
   }
-  this.container = this.media.loadContainer(URL);
-  var loader = new cryptogram.loader(this.container);
+  var container = this.media.loadContainer(URL);
+  var loader = new cryptogram.loader(container);
   var fullURL = this.media.fixURL(URL);
   
   var self = this;
-
   loader.getImageData(fullURL, function(data) {
-    var decoder = new cryptogram.decoder(self.container);
+    var decoder = new cryptogram.decoder(container);
     decoder.decodeData(data, password, function(result) {
-      
       if (result) {
-        self.container.setSrc(result);
+        container.setSrc(result);
         self.callback({'outcome': 'success', 'id' : self.photoId, 'password' : password, 'album' : self.albumId});
       }
     });
   });
 };
+
+
+
+cryptogram.content.prototype.checkQueue = function() {
+  
+  if (this.loaders.length == 0) return;
+    
+  var maxLoading = 3;
+  var loadingCount = 0;
+  
+  for (var i = this.loaders.length - 1; i >= 0; i--) {
+  
+      if (this.loaders[i].state == cryptogram.loader.state.LOADING) {
+        loadingCount++;
+      }
+      if (this.loaders[i].state == cryptogram.loader.state.DONE) {
+        var pop = this.loaders.splice(i,1);
+        delete pop;
+      }
+  }
+  
+  for (var i = 0; i < this.loaders.length; i++) {
+      if (this.loaders[i].state == cryptogram.loader.state.WAITING &&
+            loadingCount < maxLoading) {
+        this.loaders[i].start();     
+        loadingCount++;
+      }
+  }
+  
+  var self = this;
+  setTimeout(function() { self.checkQueue(); }, 1000);
+};
+
 
 
 cryptogram.content.prototype.autoDecrypt = function() {
@@ -159,12 +208,17 @@ cryptogram.content.prototype.autoDecrypt = function() {
     this.logger.info('Checking '+ images.length +' images against saved passwords.');
   }
   
+  var needsQueue = true;
+  if (images.length < 4) needsQueue = false;
+  
   for (var i = 0; i < images.length; i++) {
     var password = this.storage.getPasswordForURL(images[i].src);
     if (password) {
-      this.decryptImage(images[i], password);
+      this.decryptImage(images[i], password, needsQueue);
     }
   }
+
+  this.checkQueue();
 };
 
 
