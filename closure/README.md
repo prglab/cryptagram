@@ -1,5 +1,10 @@
 # README for Closure #
 
+# Already have the frameworks?
+
+./build_extension.sh
+
+# Getting Started
 To compile this code on the fly, you'll want to install plovr. 
 [Plovr Instructions](http://plovr.com/download.html)
 
