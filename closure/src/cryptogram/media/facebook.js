@@ -54,7 +54,41 @@ cryptogram.media.facebook.prototype.getImages = function(opt_URL) {
   } else if (this.state == cryptogram.media.facebook.state.PHOTO) {
     images = goog.dom.getElementsByClass('fbPhotoImage');
   } else {
-    return [];
+  
+    var thumbs = goog.dom.getElementsByClass('uiMediaThumbImg');
+    
+    for (var i = 0; i < thumbs.length; i++) {
+    var testURL = thumbs[i].style.backgroundImage;
+    testURL = testURL.substr(4,testURL.length - 5);
+    var ajaxNode = thumbs[i].parentNode.parentNode;
+    
+    
+    if (ajaxNode.tagName == 'A') {
+    
+      var ajaxify = ajaxNode.getAttribute('ajaxify')
+      var ajaxParts = ajaxify.split("&");
+      var src = ajaxParts[3];
+            
+      if (src.substring(0,4)=="src=") {
+                
+        var fullSrc = unescape(src.substring(4,src.length));
+        this.logger.info("Extracted src from ajaxify: " + fullSrc);
+        thumbs[i].src = fullSrc;
+        valid.push(thumbs[i]);
+      }
+    }
+      
+   /* if (opt_URL) {
+      if (testURL == opt_URL) {
+        valid.push(thumbs[i]);
+      }
+    } else {  
+      if (testURL.search('_o.jpg') != -1  || testURL.search('_n.jpg') != -1 ) {
+        valid.push(thumbs[i]);  
+      }
+    }*/
+    }
+    return valid;
   }
     
   for (var i = 0; i < images.length; i++) {
@@ -220,4 +254,10 @@ cryptogram.media.facebook.prototype.fixURL = function(URL) {
   }
 
   return URL;
+};
+
+
+/** @inheritDoc */
+cryptogram.media.facebook.prototype.setContainerSrc = function(container, src) {
+    container.setSrc(src);
 };
