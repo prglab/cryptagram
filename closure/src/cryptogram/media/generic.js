@@ -35,7 +35,7 @@ cryptogram.media.generic.prototype.getPhotoName = function() {
 
 
 cryptogram.media.generic.prototype.loadContainer = function(URL) {
-  var images = this.getImages(URL);  
+  var images = this.getImages(URL);
   return new cryptogram.container(images[0]);
 };
 
