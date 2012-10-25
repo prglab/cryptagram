@@ -11,7 +11,7 @@ LT_PREREQ([2.2])
 LT_INIT([dlopen])
 
 # Checks for programs.
-AC_PROG_CC
+AC_PROG_CC([clang])
 AC_PROG_CXX([clang++])
 AC_LANG([C++])
 AC_PROG_INSTALL
@@ -85,6 +85,7 @@ AC_CHECK_FUNCS([bzero memmove])
 AC_CONFIG_FILES([Makefile
                  src/Makefile
 								 src/cryptopp/Makefile
+                 src/reed_solomon/Makefile
                  src/base/Makefile])
 AC_CONFIG_FILES([scripts/gtest-config], [chmod +x scripts/gtest-config])
 AC_OUTPUT
