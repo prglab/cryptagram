@@ -137,6 +137,8 @@ test: cryptest.exe
 clean:
 	$(RM) cryptest.exe libcryptopp.a $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS)
 
+distclean: clean
+
 check:
 	@echo "No tests in cryptopp."
 
