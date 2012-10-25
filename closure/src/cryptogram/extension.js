@@ -26,7 +26,7 @@ cryptogram.extension.init = function() {
   chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
     if (info['status'] == 'complete') {
       if (localStorage['auto_decrypt'] == 'true') {
-        chrome.tabs.sendRequest(tabId, {'autoDecrypt': tab.url, 'storage': localStorage}, null);
+        chrome.tabs.sendMessage(tabId, {'autoDecrypt': tab.url, 'storage': localStorage}, null);
       }
     }
   });
@@ -53,12 +53,12 @@ cryptogram.extension.getClickHandler = function() {
   return function(info, tab) {
   
     chrome.tabs.getSelected(null, function(tab) {
-      chrome.tabs.sendRequest(tab.id, {'decryptURL':info['srcUrl'], 'storage': localStorage}, function(response) {
-        if (response['outcome'] == 'success') {          
+      chrome.tabs.sendMessage(tab.id, {'decryptURL':info['srcUrl'], 'storage': localStorage}, function(response) {
+        if (response['outcome'] == 'success') {
           localStorage[response.id] = response['password'];
           if(response['album'] != null) {
             localStorage[response['album']] = response['password'];              
-          }     
+          }
         };
       });  
     });    
@@ -68,7 +68,7 @@ cryptogram.extension.getClickHandler = function() {
 
 cryptogram.extension.sendDebugReport = function() {
   chrome.tabs.getSelected(null, function(tab) {   
-      chrome.tabs.sendRequest(tab.id, {'sendDebugReport': 1}, null); 
+      chrome.tabs.sendMessage(tab.id, {'sendDebugReport': 1}, null); 
   }); 
 };
 
