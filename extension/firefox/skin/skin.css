@@ -1,5 +1,6 @@
 #cryptogram-toolbar-button {
   list-style-image: URL("chrome://cryptogram/skin/toolbar-large.png");
+  width:24px;
 }
 
 #cryptogram-status-bar-icon {
