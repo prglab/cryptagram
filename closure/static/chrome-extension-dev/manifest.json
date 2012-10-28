@@ -1,0 +1,28 @@
+{
+"name" : "Cryptogram Dev",
+"version" : "0.1",
+"description" : "Decrypt Cryptogram photos.",
+"permissions" : [
+  "contextMenus",
+  "tabs",
+  "http://*/",
+  "https://*/",
+  "http://localhost/"
+ ],
+ "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "css": ["style.css"],
+    "js": ["cryptogram-content.js"]}],
+ "background" : {
+	"scripts": ["cryptogram-background.js"] },
+	  "content_security_policy": "default-src http://localhost:2012; img-src 'self' data: chrome: filesystem:",
+	  "minimum_chrome_version" : "6.0.0.0",
+  "icons": { "16": "icon16.png",
+             "48": "icon48.png",
+             "128": "icon128.png" },
+  "manifest_version": 2,
+  "browser_action": {
+    "default_icon": "icon19.png",
+    "default_title": "Cryptogram Settings"
+  }
+}
