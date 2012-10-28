@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://cryptogram/skin/skin.css" type="text/css"?>
+<!DOCTYPE cryptogram SYSTEM "chrome://cryptogram/locale/translations.dtd">
+<overlay id="sample" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script src="cryptogram.js" />
+  
+  <menupopup id="menu_toolsPopup">
+    <menuitem label="&runcryptogram;" key="cryptogram-decrypt-key" oncommand="cryptogram.run()" />
+  </menupopup>
+
+  <keyset>
+    
+    <key id="cryptogram-decrypt-key" modifiers="accel alt shift" key="L" oncommand="cryptogram.run()" />
+  </keyset>
+
+  <statusbar id="status-bar">
+    <statusbarpanel id="cryptogram-status-bar-icon" class="statusbarpanel-iconic" src="chrome://cryptogram/skin/status-bar.png" tooltiptext="&runcryptogram;" onclick="cryptogram.run()" />
+  </statusbar>
+
+  <toolbarpallete id="BrowserToolbarPalette">
+    <toolbarbutton id="cryptogram-toolbar-button" label="Cryptogram" tooltiptext="&runcryptogram;" oncommand="cryptogram.run()" />
+  </toolbarpallete>
+
+</overlay>
