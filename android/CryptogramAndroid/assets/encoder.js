@@ -62,6 +62,10 @@ function encode(data, width_to_height_ratio, header_string, block_width,
     var value = base64_values.indexOf(ch);
     var x = Math.floor(value / 8);
     var y = value % 8;
+    if (value === -1){
+        console.log("invalid char " + ch + " at " + x + " " + y);
+        
+    }
     values.push(x);
     values.push(y);
   }
