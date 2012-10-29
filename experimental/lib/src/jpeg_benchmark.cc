@@ -1,5 +1,14 @@
 // Copyright 2012. The Cryptogram Authors. BSD-Style License.
 // JPEG Benchmark C++ Code.
+// 
+// Should have multiple threads handling different efforts. In
+// particular we want to have three types of threads. One takes care
+// of paging in from disk already-generated matrices (six bytes per
+// matrix representations on disk). These are then encapsulated in a
+// queue of batches of the matrices. These batches are then what will
+// be passed to worker threads. The worker threads will have access to
+// these values in memory and claim locks on the queues. The queues
+// then will be used for coordinating the work of the rest of the
 
 #include <iostream>
 #include <time.h>
