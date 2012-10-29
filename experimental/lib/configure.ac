@@ -13,7 +13,6 @@ LT_INIT([dlopen])
 # Checks for programs.
 AC_PROG_CC([clang])
 AC_PROG_CXX([clang++])
-AC_LANG([C++])
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
