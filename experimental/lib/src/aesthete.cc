@@ -1,6 +1,6 @@
 // Copyright 2012. The Cryptogram Authors. BSD License.
 // Author: tierney@cs.nyu.edu (Matt Tierney)
-// 
+//
 // Generate the matrices and write them to disk. We then post process by sorting
 // and unique-ing the output values.
 //
@@ -47,7 +47,7 @@ int MatrixRepresentation::operator()(int x, int y) {
   value[0] = bits_[start_idx + 0];
   value[1] = bits_[start_idx + 1];
   value[2] = bits_[start_idx + 2];
-    
+
   vector<unsigned char> single_char = bitset_to_bytes(value);
   CHECK_EQ(single_char.size(), 1);
   return static_cast<int>(single_char[0]);
