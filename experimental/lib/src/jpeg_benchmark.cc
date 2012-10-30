@@ -167,6 +167,8 @@ int main(int argc, char** argv) {
     cryptogram::array<unsigned char> image(8 * 3, 8);
     image.RandomAesthete(values);
 
+    // TODO(tierney): Convert the particular vector<int> into the matrix.
+    
     matrix<unsigned char> orig_matrix(8, 8);
     for (int i = 0; i < 8; i++) {
       for (int j = 0; j < 24; j += 3) {
