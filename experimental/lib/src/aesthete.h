@@ -53,7 +53,7 @@ class MatrixRepresentation {
   
   virtual ~MatrixRepresentation();
 
-  void InitFromString(const string& input);
+  void InitFromString(const char* input);
 
   // Vector of ints that fill the 4x4 matrix left to right and top to bottom.
   void InitFromInts(const vector<int>& values);
@@ -63,6 +63,7 @@ class MatrixRepresentation {
   int operator()(int x, int y);
   
   string ToString();
+  void ToInts(vector<int>* output);
   
  private:
   bitset<48> bits_;

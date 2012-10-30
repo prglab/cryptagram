@@ -1,6 +1,7 @@
 # Binaries.
 
-bin_PROGRAMS = cryptogram_main jpeg_benchmark generate_aesthete_matrices
+bin_PROGRAMS = cryptogram_main jpeg_benchmark generate_aesthete_matrices \
+			         read_aesthete_matrices
 
 cryptogram_main_SOURCES = main.cc discretizations.h experiment.h util.h
 cryptogram_main_CPPFLAGS = -Wall
@@ -13,6 +14,9 @@ jpeg_benchmark_LDADD = libjpeg_codec.a -lboost_system -lboost_thread -lgflags
 
 generate_aesthete_matrices_SOURCES = generate_aesthete_matrices.cc
 generate_aesthete_matrices_LDADD = libaesthete.a
+
+read_aesthete_matrices_SOURCES = read_aesthete_matrices.cc
+read_aesthete_matrices_LDADD = libaesthete.a
 
 SUBDIRS = cryptopp base reed_solomon
 
