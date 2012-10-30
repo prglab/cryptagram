@@ -1,2 +1,6 @@
 <!ENTITY runcryptogram "Run Cryptogram">
+<!ENTITY cryptogram.albumpasswords "Album passwords">
+<!ENTITY cryptogram.savepasswords "Save passwords">
+<!ENTITY cryptogram.autodecrypt "Auto decrypt">
+<!ENTITY cryptogram.decryptimage "Decrypt Image">
 
