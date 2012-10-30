@@ -230,8 +230,9 @@ int main(int argc, char** argv) {
     std::cerr << std::endl;
   }
 
-  std::string password("hello world");
-  std::string salt(base::RandomString(crypto::AES256_IVSize));
+  std::string password("hello");
+  std::string salt(base::RandomString(16));
+  std::cout << "Salt: " << base::EncodeToBase64(salt.substr(0,8)) << std::endl;
   CryptoPP::PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> pbkdf;
   CryptoPP::SecByteBlock derived(crypto::AES256_KeySize +
                                  crypto::AES256_IVSize);
@@ -243,8 +244,9 @@ int main(int argc, char** argv) {
   CryptoPP::StringSink string_sink(derived_password);
   string_sink.Put(derived, derived.size());
 
-  std::cout <<
-      base::EncodeToBase64(derived_password.substr(0, crypto::AES256_KeySize))
+  std::cout << "Derived Password: "
+            << base::EncodeToBase64(
+                derived_password.substr(0, crypto::AES256_KeySize))
             << std::endl;
   std::cout << derived_password.substr(crypto::AES256_KeySize,
                                        crypto::AES256_KeySize +
