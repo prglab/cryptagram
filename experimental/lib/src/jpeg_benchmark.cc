@@ -1,3 +1,6 @@
+// Copyright 2012. The Cryptogram Authors. BSD-Style License.
+// JPEG Benchmark C++ Code.
+
 #include <iostream>
 #include <time.h>
 #include <vector>
@@ -5,6 +8,7 @@
 #include "boost/numeric/ublas/io.hpp"
 #include "boost/numeric/ublas/matrix.hpp"
 #include "boost/scoped_array.hpp"
+#include "boost/thread.hpp"
 #include "google/gflags.h"
 #include "glog/logging.h"
 #include "jpeg_codec.h"
@@ -85,7 +89,7 @@ void array<unsigned char>::RandomAesthete(const std::vector<int>& values) {
 }
 
 void AverageAestheteBlocks(const matrix<unsigned char>& input,
-              matrix<double>* output) {
+                           matrix<double>* output) {
   CHECK_NOTNULL(output);
   for (int i = 0; i < 8; i += 2) {
     for (int j = 0; j < 8; j += 2) {
@@ -96,21 +100,45 @@ void AverageAestheteBlocks(const matrix<unsigned char>& input,
   }
 }
 
-// class Experiment {
-//  public:
-//   void Start() {
-//     thread_ = boost::thread(&
-//   }
+class Experiment {
+ public:
+  Experiment(int i) : i_(i) {}
 
+  virtual ~Experiment() {}
 
-//  private:
-//   boost::thread thread_;
-// };
+  void Start() {
+    thread_ = boost::thread(&Experiment::Run, this);
+  }
+
+  void Wait() {
+    thread_.join();
+  }
+
+  void Run() {
+    printf("Work %d\n", i_);
+  }
+
+ private:
+  int i_;
+  boost::thread thread_;
+};
 
 } // namespace cryptogram
 
 
 int main(int argc, char** argv) {
+  // std::vector<cryptogram::Experiment*> exps;
+  // for (int i = 0; i < 10; i++) {
+  //   exps.push_back(new cryptogram::Experiment(i));
+  // }
+  // for (int i = 0; i < 10; i++) {
+  //   exps[i]->Start();
+  // }
+  // for (int i = 0; i < 10; i++) {
+  //   exps[i]->Wait();
+  // }
+  // return 0;
+
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, false);
 
@@ -125,7 +153,7 @@ int main(int argc, char** argv) {
   values.push_back(80);
   values.push_back(48);
   values.push_back(16);
-    
+
   for (int iter = 0; iter < FLAGS_iters; iter++) {
     cryptogram::array<unsigned char> image(8 * 3, 8);
     image.RandomAesthete(values);

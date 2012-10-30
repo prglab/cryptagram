@@ -6,6 +6,7 @@
 #define BASE_THREAD_H_
 #pragma once
 
+#include <string.h>
 #include <string>
 
 #include "base/base_export.h"
