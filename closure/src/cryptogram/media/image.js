@@ -31,16 +31,9 @@ cryptogram.media.image.prototype.matchesURL = function() {
 };
 
 
-
 /** @inheritDoc */
 cryptogram.media.image.prototype.getImages = function(opt_URL) {
-  return [window.location.toString()];
-};
-
-
-/** @inheritDoc */
-cryptogram.media.image.prototype.getImages = function(opt_URL) {
-  return [window.location.toString()];
+  return document.getElementsByTagName("img");
 };
 
 
@@ -59,4 +52,13 @@ cryptogram.media.image.prototype.getAlbumName = function() {
 /** @inheritDoc */
 cryptogram.media.image.prototype.setContainerSrc = function(container, src) {
     window.location = src;
+};
+
+
+/** @inheritDoc */
+cryptogram.media.image.prototype.loadContainer = function(URL) {
+  var images = this.getImages();
+  var container = new cryptogram.container(images[0]);
+  container.singleImageMode();
+  return container;
 };
