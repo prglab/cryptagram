@@ -39,6 +39,8 @@ cryptogram.content = function() {
       break;
     }
   }
+  
+  this.logger.info('Found media: ' + this.media.name());
   this.loaders = [];
   this.lastAutoDecrypt = '';
   this.storage = new cryptogram.storage(this.media);
@@ -102,7 +104,7 @@ cryptogram.content.prototype.setStatus = function(message) {
 
 cryptogram.content.prototype.decryptImage = function(image, password, queue) {
 
-  var container = new cryptogram.container(image);
+  var container = this.media.loadContainer();
   var self = this;
   var loader = new cryptogram.loader(container);
   
@@ -153,8 +155,10 @@ cryptogram.content.prototype.decryptByURL = function(URL, password) {
     var decoder = new cryptogram.decoder(container);
     decoder.decodeData(data, password, function(result) {
       if (result) {
-        container.setSrc(result);
-        self.callback({'outcome': 'success', 'id' : self.photoId, 'password' : password, 'album' : self.albumId});
+        self.media.setContainerSrc(container, result);
+        var photoName = self.media.getPhotoName(URL);
+        var albumName = self.media.getAlbumName(URL);
+        self.callback({'outcome': 'success', 'id' : photoName, 'password' : password, 'album' : albumName});
       }
     });
   });
