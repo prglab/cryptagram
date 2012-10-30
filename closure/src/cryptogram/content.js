@@ -3,7 +3,7 @@ goog.provide('cryptogram.content');
 goog.require('cryptogram.container');
 goog.require('cryptogram.decoder');
 goog.require('cryptogram.loader');
-goog.require('cryptogram.media.generic');
+goog.require('cryptogram.media.image');
 goog.require('cryptogram.media.facebook');
 goog.require('cryptogram.media.googleplus');
 goog.require('cryptogram.storage');
@@ -30,7 +30,7 @@ cryptogram.content = function() {
   var URL = new goog.Uri(window.location);
   var knownMedia = [cryptogram.media.facebook,
                     cryptogram.media.googleplus,
-                    cryptogram.media.generic];
+                    cryptogram.media.image];
   var testMedia;
   for (var i = 0; i < knownMedia.length; i++) {
     testMedia = new knownMedia[i](URL);
@@ -83,8 +83,6 @@ cryptogram.content.prototype.handleRequest = function(request, sender, callback)
       return;
     }
   
-    this.photoId = this.media.getPhotoName(URL);
-    this.albumId = this.media.getAlbumName(URL);
     password = this.storage.getPasswordForURL((URL));
 
     if (!password) {
@@ -146,10 +144,6 @@ cryptogram.content.prototype.decryptByURL = function(URL, password) {
   
   this.logger.info('Request to decrypt ' + URL + '.');
     
-  if (this.container) {
-    this.container.remove();
-    this.container = null;
-  }
   var container = this.media.loadContainer(URL);
   var loader = new cryptogram.loader(container);
   var fullURL = this.media.fixURL(URL);
