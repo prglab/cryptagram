@@ -47,6 +47,10 @@ vector<unsigned char> bitset_to_bytes(const std::bitset<N>& bs)
 //   return result;
 // }
 
+struct CompactMatrix {
+  bitset<48> bits;
+};
+
 class MatrixRepresentation {
  public:
   MatrixRepresentation();
@@ -66,7 +70,7 @@ class MatrixRepresentation {
   void ToInts(vector<int>* output);
   
  private:
-  bitset<48> bits_;
+  CompactMatrix matrix_;
 
   MatrixRepresentation(const MatrixRepresentation&);                           \
   void operator=(const MatrixRepresentation&);

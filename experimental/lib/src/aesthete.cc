@@ -20,7 +20,7 @@ MatrixRepresentation::~MatrixRepresentation() {
 void MatrixRepresentation::InitFromString(const char* input) {
   // TODO(tierney): Must enforce the length of six.
   for (int j = 0; j < 48; j++) {
-    bits_[j] = ((input[j>>3] >> (j & 7)) & 1);
+    matrix_.bits[j] = ((input[j>>3] >> (j & 7)) & 1);
   }
 }
 
@@ -33,9 +33,9 @@ void MatrixRepresentation::InitFromInts(const vector<int>& values) {
     CHECK_LE(val, kNumDiscretizations);
 
     const int idx = i * 3;
-    bits_[idx + 0] = values[i] & 1;
-    bits_[idx + 1] = values[i] & 2;
-    bits_[idx + 2] = values[i] & 4;
+    matrix_.bits[idx + 0] = values[i] & 1;
+    matrix_.bits[idx + 1] = values[i] & 2;
+    matrix_.bits[idx + 2] = values[i] & 4;
   }
 }
 
@@ -44,9 +44,9 @@ int MatrixRepresentation::operator()(int x, int y) {
 
   bitset<3> value;
   int start_idx = y * kWidth + x * 3;
-  value[0] = bits_[start_idx + 0];
-  value[1] = bits_[start_idx + 1];
-  value[2] = bits_[start_idx + 2];
+  value[0] = matrix_.bits[start_idx + 0];
+  value[1] = matrix_.bits[start_idx + 1];
+  value[2] = matrix_.bits[start_idx + 2];
 
   vector<unsigned char> single_char = bitset_to_bytes(value);
   CHECK_EQ(single_char.size(), 1);
@@ -62,7 +62,7 @@ void MatrixRepresentation::ToInts(vector<int>* output) {
 }
 
 string MatrixRepresentation::ToString() {
-  vector<unsigned char> chars = bitset_to_bytes(bits_);
+  vector<unsigned char> chars = bitset_to_bytes(matrix_.bits);
   string ret(chars.begin(), chars.end());
   return ret;
 }
