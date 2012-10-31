@@ -14,6 +14,10 @@ namespace cryptogram {
 MatrixRepresentation::MatrixRepresentation() {
 }
 
+MatrixRepresentation::MatrixRepresentation(bitset<48> bits) {
+  matrix_.bits = bits;
+}
+
 MatrixRepresentation::~MatrixRepresentation() {
 }
 
@@ -65,6 +69,13 @@ string MatrixRepresentation::ToString() {
   vector<unsigned char> chars = bitset_to_bytes(matrix_.bits);
   string ret(chars.begin(), chars.end());
   return ret;
+}
+
+void MatrixRepresentation::BitsetFromBytes(const char* input, bitset<48>* bits) {
+  // TODO(tierney): Should enforce the lengith of input is six bytes.
+  for (int j = 0; j < 48; j++) {
+    (*bits)[j] = ((input[j>>3] >> (j & 7)) & 1);
+  }
 }
 
 } // namespace cryptogram

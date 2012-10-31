@@ -7,6 +7,9 @@
 // ./aesthete > output.txt
 //
 
+#ifndef _AESTHETE_H_
+#define _AESTHETE_H_
+
 #include <bitset>
 #include <cassert>
 #include <iostream>
@@ -51,9 +54,14 @@ struct CompactMatrix {
   bitset<48> bits;
 };
 
+struct CharMatrix {
+  char matrix[7];
+};
+
 class MatrixRepresentation {
  public:
   MatrixRepresentation();
+  explicit MatrixRepresentation(bitset<48> bits);
   
   virtual ~MatrixRepresentation();
 
@@ -65,6 +73,8 @@ class MatrixRepresentation {
   // h and w correspond to the 4 x 4 grid of 2x2 blocks in the 8x8 JPEG
   // matrix. Consequently, an index of
   int operator()(int x, int y);
+
+  static void BitsetFromBytes(const char* input, bitset<48>* bits);
   
   string ToString();
   void ToInts(vector<int>* output);
@@ -77,3 +87,5 @@ class MatrixRepresentation {
 };
 
 } // namespace cryptogram
+
+#endif  // _AESTHETE_H_
