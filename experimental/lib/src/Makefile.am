@@ -20,7 +20,8 @@ generate_aesthete_matrices_SOURCES = generate_aesthete_matrices.cc
 generate_aesthete_matrices_LDADD = libaesthete.a
 
 read_aesthete_matrices_SOURCES = read_aesthete_matrices.cc
-read_aesthete_matrices_LDADD = libaesthete.a
+read_aesthete_matrices_CPPFLAGS = -std=c++11 -I/usr/lib/c++/v1
+read_aesthete_matrices_LDADD = libaesthete.a -lpthread
 
 SUBDIRS = cryptopp base reed_solomon
 

@@ -8,13 +8,18 @@
 
 #include "aesthete.h"
 #include "glog/logging.h"
+#include "threadsafe_queue.h"
+
+const int kQueueChunkSize = 1000;
 
 int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
-  // Read six bytes at a time.
+  // Read six bytebs at a time.
   std::filebuf in_file;
   in_file.open("test", std::ios::in);
 
+  // ThreadsafeQueue< vector<cryptogram::CompactMatrix> > queue;
+  
   cryptogram::MatrixRepresentation mr;
   char matrix[7];
   vector<int> ints;
