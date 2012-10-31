@@ -1,7 +1,11 @@
 # Binaries.
 
 bin_PROGRAMS = cryptogram_main jpeg_benchmark generate_aesthete_matrices \
-			         read_aesthete_matrices
+			         read_aesthete_matrices aesthete_thread_runner
+
+aesthete_thread_runner_SOURCES = aesthete_thread_runner.cc
+aesthete_thread_runner_CPPFLAGS = -Wall
+aesthete_thread_runner_LDADD = libaesthete.a libaesthete_thread.a -lpthread 
 
 cryptogram_main_SOURCES = main.cc discretizations.h experiment.h util.h
 cryptogram_main_CPPFLAGS = -Wall
@@ -24,10 +28,13 @@ SUBDIRS = cryptopp base reed_solomon
 
 noinst_LIBRARIES = libjpeg_delta.a libjpeg_codec.a libCoder.a libmodp_b64.a
 noinst_LIBRARIES += libbase64.a libstring_piece.a libSjclCryptoBridge.a
-noinst_LIBRARIES += libcrypto.a libutils.a libaesthete.a
+noinst_LIBRARIES += libcrypto.a libutils.a libaesthete.a libaesthete_thread.a
 
 libaesthete_a_SOURCES = aesthete.cc aesthete.h
 libaesthete_a_CPPFLAGS = -Wall
+
+libaesthete_thread_a_SOURCES = aesthete_thread.cc aesthete_thread.h
+libaesthete_thread_a_CPPFLAGS = -Wall
 
 libjpeg_delta_a_SOURCES = jpeg_delta.cc jpeg_delta.h basictypes.h
 libjpeg_delta_a_CPPFLAGS = -Wall
