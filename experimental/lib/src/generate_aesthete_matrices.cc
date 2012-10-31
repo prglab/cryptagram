@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
     cryptogram::MatrixRepresentation mr;
     vector<int> discretizations;
     for (int j = 0; j < 16; j++) {
-      discretizations.push_back(rand() % 8);
+      discretizations.push_back(j % 8);
     }
     mr.InitFromInts(discretizations);
     cout << mr.ToString();

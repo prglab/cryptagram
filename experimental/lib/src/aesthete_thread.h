@@ -1,25 +1,28 @@
 // Copyright 2012. The Cryptogram Authors. BSD-Style License.
 // Author: tierney@cs.nyu.edu (Matt Tierney)
 
-#include <pthread>
+#include <pthread.h>
+
+#include <iostream>
+
+namespace cryptogram {
 
 class AestheteRunner {
  public:
-  AestheteRunner(int i) : i_(i) {}
+  AestheteRunner(int i);
 
-  virtual ~AestheteRunner() {}
+  virtual ~AestheteRunner();
 
-  void Start() {
-    CHECK_EQ(pthread_create(&thread_, NULL, &AestheteRunner::Run, this), 0);
+  void Start();
+
+  void Wait();
+
+  static void *Run(void* context) {
+    printf("Work %d\n", ((AestheteRunner*)context)->get_i());
+    return NULL;
   }
 
-  void Wait() {
-    pthread_join
-  }
-
-  void Run() {
-    printf("Work %d\n", i_);
-  }
+  int get_i() { return i_; }
 
  private:
   int i_;
@@ -28,3 +31,5 @@ class AestheteRunner {
   AestheteRunner(const AestheteRunner&);                           \
   void operator=(const AestheteRunner&);
 };
+
+} // namespace cryptogram

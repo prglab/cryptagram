@@ -26,10 +26,10 @@ int main(int argc, char** argv) {
     mr.InitFromString(matrix);
     mr.ToInts(&ints);
 
-    // std::cout << j << " : ";
+    std::cout << j << " : ";
     for (int i = 0; i < 16; i++) {
-      // std::cout << ints[i] << " ";
+      std::cout << ints[i] << " ";
     }
-    // std::cout << std::endl;
+    std::cout << std::endl;
   }
 }
