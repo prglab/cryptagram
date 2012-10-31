@@ -1,3 +1,6 @@
+// Copyright 2012. The Cryptogram Authors. BSD-Style License.
+// Author: tierney@cs.nyu.edu (Matt Tierney)
+
 #include "aesthete_thread.h"
 
 int main(int argc, char** argv) {
