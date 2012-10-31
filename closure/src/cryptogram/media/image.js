@@ -9,9 +9,7 @@ goog.require('goog.debug.Logger');
  * @constructor
  * @extends {cryptogram.media}
  */
-cryptogram.media.image = function(URL) {
-  this.URL = URL;
-};
+cryptogram.media.image = function() {};
 goog.inherits(cryptogram.media.image, cryptogram.media);
 
 cryptogram.media.image.prototype.logger = goog.debug.Logger.getLogger('cryptogram.media.image');
@@ -25,9 +23,9 @@ cryptogram.media.image.prototype.name = function() {
 
 
 /** @inheritDoc */
-cryptogram.media.image.prototype.matchesURL = function() {
+cryptogram.media.image.prototype.matchesURL = function(URL) {
   var regex=new RegExp(/jpg$/i);
-  return regex.test(this.URL);
+  return regex.test(URL);
 };
 
 
@@ -57,8 +55,7 @@ cryptogram.media.image.prototype.setContainerSrc = function(container, src) {
 
 /** @inheritDoc */
 cryptogram.media.image.prototype.loadContainer = function(URL) {
-  var images = this.getImages();
-  var container = new cryptogram.container(images[0]);
+  var container =  cryptogram.media.loadContainer.call(this, URL);
   container.singleImageMode();
   return container;
 };

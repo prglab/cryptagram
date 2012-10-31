@@ -4,8 +4,8 @@ goog.provide('cryptogram.media');
 /**
  * @constructor
  */
-cryptogram.media = function(URL) {
-  this.URL = URL;
+cryptogram.media = function() {
+  this.containers = {};
 };
 
 cryptogram.media.prototype.name = goog.abstractMethod;
@@ -22,8 +22,13 @@ cryptogram.media.prototype.getImages = goog.abstractMethod;
 
 
 cryptogram.media.prototype.loadContainer = function(URL) {
+  if (this.containers[URL]) {
+    return this.containers[URL];
+  }
   var images = this.getImages(URL);
-  return new cryptogram.container(images[0]);
+  var container = new cryptogram.container(images[0]);
+  this.containers[URL] = container;
+  return container;
 };
 
 

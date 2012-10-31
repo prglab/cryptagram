@@ -1,5 +1,7 @@
 goog.provide('cryptogram.demo');
 
+goog.require('goog.debug.Console');
+goog.require('goog.debug.Logger');
 goog.require('goog.dom');
 goog.require('goog.events.FileDropHandler');
 goog.require('goog.events.EventType');
@@ -16,13 +18,16 @@ goog.require('cryptogram.loader');
  */
 cryptogram.demo = function() {
 
-    document.body.innerHTML += cryptogram.templates.demo();
+  document.body.innerHTML += cryptogram.templates.demo();
         
-    goog.events.listen(goog.dom.getElement('encrypt_link'),
-                       goog.events.EventType.CLICK, this.showEncrypt, false, this);
+  goog.events.listen(goog.dom.getElement('encrypt_link'),
+                     goog.events.EventType.CLICK, this.showEncrypt, false, this);
     
-    goog.events.listen(goog.dom.getElement('decrypt_link'),
-                       goog.events.EventType.CLICK, this.showDecrypt, false, this);
+  goog.events.listen(goog.dom.getElement('decrypt_link'),
+                     goog.events.EventType.CLICK, this.showDecrypt, false, this);
+
+  var logconsole = new goog.debug.Console();
+  logconsole.setCapturing(true);
 };
 
 

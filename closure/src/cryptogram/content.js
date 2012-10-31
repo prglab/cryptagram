@@ -3,9 +3,10 @@ goog.provide('cryptogram.content');
 goog.require('cryptogram.container');
 goog.require('cryptogram.decoder');
 goog.require('cryptogram.loader');
-goog.require('cryptogram.media.image');
 goog.require('cryptogram.media.facebook');
 goog.require('cryptogram.media.googleplus');
+goog.require('cryptogram.media.image');
+goog.require('cryptogram.media.web');
 goog.require('cryptogram.storage');
 
 goog.require('goog.debug.Console');
@@ -30,17 +31,19 @@ cryptogram.content = function() {
   var URL = new goog.Uri(window.location);
   var knownMedia = [cryptogram.media.facebook,
                     cryptogram.media.googleplus,
-                    cryptogram.media.image];
+                    cryptogram.media.image,
+                    cryptogram.media.web];
   var testMedia;
   for (var i = 0; i < knownMedia.length; i++) {
-    testMedia = new knownMedia[i](URL);
-    if (testMedia.matchesURL()) {
+    testMedia = new knownMedia[i]();
+    if (testMedia.matchesURL(URL)) {
       this.media = testMedia;
       break;
     }
   }
   
   this.logger.info('Found media: ' + this.media.name());
+  this.containers = {};
   this.loaders = [];
   this.lastAutoDecrypt = '';
   this.storage = new cryptogram.storage(this.media);
@@ -80,8 +83,15 @@ cryptogram.content.prototype.handleRequest = function(request, sender, callback)
 
   if (request['decryptURL']) {
     var URL = request['decryptURL'];
+        
+    
     if (URL.search('data:') == 0) {
-      this.container.revertSrc();
+      var container = this.containers[URL];
+      if (container) {
+        container.revertSrc();
+        this.logger.info("Reverted to " + container.img.src);
+        this.containers[URL] = null;
+      }
       return;
     }
   
@@ -132,6 +142,7 @@ cryptogram.content.prototype.decryptImage = function(image, password, queue) {
       var decoder = new cryptogram.decoder(container);
       decoder.decodeData(data, password, function(result) {
         if (result) {
+          self.containers[result] = container;
           self.media.setContainerSrc(container, result);
         }
       });
@@ -155,6 +166,7 @@ cryptogram.content.prototype.decryptByURL = function(URL, password) {
     var decoder = new cryptogram.decoder(container);
     decoder.decodeData(data, password, function(result) {
       if (result) {
+        self.containers[result] = container;
         self.media.setContainerSrc(container, result);
         var photoName = self.media.getPhotoName(URL);
         var albumName = self.media.getAlbumName(URL);
