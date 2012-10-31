@@ -10,8 +10,8 @@ goog.require('goog.debug.Logger');
  * @constructor
  * @extends {cryptogram.media.social}
  */
-cryptogram.media.facebook = function(URL) {
-  cryptogram.media.social.call(this, URL);
+cryptogram.media.facebook = function() {
+  cryptogram.media.social.call(this);
 };
 goog.inherits(cryptogram.media.facebook, cryptogram.media.social);
 
@@ -37,9 +37,9 @@ cryptogram.media.facebook.prototype.name = function() {
 
 
 /** @inheritDoc */
-cryptogram.media.facebook.prototype.matchesURL = function() {
+cryptogram.media.facebook.prototype.matchesURL = function(URL) {
   var regex=new RegExp(/^https?:\/\/www.facebook.com/);
-  return regex.test(this.URL);
+  return regex.test(URL);
 }
 
 

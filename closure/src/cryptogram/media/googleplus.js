@@ -6,17 +6,17 @@ goog.require('cryptogram.media.social');
  * @constructor
  * @extends {cryptogram.media.social}
  */
-cryptogram.media.googleplus = function(URL) {
-  cryptogram.media.social.call(this, URL);
+cryptogram.media.googleplus = function() {
+  cryptogram.media.social.call(this);
 };
 
 goog.inherits(cryptogram.media.googleplus, cryptogram.media.social);
 
 
 /** @inheritDoc */
-cryptogram.media.googleplus.prototype.matchesURL = function() {
+cryptogram.media.googleplus.prototype.matchesURL = function(URL) {
   var regex=new RegExp(/^http:\/\/plus.google.com/);
-  return regex.test(this.URL);
+  return regex.test(URL);
 }
 
 

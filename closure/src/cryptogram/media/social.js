@@ -9,8 +9,8 @@ goog.require('cryptogram.media');
 /**
  * @constructor
  */
-cryptogram.media.social = function(URL) {
-  this.URL = URL;
+cryptogram.media.social = function() {
+  cryptogram.media.call(this);
 };
 
 goog.inherits(cryptogram.media.social, cryptogram.media);
