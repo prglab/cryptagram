@@ -7,7 +7,7 @@
 #include <pthread.h>
 
 #include "aesthete.h"
-#include "threadsafe_queue.h"
+#include "queue.h"
 #include "types.h"
 
 typedef vector<bitset<48> > MatrixQueueEntry;
@@ -41,7 +41,7 @@ class AestheteRunner {
 // into a queue that will be accessible to multiple processing threads.
 class AestheteReader {
  public:
-  AestheteReader(int i, MatrixQueue* queue);
+  AestheteReader(const string& filename, int i, MatrixQueue* queue);
   virtual ~AestheteReader();
 
   void Start();
@@ -50,6 +50,7 @@ class AestheteReader {
   MatrixQueue* queue() { return queue_; }
   
  private:
+  string filename_;
   int i_;
   pthread_t thread_;
   MatrixQueue* queue_;
