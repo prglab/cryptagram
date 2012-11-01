@@ -1,12 +1,14 @@
 // Copyright 2012. The Cryptogram Authors. BSD-Style License.
 // Author: tierney@cs.nyu.edu (Matt Tierney)
 
+#ifndef _AESTHETE_THREAD_H_
+#define _AESTHETE_THREAD_H_
+
 #include <bitset>
 #include <fstream>
 #include <iostream>
 #include <pthread.h>
 
-#include "aesthete.h"
 #include "queue.h"
 #include "types.h"
 
@@ -60,3 +62,5 @@ class AestheteReader {
 };
 
 } // namespace cryptogram
+
+#endif  // _AESTHETE_THREAD_H_

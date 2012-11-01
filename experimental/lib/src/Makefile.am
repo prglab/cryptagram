@@ -4,27 +4,29 @@ bin_PROGRAMS = cryptogram_main jpeg_benchmark generate_aesthete_matrices \
 			         read_aesthete_matrices aesthete_thread_runner queue_main
 
 queue_main_SOURCES = queue_main.cc queue.h
-aesthete_thread_runner_LDADD = -lpthread
+queue_main_LDADD = -lpthread
 
 aesthete_thread_runner_SOURCES = aesthete_thread_runner.cc
 aesthete_thread_runner_CPPFLAGS = -Wall
 aesthete_thread_runner_LDADD = libaesthete.a libaesthete_thread.a -lpthread 
 
-cryptogram_main_SOURCES = main.cc discretizations.h experiment.h util.h
+cryptogram_main_SOURCES = main.cc discretizations.h util.h
 cryptogram_main_CPPFLAGS = -Wall
 cryptogram_main_LDADD = libjpeg_delta.a libjpeg_codec.a libcrypto.a libutils.a \
 											  cryptopp/libcryptopp.a -lglog -ljpeg -lboost_system-mt \
 												libbase64.a libmodp_b64.a libstring_piece.a
 
 jpeg_benchmark_SOURCES = jpeg_benchmark.cc
-jpeg_benchmark_LDADD = libjpeg_codec.a -lboost_system -lboost_thread -lgflags
+jpeg_benchmark_LDADD = libaesthete.a libjpeg_codec.a -lboost_system \
+  -lboost_thread -lgflags
 
 generate_aesthete_matrices_SOURCES = generate_aesthete_matrices.cc
 generate_aesthete_matrices_LDADD = libaesthete.a -lgflags
 
 read_aesthete_matrices_SOURCES = read_aesthete_matrices.cc
-read_aesthete_matrices_LDADD = libaesthete.a libaesthete_thread.a -lpthread \
-	  													 -lgflags
+read_aesthete_matrices_CPPFLAGS = -std=c++11
+read_aesthete_matrices_LDADD = libjpeg_codec.a libaesthete.a libexperiment.a \
+  libaesthete_thread.a libarray.a  -lpthread -lgflags -lglog
 
 SUBDIRS = cryptopp base reed_solomon
 
@@ -33,6 +35,13 @@ SUBDIRS = cryptopp base reed_solomon
 noinst_LIBRARIES = libjpeg_delta.a libjpeg_codec.a libCoder.a libmodp_b64.a
 noinst_LIBRARIES += libbase64.a libstring_piece.a libSjclCryptoBridge.a
 noinst_LIBRARIES += libcrypto.a libutils.a libaesthete.a libaesthete_thread.a
+noinst_LIBRARIES += libexperiment.a libarray.a
+
+libarray_a_SOURCES = array.cc array.h
+libarray_a_CPPFLAGS = -Wall
+
+libexperiment_a_SOURCES = experiment.cc experiment.h
+libexperiment_a_CPPFLAGS = -Wall
 
 libaesthete_a_SOURCES = aesthete.cc aesthete.h
 libaesthete_a_CPPFLAGS = -Wall

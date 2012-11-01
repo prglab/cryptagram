@@ -16,8 +16,10 @@
 #include <vector>
 #include <sstream>
 
+#include "boost/numeric/ublas/matrix.hpp"
 #include "glog/logging.h"
 
+using boost::numeric::ublas::matrix;
 using std::cout;
 using std::endl;
 using std::string;
@@ -26,6 +28,9 @@ using std::bitset;
 using std::vector;
 
 namespace cryptogram {
+
+void AverageAestheteBlocks(const matrix<unsigned char>& input,
+                           matrix<double>* output);
 
 template<size_t N>
 vector<unsigned char> bitset_to_bytes(const std::bitset<N>& bs)
@@ -62,7 +67,6 @@ class MatrixRepresentation {
  public:
   MatrixRepresentation();
   explicit MatrixRepresentation(bitset<48> bits);
-  
   virtual ~MatrixRepresentation();
 
   void InitFromString(const char* input);
@@ -78,11 +82,12 @@ class MatrixRepresentation {
   
   string ToString();
   void ToInts(vector<int>* output);
+
   
  private:
   CompactMatrix matrix_;
 
-  MatrixRepresentation(const MatrixRepresentation&);                           \
+  MatrixRepresentation(const MatrixRepresentation&);
   void operator=(const MatrixRepresentation&);
 };
 
