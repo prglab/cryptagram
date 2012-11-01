@@ -1,7 +1,10 @@
 # Binaries.
 
 bin_PROGRAMS = cryptogram_main jpeg_benchmark generate_aesthete_matrices \
-			         read_aesthete_matrices aesthete_thread_runner
+			         read_aesthete_matrices aesthete_thread_runner queue_main
+
+queue_main_SOURCES = queue_main.cc queue.h
+aesthete_thread_runner_LDADD = -lpthread
 
 aesthete_thread_runner_SOURCES = aesthete_thread_runner.cc
 aesthete_thread_runner_CPPFLAGS = -Wall
