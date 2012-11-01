@@ -57,9 +57,10 @@ class ThreadsafeQueue {
     int result = 0;
     int64 nextnextin;
 
-    if (!obj)
+    if (!obj) {
       return 0;
-
+    }
+    
     pthread_mutex_lock(&q_mutex_);
     nextnextin = (nextin_ + 1) % q_size_;
 

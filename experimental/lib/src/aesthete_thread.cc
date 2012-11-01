@@ -1,6 +1,9 @@
 #include "aesthete_thread.h"
 
 #include "glog/logging.h"
+#include "google/gflags.h"
+
+DEFINE_int32(chunk_size, 1000, "Chunk size.");
 
 namespace cryptogram {
 
@@ -26,11 +29,11 @@ void* AestheteRunner::Run(void* context) {
   AestheteRunner* self = static_cast<AestheteRunner*>(context);
 
   MatrixQueueEntry queue_entry;
-  fstream f_stream;
   
   ostringstream f_str_stream;
   f_str_stream << "out_" << self->i_ << ".txt";
-  f_stream.open(f_str_stream.str(), ios::out);
+  ofstream f_stream(f_str_stream.str().c_str(), ofstream::binary);
+  
   while(true) {
     int ret = self->queue()->PopRandom(&queue_entry);
     if (ret <= 0) {
@@ -40,13 +43,13 @@ void* AestheteRunner::Run(void* context) {
       sleep(1);
       continue;
     }
-
     for (int i = 0; i < queue_entry.size(); i++) {
       MatrixRepresentation mr(queue_entry[i]);
 
-      vector<int> matrix_entries;
-      mr.ToInts(&matrix_entries);
-      f_stream
+      // vector<int> matrix_entries;
+      // mr.ToInts(&matrix_entries);
+
+      f_stream << mr.ToString() << '\n';
     }
   }
   return NULL;
@@ -58,8 +61,10 @@ void AestheteRunner::Done() {
 
 // AestheteReader Implementation.
 
-AestheteReader::AestheteReader(int i, MatrixQueue* queue)
-    : i_(i), queue_(queue) {
+AestheteReader::AestheteReader(const string& filename,
+                               int i,
+                               MatrixQueue* queue)
+    : filename_(filename), i_(i), queue_(queue) {
   CHECK_NOTNULL(queue);
 }
 
@@ -75,26 +80,32 @@ void AestheteReader::Join() {
 }
 
 void* AestheteReader::Run(void* context) {
+  AestheteReader* self = static_cast<AestheteReader*>(context);
+  
   // Read six bytes at a time.
   std::filebuf in_file;
-  in_file.open("test", std::ios::in);
+  in_file.open(self->filename_.c_str(), std::ios::in);
   
   cryptogram::MatrixRepresentation mr;
   char matrix[7];
   vector<int> ints;
 
   vector<bitset<48> >* matrices = new vector<bitset<48> >();
-  matrices->reserve(1000);
+  matrices->reserve(FLAGS_chunk_size);
   int matrix_count = 0;
-  for (int j = 0; j < 10000000; j++) {
+  while (true) {
     // Run it through the cryptogram::MatrixRepresentation to get the
     // discretizations.
     bzero(matrix, 7);
-    in_file.sgetn(matrix, 6);
+    streamsize ssize = in_file.sgetn(matrix, 6);
+    if (ssize <= 0) {
+      LOG(ERROR) << "Done reading";
+      break;
+    }
 
     bitset<48> bits;
     cryptogram::MatrixRepresentation::BitsetFromBytes(matrix, &bits);
-    if (matrix_count >= 1000) {
+    if (matrix_count >= FLAGS_chunk_size) {
       static_cast<AestheteReader*>(context)->queue()->Push(matrices);
       matrices = new vector<bitset<48> >();
       matrix_count = 0;
