@@ -11,7 +11,7 @@
 #include "types.h"
 
 typedef vector<bitset<48> > MatrixQueueEntry;
-typedef ThreadsafeQueue<MatrixQueueEntry> MatrixQueue;
+typedef Queue<MatrixQueueEntry> MatrixQueue;
 
 namespace cryptogram {
 
@@ -28,6 +28,7 @@ class AestheteRunner {
   
   MatrixQueue* queue() { return queue_; }
   int get_i() { return i_; }
+
  private:
   int i_;
   bool done_;

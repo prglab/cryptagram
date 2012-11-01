@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, false);
       
-  ThreadsafeQueue<int> queue(1 << 20);
+  MatrixQueue queue(0);
 
   cryptogram::AestheteReader reader(FLAGS_input_file, 0, &queue);
   reader.Start();
@@ -32,12 +32,15 @@ int main(int argc, char** argv) {
   for (int i = 0; i < FLAGS_threads; i++) {
     runners[i]->Start();
   }
-  
+
+  LOG(ERROR) << "Joining the queue.";
+  queue.join();
+
   reader.Join();
 
-  // for (int i = 0; i < FLAGS_threads; i++) {
-  //   runners[i]->Done();
-  // }
+  for (int i = 0; i < FLAGS_threads; i++) {
+    runners[i]->Done();
+  }
   for (int i = 0; i < FLAGS_threads; i++) {
     runners[i]->Join();
   }
