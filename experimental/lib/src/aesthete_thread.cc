@@ -27,30 +27,26 @@ void AestheteRunner::Join() {
 
 void* AestheteRunner::Run(void* context) {
   AestheteRunner* self = static_cast<AestheteRunner*>(context);
-
-  MatrixQueueEntry queue_entry;
   
   ostringstream f_str_stream;
   f_str_stream << "out_" << self->i_ << ".txt";
   ofstream f_stream(f_str_stream.str().c_str(), ofstream::binary);
   
-  while(true) {
-    int ret = self->queue()->PopRandom(&queue_entry);
-    if (ret <= 0) {
-      if (self->done_) {
-        break;
-      }
-      sleep(1);
+  while(!self->done_) {
+    MatrixQueueEntry* queue_entry = new MatrixQueueEntry();
+    if (!self->queue()->get(false, 5, queue_entry)) {
       continue;
     }
-    for (int i = 0; i < queue_entry.size(); i++) {
-      MatrixRepresentation mr(queue_entry[i]);
+    for (int i = 0; i < queue_entry->size(); i++) {
+      MatrixRepresentation mr((*queue_entry)[i]);
 
       // vector<int> matrix_entries;
       // mr.ToInts(&matrix_entries);
 
       f_stream << mr.ToString() << '\n';
     }
+    delete queue_entry;
+    self->queue()->task_done();
   }
   return NULL;
 }
@@ -90,8 +86,8 @@ void* AestheteReader::Run(void* context) {
   char matrix[7];
   vector<int> ints;
 
-  vector<bitset<48> >* matrices = new vector<bitset<48> >();
-  matrices->reserve(FLAGS_chunk_size);
+  vector<bitset<48> > matrices;
+  matrices.reserve(FLAGS_chunk_size);
   int matrix_count = 0;
   while (true) {
     // Run it through the cryptogram::MatrixRepresentation to get the
@@ -99,18 +95,20 @@ void* AestheteReader::Run(void* context) {
     bzero(matrix, 7);
     streamsize ssize = in_file.sgetn(matrix, 6);
     if (ssize <= 0) {
-      LOG(ERROR) << "Done reading";
+      if (matrices.size() > 0) {
+        static_cast<AestheteReader*>(context)->queue()->put(matrices);
+      }
       break;
     }
 
     bitset<48> bits;
     cryptogram::MatrixRepresentation::BitsetFromBytes(matrix, &bits);
     if (matrix_count >= FLAGS_chunk_size) {
-      static_cast<AestheteReader*>(context)->queue()->Push(matrices);
-      matrices = new vector<bitset<48> >();
+      static_cast<AestheteReader*>(context)->queue()->put(matrices);
+      matrices.clear();
       matrix_count = 0;
     } else {
-      matrices->push_back(bits);
+      matrices.push_back(bits);
       matrix_count++;
     }
   }
