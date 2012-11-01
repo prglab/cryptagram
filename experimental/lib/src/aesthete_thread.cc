@@ -1,7 +1,11 @@
 #include "aesthete_thread.h"
 
+#include "aesthete.h"
+#include "array.h"
+#include "experiment.h"
 #include "glog/logging.h"
 #include "google/gflags.h"
+#include "jpeg_codec.h"
 
 DEFINE_int32(chunk_size, 1000, "Chunk size.");
 
@@ -31,21 +35,31 @@ void* AestheteRunner::Run(void* context) {
   ostringstream f_str_stream;
   f_str_stream << "out_" << self->i_ << ".txt";
   ofstream f_stream(f_str_stream.str().c_str(), ofstream::binary);
+
+  // Generate images.
+  std::vector<int> values;
+  values.push_back(240);
+  values.push_back(208);
+  values.push_back(176);
+  values.push_back(144);
+  values.push_back(112);
+  values.push_back(80);
+  values.push_back(48);
+  values.push_back(16);
+
+  Experiment experiment(values);
   
   while(!self->done_) {
-    MatrixQueueEntry* queue_entry = new MatrixQueueEntry();
-    if (!self->queue()->get(false, 5, queue_entry)) {
+    MatrixQueueEntry queue_entry;
+    if (!self->queue()->get(false, 5, &queue_entry)) {
       continue;
     }
-    for (int i = 0; i < queue_entry->size(); i++) {
-      MatrixRepresentation mr((*queue_entry)[i]);
-
-      // vector<int> matrix_entries;
-      // mr.ToInts(&matrix_entries);
-
-      f_stream << mr.ToString() << '\n';
+    for (int i = 0; i < queue_entry.size(); i++) {
+      MatrixRepresentation mr(queue_entry[i]);
+      vector<int> matrix_entries;
+      mr.ToInts(&matrix_entries);
+      experiment.Run(matrix_entries, &f_stream);
     }
-    delete queue_entry;
     self->queue()->task_done();
   }
   return NULL;
@@ -96,7 +110,7 @@ void* AestheteReader::Run(void* context) {
     streamsize ssize = in_file.sgetn(matrix, 6);
     if (ssize <= 0) {
       if (matrices.size() > 0) {
-        static_cast<AestheteReader*>(context)->queue()->put(matrices);
+        static_cast<AestheteReader*>(context)->queue()->put(matrices, true, 0);
       }
       break;
     }
@@ -104,7 +118,7 @@ void* AestheteReader::Run(void* context) {
     bitset<48> bits;
     cryptogram::MatrixRepresentation::BitsetFromBytes(matrix, &bits);
     if (matrix_count >= FLAGS_chunk_size) {
-      static_cast<AestheteReader*>(context)->queue()->put(matrices);
+      static_cast<AestheteReader*>(context)->queue()->put(matrices, true, 0);
       matrices.clear();
       matrix_count = 0;
     } else {

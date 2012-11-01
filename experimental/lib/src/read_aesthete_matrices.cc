@@ -11,8 +11,6 @@
 #include "google/gflags.h"
 #include "queue.h"
 
-const int kQueueChunkSize = 1000;
-
 DEFINE_int32(threads, 1, "Number of threads.");
 DEFINE_string(input_file, "matrices.txt", "Input file for matrices.");
 

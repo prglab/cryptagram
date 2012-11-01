@@ -11,6 +11,18 @@
 
 namespace cryptogram {
 
+void AverageAestheteBlocks(const matrix<unsigned char>& input,
+                           matrix<double>* output) {
+  CHECK_NOTNULL(output);
+  for (int i = 0; i < 8; i += 2) {
+    for (int j = 0; j < 8; j += 2) {
+      float temp = (input(i,j) + input(i+1,j) + input(i,j+1) +
+                    input(i+1,j+1)) / 4.;
+      (*output)(i/2,j/2) = temp;
+    }
+  }
+}
+
 MatrixRepresentation::MatrixRepresentation() {
 }
 

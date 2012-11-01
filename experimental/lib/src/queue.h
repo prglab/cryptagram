@@ -7,12 +7,18 @@
 #include <ctime>
 #include <deque>
 #include <pthread.h>
+#include <sys/time.h>
 
 #include "glog/logging.h"
 
-// It is suggested that you store pointers in this container and do not expect
-// the memory to be managed by the Queue class itself. This means that memory
-// must be managed by the caller.
+// This Queue class follows the concurrency patterns and API of the python Queue
+// collection. The user may specify a maximum size for the internal queue
+// storage.
+// 
+// This class currently contains a hard-coded underlying storage 
+// container, the std::deque.
+//
+// This class is thread-safe.
 template<typename T>
 class Queue {
  public:
@@ -68,21 +74,61 @@ class Queue {
     return ret;
   }
 
-  void put(const T& item) {
+  bool put(const T& item, bool block, time_t timeout) {
     CHECK_EQ(pthread_mutex_lock(&mutex_), 0);
-    // TODO(tierney): Check for maxsize usage.
+    if (maxsize_ > 0) {
+      if (!block) {
+        if (queue_.size() == maxsize_) {
+          LOG(ERROR) << "Queue is full.";
+          CHECK_EQ(pthread_mutex_unlock(&mutex_), 0);
+          return false;
+        } else if (timeout == 0) {
+          while (queue_.size() == maxsize_) {
+            pthread_cond_wait(&not_full_, &mutex_);
+          }
+        } else if (timeout < 0) {
+          CHECK_EQ(pthread_mutex_unlock(&mutex_), 0);
+          LOG(FATAL) << "'timeout' must be a positive number";
+        } else {
+          time_t endtime = time(NULL) + timeout;
+          while (queue_.size() == maxsize_) {
+            time_t remaining = endtime - time(NULL);
+            if (remaining <= 0.0) {
+              CHECK_EQ(pthread_mutex_unlock(&mutex_), 0);
+              return false;
+            }
+
+            // Following example from 'man pthread_cond_timedwait' to figure out
+            // what is the remaining time to call a pthread conditional variable
+            // timed wait.
+            struct timeval tv;
+            struct timespec ts;
+            gettimeofday(&tv, NULL);
+            ts.tv_sec = tv.tv_sec + remaining;
+            ts.tv_nsec = 0;
+            
+            pthread_cond_timedwait(&not_full_, &mutex_, &ts);
+          }
+        }
+
+      }
+    }
     _put(item);
     unfinished_tasks_++;
     pthread_cond_signal(&not_empty_);
     CHECK_EQ(pthread_mutex_unlock(&mutex_), 0);
+    return true;
   }
 
+  bool put_nowait(const T& item) {
+    return put(item, false, 0);
+  }
+  
   // @timeout == 0 means that no timeout is used.
   bool get(bool block, time_t timeout, T* output) {
     CHECK_NOTNULL(output);
 
     CHECK_EQ(pthread_mutex_lock(&mutex_), 0);
-    // TODO(tierney): Check for maxsize usage.
     if (!block) {
       if (0 == queue_.size()) {
         CHECK_EQ(pthread_mutex_unlock(&mutex_), 0);
@@ -113,6 +159,11 @@ class Queue {
     return true;
   }
 
+  bool get_nowait(T* output) {
+    CHECK_NOTNULL(output);
+    return get(false, 0, output);
+  }
+  
  private:
   void _put(const T& item) {
     queue_.push_back(item);
@@ -133,6 +184,10 @@ class Queue {
   int maxsize_;
 
   std::deque<T> queue_;
+
+  // DISALLOW_COPY_AND_ASSIGN(Queue);
+  Queue(const Queue&);
+  void operator=(const Queue&);
 };
 
 #endif  // _QUEUE_H_
