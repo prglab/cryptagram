@@ -49,7 +49,6 @@ int main(int argc, char** argv) {
     }
     mr.InitFromInts(discretizations);
     f_stream << mr.ToString();
-    f_stream.flush();
   }
   return 0;
 }
