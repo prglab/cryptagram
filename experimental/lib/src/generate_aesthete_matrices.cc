@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
   srand(0);
   ofstream f_stream(FLAGS_output_file.c_str(), ofstream::binary|ofstream::app);
   for (int i = 0; i < FLAGS_num_matrices; i++) {
-    if (progress_bar) {
+    if (FLAGS_progress_bar) {
       printProgBar(static_cast<int>(i / static_cast<float>(FLAGS_num_matrices) *
                                     100));
     }
