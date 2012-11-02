@@ -35,8 +35,9 @@ int main(int argc, char** argv) {
   google::ParseCommandLineFlags(&argc, &argv, false);
 
   srand(0);
-  ofstream f_stream(FLAGS_output_file.c_str(), ofstream::binary|ofstream::app);
+  ofstream f_stream(FLAGS_output_file.c_str(), ofstream::binary);
   std::string to_write;
+
   for (int i = 0; i < FLAGS_num_matrices; i++) {
     if (FLAGS_progress_bar) {
       printProgBar(static_cast<int>(i / static_cast<float>(FLAGS_num_matrices) *
@@ -46,16 +47,18 @@ int main(int argc, char** argv) {
     cryptogram::MatrixRepresentation mr;
     vector<int> discretizations;
     for (int j = 0; j < 16; j++) {
-      discretizations.push_back(rand() % 8); // rand() or j.
+      discretizations.push_back(j % 8); // rand() or j.
     }
     mr.InitFromInts(discretizations);
-    to_write.append(mr.ToString());
+    to_write.append(mr.ToString(), 0, 6);
+
     // LCM 1024 and 6 is 3072. 3072 / 6 = 512. Multiples of 512.
-    if (i % 512 == 0) {
-      f_stream.write(to_write.c_str(), to_write.size());
+    if ((i+1) % 512 == 0) {
+      f_stream.write(to_write.c_str(), 512 * 6);
       to_write.clear();
     }
   }
+
   if (to_write.size() > 0) {
     f_stream.write(to_write.c_str(), to_write.size());
   }
