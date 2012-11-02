@@ -4,6 +4,7 @@
 AC_PREREQ([2.68])
 AC_INIT([Cryptogram], [1.0], [tierney@cs.nyu.edu])
 AM_INIT_AUTOMAKE
+AM_SILENT_RULES([no])
 AC_CONFIG_SRCDIR([src/main.cc])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
