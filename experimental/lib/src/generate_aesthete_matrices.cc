@@ -16,8 +16,7 @@ int main(int argc, char** argv) {
   google::ParseCommandLineFlags(&argc, &argv, false);
 
   srand(0);
-
-  ofstream f_stream(FLAGS_output_file.c_str(), ofstream::binary);
+  ofstream f_stream(FLAGS_output_file.c_str(), ofstream::binary|ofstream::app);
   for (int i = 0; i < FLAGS_num_matrices; i++) {
     cryptogram::MatrixRepresentation mr;
     vector<int> discretizations;
