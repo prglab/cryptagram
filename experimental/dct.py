@@ -246,7 +246,7 @@ def main(argv):
       print >>fh, '%d ' * 64 % tuple(random_matrices[i].flatten())
 
   experiments = []
-  for quality in range(64, 97, 2):
+  for quality in range(68, 80, 4):
     experiments.append(Experiment(quality, random_matrices))
 
   print "Starting experiments."
@@ -270,13 +270,28 @@ def AverageAestheteBlocksFlat(matrix):
       ret[i/2,j/2] += temp
   return ret
 
-def AverageAestheteBlocks(matrix):
+def AverageAestheteBlocks(matrix,channel):
   ret = numpy.zeros((4,4))
   for i in range(0, 8, 2):
     for j in range(0, 8, 2):
-      temp = (matrix[i,j][0] + matrix[i+1,j][0] + matrix[i,j+1][0] +
-              matrix[i+1,j+1][0]) / 4.
+      # Channel: 0=red, 1=green, 2=blue
+      temp = (matrix[i,j][channel] + matrix[i+1,j][channel] + matrix[i,j+1][channel] +
+              matrix[i+1,j+1][channel]) / 4.
       ret[i/2,j/2] += temp
+  return ret
+
+def AverageAestheteBlocksLuminance(matrix):
+  ret = numpy.zeros((4,4))
+  for i in range(0, 8, 2):
+    for j in range(0, 8, 2):
+      r = (matrix[i,j][0] + matrix[i+1,j][0] + matrix[i,j+1][0] +
+              matrix[i+1,j+1][0]) / 4.
+      g = (matrix[i,j][1] + matrix[i+1,j][1] + matrix[i,j+1][1] +
+              matrix[i+1,j+1][1]) / 4.
+      b = (matrix[i,j][2] + matrix[i+1,j][2] + matrix[i,j+1][2] +
+              matrix[i+1,j+1][2]) / 4.
+      lum = (0.299 * r) + (0.587 * g) + (0.114 * b)
+      ret[i/2,j/2] += lum
   return ret
 
 class Experiment(threading.Thread):
@@ -297,7 +312,14 @@ class Experiment(threading.Thread):
         for j in range(8):
           for k in range(8):
             lum = self.random_matrices[i][j,k]
-            pixel[j,k] = tuple(map(int, [lum, lum, lum]))
+
+            tint = 20
+            r = lum + tint
+            g = lum
+            b = lum
+            #b = lum - tint * (0.299 / 0.114)
+
+            pixel[j,k] = tuple(map(int, [r, g, b]))
 
         import cStringIO
         new_file = cStringIO.StringIO()
@@ -306,7 +328,8 @@ class Experiment(threading.Thread):
         decompressed = Image.open(new_file)
 
         decompressed_pixel = decompressed.load()
-        decompressed_averaged_ = AverageAestheteBlocks(decompressed_pixel)
+        # decompressed_averaged_ = AverageAestheteBlocksLuminance(decompressed_pixel)
+        decompressed_averaged_ = AverageAestheteBlocks(decompressed_pixel, 1)
 
         # jpeg = JpegCompress(self.random_matrices[i], quant_table)
         # decompressed = JpegDecompress(jpeg, quant_table)
