@@ -57,7 +57,11 @@ Make sure you link to google's logging library.
 ]))
 
 AC_CHECK_LIB([jpeg], [jpeg_finish_compress], ,
-  AC_MSG_ERROR([Missing jpeg library.]))
+  AC_MSG_WARN([
+
+Make sure you link to libjpeg.
+
+]))
 
 dnl AC_CHECK_LIB([gtest], [_ZN7testing14InitGoogleTestEPiPPc], ,
 dnl   AC_MSG_WARN([
