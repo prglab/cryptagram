@@ -13,12 +13,12 @@
   margin-right: 20px;
 }
 
-#encoded_image {
+#encoded_image, #decoded_image {
   width: 150px;
   float: left;
 }
 
-#original_image img, #encoded_image img {
+#original_image img, #encoded_image img, #decoded_image img {
   border: 1px solid black;
   height: 100px;
   max-width: 160px;

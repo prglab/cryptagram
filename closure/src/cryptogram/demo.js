@@ -89,6 +89,7 @@ cryptogram.demo.prototype.setStatus = function(message) {
 };
 
 
+
 /**
  * Runs decryption on the loaded image, replacing it with the
  * decrypted image. If the image is already decrypted, it reverts
@@ -104,6 +105,7 @@ cryptogram.demo.prototype.runDecrypt = function() {
     var self = this;
     var password = 'cryptogram';
     var loader = new cryptogram.loader(self.container);
+    
     loader.getImageData(self.container.getSrc(), function(data) {
       var decoder = new cryptogram.decoder(self.container);
       decoder.decodeData(data, password, function(result) {
@@ -164,6 +166,15 @@ cryptogram.demo.prototype.handleFiles = function(files) {
         var dat = str.substring(idx+1);
         self.images.file(self.numberImages + '.jpg', dat, {base64: true});
         self.numberImages++;
+        
+        // Decode image to make sure it worked
+        var decodedImage = new Image();
+        goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), decodedImage, 0);
+        var container = new cryptogram.container(decodedImage);
+        var decoder = new cryptogram.decoder(container);
+        decoder.decodeData(str, password, function(result) {
+          container.setSrc(result);
+        });
       };
     };  		
     reader.onerror = cryptogram.encoder.show_error;
