@@ -36,6 +36,7 @@ int main(int argc, char** argv) {
 
   srand(0);
   ofstream f_stream(FLAGS_output_file.c_str(), ofstream::binary|ofstream::app);
+  std::string to_write;
   for (int i = 0; i < FLAGS_num_matrices; i++) {
     if (FLAGS_progress_bar) {
       printProgBar(static_cast<int>(i / static_cast<float>(FLAGS_num_matrices) *
@@ -48,7 +49,16 @@ int main(int argc, char** argv) {
       discretizations.push_back(rand() % 8); // rand() or j.
     }
     mr.InitFromInts(discretizations);
-    f_stream << mr.ToString();
+    to_write.append(mr.ToString());
+    // LCM 1024 and 6 is 3072. 3072 / 6 = 512. Multiples of 512.
+    if (i % 512 == 0) {
+      f_stream.write(to_write.c_str(), to_write.size());
+      to_write.clear();
+    }
   }
+  if (to_write.size() > 0) {
+    f_stream.write(to_write.c_str(), to_write.size());
+  }
+  f_stream.close();
   return 0;
 }
