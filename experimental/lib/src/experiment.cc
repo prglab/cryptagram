@@ -68,9 +68,10 @@ int Experiment::Run(const std::vector<int>& matrix_entries,
 
   matrix<double> decoded_aes(4, 4);
   cryptogram::AverageAestheteBlocks(decoded_matrix, &decoded_aes);
-  // f_stream << "orig: " << orig_aes << std::endl;
-  // f_stream << "deco: " << decoded_aes << std::endl;
+  // *out_fstream << "orig: " << orig_aes << std::endl;
+  // *out_fstream << "deco: " << decoded_aes << std::endl;
   matrix<unsigned char> diff = orig_aes - decoded_aes;
+  // *out_fstream << "diff: " << static_cast<matrix<int> >(diff) << std::endl;
   unsigned int nerrors = 0;
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
@@ -81,6 +82,7 @@ int Experiment::Run(const std::vector<int>& matrix_entries,
   }
   if (nerrors > 0) {
     *out_fstream << nerrors << " / " << orig_aes << std::endl;
+    out_fstream->flush();
   }
 	return nerrors;
 }

@@ -1,5 +1,6 @@
-noinst_LIBRARIES = libstringprintf.a
-libstringprintf_a_SOURCES = stringprintf.h stringprintf.cc
+noinst_LIBRARIES = 
+
+# libstringprintf_a_SOURCES = stringprintf.h stringprintf.cc
 
 # noinst_LIBRARIES = threading/libthread.a libmessage_loop.a
 
