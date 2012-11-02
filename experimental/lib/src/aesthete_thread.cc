@@ -13,7 +13,7 @@ namespace cryptogram {
 
 // AestheteRunner Implementation.
 
-AestheteRunner::AestheteRunner(int i, MatrixQueue* queue)
+AestheteRunner::AestheteRunner(int i, Queue* queue)
     : i_(i), done_(false), queue_(queue) {
   CHECK_NOTNULL(queue);
 }
@@ -50,12 +50,12 @@ void* AestheteRunner::Run(void* context) {
   Experiment experiment(values);
   
   while(!self->done_) {
-    MatrixQueueEntry queue_entry;
+    void *queue_entry;
     if (!self->queue()->get(false, 5, &queue_entry)) {
       continue;
     }
-    for (int i = 0; i < queue_entry.size(); i++) {
-      MatrixRepresentation mr(queue_entry[i]);
+    for (int i = 0; i < static_cast<MatrixQueueEntry>(queue_entry)->size(); i++) {
+      MatrixRepresentation mr((*static_cast<MatrixQueueEntry>(queue_entry))[i]);
       vector<int> matrix_entries;
       mr.ToInts(&matrix_entries);
       experiment.Run(matrix_entries, &f_stream);
@@ -73,8 +73,8 @@ void AestheteRunner::Done() {
 
 AestheteReader::AestheteReader(const string& filename,
                                int i,
-                               MatrixQueue* queue)
-    : filename_(filename), i_(i), queue_(queue) {
+                               Queue* queue)
+    : filename_(filename), i_(i), done_(false), queue_(queue) {
   CHECK_NOTNULL(queue);
 }
 
@@ -89,6 +89,10 @@ void AestheteReader::Join() {
   CHECK_EQ(pthread_join(thread_, NULL), 0);
 }
 
+void AestheteReader::Done() {
+  done_ = true;
+}
+    
 void* AestheteReader::Run(void* context) {
   AestheteReader* self = static_cast<AestheteReader*>(context);
   
@@ -100,32 +104,33 @@ void* AestheteReader::Run(void* context) {
   char matrix[7];
   vector<int> ints;
 
-  vector<bitset<48> > matrices;
-  matrices.reserve(FLAGS_chunk_size);
+  vector<bitset<48> > *matrices = new vector<bitset<48> >();
+  matrices->reserve(FLAGS_chunk_size);
   int matrix_count = 0;
-  while (true) {
+  while (!self->done_) {
     // Run it through the cryptogram::MatrixRepresentation to get the
     // discretizations.
     bzero(matrix, 7);
     streamsize ssize = in_file.sgetn(matrix, 6);
     if (ssize <= 0) {
-      if (matrices.size() > 0) {
-        static_cast<AestheteReader*>(context)->queue()->put(matrices, true, 0);
+      if (matrices->size() > 0) {
+        static_cast<AestheteReader*>(context)->queue()->put(true, 0, matrices);
       }
-      break;
+      sleep(1);
     }
 
     bitset<48> bits;
     cryptogram::MatrixRepresentation::BitsetFromBytes(matrix, &bits);
     if (matrix_count >= FLAGS_chunk_size) {
       static_cast<AestheteReader*>(context)->queue()->put(matrices, true, 0);
-      matrices.clear();
+      matrices = new vector<bitset<48> >();
       matrix_count = 0;
     } else {
-      matrices.push_back(bits);
+      matrices->push_back(bits);
       matrix_count++;
     }
   }
+  in_file.close();
   return NULL;
 }
 

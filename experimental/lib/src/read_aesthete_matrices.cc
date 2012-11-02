@@ -13,12 +13,13 @@
 
 DEFINE_int32(threads, 1, "Number of threads.");
 DEFINE_string(input_file, "matrices.txt", "Input file for matrices.");
+DEFINE_bool(no_quit, false, "Do not quit when queue is empty.");
 
 int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, false);
       
-  MatrixQueue queue(0);
+  Queue queue(0);
 
   cryptogram::AestheteReader reader(FLAGS_input_file, 0, &queue);
   reader.Start();
@@ -32,8 +33,14 @@ int main(int argc, char** argv) {
   }
 
   LOG(ERROR) << "Joining the queue.";
+
+  while (FLAGS_no_quit) {
+    sleep(1);
+  }
+  
   queue.join();
 
+  reader.Done();
   reader.Join();
 
   for (int i = 0; i < FLAGS_threads; i++) {

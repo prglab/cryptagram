@@ -12,30 +12,29 @@
 #include "queue.h"
 #include "types.h"
 
-typedef vector<bitset<48> > MatrixQueueEntry;
-typedef Queue<MatrixQueueEntry> MatrixQueue;
+typedef vector<bitset<48> >* MatrixQueueEntry;
 
 namespace cryptogram {
 
 class AestheteRunner {
  public:
-  AestheteRunner(int i, MatrixQueue* queue);
+  AestheteRunner(int i, Queue* queue);
   virtual ~AestheteRunner();
 
   void Start();
+  void Done();
   void Join();
+  
   static void* Run(void* context);
 
-  void Done();
-  
-  MatrixQueue* queue() { return queue_; }
+  Queue* queue() { return queue_; }
   int get_i() { return i_; }
 
  private:
   int i_;
   bool done_;
   pthread_t thread_;
-  MatrixQueue* queue_;
+  Queue* queue_;
 
   DISALLOW_COPY_AND_ASSIGN(AestheteRunner);
 };
@@ -44,19 +43,22 @@ class AestheteRunner {
 // into a queue that will be accessible to multiple processing threads.
 class AestheteReader {
  public:
-  AestheteReader(const string& filename, int i, MatrixQueue* queue);
+  AestheteReader(const string& filename, int i, Queue* queue);
   virtual ~AestheteReader();
 
   void Start();
+  void Done();
   void Join();
+  
   static void* Run(void* context);
-  MatrixQueue* queue() { return queue_; }
+  Queue* queue() { return queue_; }
   
  private:
   string filename_;
   int i_;
+  bool done_;
   pthread_t thread_;
-  MatrixQueue* queue_;
+  Queue* queue_;
   
   DISALLOW_COPY_AND_ASSIGN(AestheteReader);
 };
