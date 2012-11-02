@@ -51,7 +51,8 @@ void* AestheteRunner::Run(void* context) {
   
   while(!self->done_) {
     void *queue_entry;
-    if (!self->queue()->get(false, 5, &queue_entry)) {
+    if (!self->queue()->get(true, 5, &queue_entry)) {
+      LOG(ERROR) << "Got nothing.";
       continue;
     }
     for (int i = 0; i < static_cast<MatrixQueueEntry>(queue_entry)->size(); i++) {
