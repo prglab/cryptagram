@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
     cryptogram::MatrixRepresentation mr;
     vector<int> discretizations;
     for (int j = 0; j < 16; j++) {
-      discretizations.push_back(j % 8); // rand() or j.
+      discretizations.push_back(rand() % 8); // rand() or j.
     }
     mr.InitFromInts(discretizations);
     to_write.append(mr.ToString(), 0, 6);

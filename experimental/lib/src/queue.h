@@ -19,6 +19,7 @@
 // container, the std::deque.
 //
 // This class is thread-safe.
+template<typename T>
 class Queue {
  public:
   explicit Queue(int maxsize) : maxsize_(maxsize), unfinished_tasks_(0) {
@@ -77,7 +78,7 @@ class Queue {
     return ret;
   }
 
-  bool put(bool block, time_t timeout, void *item) {
+  bool put(const T& item, bool block, time_t timeout) {
     CHECK_EQ(pthread_mutex_lock(&mutex_), 0);
     if (maxsize_ > 0) {
       if (!block) {
@@ -123,12 +124,12 @@ class Queue {
     return true;
   }
 
-  bool put_nowait(void *item) {
-    return put(false, 0, item);
+  bool put_nowait(const T& item) {
+    return put(item, false, 0);
   }
   
   // @timeout == 0 means that no timeout is used.
-  bool get(bool block, time_t timeout, void **output) {
+  bool get(bool block, time_t timeout, T* output) {
     CHECK_NOTNULL(output);
 
     CHECK_EQ(pthread_mutex_lock(&mutex_), 0);
@@ -162,17 +163,17 @@ class Queue {
     return true;
   }
 
-  bool get_nowait(void **output) {
+  bool get_nowait(T* output) {
     CHECK_NOTNULL(output);
     return get(false, 0, output);
   }
   
  private:
-  void _put(void *item) {
+  void _put(const T& item) {
     queue_.push_back(item);
   }
 
-  void _get(void **output) {
+  void _get(T* output) {
     CHECK_NOTNULL(output);
     *output = queue_.front();
     queue_.pop_front();
@@ -183,10 +184,10 @@ class Queue {
   pthread_cond_t not_full_;
   pthread_mutex_t mutex_;
 
-  int maxsize_;
   int unfinished_tasks_;
+  int maxsize_;
 
-  std::deque<void *> queue_;
+  std::deque<T> queue_;
 
   // DISALLOW_COPY_AND_ASSIGN(Queue);
   Queue(const Queue&);

@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, false);
       
-  Queue queue(0);
+  Queue<MatrixQueueEntry> queue(0);
 
   cryptogram::AestheteReader reader(FLAGS_input_file, 0, &queue);
   reader.Start();
@@ -32,12 +32,13 @@ int main(int argc, char** argv) {
     runners[i]->Start();
   }
 
-  LOG(ERROR) << "Joining the queue.";
-
   while (FLAGS_no_quit) {
+    std::cout << "Waiting indefinitely..." << std::endl;
     sleep(1);
   }
-  
+
+  std::cout << "All threads started. Now waiting for job queue to be "
+            << "exhausted." << std::endl;
   queue.join();
 
   reader.Done();
