@@ -50,7 +50,12 @@ AC_SUBST(PTHREAD_LIBS)
 
 # Checks for libraries.
 AC_CHECK_LIB([glog], [_ZN6google17InitGoogleLoggingEPKc], ,
-  AC_MSG_ERROR([Missing glog library.]))
+  AC_MSG_WARN([
+
+Make sure you link to google's logging library.
+
+]))
+
 AC_CHECK_LIB([jpeg], [jpeg_finish_compress], ,
   AC_MSG_ERROR([Missing jpeg library.]))
 

@@ -16446,8 +16446,18 @@ _ACEOF
   LIBS="-lglog $LIBS"
 
 else
-  as_fn_error $? "Missing glog library." "$LINENO" 5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:
+
+Make sure you link to google's logging library.
+
+" >&5
+$as_echo "$as_me: WARNING:
+
+Make sure you link to google's logging library.
+
+" >&2;}
 fi
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for jpeg_finish_compress in -ljpeg" >&5
 $as_echo_n "checking for jpeg_finish_compress in -ljpeg... " >&6; }
