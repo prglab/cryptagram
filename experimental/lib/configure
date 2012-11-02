@@ -16503,7 +16503,16 @@ _ACEOF
   LIBS="-ljpeg $LIBS"
 
 else
-  as_fn_error $? "Missing jpeg library." "$LINENO" 5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:
+
+Make sure you link to libjpeg.
+
+" >&5
+$as_echo "$as_me: WARNING:
+
+Make sure you link to libjpeg.
+
+" >&2;}
 fi
 
 
