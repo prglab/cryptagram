@@ -1,5 +1,7 @@
 #include "array.h"
 
+#include <cstdlib>
+
 namespace cryptogram {
 
 template<>
