@@ -24,7 +24,6 @@ generate_aesthete_matrices_SOURCES = generate_aesthete_matrices.cc
 generate_aesthete_matrices_LDADD = libaesthete.a -lgflags -lglog 
 
 read_aesthete_matrices_SOURCES = read_aesthete_matrices.cc
-# read_aesthete_matrices_CPPFLAGS = -std=c++11
 read_aesthete_matrices_LDADD = libjpeg_codec.a libaesthete.a libexperiment.a \
   libaesthete_thread.a libarray.a  -lpthread -lgflags -lglog
 
