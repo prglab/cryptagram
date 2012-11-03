@@ -24,8 +24,8 @@ generate_aesthete_matrices_SOURCES = generate_aesthete_matrices.cc
 generate_aesthete_matrices_LDADD = libaesthete.a -lgflags -lglog 
 
 read_aesthete_matrices_SOURCES = read_aesthete_matrices.cc
-read_aesthete_matrices_LDADD = libjpeg_codec.a libaesthete.a libexperiment.a \
-  libaesthete_thread.a libarray.a  -lpthread -lgflags -lglog
+read_aesthete_matrices_LDADD = libaesthete_thread.a libjpeg_codec.a libaesthete.a libexperiment.a \
+   libarray.a  -lpthread -lgflags -lglog
 
 SUBDIRS = cryptopp base reed_solomon
 
