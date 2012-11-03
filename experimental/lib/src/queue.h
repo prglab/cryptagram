@@ -14,8 +14,8 @@
 // This Queue class follows the concurrency patterns and API of the python Queue
 // collection. The user may specify a maximum size for the internal queue
 // storage.
-// 
-// This class currently contains a hard-coded underlying storage 
+//
+// This class currently contains a hard-coded underlying storage
 // container, the std::deque.
 //
 // This class is thread-safe.
@@ -110,7 +110,7 @@ class Queue {
             gettimeofday(&tv, NULL);
             ts.tv_sec = tv.tv_sec + remaining;
             ts.tv_nsec = 0;
-            
+
             pthread_cond_timedwait(&not_full_, &mutex_, &ts);
           }
         }
@@ -127,7 +127,7 @@ class Queue {
   bool put_nowait(const T& item) {
     return put(item, false, 0);
   }
-  
+
   // @timeout == 0 means that no timeout is used.
   bool get(bool block, time_t timeout, T* output) {
     CHECK_NOTNULL(output);
@@ -167,7 +167,7 @@ class Queue {
     CHECK_NOTNULL(output);
     return get(false, 0, output);
   }
-  
+
  private:
   void _put(const T& item) {
     queue_.push_back(item);
@@ -178,14 +178,14 @@ class Queue {
     *output = queue_.front();
     queue_.pop_front();
   }
-  
+
   pthread_cond_t all_tasks_done_;
   pthread_cond_t not_empty_;
   pthread_cond_t not_full_;
   pthread_mutex_t mutex_;
 
-  int unfinished_tasks_;
   int maxsize_;
+  int unfinished_tasks_;
 
   std::deque<T> queue_;
 
