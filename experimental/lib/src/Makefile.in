@@ -157,8 +157,7 @@ jpeg_benchmark_DEPENDENCIES = libaesthete.a libjpeg_codec.a
 am_queue_main_OBJECTS = queue_main.$(OBJEXT)
 queue_main_OBJECTS = $(am_queue_main_OBJECTS)
 queue_main_DEPENDENCIES =
-am_read_aesthete_matrices_OBJECTS =  \
-	read_aesthete_matrices-read_aesthete_matrices.$(OBJEXT)
+am_read_aesthete_matrices_OBJECTS = read_aesthete_matrices.$(OBJEXT)
 read_aesthete_matrices_OBJECTS = $(am_read_aesthete_matrices_OBJECTS)
 read_aesthete_matrices_DEPENDENCIES = libjpeg_codec.a libaesthete.a \
 	libexperiment.a libaesthete_thread.a libarray.a
@@ -424,7 +423,7 @@ jpeg_benchmark_LDADD = libaesthete.a libjpeg_codec.a -lboost_system \
 generate_aesthete_matrices_SOURCES = generate_aesthete_matrices.cc
 generate_aesthete_matrices_LDADD = libaesthete.a -lgflags -lglog 
 read_aesthete_matrices_SOURCES = read_aesthete_matrices.cc
-read_aesthete_matrices_CPPFLAGS = -std=c++11
+# read_aesthete_matrices_CPPFLAGS = -std=c++11
 read_aesthete_matrices_LDADD = libjpeg_codec.a libaesthete.a libexperiment.a \
   libaesthete_thread.a libarray.a  -lpthread -lgflags -lglog
 
@@ -632,7 +631,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libjpeg_delta_a-jpeg_delta.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/modp_b64.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/queue_main.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/read_aesthete_matrices-read_aesthete_matrices.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/read_aesthete_matrices.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string_piece.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
 
@@ -782,20 +781,6 @@ cryptogram_main-main.obj: main.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='main.cc' object='cryptogram_main-main.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cryptogram_main_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cryptogram_main-main.obj `if test -f 'main.cc'; then $(CYGPATH_W) 'main.cc'; else $(CYGPATH_W) '$(srcdir)/main.cc'; fi`
-
-read_aesthete_matrices-read_aesthete_matrices.o: read_aesthete_matrices.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(read_aesthete_matrices_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT read_aesthete_matrices-read_aesthete_matrices.o -MD -MP -MF $(DEPDIR)/read_aesthete_matrices-read_aesthete_matrices.Tpo -c -o read_aesthete_matrices-read_aesthete_matrices.o `test -f 'read_aesthete_matrices.cc' || echo '$(srcdir)/'`read_aesthete_matrices.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/read_aesthete_matrices-read_aesthete_matrices.Tpo $(DEPDIR)/read_aesthete_matrices-read_aesthete_matrices.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='read_aesthete_matrices.cc' object='read_aesthete_matrices-read_aesthete_matrices.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(read_aesthete_matrices_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o read_aesthete_matrices-read_aesthete_matrices.o `test -f 'read_aesthete_matrices.cc' || echo '$(srcdir)/'`read_aesthete_matrices.cc
-
-read_aesthete_matrices-read_aesthete_matrices.obj: read_aesthete_matrices.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(read_aesthete_matrices_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT read_aesthete_matrices-read_aesthete_matrices.obj -MD -MP -MF $(DEPDIR)/read_aesthete_matrices-read_aesthete_matrices.Tpo -c -o read_aesthete_matrices-read_aesthete_matrices.obj `if test -f 'read_aesthete_matrices.cc'; then $(CYGPATH_W) 'read_aesthete_matrices.cc'; else $(CYGPATH_W) '$(srcdir)/read_aesthete_matrices.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/read_aesthete_matrices-read_aesthete_matrices.Tpo $(DEPDIR)/read_aesthete_matrices-read_aesthete_matrices.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='read_aesthete_matrices.cc' object='read_aesthete_matrices-read_aesthete_matrices.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(read_aesthete_matrices_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o read_aesthete_matrices-read_aesthete_matrices.obj `if test -f 'read_aesthete_matrices.cc'; then $(CYGPATH_W) 'read_aesthete_matrices.cc'; else $(CYGPATH_W) '$(srcdir)/read_aesthete_matrices.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
