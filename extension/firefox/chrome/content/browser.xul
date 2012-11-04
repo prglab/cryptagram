@@ -2,15 +2,31 @@
 <?xml-stylesheet href="chrome://cryptogram/skin/skin.css" type="text/css"?>
 <!DOCTYPE cryptogram SYSTEM "chrome://cryptogram/locale/translations.dtd">
 <overlay id="sample" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-
+  <script type="text/javascript">
+  console.log = function(arg){
+    if (Firebug !== undefined){
+      Firebug.Console.log(arg);
+    }
+    else {
+      console.log(arg);
+    }
+  }
+  </script>
+  <script src="cryptogram-lib.js"/>
+  <script type="text/javascript">
+    console.log("Test: " + cryptogram.testVar);
+    console.log(cryptogram);
+    console.log(cryptogram.decryptByURL);
+    
+  </script>
   <script src="cryptogram.js" />
   
   <commandset>
-    <command id="cmd_cryptogram_decrypt" oncommand="cryptogram.decrypt();"/>
+    <command id="cmd_cryptogram_decrypt" oncommand="cryptogramFirefox.decrypt();"/>
   </commandset>
   
   <menupopup id="menu_toolsPopup">
-    <menuitem label="&runcryptogram;" key="cryptogram-decrypt-key" oncommand="cryptogram.run();" />
+    <menuitem label="&runcryptogram;" key="cryptogram-decrypt-key" oncommand="cryptogramFirefox.run();" />
   </menupopup>
 
   <!-- Keyboard shortcut pattern <keyset>
