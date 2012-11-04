@@ -1,4 +1,4 @@
-var cryptogram = {
+var cryptogramFirefox = {
     dbgtag: "cryptogram : ",
   
     run: function() {
@@ -20,11 +20,17 @@ var cryptogram = {
     
     decrypt: function () {
         alert("Decrypt button pressed");
+        console.log("Check");
         var img = gContextMenu.target;
         if (img !== undefined){
           if (img.src !== undefined){
-            img.src = "fake";
-            alert("decrypt button pressed");
+            //img.src = "fake";
+            //alert("decrypt button pressed");
+            var pass = prompt("Please enter a password for this image", "cryptogram");
+            console.log(cryptogram.decryptByURL);
+            console.log(cryptogram);
+            cryptogram.decryptByURL(img.src, pass); 
+            console.log("Post-decode");
           }
           // Debug
           else {
@@ -39,4 +45,4 @@ var cryptogram = {
 
 
 
-window.addEventListener("load", function() { cryptogram.init(); }, false);
+window.addEventListener("load", function() { cryptogramFirefox.init(); }, false);
