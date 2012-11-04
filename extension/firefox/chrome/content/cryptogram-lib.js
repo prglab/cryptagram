@@ -11,7 +11,9 @@ cryptogram.decryptByURL = function(URL, password) {
   
   cryptogram.log("Request to decrypt:", URL);
   _context = this.context;
+  console.log(this.context);
   _context.init(URL);
+  console.log("initialization of context succeeded");
 
   cryptogram.loader.getImageData( cryptogram.context.fullURL, 
     function(data) {
@@ -615,7 +617,12 @@ cryptogram.decoder.processImage = function() {
   } else {
       cryptogram.context.setStatus();
       cryptogram.log("Decoded " + this.newBase64.length + " Base64 characters:", this.newBase64);
-      _decoder.decryptImage();
+      try {
+        _decoder.decryptImage();
+      }
+      catch ( err ) {
+        console.log( err );
+      }
   }
   
   
@@ -625,6 +632,8 @@ cryptogram.decoder.processImage = function() {
 cryptogram.decoder.decryptImage = function () {
 
   var newBase64 = this.newBase64;
+
+  console.log("Beginning checksum");
   
   var check = newBase64.substring(0,64);
   var iv = newBase64.substring(64,86);
@@ -712,15 +721,29 @@ cryptogram.loader.updateProgress = function(e) {
 
 }
 
+function createXMLHttpRequest() {
+    return Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
+       .createInstance(Components.interfaces.nsIXMLHttpRequest);    
+}
+
 cryptogram.loader.createRequest = function() {
   var oHTTP = null;
-  if (window.XMLHttpRequest) {
-    oHTTP = new XMLHttpRequest();
-    oHTTP.responseType = "arraybuffer";  
-    oHTTP.addEventListener("progress", cryptogram.loader.updateProgress, false);  
-  } else if (window.ActiveXObject) {
-    oHTTP = new ActiveXObject("Microsoft.XMLHTTP");
+  if (XMLHttpRequest !== undefined) {
+    console.log("Getting http request object - ");
+    oHTTP = createXMLHttpRequest();
+    console.log(oHTTP);
+    try{
+      //oHTTP.responseType = "arraybuffer";
     }
+    catch (err) {
+      console.log(err);
+    }  
+    //console.log("arraybuffer succeeds");
+    oHTTP.addEventListener("progress", cryptogram.loader.updateProgress, false);  
+  } else if (content.ActiveXObjecti !== undefined) {
+    oHTTP = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  console.log("We succeeded");
   return oHTTP;
 }
 
@@ -775,21 +798,38 @@ cryptogram.loader.arrayBufferDataUri = function(raw) {
 }
 
 
+// Binary data helper function
+function convert_stream( instream ){
+  arr = new Uint8Array( instream.length );
+  for ( var i = 0; i < instream.length; i++){
+    arr[i] = instream.charCodeAt(i) & 0xff;
+  }
+  return arr;
+}
+
 cryptogram.loader.getImageData = function(src, callback) {
-
   cryptogram.context.setStatus("Download<br>...");
-
   var oHTTP = cryptogram.loader.createRequest();
+  console.log("oHTTP:");
+  console.log(oHTTP);
   oHTTP.onreadystatechange = function() {
   
     if (oHTTP.readyState == 4) {
       if (oHTTP.status == "200" || oHTTP.status == "206") {
-        var arrayBuffer = oHTTP.response;  
+        console.log("HTTP status 200/206");
+        try {
+          var arrayBuffer = oHTTP.responseText;  
+          arrayBuffer = convert_stream(arrayBuffer);
+        }
+        catch (err) {
+          console.log(err);
+        }
         var b64 = cryptogram.loader.arrayBufferDataUri(arrayBuffer);
         cryptogram.log("Downloaded image as Base64:", b64);
         callback(b64);
       } else {
         console.error("Download failed");
+        console.log("Download failed!");
       }
       
       oHTTP = null;
@@ -833,7 +873,7 @@ cryptogram.log.sendDebugReport = function() {
   var addresses = "ispiro@gmail.com,mrtierney@gmail.com";
   var subject = "Cryptogram Debug Report";
   var href = "mailto:" + addresses + "?subject=" + subject + "&body=" + cryptogram.log.report;
-  window.open(href, "_blank");
+  content.open(href, "_blank");
 }
 
 cryptogram.log.report = "";

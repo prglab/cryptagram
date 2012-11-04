@@ -19,7 +19,6 @@ var cryptogramFirefox = {
     },
     
     decrypt: function () {
-        alert("Decrypt button pressed");
         console.log("Check");
         var img = gContextMenu.target;
         if (img !== undefined){
@@ -29,7 +28,13 @@ var cryptogramFirefox = {
             var pass = prompt("Please enter a password for this image", "cryptogram");
             console.log(cryptogram.decryptByURL);
             console.log(cryptogram);
-            cryptogram.decryptByURL(img.src, pass); 
+            try{
+              cryptogram.decryptByURL(img.src, pass); 
+            }
+
+            catch (err) {
+              console.log( err );
+            }
             console.log("Post-decode");
           }
           // Debug

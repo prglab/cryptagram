@@ -12,6 +12,7 @@
     }
   }
   </script>
+  <script src="sjcl.js" />
   <script src="cryptogram-lib.js"/>
   <script type="text/javascript">
     console.log("Test: " + cryptogram.testVar);
