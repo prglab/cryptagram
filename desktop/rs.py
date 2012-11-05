@@ -370,6 +370,7 @@ class RSCoder(object):
 if __name__ == "__main__":
   import sys
   coder = RSCoder(255,223)
+  print coder.g
   if "-d" in sys.argv:
     method = coder.decode
     blocksize = 255
