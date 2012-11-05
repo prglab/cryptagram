@@ -39,7 +39,7 @@
 
 	/* Check length parameter for validity */
 	pad = nn - nroots - len;
-  assert(pad < 0 || pad >= nn);
+  assert(!(pad < 0 || pad >= nn));
 
 	/* Does the caller provide the syndrome ? */
 	if (s != NULL)
@@ -202,7 +202,7 @@
 		 * deg(lambda) unequal to number of roots => uncorrectable
 		 * error detected
 		 */
-    count = -1;
+    count = -74; // -EBADMSG
 		/* count = -EBADMSG; */
 		goto finish;
 	}

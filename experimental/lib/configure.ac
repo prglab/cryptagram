@@ -6,8 +6,8 @@ AC_INIT([Cryptogram], [1.0], [tierney@cs.nyu.edu])
 AM_INIT_AUTOMAKE
 AM_SILENT_RULES([no])
 
-AC_DEFINE(CONFIG_REED_SOLOMON_ENC16, 1, Reed Solomon encoding word length)
-AC_DEFINE(CONFIG_REED_SOLOMON_DEC16, 1, Reed Solomon decoding word length)
+AC_DEFINE(CONFIG_REED_SOLOMON_ENC8, 1, Reed Solomon encoding word length)
+AC_DEFINE(CONFIG_REED_SOLOMON_DEC8, 1, Reed Solomon decoding word length)
 AC_CONFIG_SRCDIR([src/main.cc])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
