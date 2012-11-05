@@ -39,7 +39,7 @@
 
 	/* Check length parameter for validity */
 	pad = nn - nroots - len;
-	BUG_ON(pad < 0 || pad >= nn);
+  assert(pad < 0 || pad >= nn);
 
 	/* Does the caller provide the syndrome ? */
 	if (s != NULL)
@@ -202,7 +202,8 @@
 		 * deg(lambda) unequal to number of roots => uncorrectable
 		 * error detected
 		 */
-		count = -EBADMSG;
+    count = -1;
+		/* count = -EBADMSG; */
 		goto finish;
 	}
 	/*
@@ -236,7 +237,10 @@
 
 		/* lambda[i+1] for i even is the formal derivative
 		 * lambda_pr of lambda[i] */
-		for (i = min(deg_lambda, nroots - 1) & ~1; i >= 0; i -= 2) {
+		/* for (i = min(deg_lambda, nroots - 1) & ~1; i >= 0; i -= 2) { */
+		for (i = ((deg_lambda <= nroots - 1) ? deg_lambda : nroots - 1) & ~1;
+         i >= 0;
+         i -= 2) {
 			if (lambda[i + 1] != nn) {
 				den ^= alpha_to[rs_modnn(rs, lambda[i + 1] +
 						       i * root[j])];

@@ -30,7 +30,7 @@
 	/* Check length parameter for validity */
 	pad = nn - nroots - len;
 	if (pad < 0 || pad >= nn)
-		return -ERANGE;
+		return -1;
 
 	for (i = 0; i < len; i++) {
 		fb = index_of[((((uint16_t) data[i])^invmsk) & msk) ^ par[0]];

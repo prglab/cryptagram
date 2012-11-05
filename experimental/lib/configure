@@ -3018,6 +3018,13 @@ fi
 AM_BACKSLASH='\'
 
 
+
+$as_echo "#define CONFIG_REED_SOLOMON_ENC16 1" >>confdefs.h
+
+
+$as_echo "#define CONFIG_REED_SOLOMON_DEC16 1" >>confdefs.h
+
+
 ac_config_headers="$ac_config_headers config.h"
 
 

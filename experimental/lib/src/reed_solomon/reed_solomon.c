@@ -47,14 +47,23 @@
 /* #include <linux/module.h> */
 /* #include <linux/rslib.h> */
 /* #include <linux/slab.h> */
-/* #include <linux/mutex.h> */
-
 #include "rslib.h"
+
+#include <assert.h>
+#include <math.h>
+#include <pthread.h>
+#include <stdlib.h>
 
 /* This list holds all currently allocated rs control structures */
 static LIST_HEAD (rslist);
 /* Protection for the list */
-static DEFINE_MUTEX(rslistlock);
+
+static pthread_mutex_t rslistlock;
+
+#define mutex_lock(lock) if (0 != pthread_mutex_lock(lock)) { abort(); }
+#define mutex_unlock(lock) if (0 != pthread_mutex_unlock(lock)) { abort(); }
+
+/* static DEFINE_MUTEX(rslistlock); */
 
 /**
  * rs_init - Initialize a Reed-Solomon codec
@@ -90,15 +99,15 @@ static struct rs_control *rs_init(int symsize, int gfpoly, int (*gffunc)(int),
 	rs->gffunc = gffunc;
 
 	/* Allocate the arrays */
-	rs->alpha_to = kmalloc(sizeof(uint16_t) * (rs->nn + 1), GFP_KERNEL);
+	rs->alpha_to = malloc(sizeof(uint16_t) * (rs->nn + 1));
 	if (rs->alpha_to == NULL)
 		goto errrs;
 
-	rs->index_of = kmalloc(sizeof(uint16_t) * (rs->nn + 1), GFP_KERNEL);
+	rs->index_of = malloc(sizeof(uint16_t) * (rs->nn + 1));
 	if (rs->index_of == NULL)
 		goto erralp;
 
-	rs->genpoly = kmalloc(sizeof(uint16_t) * (rs->nroots + 1), GFP_KERNEL);
+	rs->genpoly = malloc(sizeof(uint16_t) * (rs->nroots + 1));
 	if(rs->genpoly == NULL)
 		goto erridx;
 
@@ -157,13 +166,13 @@ static struct rs_control *rs_init(int symsize, int gfpoly, int (*gffunc)(int),
 
 	/* Error exit */
 errpol:
-	kfree(rs->genpoly);
+	free(rs->genpoly);
 erridx:
-	kfree(rs->index_of);
+	free(rs->index_of);
 erralp:
-	kfree(rs->alpha_to);
+	free(rs->alpha_to);
 errrs:
-	kfree(rs);
+	free(rs);
 	return NULL;
 }
 
@@ -179,10 +188,10 @@ void free_rs(struct rs_control *rs)
 	rs->users--;
 	if(!rs->users) {
 		list_del(&rs->list);
-		kfree(rs->alpha_to);
-		kfree(rs->index_of);
-		kfree(rs->genpoly);
-		kfree(rs);
+		free(rs->alpha_to);
+		free(rs->index_of);
+		free(rs->genpoly);
+		free(rs);
 	}
 	mutex_unlock(&rslistlock);
 }
@@ -208,6 +217,10 @@ static struct rs_control *init_rs_internal(int symsize, int gfpoly,
 	struct list_head	*tmp;
 	struct rs_control	*rs;
 
+  if (0 != pthread_mutex_init(&rslistlock, NULL)) {
+    return NULL;
+  }
+  
 	/* Sanity checks */
 	if (symsize < 1)
 		return NULL;
@@ -305,7 +318,6 @@ int encode_rs8(struct rs_control *rs, uint8_t *data, int len, uint16_t *par,
 {
 #include "encode_rs.c"
 }
-EXPORT_SYMBOL_GPL(encode_rs8);
 #endif
 
 #ifdef CONFIG_REED_SOLOMON_DEC8
@@ -332,7 +344,6 @@ int decode_rs8(struct rs_control *rs, uint8_t *data, uint16_t *par, int len,
 {
 #include "decode_rs.c"
 }
-EXPORT_SYMBOL_GPL(decode_rs8);
 #endif
 
 #ifdef CONFIG_REED_SOLOMON_ENC16
@@ -351,7 +362,6 @@ int encode_rs16(struct rs_control *rs, uint16_t *data, int len, uint16_t *par,
 {
 #include "encode_rs.c"
 }
-EXPORT_SYMBOL_GPL(encode_rs16);
 #endif
 
 #ifdef CONFIG_REED_SOLOMON_DEC16
@@ -376,14 +386,4 @@ int decode_rs16(struct rs_control *rs, uint16_t *data, uint16_t *par, int len,
 {
 #include "decode_rs.c"
 }
-EXPORT_SYMBOL_GPL(decode_rs16);
 #endif
-
-EXPORT_SYMBOL_GPL(init_rs);
-EXPORT_SYMBOL_GPL(init_rs_non_canonical);
-EXPORT_SYMBOL_GPL(free_rs);
-
-MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("Reed Solomon encoder/decoder");
-MODULE_AUTHOR("Phil Karn, Thomas Gleixner");
-

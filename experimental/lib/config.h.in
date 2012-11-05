@@ -1,5 +1,11 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Reed Solomon decoding word length */
+#undef CONFIG_REED_SOLOMON_DEC16
+
+/* Reed Solomon encoding word length */
+#undef CONFIG_REED_SOLOMON_ENC16
+
 /* Define to 1 if you have the `bzero' function. */
 #undef HAVE_BZERO
 
