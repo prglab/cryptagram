@@ -28,8 +28,9 @@
 /**
  * Get offset of a member
  */
+#ifndef offsetof
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-
+#endif 
 /**
  * Casts a member of a structure out to the containing structure
  * @param ptr        the pointer to the member.
@@ -61,7 +62,8 @@
  * using the generic single-entry routines.
  */
 struct list_head {
-	struct list_head *next, *prev;
+	struct list_head *next;
+  struct list_head *prev;
 };
 
 #define LIST_HEAD_INIT(name) { &(name), &(name) }
@@ -79,14 +81,14 @@ struct list_head {
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
-static inline void __list_add(struct list_head *new,
-			      struct list_head *prev,
-			      struct list_head *next)
+static inline void __list_add(struct list_head *new_input,
+                              struct list_head *prev,
+                              struct list_head *next)
 {
-	next->prev = new;
-	new->next = next;
-	new->prev = prev;
-	prev->next = new;
+	next->prev = new_input;
+	new_input->next = next;
+	new_input->prev = prev;
+	prev->next = new_input;
 }
 
 /**
@@ -97,9 +99,9 @@ static inline void __list_add(struct list_head *new,
  * Insert a new entry after the specified head.
  * This is good for implementing stacks.
  */
-static inline void list_add(struct list_head *new, struct list_head *head)
+static inline void list_add(struct list_head *new_input, struct list_head *head)
 {
-	__list_add(new, head, head->next);
+	__list_add(new_input, head, head->next);
 }
 
 /**
@@ -110,9 +112,9 @@ static inline void list_add(struct list_head *new, struct list_head *head)
  * Insert a new entry before the specified head.
  * This is useful for implementing queues.
  */
-static inline void list_add_tail(struct list_head *new, struct list_head *head)
+static inline void list_add_tail(struct list_head *new_input, struct list_head *head)
 {
-	__list_add(new, head->prev, head);
+	__list_add(new_input, head->prev, head);
 }
 
 
@@ -138,8 +140,8 @@ static inline void __list_del(struct list_head * prev, struct list_head * next)
 static inline void list_del(struct list_head *entry)
 {
 	__list_del(entry->prev, entry->next);
-	entry->next = LIST_POISON1;
-	entry->prev = LIST_POISON2;
+	entry->next = (struct list_head *)LIST_POISON1;
+	entry->prev = (struct list_head *)LIST_POISON2;
 }
 
 
@@ -408,8 +410,8 @@ static inline void __hlist_del(struct hlist_node *n)
 static inline void hlist_del(struct hlist_node *n)
 {
 	__hlist_del(n);
-	n->next = LIST_POISON1;
-	n->pprev = LIST_POISON2;
+	n->next = (struct hlist_node *)LIST_POISON1;
+	n->pprev = (struct hlist_node **)LIST_POISON2;
 }
 
 

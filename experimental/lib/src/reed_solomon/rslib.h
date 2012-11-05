@@ -19,7 +19,13 @@
 #ifndef _RSLIB_H_
 #define _RSLIB_H_
 
-#include <list.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "config.h"
+#include "list.h"
+#include "string.h"
 
 /**
  * struct rs_control - rs control structure
@@ -106,4 +112,8 @@ static inline int rs_modnn(struct rs_control *rs, int x)
 	return x;
 }
 
+#ifdef __cplusplus
+}
+#endif
+  
 #endif
