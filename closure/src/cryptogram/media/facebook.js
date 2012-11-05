@@ -1,6 +1,6 @@
 goog.provide('cryptogram.media.facebook');
 
-goog.require('cryptogram.media.generic');
+goog.require('cryptogram.media.social');
 
 goog.require('goog.dom');
 goog.require('goog.debug.Logger');
@@ -8,12 +8,12 @@ goog.require('goog.debug.Logger');
 
 /**
  * @constructor
- * @extends {cryptogram.media.generic}
+ * @extends {cryptogram.media.social}
  */
-cryptogram.media.facebook = function(URL) {
-  cryptogram.media.generic.call(this, URL);
+cryptogram.media.facebook = function() {
+  cryptogram.media.social.call(this);
 };
-goog.inherits(cryptogram.media.facebook, cryptogram.media.generic);
+goog.inherits(cryptogram.media.facebook, cryptogram.media.social);
 
 cryptogram.media.facebook.prototype.logger = goog.debug.Logger.getLogger('cryptogram.media.facebook');
 
@@ -31,16 +31,16 @@ cryptogram.media.facebook.state = {
 
 
 /** @inheritDoc */
-cryptogram.media.facebook.prototype.matchesURL = function() {
-  var regex=new RegExp(/^https?:\/\/www.facebook.com/);
-  return regex.test(this.URL);
-}
-
-
-/** @inheritDoc */
 cryptogram.media.facebook.prototype.name = function() {
   return 'Facebook';
 };
+
+
+/** @inheritDoc */
+cryptogram.media.facebook.prototype.matchesURL = function(URL) {
+  var regex=new RegExp(/^https?:\/\/www.facebook.com/);
+  return regex.test(URL);
+}
 
 
 /** @inheritDoc */
@@ -58,35 +58,25 @@ cryptogram.media.facebook.prototype.getImages = function(opt_URL) {
     var thumbs = goog.dom.getElementsByClass('uiMediaThumbImg');
     
     for (var i = 0; i < thumbs.length; i++) {
-    var testURL = thumbs[i].style.backgroundImage;
-    testURL = testURL.substr(4,testURL.length - 5);
-    var ajaxNode = thumbs[i].parentNode.parentNode;
-    
-    
-    if (ajaxNode.tagName == 'A') {
-    
-      var ajaxify = ajaxNode.getAttribute('ajaxify')
-      var ajaxParts = ajaxify.split("&");
-      var src = ajaxParts[3];
-            
-      if (src.substring(0,4)=="src=") {
-                
-        var fullSrc = unescape(src.substring(4,src.length));
-        this.logger.info("Extracted src from ajaxify: " + fullSrc);
-        thumbs[i].src = fullSrc;
-        valid.push(thumbs[i]);
-      }
-    }
+      var testURL = thumbs[i].style.backgroundImage;
+      testURL = testURL.substr(4,testURL.length - 5);
+      var ajaxNode = thumbs[i].parentNode.parentNode;
       
-   /* if (opt_URL) {
-      if (testURL == opt_URL) {
-        valid.push(thumbs[i]);
+      
+      if (ajaxNode.tagName == 'A') {
+      
+        var ajaxify = ajaxNode.getAttribute('ajaxify')
+        var ajaxParts = ajaxify.split("&");
+        var src = ajaxParts[3];
+              
+        if (src.substring(0,4)=="src=") {
+                  
+          var fullSrc = unescape(src.substring(4,src.length));
+          this.logger.info("Extracted src from ajaxify: " + fullSrc);
+          thumbs[i].src = fullSrc;
+          valid.push(thumbs[i]);
+        }
       }
-    } else {  
-      if (testURL.search('_o.jpg') != -1  || testURL.search('_n.jpg') != -1 ) {
-        valid.push(thumbs[i]);  
-      }
-    }*/
     }
     return valid;
   }
@@ -175,7 +165,7 @@ cryptogram.media.facebook.prototype.parseMedia = function() {
 cryptogram.media.facebook.prototype.checkIfReady = function(callback) {
   
   if (this.parseMedia()) {
-    this.logger.info("Media found: " + this.name() + "/" + this.state);
+    this.logger.info("Facebook media is ready: " + this.state + " mode");
     callback();
     return;
   }
@@ -183,10 +173,10 @@ cryptogram.media.facebook.prototype.checkIfReady = function(callback) {
   var self = this;
   this.tries++;
   if (this.tries < this.maxTries) {
-    this.logger.info("Media not ready. Trying again. #" + this.tries);
+    this.logger.info("Facebook not ready. Trying again. #" + this.tries);
     setTimeout(function() { self.checkIfReady(callback); }, self.delay);
   }  else {
-    this.logger.info("Media failed.");
+    this.logger.info("Facebook failed.");
   }  
 };
 

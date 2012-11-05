@@ -99,6 +99,7 @@ cryptogram.encoder.prototype.encode = function(data, width_to_height_ratio, head
 
   function set_pixel(x, y, level) {
     idx = 4 * (x + y * width);
+ 
     // set RGB channels to same level since we're encoding data as grayscale
     d[idx] = level;
     d[idx + 1] = level;
@@ -107,6 +108,7 @@ cryptogram.encoder.prototype.encode = function(data, width_to_height_ratio, head
   }
 
   function set_block(x_start, y_start, level) {
+   
     for (var i = 0; i < block_width; i++) {
       for (var j = 0; j < block_height; j++) {
         set_pixel(x_start+i, y_start+j, level);

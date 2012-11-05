@@ -3,9 +3,10 @@ goog.provide('cryptogram.content');
 goog.require('cryptogram.container');
 goog.require('cryptogram.decoder');
 goog.require('cryptogram.loader');
-goog.require('cryptogram.media.generic');
 goog.require('cryptogram.media.facebook');
 goog.require('cryptogram.media.googleplus');
+goog.require('cryptogram.media.image');
+goog.require('cryptogram.media.web');
 goog.require('cryptogram.storage');
 
 goog.require('goog.debug.Console');
@@ -30,15 +31,19 @@ cryptogram.content = function() {
   var URL = new goog.Uri(window.location);
   var knownMedia = [cryptogram.media.facebook,
                     cryptogram.media.googleplus,
-                    cryptogram.media.generic];
+                    cryptogram.media.image,
+                    cryptogram.media.web];
   var testMedia;
   for (var i = 0; i < knownMedia.length; i++) {
-    testMedia = new knownMedia[i](URL);
-    if (testMedia.matchesURL()) {
+    testMedia = new knownMedia[i]();
+    if (testMedia.matchesURL(URL)) {
       this.media = testMedia;
       break;
     }
   }
+  
+  this.logger.info('Found media: ' + this.media.name());
+  this.containers = {};
   this.loaders = [];
   this.lastAutoDecrypt = '';
   this.storage = new cryptogram.storage(this.media);
@@ -78,13 +83,18 @@ cryptogram.content.prototype.handleRequest = function(request, sender, callback)
 
   if (request['decryptURL']) {
     var URL = request['decryptURL'];
+        
+    
     if (URL.search('data:') == 0) {
-      this.container.revertSrc();
+      var container = this.containers[URL];
+      if (container) {
+        container.revertSrc();
+        this.logger.info("Reverted to " + container.img.src);
+        this.containers[URL] = null;
+      }
       return;
     }
   
-    this.photoId = this.media.getPhotoName(URL);
-    this.albumId = this.media.getAlbumName(URL);
     password = this.storage.getPasswordForURL((URL));
 
     if (!password) {
@@ -104,7 +114,7 @@ cryptogram.content.prototype.setStatus = function(message) {
 
 cryptogram.content.prototype.decryptImage = function(image, password, queue) {
 
-  var container = new cryptogram.container(image);
+  var container = this.media.loadContainer();
   var self = this;
   var loader = new cryptogram.loader(container);
   
@@ -132,6 +142,7 @@ cryptogram.content.prototype.decryptImage = function(image, password, queue) {
       var decoder = new cryptogram.decoder(container);
       decoder.decodeData(data, password, function(result) {
         if (result) {
+          self.containers[result] = container;
           self.media.setContainerSrc(container, result);
         }
       });
@@ -146,10 +157,6 @@ cryptogram.content.prototype.decryptByURL = function(URL, password) {
   
   this.logger.info('Request to decrypt ' + URL + '.');
     
-  if (this.container) {
-    this.container.remove();
-    this.container = null;
-  }
   var container = this.media.loadContainer(URL);
   var loader = new cryptogram.loader(container);
   var fullURL = this.media.fixURL(URL);
@@ -159,8 +166,11 @@ cryptogram.content.prototype.decryptByURL = function(URL, password) {
     var decoder = new cryptogram.decoder(container);
     decoder.decodeData(data, password, function(result) {
       if (result) {
-        container.setSrc(result);
-        self.callback({'outcome': 'success', 'id' : self.photoId, 'password' : password, 'album' : self.albumId});
+        self.containers[result] = container;
+        self.media.setContainerSrc(container, result);
+        var photoName = self.media.getPhotoName(URL);
+        var albumName = self.media.getAlbumName(URL);
+        self.callback({'outcome': 'success', 'id' : photoName, 'password' : password, 'album' : albumName});
       }
     });
   });
