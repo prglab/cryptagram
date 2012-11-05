@@ -63,3 +63,9 @@ cryptogram.container.prototype.setStatus = function(status) {
 cryptogram.container.prototype.remove = function() {
   this.div.parentNode.removeChild(this.div);  
 };
+
+
+cryptogram.container.prototype.singleImageMode = function() {
+  this.div.style.left = this.img.width / 2;  
+};
+

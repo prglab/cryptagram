@@ -1,5 +1,6 @@
 goog.provide('cryptogram.decoder');
 
+goog.require('cryptogram.codec.aesthete');
 goog.require('cryptogram.storage');
 goog.require('goog.debug.Logger');
 
@@ -49,20 +50,35 @@ cryptogram.decoder.prototype.decodeData = function(data, password, callback) {
     self.chunkSize = img.height / 20.0;
     self.y = 0;
     self.newBase64 = "";
-        
-    var protocol = self.getHeader();
-    
-    if (protocol != "aesthete") {
 
-      self.logger.severe("Unknown Protocol");
+    var codec = self.getCodec(img, imageData);
+    
+    if (!codec) {
       self.container.setStatus();
     } else {
-      self.logger.info("Found Protocol " + protocol);
       self.processImage();    
     }
   };
   
   img.src = data;
+}
+
+
+cryptogram.decoder.prototype.getCodec = function(img, imageData) {
+
+
+  
+  var knownCodecs = [cryptogram.codec.aesthete];
+  var testCodec;
+  for (var i = 0; i < knownCodecs.length; i++) {
+    testCodec = new knownCodecs[i]();
+    if (testCodec.test(img, imageData)) {
+      this.logger.info("Found codec: " + testCodec.name());
+      return testCodec;
+    }
+  }
+  //this.logger.severe("Unknown codec.");
+  return null;
 }
 
 
