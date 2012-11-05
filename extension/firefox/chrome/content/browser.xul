@@ -2,15 +2,21 @@
 <?xml-stylesheet href="chrome://cryptogram/skin/skin.css" type="text/css"?>
 <!DOCTYPE cryptogram SYSTEM "chrome://cryptogram/locale/translations.dtd">
 <overlay id="sample" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <script type="text/javascript">
-  console.log = function(arg){
-    if (Firebug !== undefined){
-      Firebug.Console.log(arg);
+  <script type="text/javascrip">
+  var DEBUG_MODE = false;
+  if (DEBUG_MODE === true){
+    console.log = function(arg){
+        if (Firebug !== undefined){
+          Firebug.Console.log(arg);
+        }
+        else {
+          console.log(arg);
+        }
     }
-    else {
-      console.log(arg);
-    }
+  }else{
+    console.log = function () { }
   }
+  
   </script>
   <script src="sjcl.js" />
   <script src="cryptogram-lib.js"/>
