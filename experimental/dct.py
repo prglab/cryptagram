@@ -176,7 +176,7 @@ class Experiment(object):
 
 def main(argv):
   print "Generating messages"
-  num_matrices = 100000
+  num_matrices = 10000
 
   # orig_quality = 95
   # quant_table = QuantizationTableFromQuality(LuminanceQuantizationTable,
@@ -246,7 +246,7 @@ def main(argv):
       print >>fh, '%d ' * 64 % tuple(random_matrices[i].flatten())
 
   experiments = []
-  for quality in range(68, 80, 4):
+  for quality in range(70, 88, 4):
     experiments.append(Experiment(quality, random_matrices))
 
   print "Starting experiments."
@@ -312,11 +312,16 @@ class Experiment(threading.Thread):
         for j in range(8):
           for k in range(8):
             lum = self.random_matrices[i][j,k]
+            #tint = 10
+            
 
-            tint = 20
-            r = lum + tint
-            g = lum
-            b = lum
+            cr = 168
+            cb = 128
+
+            r = lum + 1.402 * (cr - 128.0)
+            g = lum - 0.34414 * (cb - 128.0) - 0.71414 * (cr - 128.0)
+            b = lum + 1.772 * (cb - 128.0)
+            #g = lum - delt * (0.299 / 0.587)
             #b = lum - tint * (0.299 / 0.114)
 
             pixel[j,k] = tuple(map(int, [r, g, b]))
@@ -328,8 +333,8 @@ class Experiment(threading.Thread):
         decompressed = Image.open(new_file)
 
         decompressed_pixel = decompressed.load()
-        # decompressed_averaged_ = AverageAestheteBlocksLuminance(decompressed_pixel)
-        decompressed_averaged_ = AverageAestheteBlocks(decompressed_pixel, 1)
+        decompressed_averaged_ = AverageAestheteBlocksLuminance(decompressed_pixel)
+        #decompressed_averaged_ = AverageAestheteBlocks(decompressed_pixel, 1)
 
         # jpeg = JpegCompress(self.random_matrices[i], quant_table)
         # decompressed = JpegDecompress(jpeg, quant_table)
