@@ -63,12 +63,12 @@ int main(int argc, char** argv) {
 
   int nchanges = 0;
   for (int i = 0; i < 223; i++) {
-    if (rand() % 25 == 0) {
+    if (rand() % 15 == 0) {
       memset(data + i, 0, 1);
       nchanges++;
     }
   }
-  std::cout << "Sent data: " << std::endl;
+  std::cout << "Sent data (" << nchanges << " changes) : " << std::endl;
   printf_data(data, 223);
   
   int numerr = decode_rs8(rs, data, par, 223, NULL, 0, NULL, 0, NULL);
