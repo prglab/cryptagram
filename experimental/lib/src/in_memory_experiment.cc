@@ -16,7 +16,9 @@ DEFINE_int32(gen_threads, 1, "Number of generator threads.");
 DEFINE_int32(run_threads, 1, "Number of runner threads.");
 DEFINE_string(input_file, "matrices.txt", "Input file for matrices.");
 DEFINE_bool(no_quit, false, "Do not quit when queue is empty.");
-DEFINE_int64(num_matrices, 1000000, "Number of matrices to generate.");
+DEFINE_int64(num_matrices, 1000000, "Number of matrices to generate "
+             "(technically, num_matrices divided by gen_threads).");
+DEFINE_int32(queue_size, 10000, "Maximum number of chunks to hold in queue.");
 
 DECLARE_int64(chunk_size);
 
@@ -26,10 +28,7 @@ int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, false);
 
-  uint64 queue_size = 1;
-  queue_size <<= 30;
-  queue_size /= (FLAGS_chunk_size * kBytesPerMatrix);
-  Queue queue(queue_size);
+  Queue queue(FLAGS_queue_size);
 
   vector<cryptogram::aesthete::Generator*> generators;
   for (int i = 0; i < FLAGS_gen_threads; i++) {
@@ -71,7 +70,7 @@ int main(int argc, char** argv) {
   for (int i = 0; i < FLAGS_run_threads; i++) {
     runners[i]->Join();
   }
-  
+
   for (int i = 0; i < FLAGS_gen_threads; i++) {
     delete generators[i];
   }

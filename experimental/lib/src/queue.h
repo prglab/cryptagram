@@ -74,11 +74,12 @@ class Queue {
 
   bool full() {
     CHECK_EQ(pthread_mutex_lock(&mutex_), 0);
-    bool ret = 0 < queue_.size() == maxsize_;
+    bool ret = 0 < (queue_.size() == maxsize_);
     CHECK_EQ(pthread_mutex_unlock(&mutex_), 0);
     return ret;
   }
 
+  // Takes ownership of @value it it returns true.
   // Return value is false indicates an error occurred.
   bool put(void* value, bool block, time_t timeout) {
     CHECK_EQ(pthread_mutex_lock(&mutex_), 0);
@@ -132,6 +133,7 @@ class Queue {
 
   // Caller should check if the return value is NULL, indicating an error
   // occurred. @timeout == 0 means that no timeout is used.
+  // Ownership of return object is passed to the caller.
   void* get(bool block, time_t timeout) {
     CHECK_EQ(pthread_mutex_lock(&mutex_), 0);
     if (!block) {
@@ -160,7 +162,7 @@ class Queue {
 
     void *value = queue_.front();
     queue_.pop_front();
-    
+
     pthread_cond_signal(&not_full_);
     CHECK_EQ(pthread_mutex_unlock(&mutex_), 0);
     return value;

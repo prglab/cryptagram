@@ -21,14 +21,18 @@ using boost::numeric::ublas::matrix;
 
 namespace cryptogram {
 
-Experiment::Experiment(const std::vector<int>& discretizations)
-    : discretizations_(discretizations) {
+Experiment::Experiment(const std::vector<int>& discretizations,
+                       const std::string& output_filename)
+    : discretizations_(discretizations), output_filename_(output_filename) {
 }
 
-int Experiment::Run(const std::vector<int>& matrix_entries,
-                    std::ofstream* out_fstream) {
+void Experiment::Init() {
+  f_stream_.open(output_filename_.c_str(), std::ofstream::binary);
+}
+
+int Experiment::Run(const std::vector<int>& matrix_entries) {
   CHECK_EQ(matrix_entries.size(), 16);
-  
+
   array<unsigned char> image(8 * 3, 8);
 
   // Uses the matrix_entries, which are simply indices into the
@@ -81,8 +85,8 @@ int Experiment::Run(const std::vector<int>& matrix_entries,
     }
   }
   if (nerrors > 0) {
-    *out_fstream << nerrors << " / " << orig_aes << std::endl;
-    out_fstream->flush();
+    f_stream_ << nerrors << " / " << orig_aes << std::endl;
+    f_stream_.flush();
   }
 	return nerrors;
 }

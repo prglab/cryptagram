@@ -33,10 +33,10 @@ void AestheteRunner::Join() {
 
 void* AestheteRunner::Run(void* context) {
   AestheteRunner* self = static_cast<AestheteRunner*>(context);
-  
+
+  // Initialize the name of the output file for this particular thread.
   ostringstream f_str_stream;
   f_str_stream << "out_" << self->id_ << ".txt";
-  ofstream f_stream(f_str_stream.str().c_str(), ofstream::binary);
 
   // Generate images.
   std::vector<int> discretizations;
@@ -49,28 +49,31 @@ void* AestheteRunner::Run(void* context) {
   discretizations.push_back(48);
   discretizations.push_back(16);
 
-  Experiment experiment(discretizations);
-  std::auto_ptr<MatrixQueueEntry> queue_entry;
+  Experiment experiment(discretizations, f_str_stream.str());
+  experiment.Init();
+  MatrixQueueEntry* queue_entry = NULL;
+  bitset<48> tmp;
   while(true) {
     // To avoid busy waiting on the queue, we use the timeout on the get() call
     // to the queue.
     void* queue_resp = self->queue()->get(false, 5);
     if (NULL == queue_resp) {
-      LOG(INFO) << "Found empty queue.";
       if (self->done_) {
-        LOG(INFO) << "And we've been signaled to quit, anyway.";
         break;
       }
       continue;
     }
-    queue_entry.reset(static_cast<MatrixQueueEntry*>(queue_resp));
+    queue_entry = static_cast<MatrixQueueEntry*>(queue_resp);
     for (int i = 0; i < queue_entry->size(); i++) {
-      MatrixRepresentation mr((*queue_entry)[i]);
+      tmp.reset();
+      tmp = bitset<48>((*queue_entry)[i]);
+      MatrixRepresentation mr(tmp);
       vector<int> matrix_entries;
       mr.ToInts(&matrix_entries);
-      experiment.Run(matrix_entries, &f_stream);
+      experiment.Run(matrix_entries);
     }
     self->queue()->task_done();
+    delete queue_entry;
   }
   return NULL;
 }
@@ -105,11 +108,11 @@ void AestheteReader::Done() {
 
 void* AestheteReader::Run(void* context) {
   AestheteReader* self = static_cast<AestheteReader*>(context);
-  
+
   // Read six bytes at a time.
   std::filebuf in_file;
   in_file.open(self->filename_.c_str(), std::ios::in);
-  
+
   cryptogram::MatrixRepresentation mr;
   char matrix[7];
   vector<int> ints;
@@ -167,7 +170,7 @@ void Generator::Join() {
 
 void* Generator::Run(void* context) {
   Generator* self = static_cast<Generator*>(context);
-  
+
   cryptogram::MatrixRepresentation mr;
   char matrix[7];
   vector<int> ints;
@@ -197,6 +200,7 @@ void* Generator::Run(void* context) {
     // Push the vector of matrices on to the queue.
     self->queue_->put(matrices, true, 0);
   }
+  std::cout << "Done generating matrices." << std::endl;
   return NULL;
 }
 
