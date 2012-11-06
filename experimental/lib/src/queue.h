@@ -20,7 +20,6 @@
 // container, the std::deque.
 //
 // This class is thread-safe.
-template<typename T>
 class Queue {
  public:
   explicit Queue(uint64 maxsize) : maxsize_(maxsize), unfinished_tasks_(0) {
@@ -35,6 +34,7 @@ class Queue {
     CHECK_EQ(pthread_cond_destroy(&not_empty_), 0);
     CHECK_EQ(pthread_cond_destroy(&not_full_), 0);
     CHECK_EQ(pthread_mutex_destroy(&mutex_), 0);
+    CHECK_EQ(queue_.size(), 0) << "Queue should be empty.";
   }
 
   void task_done() {
@@ -79,7 +79,8 @@ class Queue {
     return ret;
   }
 
-  bool put(const T& item, bool block, time_t timeout) {
+  // Return value is false indicates an error occurred.
+  bool put(void* value, bool block, time_t timeout) {
     CHECK_EQ(pthread_mutex_lock(&mutex_), 0);
     if (maxsize_ > 0) {
       if (!block) {
@@ -118,26 +119,24 @@ class Queue {
 
       }
     }
-    _put(item);
+    queue_.push_back(value);
     unfinished_tasks_++;
     pthread_cond_signal(&not_empty_);
     CHECK_EQ(pthread_mutex_unlock(&mutex_), 0);
-    return true;
   }
 
-  bool put_nowait(const T& item) {
-    return put(item, false, 0);
+  bool put_nowait(void* value) {
+    return put(value, false, 0);
   }
 
-  // @timeout == 0 means that no timeout is used.
-  bool get(bool block, time_t timeout, T* output) {
-    CHECK_NOTNULL(output);
-
+  // Caller should check if the return value is NULL, indicating an error
+  // occurred. @timeout == 0 means that no timeout is used.
+  void* get(bool block, time_t timeout) {
     CHECK_EQ(pthread_mutex_lock(&mutex_), 0);
     if (!block) {
       if (0 == queue_.size()) {
         CHECK_EQ(pthread_mutex_unlock(&mutex_), 0);
-        return false;
+        return NULL;
       }
     } else if (timeout == 0) {
       while (queue_.size() == 0) {
@@ -152,34 +151,25 @@ class Queue {
         time_t remaining = endtime - time(NULL);
         if (remaining <= 0.0) {
           CHECK_EQ(pthread_mutex_unlock(&mutex_), 0);
-          return false;
+          return NULL;
         }
         pthread_cond_wait(&not_empty_, &mutex_);
       }
     }
 
-    _get(output);
+    void *value = queue_.front();
+    queue_.pop_front();
+    
     pthread_cond_signal(&not_full_);
     CHECK_EQ(pthread_mutex_unlock(&mutex_), 0);
-    return true;
+    return value;
   }
 
-  bool get_nowait(T* output) {
-    CHECK_NOTNULL(output);
-    return get(false, 0, output);
+  void* get_nowait() {
+    return get(false, 0);
   }
 
  private:
-  void _put(const T& item) {
-    queue_.push_back(item);
-  }
-
-  void _get(T* output) {
-    CHECK_NOTNULL(output);
-    *output = queue_.front();
-    queue_.pop_front();
-  }
-
   pthread_cond_t all_tasks_done_;
   pthread_cond_t not_empty_;
   pthread_cond_t not_full_;
@@ -188,7 +178,7 @@ class Queue {
   uint64 maxsize_;
   int unfinished_tasks_;
 
-  std::deque<T> queue_;
+  std::deque<void *> queue_;
 
   // DISALLOW_COPY_AND_ASSIGN(Queue);
   Queue(const Queue&);
