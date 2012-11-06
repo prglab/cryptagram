@@ -30,11 +30,11 @@ class Queue {
   }
 
   virtual ~Queue() {
+    CHECK_EQ(qsize(), 0) << "Queue should be empty.";
     CHECK_EQ(pthread_cond_destroy(&all_tasks_done_), 0);
     CHECK_EQ(pthread_cond_destroy(&not_empty_), 0);
     CHECK_EQ(pthread_cond_destroy(&not_full_), 0);
     CHECK_EQ(pthread_mutex_destroy(&mutex_), 0);
-    CHECK_EQ(queue_.size(), 0) << "Queue should be empty.";
   }
 
   void task_done() {
@@ -123,6 +123,7 @@ class Queue {
     unfinished_tasks_++;
     pthread_cond_signal(&not_empty_);
     CHECK_EQ(pthread_mutex_unlock(&mutex_), 0);
+    return true;
   }
 
   bool put_nowait(void* value) {

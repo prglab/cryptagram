@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, false);
       
-  Queue<MatrixQueueEntry> queue(0);
+  Queue queue(0);
 
   cryptogram::AestheteReader reader(FLAGS_input_file, 0, &queue);
   reader.Start();

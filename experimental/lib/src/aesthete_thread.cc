@@ -13,7 +13,7 @@ namespace cryptogram {
 
 // AestheteRunner Implementation.
 
-AestheteRunner::AestheteRunner(int id, MatrixQueue* queue)
+AestheteRunner::AestheteRunner(int id, Queue* queue)
     : id_(id), done_(false), queue_(queue) {
   CHECK_NOTNULL(queue);
 }
@@ -49,18 +49,25 @@ void* AestheteRunner::Run(void* context) {
 
   Experiment experiment(discretizations);
   
-  while(!self->done_) {
-    MatrixQueueEntry queue_entry;
-    if (!self->queue()->get(false, 5, &queue_entry)) {
+  while(true) {
+    void *queue_resp = self->queue()->get(false, 5);
+    if (!queue_resp) {
+      LOG(INFO) << "Found empty queue.";
+      if (self->done_) {
+        LOG(INFO) << "And we've been signaled to quit, anyway.";
+        break;
+      }
       continue;
     }
-    for (int i = 0; i < queue_entry.size(); i++) {
-      MatrixRepresentation mr(queue_entry[i]);
+    MatrixQueueEntry* queue_entry = static_cast<MatrixQueueEntry*>(queue_resp);
+    for (int i = 0; i < queue_entry->size(); i++) {
+      MatrixRepresentation mr((*queue_entry)[i]);
       vector<int> matrix_entries;
       mr.ToInts(&matrix_entries);
       experiment.Run(matrix_entries, &f_stream);
     }
     self->queue()->task_done();
+    delete queue_entry;
   }
   return NULL;
 }
@@ -73,7 +80,7 @@ void AestheteRunner::Done() {
 
 AestheteReader::AestheteReader(const string& filename,
                                int id,
-                               MatrixQueue* queue)
+                               Queue* queue)
     : filename_(filename), done_(false), id_(id), queue_(queue) {
   CHECK_NOTNULL(queue);
 }
@@ -104,8 +111,8 @@ void* AestheteReader::Run(void* context) {
   char matrix[7];
   vector<int> ints;
 
-  vector<bitset<48> > matrices;
-  matrices.reserve(FLAGS_chunk_size);
+  vector<bitset<48> > *matrices = new MatrixQueueEntry();
+  matrices->reserve(FLAGS_chunk_size);
   int matrix_count = 0;
   while (true) {
     // Run it through the cryptogram::MatrixRepresentation to get the
@@ -113,7 +120,7 @@ void* AestheteReader::Run(void* context) {
     bzero(matrix, 7);
     streamsize ssize = in_file.sgetn(matrix, 6);
     if (ssize <= 0) {
-      if (matrices.size() > 0) {
+      if (matrices->size() > 0) {
         self->queue()->put(matrices, true, 0);
       }
       break;
@@ -123,10 +130,10 @@ void* AestheteReader::Run(void* context) {
     cryptogram::MatrixRepresentation::BitsetFromBytes(matrix, &bits);
     if (matrix_count >= FLAGS_chunk_size) {
       self->queue()->put(matrices, true, 0);
-      matrices.clear();
+      matrices->clear();
       matrix_count = 0;
     } else {
-      matrices.push_back(bits);
+      matrices->push_back(bits);
       matrix_count++;
     }
   }
@@ -138,7 +145,7 @@ void* AestheteReader::Run(void* context) {
 namespace aesthete {
 
 Generator::Generator(int id, int num_matrices, int chunk_size,
-                     MatrixQueue* queue)
+                     Queue* queue)
     : id_(id), num_matrices_(num_matrices), chunk_size_(chunk_size),
       queue_(queue) {
   CHECK_NOTNULL(queue);
@@ -162,8 +169,8 @@ void* Generator::Run(void* context) {
   char matrix[7];
   vector<int> ints;
 
-  MatrixQueueEntry matrices;
-  matrices.reserve(FLAGS_chunk_size);
+  MatrixQueueEntry* matrices = new MatrixQueueEntry();
+  matrices->reserve(FLAGS_chunk_size);
   int matrices_generated = 0;
   while (matrices_generated < self->num_matrices_) {
     // Generate matrices for chunks while we have less than total matrices and
@@ -182,7 +189,7 @@ void* Generator::Run(void* context) {
       // Store the matrix in the vector<>;
       bitset<48> matrix_bitset;
       MatrixRepresentation::BitsetFromBytes(matrix, &matrix_bitset);
-      matrices.push_back(matrix_bitset);
+      matrices->push_back(matrix_bitset);
     }
     // Push the vector of matrices on to the queue.
     self->queue_->put(matrices, true, 0);
