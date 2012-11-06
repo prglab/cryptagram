@@ -1,5 +1,7 @@
 #include "aesthete_thread.h"
 
+#include <memory>
+
 #include "aesthete.h"
 #include "array.h"
 #include "experiment.h"
@@ -48,10 +50,12 @@ void* AestheteRunner::Run(void* context) {
   discretizations.push_back(16);
 
   Experiment experiment(discretizations);
-  
+  std::auto_ptr<MatrixQueueEntry> queue_entry;
   while(true) {
-    void *queue_resp = self->queue()->get(false, 5);
-    if (!queue_resp) {
+    // To avoid busy waiting on the queue, we use the timeout on the get() call
+    // to the queue.
+    void* queue_resp = self->queue()->get(false, 5);
+    if (NULL == queue_resp) {
       LOG(INFO) << "Found empty queue.";
       if (self->done_) {
         LOG(INFO) << "And we've been signaled to quit, anyway.";
@@ -59,7 +63,7 @@ void* AestheteRunner::Run(void* context) {
       }
       continue;
     }
-    MatrixQueueEntry* queue_entry = static_cast<MatrixQueueEntry*>(queue_resp);
+    queue_entry.reset(static_cast<MatrixQueueEntry*>(queue_resp));
     for (int i = 0; i < queue_entry->size(); i++) {
       MatrixRepresentation mr((*queue_entry)[i]);
       vector<int> matrix_entries;
@@ -67,7 +71,6 @@ void* AestheteRunner::Run(void* context) {
       experiment.Run(matrix_entries, &f_stream);
     }
     self->queue()->task_done();
-    delete queue_entry;
   }
   return NULL;
 }
@@ -111,7 +114,7 @@ void* AestheteReader::Run(void* context) {
   char matrix[7];
   vector<int> ints;
 
-  vector<bitset<48> > *matrices = new MatrixQueueEntry();
+  MatrixQueueEntry *matrices = new MatrixQueueEntry();
   matrices->reserve(FLAGS_chunk_size);
   int matrix_count = 0;
   while (true) {
