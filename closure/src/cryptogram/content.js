@@ -114,7 +114,7 @@ cryptogram.content.prototype.setStatus = function(message) {
 
 cryptogram.content.prototype.decryptImage = function(image, password, queue) {
 
-  var container = this.media.loadContainer();
+  var container = this.media.loadContainer(image.src);
   var self = this;
   var loader = new cryptogram.loader(container);
   
