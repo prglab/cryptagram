@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
   uint64 queue_size = 1;
   queue_size <<= 30;
   queue_size /= (FLAGS_chunk_size * kBytesPerMatrix);
-  Queue<MatrixQueueEntry> queue(queue_size);
+  Queue queue(queue_size);
 
   vector<cryptogram::aesthete::Generator*> generators;
   for (int i = 0; i < FLAGS_gen_threads; i++) {
@@ -67,6 +67,7 @@ int main(int argc, char** argv) {
   for (int i = 0; i < FLAGS_run_threads; i++) {
     runners[i]->Done();
   }
+  LOG(INFO) << "Waiting for the runners to finish.";
   for (int i = 0; i < FLAGS_run_threads; i++) {
     runners[i]->Join();
   }
