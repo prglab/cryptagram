@@ -15,7 +15,7 @@
 #include "google/gflags.h"
 #include "jpeg_codec.h"
 
-DEFINE_int32(quality, 95, "JPEG Quality level to use.");
+DEFINE_int32(quality, 50, "JPEG Quality level to use.");
 
 using boost::numeric::ublas::matrix;
 
