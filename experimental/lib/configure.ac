@@ -66,6 +66,23 @@ Make sure you link to libjpeg.
 
 ]))
 
+AC_ARG_WITH([tcmalloc],
+  [AS_HELP_STRING([--without-tcmalloc],
+    [disable support for tcmalloc])],
+  [],
+  [with_tcmalloc=yes])
+
+AS_IF([test "x$with_tcmalloc" != xno],
+  [AC_CHECK_LIB([tcmalloc], [tc_malloc],
+    [AC_SUBST([LIBTCMALLOC], ["-ltcmalloc"])
+     AC_DEFINE([HAVE_LIBTCMALLOC], [1],
+               [Define if you have libtcmalloc])
+    ],
+    [AC_MSG_FAILURE(
+       [tcmalloc test failed (--without-tcmalloc to disable)])],
+    [])])
+AM_CONDITIONAL(USE_LIBTCMALLOC, test "x$with_tcmalloc" = xyes)
+
 dnl AC_CHECK_LIB([gtest], [_ZN7testing14InitGoogleTestEPiPPc], ,
 dnl   AC_MSG_WARN([
 

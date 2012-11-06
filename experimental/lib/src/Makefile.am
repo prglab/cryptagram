@@ -8,7 +8,7 @@ queue_main_LDADD = -lpthread
 
 aesthete_thread_runner_SOURCES = aesthete_thread_runner.cc
 aesthete_thread_runner_CPPFLAGS = -Wall
-aesthete_thread_runner_LDADD = libaesthete.a libaesthete_thread.a -lpthread 
+aesthete_thread_runner_LDADD = libaesthete.a libaesthete_thread.a -lpthread
 
 cryptogram_main_SOURCES = main.cc discretizations.h util.h
 cryptogram_main_CPPFLAGS = -Wall
@@ -21,7 +21,7 @@ jpeg_benchmark_LDADD = libaesthete.a libjpeg_codec.a -lboost_system \
   -lboost_thread -lgflags
 
 generate_aesthete_matrices_SOURCES = generate_aesthete_matrices.cc
-generate_aesthete_matrices_LDADD = libaesthete.a -lgflags -lglog 
+generate_aesthete_matrices_LDADD = libaesthete.a -lgflags -lglog
 
 read_aesthete_matrices_SOURCES = read_aesthete_matrices.cc
 read_aesthete_matrices_LDADD = libaesthete_thread.a  libaesthete.a libexperiment.a \
@@ -29,20 +29,21 @@ read_aesthete_matrices_LDADD = libaesthete_thread.a  libaesthete.a libexperiment
 
 bin_PROGRAMS += in_memory_experiment
 in_memory_experiment_SOURCES = in_memory_experiment.cc
-in_memory_experiment_CPPFLAGS =  \
-  -fno-builtin-malloc \
-	-fno-builtin-calloc \
-	-fno-builtin-realloc \
-	-fno-builtin-free
-
 in_memory_experiment_LDADD = \
-	-L/usr/local/Cellar/google-perftools/2.0/lib \
 	libaesthete_thread.a \
 	libaesthete.a \
 	libexperiment.a \
 	libjpeg_codec.a \
 	libarray.a  \
-	-lpthread -lgflags -lglog -ltcmalloc
+	-lpthread -lgflags -lglog
+if USE_LIBTCMALLOC
+  in_memory_experiment_CPPFLAGS =  \
+    -fno-builtin-malloc \
+		-fno-builtin-calloc \
+		-fno-builtin-realloc \
+		-fno-builtin-free
+  in_memory_experiment_LDADD += $(libtcmalloc_LIBS)
+endif
 
 SUBDIRS = cryptopp base reed_solomon
 
