@@ -10,6 +10,7 @@
 #include "glog/logging.h"
 #include "google/gflags.h"
 #include "queue.h"
+#include "types.h"
 
 DEFINE_int32(gen_threads, 1, "Number of generator threads.");
 DEFINE_int32(run_threads, 1, "Number of runner threads.");
@@ -19,11 +20,16 @@ DEFINE_int64(num_matrices, 1000000, "Number of matrices to generate.");
 
 DECLARE_int64(chunk_size);
 
+const int kBytesPerMatrix = 6;
+
 int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, false);
-      
-  Queue<MatrixQueueEntry> queue(0);
+
+  uint64 queue_size = 1;
+  queue_size <<= 30;
+  queue_size /= (FLAGS_chunk_size * kBytesPerMatrix);
+  Queue<MatrixQueueEntry> queue(queue_size);
 
   vector<cryptogram::aesthete::Generator*> generators;
   for (int i = 0; i < FLAGS_gen_threads; i++) {
