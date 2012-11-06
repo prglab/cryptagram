@@ -56,7 +56,8 @@ host_triplet = @host@
 bin_PROGRAMS = cryptogram_main$(EXEEXT) jpeg_benchmark$(EXEEXT) \
 	generate_aesthete_matrices$(EXEEXT) \
 	read_aesthete_matrices$(EXEEXT) \
-	aesthete_thread_runner$(EXEEXT) queue_main$(EXEEXT)
+	aesthete_thread_runner$(EXEEXT) queue_main$(EXEEXT) \
+	in_memory_experiment$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/depcomp
@@ -151,6 +152,10 @@ am_generate_aesthete_matrices_OBJECTS =  \
 generate_aesthete_matrices_OBJECTS =  \
 	$(am_generate_aesthete_matrices_OBJECTS)
 generate_aesthete_matrices_DEPENDENCIES = libaesthete.a
+am_in_memory_experiment_OBJECTS = in_memory_experiment.$(OBJEXT)
+in_memory_experiment_OBJECTS = $(am_in_memory_experiment_OBJECTS)
+in_memory_experiment_DEPENDENCIES = libaesthete_thread.a libaesthete.a \
+	libexperiment.a libjpeg_codec.a libarray.a
 am_jpeg_benchmark_OBJECTS = jpeg_benchmark.$(OBJEXT)
 jpeg_benchmark_OBJECTS = $(am_jpeg_benchmark_OBJECTS)
 jpeg_benchmark_DEPENDENCIES = libaesthete.a libjpeg_codec.a
@@ -222,8 +227,8 @@ SOURCES = $(libCoder_a_SOURCES) $(libSjclCryptoBridge_a_SOURCES) \
 	$(libutils_a_SOURCES) $(aesthete_thread_runner_SOURCES) \
 	$(cryptogram_main_SOURCES) \
 	$(generate_aesthete_matrices_SOURCES) \
-	$(jpeg_benchmark_SOURCES) $(queue_main_SOURCES) \
-	$(read_aesthete_matrices_SOURCES)
+	$(in_memory_experiment_SOURCES) $(jpeg_benchmark_SOURCES) \
+	$(queue_main_SOURCES) $(read_aesthete_matrices_SOURCES)
 DIST_SOURCES = $(libCoder_a_SOURCES) $(libSjclCryptoBridge_a_SOURCES) \
 	$(libaesthete_a_SOURCES) $(libaesthete_thread_a_SOURCES) \
 	$(libarray_a_SOURCES) $(libbase64_a_SOURCES) \
@@ -233,8 +238,8 @@ DIST_SOURCES = $(libCoder_a_SOURCES) $(libSjclCryptoBridge_a_SOURCES) \
 	$(libutils_a_SOURCES) $(aesthete_thread_runner_SOURCES) \
 	$(cryptogram_main_SOURCES) \
 	$(generate_aesthete_matrices_SOURCES) \
-	$(jpeg_benchmark_SOURCES) $(queue_main_SOURCES) \
-	$(read_aesthete_matrices_SOURCES)
+	$(in_memory_experiment_SOURCES) $(jpeg_benchmark_SOURCES) \
+	$(queue_main_SOURCES) $(read_aesthete_matrices_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -426,6 +431,15 @@ read_aesthete_matrices_SOURCES = read_aesthete_matrices.cc
 read_aesthete_matrices_LDADD = libaesthete_thread.a  libaesthete.a libexperiment.a \
    libjpeg_codec.a libarray.a  -lpthread -lgflags -lglog
 
+in_memory_experiment_SOURCES = in_memory_experiment.cc
+in_memory_experiment_LDADD = \
+	libaesthete_thread.a \
+	libaesthete.a \
+	libexperiment.a \
+	libjpeg_codec.a \
+	libarray.a  \
+	-lpthread -lgflags -lglog
+
 SUBDIRS = cryptopp base reed_solomon
 
 # Libraries.
@@ -598,6 +612,9 @@ cryptogram_main$(EXEEXT): $(cryptogram_main_OBJECTS) $(cryptogram_main_DEPENDENC
 generate_aesthete_matrices$(EXEEXT): $(generate_aesthete_matrices_OBJECTS) $(generate_aesthete_matrices_DEPENDENCIES) $(EXTRA_generate_aesthete_matrices_DEPENDENCIES) 
 	@rm -f generate_aesthete_matrices$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(generate_aesthete_matrices_OBJECTS) $(generate_aesthete_matrices_LDADD) $(LIBS)
+in_memory_experiment$(EXEEXT): $(in_memory_experiment_OBJECTS) $(in_memory_experiment_DEPENDENCIES) $(EXTRA_in_memory_experiment_DEPENDENCIES) 
+	@rm -f in_memory_experiment$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(in_memory_experiment_OBJECTS) $(in_memory_experiment_LDADD) $(LIBS)
 jpeg_benchmark$(EXEEXT): $(jpeg_benchmark_OBJECTS) $(jpeg_benchmark_DEPENDENCIES) $(EXTRA_jpeg_benchmark_DEPENDENCIES) 
 	@rm -f jpeg_benchmark$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(jpeg_benchmark_OBJECTS) $(jpeg_benchmark_LDADD) $(LIBS)
@@ -620,6 +637,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crypto.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cryptogram_main-main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_aesthete_matrices.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/in_memory_experiment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jpeg_benchmark.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libCoder_a-Coder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libaesthete_a-aesthete.Po@am__quote@

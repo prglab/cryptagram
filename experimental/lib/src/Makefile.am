@@ -27,6 +27,16 @@ read_aesthete_matrices_SOURCES = read_aesthete_matrices.cc
 read_aesthete_matrices_LDADD = libaesthete_thread.a  libaesthete.a libexperiment.a \
    libjpeg_codec.a libarray.a  -lpthread -lgflags -lglog
 
+bin_PROGRAMS += in_memory_experiment
+in_memory_experiment_SOURCES = in_memory_experiment.cc
+in_memory_experiment_LDADD = \
+	libaesthete_thread.a \
+	libaesthete.a \
+	libexperiment.a \
+	libjpeg_codec.a \
+	libarray.a  \
+	-lpthread -lgflags -lglog
+
 SUBDIRS = cryptopp base reed_solomon
 
 # Libraries.
