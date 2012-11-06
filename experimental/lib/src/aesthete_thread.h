@@ -19,7 +19,7 @@ namespace cryptogram {
 
 class AestheteRunner {
  public:
-  AestheteRunner(int i, MatrixQueue* queue);
+  AestheteRunner(int id, MatrixQueue* queue);
   virtual ~AestheteRunner();
 
   void Start();
@@ -29,10 +29,10 @@ class AestheteRunner {
   void Done();
   
   MatrixQueue* queue() { return queue_; }
-  int get_i() { return i_; }
+  int get_id() { return id_; }
 
  private:
-  int i_;
+  int id_;
   bool done_;
   pthread_t thread_;
   MatrixQueue* queue_;
@@ -44,7 +44,7 @@ class AestheteRunner {
 // into a queue that will be accessible to multiple processing threads.
 class AestheteReader {
  public:
-  AestheteReader(const string& filename, int i, MatrixQueue* queue);
+  AestheteReader(const string& filename, int id, MatrixQueue* queue);
   virtual ~AestheteReader();
 
   void Start();
@@ -56,13 +56,36 @@ class AestheteReader {
  private:
   string filename_;
   bool done_;
-  int i_;
+  int id_;
   pthread_t thread_;
   MatrixQueue* queue_;
   
   DISALLOW_COPY_AND_ASSIGN(AestheteReader);
 };
 
+namespace aesthete {
+
+class Generator {
+ public:
+  Generator(int id, int num_matrices, int chunk_size, MatrixQueue* queue);
+  virtual ~Generator();
+
+  void Start();
+  void Join();
+
+  static void* Run(void* context);
+
+ private:
+  int id_;
+  int num_matrices_;
+  int chunk_size_;
+  pthread_t thread_;
+  MatrixQueue* queue_;
+
+  DISALLOW_COPY_AND_ASSIGN(Generator);  
+};
+
+} // namespace aesthete
 } // namespace cryptogram
 
 #endif  // _AESTHETE_THREAD_H_

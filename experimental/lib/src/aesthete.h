@@ -82,7 +82,6 @@ class MatrixRepresentation {
   
   string ToString();
   void ToInts(vector<int>* output);
-
   
  private:
   CompactMatrix matrix_;

@@ -7,14 +7,14 @@
 #include "google/gflags.h"
 #include "jpeg_codec.h"
 
-DEFINE_int32(chunk_size, 1000, "Chunk size.");
+DEFINE_int64(chunk_size, 1000, "Chunk size.");
 
 namespace cryptogram {
 
 // AestheteRunner Implementation.
 
-AestheteRunner::AestheteRunner(int i, MatrixQueue* queue)
-    : i_(i), done_(false), queue_(queue) {
+AestheteRunner::AestheteRunner(int id, MatrixQueue* queue)
+    : id_(id), done_(false), queue_(queue) {
   CHECK_NOTNULL(queue);
 }
 
@@ -33,7 +33,7 @@ void* AestheteRunner::Run(void* context) {
   AestheteRunner* self = static_cast<AestheteRunner*>(context);
   
   ostringstream f_str_stream;
-  f_str_stream << "out_" << self->i_ << ".txt";
+  f_str_stream << "out_" << self->id_ << ".txt";
   ofstream f_stream(f_str_stream.str().c_str(), ofstream::binary);
 
   // Generate images.
@@ -72,9 +72,9 @@ void AestheteRunner::Done() {
 // AestheteReader Implementation.
 
 AestheteReader::AestheteReader(const string& filename,
-                               int i,
+                               int id,
                                MatrixQueue* queue)
-    : filename_(filename), done_(false), i_(i), queue_(queue) {
+    : filename_(filename), done_(false), id_(id), queue_(queue) {
   CHECK_NOTNULL(queue);
 }
 
@@ -133,4 +133,62 @@ void* AestheteReader::Run(void* context) {
   return NULL;
 }
 
+// Generator Implementation
+
+namespace aesthete {
+
+Generator::Generator(int id, int num_matrices, int chunk_size,
+                     MatrixQueue* queue)
+    : id_(id), num_matrices_(num_matrices), chunk_size_(chunk_size),
+      queue_(queue) {
+  CHECK_NOTNULL(queue);
+}
+
+Generator::~Generator() {
+}
+
+void Generator::Start() {
+  CHECK_EQ(pthread_create(&thread_, NULL, &Generator::Run, this), 0);
+}
+
+void Generator::Join() {
+  CHECK_EQ(pthread_join(thread_, NULL), 0);
+}
+
+void* Generator::Run(void* context) {
+  Generator* self = static_cast<Generator*>(context);
+  
+  cryptogram::MatrixRepresentation mr;
+  char matrix[7];
+  vector<int> ints;
+
+  MatrixQueueEntry matrices;
+  matrices.reserve(FLAGS_chunk_size);
+  int matrices_generated = 0;
+  while (matrices_generated < self->num_matrices_) {
+    // Generate matrices for chunks while we have less than total matrices and
+    // we have fewer than chunk size. Once generated, we add the vector to the
+    // queue. If we have too many matrices now, we break.
+    for (int chunk_i = 0;
+         matrices_generated < self->num_matrices_ &&
+             chunk_i < self->chunk_size_;
+         matrices_generated++, chunk_i++) {
+      // Generate the random matrix.
+      memset(matrix, 0, 7);
+      for (int j = 0; j < 6; j++) {
+        matrix[j] = rand() % 256; // rand() or j.
+      }
+
+      // Store the matrix in the vector<>;
+      bitset<48> matrix_bitset;
+      MatrixRepresentation::BitsetFromBytes(matrix, &matrix_bitset);
+      matrices.push_back(matrix_bitset);
+    }
+    // Push the vector of matrices on to the queue.
+    self->queue_->put(matrices, true, 0);
+  }
+  return NULL;
+}
+
+} // namespace aesthete
 } // namespace cryptogram

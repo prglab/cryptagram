@@ -15,14 +15,6 @@ const int kParityLen = 32;
 int main(int argc, char** argv) {
   srand(time(NULL));
   
-  /* Symbolsize is 10 (bits)
-   * Primitive polynomial is x^10+x^3+1
-   * first consecutive root is 0
-   * primitive element to generate roots = 1
-   * generator polynomial degree (number of roots) = 6
-   */
-  // rs_control *rs = init_rs(10, 0x409, 0, 1, 6);
-
   rs_control *rs = init_rs(8, 0x187, 0, 1, 32);
   
   /* Parity buffer. Size = number of roots */
@@ -64,7 +56,7 @@ int main(int argc, char** argv) {
   int nchanges = 0;
   for (int i = 0; i < 223; i++) {
     if (rand() % 15 == 0) {
-      memset(data + i, 0, 1);
+      memset(data + i, rand() % 255, 1);
       nchanges++;
     }
   }
