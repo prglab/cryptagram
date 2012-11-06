@@ -29,13 +29,20 @@ read_aesthete_matrices_LDADD = libaesthete_thread.a  libaesthete.a libexperiment
 
 bin_PROGRAMS += in_memory_experiment
 in_memory_experiment_SOURCES = in_memory_experiment.cc
+in_memory_experiment_CPPFLAGS =  \
+  -fno-builtin-malloc \
+	-fno-builtin-calloc \
+	-fno-builtin-realloc \
+	-fno-builtin-free
+
 in_memory_experiment_LDADD = \
+	-L/usr/local/Cellar/google-perftools/2.0/lib \
 	libaesthete_thread.a \
 	libaesthete.a \
 	libexperiment.a \
 	libjpeg_codec.a \
 	libarray.a  \
-	-lpthread -lgflags -lglog
+	-lpthread -lgflags -lglog -ltcmalloc
 
 SUBDIRS = cryptopp base reed_solomon
 
