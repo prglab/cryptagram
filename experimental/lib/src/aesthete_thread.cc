@@ -7,7 +7,7 @@
 #include "google/gflags.h"
 #include "jpeg_codec.h"
 
-DEFINE_int64(chunk_size, 1000, "Chunk size.");
+DEFINE_int64(chunk_size, 50000, "Chunk size.");
 
 namespace cryptogram {
 
