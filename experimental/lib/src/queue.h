@@ -10,6 +10,7 @@
 #include <sys/time.h>
 
 #include "glog/logging.h"
+#include "types.h"
 
 // This Queue class follows the concurrency patterns and API of the python Queue
 // collection. The user may specify a maximum size for the internal queue
@@ -22,7 +23,7 @@
 template<typename T>
 class Queue {
  public:
-  explicit Queue(int maxsize) : maxsize_(maxsize), unfinished_tasks_(0) {
+  explicit Queue(uint64 maxsize) : maxsize_(maxsize), unfinished_tasks_(0) {
     CHECK_EQ(pthread_cond_init(&all_tasks_done_, NULL), 0);
     CHECK_EQ(pthread_cond_init(&not_empty_, NULL), 0);
     CHECK_EQ(pthread_cond_init(&not_full_, NULL), 0);
@@ -184,7 +185,7 @@ class Queue {
   pthread_cond_t not_full_;
   pthread_mutex_t mutex_;
 
-  int maxsize_;
+  uint64 maxsize_;
   int unfinished_tasks_;
 
   std::deque<T> queue_;
