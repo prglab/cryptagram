@@ -217,6 +217,10 @@ cryptogram.decoder.prototype.getBase8Value = function(x, y) {
   var count = 0.0;
   var vt = 0.0;
   var avg;
+  var r;
+  var g;
+  var b;
+  var Y;
   
   for (i = 0; i < this.blockSize; i++) {
     for (j = 0; j < this.blockSize; j++) {
@@ -224,9 +228,17 @@ cryptogram.decoder.prototype.getBase8Value = function(x, y) {
       base = (y + j) * this.img.width + (x + i);
       
       //Use green to estimate the luminance
-      green = this.imageData[4*base + 1];
-  
-      vt += green;
+      
+      r = this.imageData[4*base];
+      g = this.imageData[4*base + 1];
+      b = this.imageData[4*base + 2];
+      Y = 0.299 * r + 0.587 * g + 0.114 * b;
+      
+      /*if (x == y) {
+        console.log(x + " -> " + Y + ": (" + r + "," + g + "," + b + ")");
+      }*/
+      
+      vt += g;
       count++;
     }
   }
