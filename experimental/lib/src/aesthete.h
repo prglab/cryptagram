@@ -60,13 +60,13 @@ struct CompactMatrix {
 };
 
 struct CharMatrix {
-  char matrix[7];
+  char matrix[6];
 };
 
 class MatrixRepresentation {
  public:
   MatrixRepresentation();
-  explicit MatrixRepresentation(bitset<48> bits);
+  explicit MatrixRepresentation(const bitset<48>& bits);
   virtual ~MatrixRepresentation();
 
   void InitFromString(const char* input);
@@ -84,7 +84,7 @@ class MatrixRepresentation {
   void ToInts(vector<int>* output);
 
  private:
-  CompactMatrix matrix_;
+  bitset<48> bits_;
 
   MatrixRepresentation(const MatrixRepresentation&);
   void operator=(const MatrixRepresentation&);

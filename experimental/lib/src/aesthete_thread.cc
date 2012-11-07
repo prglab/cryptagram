@@ -51,8 +51,7 @@ void* AestheteRunner::Run(void* context) {
 
   Experiment experiment(discretizations, f_str_stream.str());
   experiment.Init();
-  MatrixQueueEntry* queue_entry = NULL;
-  bitset<48> tmp;
+  vector<CharMatrix>* queue_entry = NULL;
   while(true) {
     // To avoid busy waiting on the queue, we use the timeout on the get() call
     // to the queue.
@@ -63,11 +62,10 @@ void* AestheteRunner::Run(void* context) {
       }
       continue;
     }
-    queue_entry = static_cast<MatrixQueueEntry*>(queue_resp);
+    queue_entry = static_cast<vector<CharMatrix>*>(queue_resp);
     for (int i = 0; i < queue_entry->size(); i++) {
-      tmp.reset();
-      tmp = bitset<48>((*queue_entry)[i]);
-      MatrixRepresentation mr(tmp);
+      MatrixRepresentation mr;
+      mr.InitFromString((*queue_entry)[i].matrix);
       vector<int> matrix_entries;
       mr.ToInts(&matrix_entries);
       experiment.Run(matrix_entries);
@@ -107,42 +105,40 @@ void AestheteReader::Done() {
 }
 
 void* AestheteReader::Run(void* context) {
-  AestheteReader* self = static_cast<AestheteReader*>(context);
+//   AestheteReader* self = static_cast<AestheteReader*>(context);
 
-  // Read six bytes at a time.
-  std::filebuf in_file;
-  in_file.open(self->filename_.c_str(), std::ios::in);
+//   // Read six bytes at a time.
+//   std::filebuf in_file;
+//   in_file.open(self->filename_.c_str(), std::ios::in);
 
-  cryptogram::MatrixRepresentation mr;
-  char matrix[7];
-  vector<int> ints;
+//   cryptogram::MatrixRepresentation mr;
+//   char matrix[7];
+//   vector<int> ints;
 
-  MatrixQueueEntry *matrices = new MatrixQueueEntry();
-  matrices->reserve(FLAGS_chunk_size);
-  int matrix_count = 0;
-  while (true) {
-    // Run it through the cryptogram::MatrixRepresentation to get the
-    // discretizations.
-    bzero(matrix, 7);
-    streamsize ssize = in_file.sgetn(matrix, 6);
-    if (ssize <= 0) {
-      if (matrices->size() > 0) {
-        self->queue()->put(matrices, true, 0);
-      }
-      break;
-    }
+//   vector<CharMatrix> *matrices = new vector<CharMatrix>();
+//   matrices->reserve(FLAGS_chunk_size);
+//   int matrix_count = 0;
+//   while (true) {
+//     // Run it through the cryptogram::MatrixRepresentation to get the
+//     // discretizations.
+//     bzero(matrix, 7);
+//     streamsize ssize = in_file.sgetn(matrix, 6);
+//     if (ssize <= 0) {
+//       if (matrices->size() > 0) {
+//         self->queue()->put(matrices, true, 0);
+//       }
+//       break;
+//     }
 
-    bitset<48> bits;
-    cryptogram::MatrixRepresentation::BitsetFromBytes(matrix, &bits);
-    if (matrix_count >= FLAGS_chunk_size) {
-      self->queue()->put(matrices, true, 0);
-      matrices->clear();
-      matrix_count = 0;
-    } else {
-      matrices->push_back(bits);
-      matrix_count++;
-    }
-  }
+//     if (matrix_count >= FLAGS_chunk_size) {
+//       self->queue()->put(matrices, true, 0);
+//       matrices->clear();
+//       matrix_count = 0;
+//     } else {
+//       matrices->push_back(matrix);
+//       matrix_count++;
+//     }
+//   }
   return NULL;
 }
 
@@ -172,30 +168,28 @@ void* Generator::Run(void* context) {
   Generator* self = static_cast<Generator*>(context);
 
   cryptogram::MatrixRepresentation mr;
-  char matrix[7];
+  CharMatrix matrix;
   vector<int> ints;
 
-  MatrixQueueEntry* matrices = new MatrixQueueEntry();
-  matrices->reserve(FLAGS_chunk_size);
   int matrices_generated = 0;
   while (matrices_generated < self->num_matrices_) {
     // Generate matrices for chunks while we have less than total matrices and
     // we have fewer than chunk size. Once generated, we add the vector to the
     // queue. If we have too many matrices now, we break.
+    vector<CharMatrix>* matrices = new vector<CharMatrix>();
+    matrices->reserve(FLAGS_chunk_size);
     for (int chunk_i = 0;
          matrices_generated < self->num_matrices_ &&
              chunk_i < self->chunk_size_;
          matrices_generated++, chunk_i++) {
       // Generate the random matrix.
-      memset(matrix, 0, 7);
+      memset(matrix.matrix, 0, 7);
       for (int j = 0; j < 6; j++) {
-        matrix[j] = rand() % 256; // rand() or j.
+        matrix.matrix[j] = rand() % 256; // rand() or j.
       }
 
       // Store the matrix in the vector<>;
-      bitset<48> matrix_bitset;
-      MatrixRepresentation::BitsetFromBytes(matrix, &matrix_bitset);
-      matrices->push_back(matrix_bitset);
+      matrices->push_back(matrix);
     }
     // Push the vector of matrices on to the queue.
     self->queue_->put(matrices, true, 0);
