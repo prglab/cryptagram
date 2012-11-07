@@ -12,7 +12,7 @@
 #include "queue.h"
 #include "types.h"
 
-typedef vector<bitset<48> > MatrixQueueEntry;
+// typedef vector<bitset<48> > MatrixQueueEntry;
 
 namespace cryptogram {
 

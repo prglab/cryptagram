@@ -1,7 +1,6 @@
 // Copyright 2012. The Cryptogram Authors. BSD License.
 // Author: tierney@cs.nyu.edu (Matt Tierney)
 
-#include <bitset>
 #include <cstdlib>
 #include <string>
 
@@ -12,13 +11,13 @@
 #include "queue.h"
 #include "types.h"
 
+DEFINE_bool(no_quit, false, "Do not quit when queue is empty.");
 DEFINE_int32(gen_threads, 1, "Number of generator threads.");
 DEFINE_int32(run_threads, 1, "Number of runner threads.");
-DEFINE_string(input_file, "matrices.txt", "Input file for matrices.");
-DEFINE_bool(no_quit, false, "Do not quit when queue is empty.");
 DEFINE_int64(num_matrices, 1000000, "Number of matrices to generate "
              "(technically, num_matrices divided by gen_threads).");
 DEFINE_int32(queue_size, 10000, "Maximum number of chunks to hold in queue.");
+DEFINE_string(input_file, "matrices.txt", "Input file for matrices.");
 
 DECLARE_int64(chunk_size);
 
