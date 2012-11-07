@@ -200,5 +200,61 @@ void* Generator::Run(void* context) {
   return NULL;
 }
 
+// ECC Generator Implementation.
+
+ECCGenerator::ECCGenerator(int id, int num_matrices, int chunk_size,
+                     Queue* queue)
+    : id_(id), num_matrices_(num_matrices), chunk_size_(chunk_size),
+      queue_(queue) {
+  CHECK_NOTNULL(queue);
+}
+
+ECCGenerator::~ECCGenerator() {
+}
+
+void ECCGenerator::Start() {
+  CHECK_EQ(pthread_create(&thread_, NULL, &ECCGenerator::Run, this), 0);
+}
+
+void ECCGenerator::Join() {
+  CHECK_EQ(pthread_join(thread_, NULL), 0);
+}
+
+void* ECCGenerator::Run(void* context) {
+  ECCGenerator* self = static_cast<ECCGenerator*>(context);
+
+  cryptogram::MatrixRepresentation mr;
+  CharMatrix matrix;
+  vector<int> ints;
+
+  int matrices_generated = 0;
+  while (matrices_generated < self->num_matrices_) {
+    // Generate matrices for chunks while we have less than total matrices and
+    // we have fewer than chunk size. Once generated, we add the vector to the
+    // queue. If we have too many matrices now, we break.
+    vector<CharMatrix>* matrices = new vector<CharMatrix>();
+    matrices->reserve(FLAGS_chunk_size);
+    for (int chunk_i = 0;
+         matrices_generated < self->num_matrices_ &&
+             chunk_i < self->chunk_size_;
+         matrices_generated++, chunk_i++) {
+      // Generate the random matrix.
+      memset(matrix.matrix, 0, 6);
+      for (int j = 0; j < 6; j++) {
+        // matrix.matrix[j] = rand() % 256; // rand() or j.
+        matrix.matrix[j] = ReentrantRNG::RandChar();
+      }
+
+      // Store the matrix in the vector<>;
+      matrices->push_back(matrix);
+    }
+    // Push the vector of matrices on to the queue.
+    self->queue_->put(matrices, true, 0);
+  }
+  LOG(INFO) << "Done generating matrices.";
+  return NULL;
+}
+
+
 } // namespace aesthete
 } // namespace cryptogram

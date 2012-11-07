@@ -29,6 +29,10 @@ struct array {
   void RandomAesthete(const std::vector<int>& values);
   void FillFromInts(const std::vector<int>& indices,
                     const std::vector<int>& values);
+  void FillBlockFromInts(const std::vector<int>& indices,
+                         const std::vector<int>& values,
+                         int block_h,
+                         int block_w);
 };
 
 } // namespace cryptogram
