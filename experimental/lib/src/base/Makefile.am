@@ -1,4 +1,7 @@
 noinst_LIBRARIES = 
+
+# libstringprintf_a_SOURCES = stringprintf.h stringprintf.cc
+
 # noinst_LIBRARIES = threading/libthread.a libmessage_loop.a
 
 # threading_libthread_a_SOURCES = threading/thread.h threading/thread.cc

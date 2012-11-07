@@ -1,10 +1,21 @@
 // Copyright 2012. The Cryptogram Authors. BSD-Style License.
 // JPEG Benchmark C++ Code.
+// 
+// Should have multiple threads handling different efforts. In
+// particular we want to have three types of threads. One takes care
+// of paging in from disk already-generated matrices (six bytes per
+// matrix representations on disk). These are then encapsulated in a
+// queue of batches of the matrices. These batches are then what will
+// be passed to worker threads. The worker threads will have access to
+// these values in memory and claim locks on the queues. The queues
+// then will be used for coordinating the work of the rest of the
 
 #include <iostream>
 #include <time.h>
 #include <vector>
 
+#include "aesthete.h"
+#include "array.h"
 #include "boost/numeric/ublas/io.hpp"
 #include "boost/numeric/ublas/matrix.hpp"
 #include "boost/scoped_array.hpp"
@@ -41,64 +52,6 @@ void GenerateRandomRgbArray(
   }
 }
 
-template<typename T>
-struct array {
-  T* data;
-  int w, h;
-
-  array() : data(NULL), w(0), h(0) {}
-
-  array(int width, int height) {
-    data = new T[width * height];
-    w = width;
-    h = height;
-  }
-
-  ~array() {
-    delete[] data;
-  }
-
-  T& operator()(int x, int y) {
-    return data[y * w + x];
-  }
-
-  void RandomAesthete(const std::vector<int>& values);
-};
-
-template<>
-void array<unsigned char>::RandomAesthete(const std::vector<int>& values) {
-  for (int i = 0; i < 8; i += 2) {
-    for (int j = 0; j < 8; j += 2) {
-      int value = values[rand() % values.size()];
-
-      data[(i * w + (3 * j))] = value;
-      data[(i * w + (3 * j)) + 1] = value;
-      data[(i * w + (3 * j)) + 2] = value;
-      data[(i * w + (3 * j)) + 3] = value;
-      data[(i * w + (3 * j)) + 4] = value;
-      data[(i * w + (3 * j)) + 5] = value;
-
-      data[((i + 1) * w + (3 * j))] = value;
-      data[((i + 1) * w + (3 * j)) + 1] = value;
-      data[((i + 1) * w + (3 * j)) + 2] = value;
-      data[((i + 1) * w + (3 * j)) + 3] = value;
-      data[((i + 1) * w + (3 * j)) + 4] = value;
-      data[((i + 1) * w + (3 * j)) + 5] = value;
-    }
-  }
-}
-
-void AverageAestheteBlocks(const matrix<unsigned char>& input,
-                           matrix<double>* output) {
-  CHECK_NOTNULL(output);
-  for (int i = 0; i < 8; i += 2) {
-    for (int j = 0; j < 8; j += 2) {
-      float temp = (input(i,j) + input(i+1,j) + input(i,j+1) +
-                    input(i+1,j+1)) / 4.;
-      (*output)(i/2,j/2) = temp;
-    }
-  }
-}
 
 class Experiment {
  public:
@@ -158,6 +111,8 @@ int main(int argc, char** argv) {
     cryptogram::array<unsigned char> image(8 * 3, 8);
     image.RandomAesthete(values);
 
+    // TODO(tierney): Convert the particular vector<int> into the matrix.
+    
     matrix<unsigned char> orig_matrix(8, 8);
     for (int i = 0; i < 8; i++) {
       for (int j = 0; j < 24; j += 3) {

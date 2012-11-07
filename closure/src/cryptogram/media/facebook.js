@@ -47,7 +47,7 @@ cryptogram.media.facebook.prototype.matchesURL = function(URL) {
 cryptogram.media.facebook.prototype.getImages = function(opt_URL) {
     
   var valid = [];
-  var images;
+  var images = [];
   
   if (this.state == cryptogram.media.facebook.state.SPOTLIGHT) {
     images = goog.dom.getElementsByClass('spotlight');
@@ -70,15 +70,13 @@ cryptogram.media.facebook.prototype.getImages = function(opt_URL) {
         var src = ajaxParts[3];
               
         if (src.substring(0,4)=="src=") {
-                  
           var fullSrc = unescape(src.substring(4,src.length));
           this.logger.info("Extracted src from ajaxify: " + fullSrc);
           thumbs[i].src = fullSrc;
-          valid.push(thumbs[i]);
+          images.push(thumbs[i]);
         }
       }
     }
-    return valid;
   }
     
   for (var i = 0; i < images.length; i++) {
