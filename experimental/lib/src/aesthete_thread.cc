@@ -1,5 +1,6 @@
 #include "aesthete_thread.h"
 
+#include <cstdlib>
 #include <memory>
 
 #include "aesthete.h"
@@ -62,7 +63,7 @@ void* AestheteRunner::Run(void* context) {
       continue;
     }
     queue_entry = static_cast<vector<CharMatrix>*>(queue_resp);
-    for (int i = 0; i < queue_entry->size(); i++) {
+    for (unsigned int i = 0; i < queue_entry->size(); i++) {
       MatrixRepresentation mr;
       mr.InitFromString((*queue_entry)[i].matrix);
       vector<int> matrix_entries;
@@ -184,7 +185,15 @@ void* Generator::Run(void* context) {
       // Generate the random matrix.
       memset(matrix.matrix, 0, 6);
       for (int j = 0; j < 6; j++) {
-        matrix.matrix[j] = rand() % 256; // rand() or j.
+        // matrix.matrix[j] = rand() % 256; // rand() or j.
+
+        // Use the reentrant prng.
+        double x = 0;
+        struct drand48_data rand_buffer;
+        drand48_r(&rand_buffer, &x);
+
+        matrix.matrix[j] = static_cast<char>(static_cast<int>(
+            x * 256));
       }
 
       // Store the matrix in the vector<>;
