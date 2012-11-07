@@ -8,6 +8,7 @@ cryptogram.encoder = function() {};
 
 
 cryptogram.encoder.octal_symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14];
+
 // Each base-64 character gets split into two octal symbols, so we have one
 // function to turn an octal symbol into a single threshold and a base-64
 // character into a short array of thresholds.
@@ -97,21 +98,54 @@ cryptogram.encoder.prototype.encode = function(data, width_to_height_ratio, head
   var imageData = cxt.createImageData(width, height);
   var d = imageData.data;
 
-  function set_pixel(x, y, level) {
+  function set_pixel(x, y, r, g, b) {
     idx = 4 * (x + y * width);
  
     // set RGB channels to same level since we're encoding data as grayscale
-    d[idx] = level;
-    d[idx + 1] = level;
-    d[idx + 2] = level;
+    d[idx] = r;
+    d[idx + 1] = g;
+    d[idx + 2] = b;
     d[idx + 3] = 255; // alpha channel
   }
 
   function set_block(x_start, y_start, level) {
+   var r = level;
+   var b = level;
+   var g = level;
+   
+   /* var max = 255 - level;
+    
+    if (level > 128) {
+      b = level + max;
+      r  = level -  ((.114 / .299) * max);
+      var Y = 0.299 * r + 0.587 * level + 0.114 * b;
+    
+      if (x_start == y_start) {
+        console.log(x_start + " >> "+ Y +": (" + r + "," + level + "," + b + ")");
+      }
+    }*/
+    
+    var stripeX = Math.floor(x_start / 16) % 3;
+    var stripeY = Math.floor(y_start / 16) % 3;
+    
+    if (stripeX == 0) {
+      r = level + 25;
+    } else if (stripeX == 1) {
+      r = level - 25;
+    }
+    
+    
+    /*if (stripeY == 0) {
+      b = level + 25;
+    } else if (stripeY == 1) {
+      b = level - 25;
+    }
+    
+       
    
     for (var i = 0; i < block_width; i++) {
       for (var j = 0; j < block_height; j++) {
-        set_pixel(x_start+i, y_start+j, level);
+        set_pixel(x_start+i, y_start+j, r, g, b);
       }
     }
   }
@@ -156,7 +190,7 @@ cryptogram.encoder.prototype.encode = function(data, width_to_height_ratio, head
     
   cxt.putImageData(imageData, 0, 0);
   var img = new Image();
-  img.src = c.toDataURL('image/jpeg', 0.95);
+  img.src = c.toDataURL('image/jpeg', 0.74);
   return img;
 };
 
