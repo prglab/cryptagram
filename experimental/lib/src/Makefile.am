@@ -29,6 +29,7 @@ read_aesthete_matrices_LDADD = libaesthete_thread.a  libaesthete.a libexperiment
 
 bin_PROGRAMS += in_memory_experiment
 in_memory_experiment_SOURCES = in_memory_experiment.cc
+in_memory_experiment_CPPFLAGs = -Wall
 in_memory_experiment_LDADD = \
 	libaesthete_thread.a \
 	libaesthete.a \

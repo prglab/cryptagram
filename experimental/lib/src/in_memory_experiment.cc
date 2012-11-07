@@ -9,9 +9,9 @@
 #include "glog/logging.h"
 #include "google/gflags.h"
 #include "queue.h"
+#include "reentrant_rand.h"
 #include "types.h"
 
-DEFINE_bool(no_quit, false, "Do not quit when queue is empty.");
 DEFINE_int32(gen_threads, 1, "Number of generator threads.");
 DEFINE_int32(run_threads, 1, "Number of runner threads.");
 DEFINE_int64(num_matrices, 1000000, "Number of matrices to generate "
@@ -23,11 +23,31 @@ DECLARE_int64(chunk_size);
 
 const int kBytesPerMatrix = 6;
 
+namespace {
+
+void usage() {
+  std::cout << "In memory experiment for the Cryptogram project." << std::endl;
+#ifdef HAVE_LIBTCMALLOC
+  std::cout << "--> Using libtcmalloc." << std::endl;
+#endif
+
+  if (FLAGS_queue_size > 0) {
+    std::cout << "--> Queue size: " << FLAGS_queue_size << std::endl;
+  }
+}
+
+} // namespace
+
 int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, false);
 
+  usage();
+
   Queue queue(FLAGS_queue_size);
+
+  // Initialize state for generators.
+  cryptogram::ReentrantRNG::SeedRNG();
 
   vector<cryptogram::aesthete::Generator*> generators;
   for (int i = 0; i < FLAGS_gen_threads; i++) {
@@ -51,13 +71,6 @@ int main(int argc, char** argv) {
     runners[i]->Start();
   }
 
-  while (FLAGS_no_quit) {
-    std::cout << "Waiting indefinitely..." << std::endl;
-    sleep(1);
-  }
-
-  std::cout << "All threads started. Now waiting for job queue to be "
-            << "exhausted." << std::endl;
   queue.join();
 
   for (int i = 0; i < FLAGS_gen_threads; i++) {
@@ -67,7 +80,9 @@ int main(int argc, char** argv) {
   for (int i = 0; i < FLAGS_run_threads; i++) {
     runners[i]->Done();
   }
-  LOG(INFO) << "Waiting for the runners to finish.";
+
+  std::cout << "Finished generating matrices for queue." << std::endl;
+  std::cout << "Waiting for the runners to finish." << std::endl;
   for (int i = 0; i < FLAGS_run_threads; i++) {
     runners[i]->Join();
   }

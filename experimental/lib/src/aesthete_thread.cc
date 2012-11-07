@@ -9,6 +9,7 @@
 #include "glog/logging.h"
 #include "google/gflags.h"
 #include "jpeg_codec.h"
+#include "reentrant_rand.h"
 
 DEFINE_int64(chunk_size, 50000, "Chunk size.");
 
@@ -186,14 +187,7 @@ void* Generator::Run(void* context) {
       memset(matrix.matrix, 0, 6);
       for (int j = 0; j < 6; j++) {
         // matrix.matrix[j] = rand() % 256; // rand() or j.
-
-        // Use the reentrant prng.
-        double x = 0;
-        struct drand48_data rand_buffer;
-        drand48_r(&rand_buffer, &x);
-
-        matrix.matrix[j] = static_cast<char>(static_cast<int>(
-            x * 256));
+        matrix.matrix[j] = ReentrantRNG::RandChar();
       }
 
       // Store the matrix in the vector<>;
@@ -202,7 +196,7 @@ void* Generator::Run(void* context) {
     // Push the vector of matrices on to the queue.
     self->queue_->put(matrices, true, 0);
   }
-  std::cout << "Done generating matrices." << std::endl;
+  LOG(INFO) << "Done generating matrices.";
   return NULL;
 }
 
