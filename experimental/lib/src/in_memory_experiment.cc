@@ -31,11 +31,13 @@ int main(int argc, char** argv) {
 
   vector<cryptogram::aesthete::Generator*> generators;
   for (int i = 0; i < FLAGS_gen_threads; i++) {
-    generators.push_back(new cryptogram::aesthete::Generator(
-        0,
-        FLAGS_num_matrices / FLAGS_gen_threads,
-        FLAGS_chunk_size,
-        &queue));
+    cryptogram::aesthete::Generator* gen =
+        new cryptogram::aesthete::Generator(
+            0,
+            FLAGS_num_matrices / FLAGS_gen_threads,
+            FLAGS_chunk_size,
+            &queue);
+    generators.push_back(gen);
   }
   for (int i = 0; i < FLAGS_gen_threads; i++) {
     generators[i]->Start();
