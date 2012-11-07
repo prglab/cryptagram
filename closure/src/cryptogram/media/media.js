@@ -4,9 +4,7 @@ goog.provide('cryptogram.media');
 /**
  * @constructor
  */
-cryptogram.media = function() {
-  this.containers = {};
-};
+cryptogram.media = function() {};
 
 cryptogram.media.prototype.name = goog.abstractMethod;
 
@@ -16,18 +14,12 @@ cryptogram.media.prototype.getAlbumName = goog.abstractMethod;
 
 cryptogram.media.prototype.getPhotoName = goog.abstractMethod;
 
-//cryptogram.media.prototype.loadContainer = goog.abstractMethod;
-
 cryptogram.media.prototype.getImages = goog.abstractMethod;
 
-
 cryptogram.media.prototype.loadContainer = function(URL) {
-  if (this.containers[URL]) {
-    return this.containers[URL];
-  }
+  
   var images = this.getImages(URL);
   var container = new cryptogram.container(images[0]);
-  this.containers[URL] = container;
   return container;
 };
 

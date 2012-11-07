@@ -83,8 +83,10 @@ std::string Crypto::SecurePassword(const std::string &password,
   CryptoPP::SecByteBlock derived(AES256_KeySize + AES256_IVSize);
   pbkdf.DeriveKey(derived, derived.size(), purpose,
                   reinterpret_cast<const byte*>(password.data()),
-                  password.size(), reinterpret_cast<const byte*>(salt.data()),
-                  salt.size(), iter);
+                  password.size(),
+                  reinterpret_cast<const byte*>(salt.data()),
+                  salt.size(),
+                  iter);
   std::string derived_password;
   CryptoPP::StringSink string_sink(derived_password);
   string_sink.Put(derived, derived.size());

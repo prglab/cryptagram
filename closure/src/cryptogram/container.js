@@ -8,17 +8,18 @@ goog.require('goog.dom');
 cryptogram.container = function(img, node) {
 
   this.backgroundMode = false;
-  
-  if (img.tagName != "IMG") {
-    this.backgroundMode = true;
-  }
-
   this.img = img;
   this.div = goog.dom.createDom('div', { 'class': 'status'});
   this.div.style.display = 'none';
   if (node == null) {
     node = img.parentNode;
   }
+
+  if (img.tagName != "IMG") {
+    this.backgroundMode = true;
+    node = img;
+  }
+
   node.appendChild(this.div);
 };
 
@@ -34,8 +35,11 @@ cryptogram.container.prototype.setSrc = function(src) {
     if (this.backgroundMode) {
       this.img.style.background = "url(" + src + ")";
       this.img.style.backgroundRepeat = "no-repeat";
+      
+      //Hack to force correct resize of decoded background image
       this.img.style.backgroundSize = "100%";
-      this.img.style.verticalAlign = "middle";
+      this.img.style.backgroundSize = "";
+      
     } else {
       this.img.src = src;    
     }

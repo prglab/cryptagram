@@ -8,16 +8,23 @@
 #ifndef EXPERIMENT_H_
 #define EXPERIMENT_H_
 
-#include "discretizations.h"
+#include <fstream>
+#include <vector>
 
 namespace cryptogram {
 
 class Experiment {
  public:
-  Experiment();
+  explicit Experiment(const std::vector<int>& discretizations);
 
+  // Returns the number of errors found in the experiment.
+  int Run(const std::vector<int>& matrix_entries, std::ofstream* out_fstream);
+  
  private:
-  Discretizations discretizations_;
+  std::vector<int> discretizations_;
+  
+  Experiment(const Experiment&);
+  void operator=(const Experiment&);
 };
 
 } // namespace cryptogram

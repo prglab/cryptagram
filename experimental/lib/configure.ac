@@ -4,6 +4,10 @@
 AC_PREREQ([2.68])
 AC_INIT([Cryptogram], [1.0], [tierney@cs.nyu.edu])
 AM_INIT_AUTOMAKE
+AM_SILENT_RULES([no])
+
+AC_DEFINE(CONFIG_REED_SOLOMON_ENC8, 1, Reed Solomon encoding word length)
+AC_DEFINE(CONFIG_REED_SOLOMON_DEC8, 1, Reed Solomon decoding word length)
 AC_CONFIG_SRCDIR([src/main.cc])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -11,9 +15,8 @@ LT_PREREQ([2.2])
 LT_INIT([dlopen])
 
 # Checks for programs.
-AC_PROG_CC
+AC_PROG_CC([clang])
 AC_PROG_CXX([clang++])
-AC_LANG([C++])
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
@@ -50,9 +53,18 @@ AC_SUBST(PTHREAD_LIBS)
 
 # Checks for libraries.
 AC_CHECK_LIB([glog], [_ZN6google17InitGoogleLoggingEPKc], ,
-  AC_MSG_ERROR([Missing glog library.]))
+  AC_MSG_WARN([
+
+Make sure you link to google's logging library.
+
+]))
+
 AC_CHECK_LIB([jpeg], [jpeg_finish_compress], ,
-  AC_MSG_ERROR([Missing jpeg library.]))
+  AC_MSG_WARN([
+
+Make sure you link to libjpeg.
+
+]))
 
 dnl AC_CHECK_LIB([gtest], [_ZN7testing14InitGoogleTestEPiPPc], ,
 dnl   AC_MSG_WARN([
@@ -85,6 +97,9 @@ AC_CHECK_FUNCS([bzero memmove])
 AC_CONFIG_FILES([Makefile
                  src/Makefile
 								 src/cryptopp/Makefile
+                 src/reed_solomon/Makefile
+                 src/base/Makefile
                  ])
+
 AC_CONFIG_FILES([scripts/gtest-config], [chmod +x scripts/gtest-config])
 AC_OUTPUT
