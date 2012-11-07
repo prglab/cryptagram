@@ -38,7 +38,6 @@ void* AestheteRunner::Run(void* context) {
   ostringstream f_str_stream;
   f_str_stream << "out_" << self->id_ << ".txt";
 
-  // Generate images.
   std::vector<int> discretizations;
   discretizations.push_back(240);
   discretizations.push_back(208);
