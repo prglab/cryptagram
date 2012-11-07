@@ -1,3 +1,6 @@
+// Copyright 2012. The Cryptogram Authors. BSD License.
+// Author: tierney@cs.nyu.edu (Matt Tierney)
+
 #include <iostream>
 #include <vector>
 
@@ -14,11 +17,17 @@ void Foo() {
 
   char data[6];
   memset(data, 1, 6);
-  
+
   MatrixRepresentation mr;
   mr.InitFromString(data);
   std::vector<int> matrix_entries;
   mr.ToInts(&matrix_entries);
+  for (unsigned int i = 0;
+       i < matrix_entries.size();
+       i++) {
+    std::cout << matrix_entries[i] << " ";
+  }
+  std::cout << std::endl;
 
   std::vector<int> discretizations;
   discretizations.push_back(240);
@@ -48,6 +57,6 @@ void Foo() {
 
 int main(int argc, char** argv) {
   cryptogram::Foo();
-  
+
   return 0;
 }
