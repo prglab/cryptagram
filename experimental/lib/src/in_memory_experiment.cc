@@ -31,13 +31,13 @@ int main(int argc, char** argv) {
 
   vector<cryptogram::aesthete::Generator*> generators;
   for (int i = 0; i < FLAGS_gen_threads; i++) {
-    cryptogram::aesthete::Generator* gen =
+    generators.push_back(
         new cryptogram::aesthete::Generator(
             0,
             FLAGS_num_matrices / FLAGS_gen_threads,
             FLAGS_chunk_size,
-            &queue);
-    generators.push_back(gen);
+            &queue));
+
   }
   for (int i = 0; i < FLAGS_gen_threads; i++) {
     generators[i]->Start();
@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
             << "exhausted." << std::endl;
   queue.join();
 
-  for (int i = 0; i < FLAGS_run_threads; i++) {
+  for (int i = 0; i < FLAGS_gen_threads; i++) {
     generators[i]->Join();
   }
 
