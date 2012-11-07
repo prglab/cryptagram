@@ -43,7 +43,7 @@ void MatrixRepresentation::InitFromString(const char* input) {
 void MatrixRepresentation::InitFromInts(const vector<int>& values) {
   CHECK_EQ(values.size(), 16);
   const int kNumDiscretizations = 8;
-  for (int i = 0; i < values.size(); i++) {
+  for (unsigned int i = 0; i < values.size(); i++) {
     const int val = values[i];
     CHECK_GE(val, 0);
     CHECK_LE(val, kNumDiscretizations);
