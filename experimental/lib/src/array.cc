@@ -1,6 +1,7 @@
 #include "array.h"
 
 #include <cstdlib>
+#include <iostream>
 
 namespace cryptogram {
 
@@ -67,10 +68,12 @@ void array<unsigned char>::FillBlockFromInts(
 
   const int init_h = block_h * 8;
   const int init_w = block_w * 8;
-  
+
   for (int i = init_h; i < init_h + 8; i += 2) {
     for (int j = init_w; j < init_w + 8; j += 2) {
-      const int value_index = indices[(i / 2) * 4 + (j / 2)];
+      const int value_index = indices[(i / 16) * 4 + (j / 16)];
+      std::cout << value_index << " " << init_h/16 << " " << init_w/16
+                << " | ";
       const int value = values[value_index];
 
       data[(i * w + (3 * j))] = value;
@@ -87,6 +90,7 @@ void array<unsigned char>::FillBlockFromInts(
       data[((i + 1) * w + (3 * j)) + 4] = value;
       data[((i + 1) * w + (3 * j)) + 5] = value;
     }
+    std::cout << std::endl;
   }
 }
 
