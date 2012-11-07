@@ -29,6 +29,14 @@ using std::vector;
 
 namespace cryptogram {
 
+struct CompactMatrix {
+  bitset<48> bits;
+};
+
+struct CharMatrix {
+  char matrix[6];
+};
+
 void AverageAestheteBlocks(const matrix<unsigned char>& input,
                            matrix<double>* output);
 
@@ -54,14 +62,6 @@ vector<unsigned char> bitset_to_bytes(const std::bitset<N>& bs)
 //     result[j] = ((buf[j>>3] >> (j & 7)) & 1);
 //   return result;
 // }
-
-struct CompactMatrix {
-  bitset<48> bits;
-};
-
-struct CharMatrix {
-  char matrix[6];
-};
 
 class MatrixRepresentation {
  public:

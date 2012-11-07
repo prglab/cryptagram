@@ -27,6 +27,13 @@ read_aesthete_matrices_SOURCES = read_aesthete_matrices.cc
 read_aesthete_matrices_LDADD = libaesthete_thread.a  libaesthete.a libexperiment.a \
    libjpeg_codec.a libarray.a  -lpthread -lgflags -lglog
 
+bin_PROGRAMS += ecc_experiment
+ecc_experiment_SOURCES = ecc_experiment.cc
+ecc_experiment_CPPFLAGS = -Wall
+ecc_experiment_LDADD = \
+  libarray.a \
+	libaesthete.a
+
 bin_PROGRAMS += in_memory_experiment
 in_memory_experiment_SOURCES = in_memory_experiment.cc
 in_memory_experiment_CPPFLAGs = -Wall
@@ -37,6 +44,7 @@ in_memory_experiment_LDADD = \
 	libjpeg_codec.a \
 	libarray.a  \
 	-lpthread -lgflags -lglog
+
 if USE_LIBTCMALLOC
   in_memory_experiment_CPPFLAGS =  \
     -fno-builtin-malloc \

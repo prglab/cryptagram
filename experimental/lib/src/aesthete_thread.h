@@ -84,6 +84,26 @@ class Generator {
   DISALLOW_COPY_AND_ASSIGN(Generator);  
 };
 
+class ECCGenerator {
+ public:
+  ECCGenerator(int id, int num_matrices, int chunk_size, Queue* queue);
+  virtual ~ECCGenerator();
+
+  void Start();
+  void Join();
+
+  static void* Run(void* context);
+
+ private:
+  int id_;
+  int num_matrices_;
+  int chunk_size_;
+  pthread_t thread_;
+  Queue* queue_;
+
+  DISALLOW_COPY_AND_ASSIGN(ECCGenerator);  
+};
+
 } // namespace aesthete
 } // namespace cryptogram
 

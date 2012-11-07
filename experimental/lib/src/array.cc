@@ -56,4 +56,38 @@ void array<unsigned char>::FillFromInts(const std::vector<int>& indices,
   }
 }
 
+template<>
+void array<unsigned char>::FillBlockFromInts(
+    const std::vector<int>& indices,
+    const std::vector<int>& values,
+    int block_h,
+    int block_w) {
+  CHECK_EQ(indices.size(), 16);
+  CHECK_EQ(values.size(), 8);
+
+  const int init_h = block_h * 8;
+  const int init_w = block_w * 8;
+  
+  for (int i = init_h; i < init_h + 8; i += 2) {
+    for (int j = init_w; j < init_w + 8; j += 2) {
+      const int value_index = indices[(i / 2) * 4 + (j / 2)];
+      const int value = values[value_index];
+
+      data[(i * w + (3 * j))] = value;
+      data[(i * w + (3 * j)) + 1] = value;
+      data[(i * w + (3 * j)) + 2] = value;
+      data[(i * w + (3 * j)) + 3] = value;
+      data[(i * w + (3 * j)) + 4] = value;
+      data[(i * w + (3 * j)) + 5] = value;
+
+      data[((i + 1) * w + (3 * j))] = value;
+      data[((i + 1) * w + (3 * j)) + 1] = value;
+      data[((i + 1) * w + (3 * j)) + 2] = value;
+      data[((i + 1) * w + (3 * j)) + 3] = value;
+      data[((i + 1) * w + (3 * j)) + 4] = value;
+      data[((i + 1) * w + (3 * j)) + 5] = value;
+    }
+  }
+}
+
 } // namespace cryptogram
