@@ -183,7 +183,7 @@ void* Generator::Run(void* context) {
              chunk_i < self->chunk_size_;
          matrices_generated++, chunk_i++) {
       // Generate the random matrix.
-      memset(matrix.matrix, 0, 7);
+      memset(matrix.matrix, 0, 6);
       for (int j = 0; j < 6; j++) {
         matrix.matrix[j] = rand() % 256; // rand() or j.
       }
