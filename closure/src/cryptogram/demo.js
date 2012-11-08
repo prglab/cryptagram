@@ -133,7 +133,7 @@ cryptogram.demo.prototype.handleFiles = function(files) {
   var zip;
   var images;
   var self = this;
-  var codec = new cryptogram.codec.bacchant();
+  var codec = new cryptogram.codec.aesthete();
   var cipher = new cryptogram.cipher();
   
   if (this.zip == null) {
