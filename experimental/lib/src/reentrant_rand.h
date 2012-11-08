@@ -16,8 +16,9 @@ class ReentrantRNG {
   ReentrantRNG();
   
   virtual ~ReentrantRNG();
-
+#ifndef __gnu_linux__
   char RandChar();
+#endif  // __gnu_linux__
   
  private:
   unsigned short state_[3];
