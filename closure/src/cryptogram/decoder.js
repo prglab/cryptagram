@@ -1,6 +1,7 @@
 goog.provide('cryptogram.decoder');
 
 goog.require('cryptogram.codec.aesthete');
+goog.require('cryptogram.codec.bacchant');
 goog.require('cryptogram.storage');
 goog.require('goog.debug.Logger');
 
@@ -20,10 +21,9 @@ cryptogram.decoder.URIHeader = "data:image/jpeg;base64,";
 /**
  * Decodes the supplied base64 data and applies the callback.
  * @param data The input base64 data.
- * @param password The cryptogram password.
  * @param callback The function to call on the resulting data.
  */
-cryptogram.decoder.prototype.decodeData = function(data, password, callback) {
+cryptogram.decoder.prototype.decodeData = function(data, callback) {
 
   this.base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
   var self = this;
@@ -46,14 +46,12 @@ cryptogram.decoder.prototype.decodeData = function(data, password, callback) {
     self.imageData = imageData;
     self.blockSize = blockSize;
     self.headerSize = blockSize * 4;
-    self.password = password;
     self.chunkSize = img.height / 20.0;
     self.y = 0;
     self.newBase64 = "";
-
-    var codec = self.getCodec(img, imageData);
+    self.codec = self.getCodec(img, imageData);
     
-    if (!codec) {
+    if (!self.codec) {
       self.container.setStatus();
     } else {
       self.processImage();    
@@ -66,9 +64,7 @@ cryptogram.decoder.prototype.decodeData = function(data, password, callback) {
 
 cryptogram.decoder.prototype.getCodec = function(img, imageData) {
 
-
-  
-  var knownCodecs = [cryptogram.codec.aesthete];
+  var knownCodecs = [cryptogram.codec.aesthete, cryptogram.codec.bacchant];
   var testCodec;
   for (var i = 0; i < knownCodecs.length; i++) {
     testCodec = new knownCodecs[i]();
@@ -77,32 +73,10 @@ cryptogram.decoder.prototype.getCodec = function(img, imageData) {
       return testCodec;
     }
   }
-  //this.logger.severe("Unknown codec.");
+  this.logger.severe("Unknown codec.");
   return null;
 }
 
-
-/** 
- * @private
- */
-cryptogram.decoder.prototype.getHeader = function() {
-
-    var newBase64 = "";
-    
-    for (y = 0; y < 8; y+= this.blockSize) {
-      for (x = 0; x < 8; x+= 2*this.blockSize) {
-        
-        base8_0 = this.getBase8Value(x, y);
-        base8_1 = this.getBase8Value(x + this.blockSize, y);
-  
-        base64Num = base8_0 * 8 + base8_1 ;
-        base64 = this.base64Values.charAt(base64Num);                    
-        newBase64 += base64;
-      }
-    }
-    
-    return newBase64;       
-}
 
 /** 
  * @private
@@ -112,7 +86,8 @@ cryptogram.decoder.prototype.processImage = function() {
   var count = 0;
   var y = this.y;
   var done = false;
-      
+  
+  
   while (this.chunkSize == 0 || count < this.chunkSize) {
       
     for (x = 0; x < this.img.width; x+= (this.blockSize * 2)) {
@@ -131,7 +106,7 @@ cryptogram.decoder.prototype.processImage = function() {
         base64Num = base8_0 * 8 + base8_1 ;
         base64 = this.base64Values.charAt(base64Num);
         this.newBase64 += base64;
-      } 
+      }
     count++;  
     y+= this.blockSize;
     
@@ -154,54 +129,13 @@ cryptogram.decoder.prototype.processImage = function() {
   } else {
       this.container.setStatus();
       this.logger.info("Decoded image. " + this.newBase64.length + " base64 characters.");
-      _decoder.decryptImage();
+      _decoder.callback(this.newBase64);
   }
   
   
 }
 
-/** 
- * @private
- */
-cryptogram.decoder.prototype.decryptImage = function () {
 
-  var newBase64 = this.newBase64;
-  
-  var check = newBase64.substring(0,64);
-  var iv = newBase64.substring(64,86);
-  var salt = newBase64.substring(86,97);
-  var ct = newBase64.substring(97,newBase64.length);
-  var full = newBase64.substring(64,newBase64.length);
-  var bits = sjcl.hash.sha256.hash(full);
-  var hexHash = sjcl.codec.hex.fromBits(bits);
-      
-  if (hexHash != check) {
-    this.logger.severe("Checksum failed. Image is corrupted.");
-    return;
-  } else {
-    this.logger.info("Checksum passed.");
-  }
-    
-  var obj = new Object();
-  obj.iv = iv;
-  obj.salt = salt;
-  obj.ct = ct;
-  var base64Decode = JSON.stringify(obj);
-  var decrypted;
-  
-  try {
-    decrypted = sjcl.decrypt(this.password, base64Decode);
-  } 
-  
-  catch(err) {
-    this.logger.severe("Error decrypting:" + err.toString());
-    return;
-  }
-  
-  this.logger.info("Decrypted " + decrypted.length + " base64 characters.");
-  var payload = cryptogram.decoder.URIHeader + decrypted;
-  this.callback(payload);
-}
 
     
 // Takes the average over some block of pixels
