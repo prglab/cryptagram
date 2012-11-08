@@ -1,6 +1,11 @@
 #ifndef _REENTRANT_RAND_H_
 #define _REENTRANT_RAND_H_
 
+#ifdef __gnu_linux__
+#include <cstdlib>
+#include <ctime>
+#endif
+
 namespace cryptogram {
 
 const int kCharMax = 256;
