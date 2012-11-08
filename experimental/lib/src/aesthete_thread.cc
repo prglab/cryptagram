@@ -173,6 +173,7 @@ void* Generator::Run(void* context) {
   vector<int> ints;
 
   int matrices_generated = 0;
+  ReentrantRNG prng;
   while (matrices_generated < self->num_matrices_) {
     // Generate matrices for chunks while we have less than total matrices and
     // we have fewer than chunk size. Once generated, we add the vector to the
@@ -187,7 +188,7 @@ void* Generator::Run(void* context) {
       memset(matrix.matrix, 0, 6);
       for (int j = 0; j < 6; j++) {
         // matrix.matrix[j] = rand() % 256; // rand() or j.
-        matrix.matrix[j] = ReentrantRNG::RandChar();
+        matrix.matrix[j] = prng.RandChar();
       }
 
       // Store the matrix in the vector<>;
@@ -228,6 +229,7 @@ void* ECCGenerator::Run(void* context) {
   vector<int> ints;
 
   int matrices_generated = 0;
+  ReentrantRNG prng;
   while (matrices_generated < self->num_matrices_) {
     // Generate matrices for chunks while we have less than total matrices and
     // we have fewer than chunk size. Once generated, we add the vector to the
@@ -242,7 +244,7 @@ void* ECCGenerator::Run(void* context) {
       memset(matrix.matrix, 0, 6);
       for (int j = 0; j < 6; j++) {
         // matrix.matrix[j] = rand() % 256; // rand() or j.
-        matrix.matrix[j] = ReentrantRNG::RandChar();
+        matrix.matrix[j] = prng.RandChar();
       }
 
       // Store the matrix in the vector<>;

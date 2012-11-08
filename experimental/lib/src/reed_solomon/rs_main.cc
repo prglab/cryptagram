@@ -77,6 +77,8 @@ int main(int argc, char** argv) {
   }
   std::cout << "Differences: " << nerrors;
   }
+
+  free_rs(rs);
   
   return 0;
 }

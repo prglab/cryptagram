@@ -34,7 +34,6 @@ MatrixRepresentation::~MatrixRepresentation() {
 }
 
 void MatrixRepresentation::InitFromString(const char* input) {
-  // TODO(tierney): Must enforce the length of six.
   for (int j = 0; j < 48; j++) {
     bits_[j] = ((input[j>>3] >> (j & 7)) & 1);
   }

@@ -46,9 +46,6 @@ int main(int argc, char** argv) {
 
   Queue queue(FLAGS_queue_size);
 
-  // Initialize state for generators.
-  cryptogram::ReentrantRNG::SeedRNG();
-
   vector<cryptogram::aesthete::Generator*> generators;
   for (int i = 0; i < FLAGS_gen_threads; i++) {
     generators.push_back(
