@@ -14,16 +14,16 @@ const int kRs255_223TotalBytes = 255;
 class RsCodec {
  public:
   RsCodec();
-  
+
   virtual ~RsCodec();
 
   int Encode(uint8_t *data, uint16_t *parity);
 
   int Decode(uint8_t *data, uint16_t *parity);
-  
+
  private:
   // The memory for an rs_control must be managed explicitly using the ported APIs.
-  rs_control* rs_;
+  rs_control *rs_;
 };
 
 } // namespace cryptogram
