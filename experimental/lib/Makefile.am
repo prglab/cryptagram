@@ -303,11 +303,11 @@ CLEANFILES = core
 # 	false
 
 
-SUBDIRS = src/reed_solomon src
+SUBDIRS = src
 
 noinst_PROGRAMS = jpeg_codec_unittest base64_unittest
 
-# noinst_PROGRAMS += utils_test 
+# noinst_PROGRAMS += utils_test
 # utils_test_SOURCES = src/utils_test.cc
 # utils_test_CPPFLAGS = -I$(top_srcdir)/include
 # utils_test_LDADD = lib/libgtest.la lib/libgtest_main.la src/libutils.a \
