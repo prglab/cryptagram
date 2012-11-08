@@ -38,23 +38,17 @@ cryptogram.decoder.prototype.decodeData = function(data, callback) {
     canvas.width = img.width;
     canvas.height = img.height;
     ctx.drawImage(img,0,0);
-    
     var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;               
   
-    self.callback = callback;
-    self.img = img;
-    self.imageData = imageData;
-    self.blockSize = blockSize;
-    self.headerSize = blockSize * 4;
-    self.chunkSize = img.height / 20.0;
-    self.y = 0;
-    self.newBase64 = "";
     self.codec = self.getCodec(img, imageData);
     
     if (!self.codec) {
       self.container.setStatus();
     } else {
-      self.processImage();    
+      self.callback = callback;
+      self.newBase64 = "";
+      self.codec.decode(img, imageData);
+      self.processImage();
     }
   };
   
@@ -82,48 +76,22 @@ cryptogram.decoder.prototype.getCodec = function(img, imageData) {
  * @private
  */
 cryptogram.decoder.prototype.processImage = function() {
-
-  var count = 0;
-  var y = this.y;
+  
   var done = false;
-  
-  
-  while (this.chunkSize == 0 || count < this.chunkSize) {
-      
-    for (x = 0; x < this.img.width; x+= (this.blockSize * 2)) {
-        
-        // Skip over header super-block
-        if (y < this.headerSize && x < this.headerSize) {
-          continue;
-        }
-                        
-        base8_0 = this.getBase8Value(x, y);
-        base8_1 = this.getBase8Value(x + this.blockSize, y);
-        
-        // Found black, stop
-        if (base8_0 == -1 || base8_1 == -1) break;  
-        
-        base64Num = base8_0 * 8 + base8_1 ;
-        base64 = this.base64Values.charAt(base64Num);
-        this.newBase64 += base64;
-      }
-    count++;  
-    y+= this.blockSize;
-    
-    
-    if (y >= this.img.height) {
-      done = true;
-      break;
-    }
+  var chunk = this.codec.getChunk();
+
+  if (chunk) {
+    //console.log(chunk.substring(0,20));
+    this.newBase64 += chunk;  
+  } else {
+    done = true;
   }
   
-  this.y = y;
   var _decoder = this;
 
   if (!done) {
       // Artificially inflate the percent so it gets to 100
-      var percent = Math.ceil(100.0 * ((y + (4 * this.blockSize)) / this.img.height));
-      if (percent > 100) percent = 100;
+      var percent = Math.round(100 * this.codec.decodeProgress(),2);
       this.container.setStatus("Decode<br>" + percent + "%");
       setTimeout(function () { _decoder.processImage() }, 1);
   } else {
@@ -131,8 +99,6 @@ cryptogram.decoder.prototype.processImage = function() {
       this.logger.info("Decoded image. " + this.newBase64.length + " base64 characters.");
       _decoder.callback(this.newBase64);
   }
-  
-  
 }
 
 

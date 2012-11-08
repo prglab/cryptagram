@@ -162,7 +162,7 @@ cryptogram.codec.aesthete.prototype.encode = function(data,
     
   cxt.putImageData(imageData, 0, 0);
   var img = new Image();
-  img.src = c.toDataURL('image/jpeg', 0.74);
+  img.src = c.toDataURL('image/jpeg', 0.84);
   return img;
 };
 
@@ -224,3 +224,59 @@ cryptogram.codec.aesthete.prototype.getBase8Value = function(img, imgData, x, y)
   return (8 - bin);   
 }
 
+/** @inheritDoc */
+cryptogram.codec.aesthete.prototype.decodeProgress = function() {
+  return this.y / this.img.height;
+  
+}
+
+cryptogram.codec.aesthete.prototype.decode = function(img, imageData) {
+  this.count = 0;
+  this.headerSize = this.blockSize * 4;
+  this.chunkSize = 10;
+  this.y = 0;
+  this.img = img;
+  this.imageData = imageData;
+};
+
+cryptogram.codec.aesthete.prototype.getChunk = function() {
+
+  var newBase64 = "";
+  
+  if (this.y >= this.img.height) {
+    return false;
+  }
+  var count = 0;
+  
+  while (count < this.chunkSize) {
+      
+    for (var x = 0; x < this.img.width; x+= (this.blockSize * 2)) {
+        
+        // Skip over header super-block
+        if (this.y < this.headerSize && x < this.headerSize) {
+          continue;
+        }
+                        
+        base8_0 = this.getBase8Value(this.img, this.imageData, x, this.y);
+        base8_1 = this.getBase8Value(this.img, this.imageData, x + this.blockSize, this.y);
+        
+        // Found black, stop
+        if (base8_0 == -1 || base8_1 == -1) {
+          this.y = this.img.height;
+          return newBase64;
+        };  
+        
+        base64Num = base8_0 * 8 + base8_1 ;
+        base64 = this.base64Values.charAt(base64Num);
+        newBase64 += base64;
+      }
+    this.y+= this.blockSize;
+    count++;
+    
+    if (this.y >= this.img.height) {
+      break;
+    }
+  }
+  return newBase64;
+}
+  
