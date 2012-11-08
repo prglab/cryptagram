@@ -575,7 +575,7 @@ PACKAGE_STRING='Cryptogram 1.0'
 PACKAGE_BUGREPORT='tierney@cs.nyu.edu'
 PACKAGE_URL=''
 
-ac_unique_file="src/main.cc"
+ac_unique_file="src/jpeg_codec.cc"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>

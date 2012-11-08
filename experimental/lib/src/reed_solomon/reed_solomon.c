@@ -316,7 +316,7 @@ struct rs_control *init_rs_non_canonical(int symsize, int (*gffunc)(int),
 int encode_rs8(struct rs_control *rs, uint8_t *data, int len, uint16_t *par,
 	       uint16_t invmsk)
 {
-#include "encode_rs.c"
+#include "encode_rs.h"
 }
 #endif
 
@@ -342,7 +342,7 @@ int decode_rs8(struct rs_control *rs, uint8_t *data, uint16_t *par, int len,
 	       uint16_t *s, int no_eras, int *eras_pos, uint16_t invmsk,
 	       uint16_t *corr)
 {
-#include "decode_rs.c"
+#include "decode_rs.h"
 }
 #endif
 

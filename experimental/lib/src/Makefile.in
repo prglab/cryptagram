@@ -124,8 +124,8 @@ am__v_lt_0 = --silent
 am_ecc_experiment_OBJECTS = ecc_experiment-ecc_experiment.$(OBJEXT)
 ecc_experiment_OBJECTS = $(am_ecc_experiment_OBJECTS)
 ecc_experiment_DEPENDENCIES = libarray.a libaesthete.a \
-	libreentrant_rand.a libjpeg_codec.a reed_solomon/librs.a \
-	reed_solomon/librs_codec.a
+	libreentrant_rand.a libjpeg_codec.a reed_solomon/librs_codec.a \
+	reed_solomon/librs.a
 am_generate_aesthete_matrices_OBJECTS =  \
 	generate_aesthete_matrices.$(OBJEXT)
 generate_aesthete_matrices_OBJECTS =  \
@@ -401,15 +401,15 @@ read_aesthete_matrices_LDADD = libaesthete_thread.a  libaesthete.a libexperiment
   libreentrant_rand.a \
    libjpeg_codec.a libarray.a  -lpthread -lgflags -lglog
 
-ecc_experiment_SOURCES = ecc_experiment.cc
+ecc_experiment_SOURCES = ecc_experiment.cc ecc_image.h
 ecc_experiment_CPPFLAGS = -Wall
 ecc_experiment_LDADD = \
   libarray.a \
 	libaesthete.a \
   libreentrant_rand.a \
 	libjpeg_codec.a \
-	reed_solomon/librs.a \
 	reed_solomon/librs_codec.a \
+	reed_solomon/librs.a \
 	-lgflags
 
 in_memory_experiment_SOURCES = in_memory_experiment.cc
@@ -437,7 +437,7 @@ libexperiment_a_SOURCES = experiment.cc experiment.h
 libexperiment_a_CPPFLAGS = -Wall
 libaesthete_a_SOURCES = aesthete.cc aesthete.h
 libaesthete_a_CPPFLAGS = -Wall
-libaesthete_thread_a_SOURCES = aesthete_thread.cc aesthete_thread.h
+libaesthete_thread_a_SOURCES = aesthete_thread.cc aesthete_thread.h queue.h types.h
 libaesthete_thread_a_CPPFLAGS = -Wall 
 libaesthete_thread_a_LIBADD = 
 libjpeg_delta_a_SOURCES = jpeg_delta.cc jpeg_delta.h basictypes.h

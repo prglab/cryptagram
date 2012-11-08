@@ -41,15 +41,15 @@ read_aesthete_matrices_LDADD = libaesthete_thread.a  libaesthete.a libexperiment
    libjpeg_codec.a libarray.a  -lpthread -lgflags -lglog
 
 bin_PROGRAMS += ecc_experiment
-ecc_experiment_SOURCES = ecc_experiment.cc
+ecc_experiment_SOURCES = ecc_experiment.cc ecc_image.h
 ecc_experiment_CPPFLAGS = -Wall
 ecc_experiment_LDADD = \
   libarray.a \
 	libaesthete.a \
   libreentrant_rand.a \
 	libjpeg_codec.a \
-	reed_solomon/librs.a \
 	reed_solomon/librs_codec.a \
+	reed_solomon/librs.a \
 	-lgflags
 
 bin_PROGRAMS += in_memory_experiment
@@ -93,7 +93,7 @@ libexperiment_a_CPPFLAGS = -Wall
 libaesthete_a_SOURCES = aesthete.cc aesthete.h
 libaesthete_a_CPPFLAGS = -Wall
 
-libaesthete_thread_a_SOURCES = aesthete_thread.cc aesthete_thread.h
+libaesthete_thread_a_SOURCES = aesthete_thread.cc aesthete_thread.h queue.h types.h
 libaesthete_thread_a_CPPFLAGS = -Wall 
 libaesthete_thread_a_LIBADD = 
 
