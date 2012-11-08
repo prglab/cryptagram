@@ -119,7 +119,7 @@ AC_CHECK_FUNCS([bzero memmove])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
-								 src/cryptopp/Makefile
+                 src/cryptopp/Makefile
                  src/reed_solomon/Makefile
                  ])
 
