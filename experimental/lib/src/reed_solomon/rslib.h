@@ -23,9 +23,10 @@
 extern "C" {
 #endif
 
+#include <string.h>
+
 #include "config.h"
 #include "list.h"
-#include "string.h"
 
 /**
  * struct rs_control - rs control structure
@@ -115,5 +116,5 @@ static inline int rs_modnn(struct rs_control *rs, int x)
 #ifdef __cplusplus
 }
 #endif
-  
+
 #endif
