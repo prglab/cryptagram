@@ -32,7 +32,8 @@ ecc_experiment_SOURCES = ecc_experiment.cc
 ecc_experiment_CPPFLAGS = -Wall
 ecc_experiment_LDADD = \
   libarray.a \
-	libaesthete.a
+	libaesthete.a \
+  libreentrant_rand.a
 
 bin_PROGRAMS += in_memory_experiment
 in_memory_experiment_SOURCES = in_memory_experiment.cc
@@ -62,6 +63,10 @@ noinst_LIBRARIES = libjpeg_delta.a libjpeg_codec.a libCoder.a libmodp_b64.a
 noinst_LIBRARIES += libbase64.a libstring_piece.a libSjclCryptoBridge.a
 noinst_LIBRARIES += libcrypto.a libutils.a libaesthete.a libaesthete_thread.a
 noinst_LIBRARIES += libexperiment.a libarray.a
+
+noinst_LIBRARIES += libreentrant_rand.a
+libreentrant_rand_a_SOURCES = reentrant_rand.h reentrant_rand.cc
+libreentrant_rand_a_CPPFLAGS = -Wall
 
 libarray_a_SOURCES = array.cc array.h
 libarray_a_CPPFLAGS = -Wall

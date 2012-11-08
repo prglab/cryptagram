@@ -124,6 +124,11 @@ libmodp_b64_a_AR = $(AR) $(ARFLAGS)
 libmodp_b64_a_LIBADD =
 am_libmodp_b64_a_OBJECTS = modp_b64.$(OBJEXT)
 libmodp_b64_a_OBJECTS = $(am_libmodp_b64_a_OBJECTS)
+libreentrant_rand_a_AR = $(AR) $(ARFLAGS)
+libreentrant_rand_a_LIBADD =
+am_libreentrant_rand_a_OBJECTS =  \
+	libreentrant_rand_a-reentrant_rand.$(OBJEXT)
+libreentrant_rand_a_OBJECTS = $(am_libreentrant_rand_a_OBJECTS)
 libstring_piece_a_AR = $(AR) $(ARFLAGS)
 libstring_piece_a_LIBADD =
 am_libstring_piece_a_OBJECTS = string_piece.$(OBJEXT)
@@ -150,7 +155,8 @@ cryptogram_main_DEPENDENCIES = libjpeg_delta.a libjpeg_codec.a \
 	libmodp_b64.a libstring_piece.a
 am_ecc_experiment_OBJECTS = ecc_experiment-ecc_experiment.$(OBJEXT)
 ecc_experiment_OBJECTS = $(am_ecc_experiment_OBJECTS)
-ecc_experiment_DEPENDENCIES = libarray.a libaesthete.a
+ecc_experiment_DEPENDENCIES = libarray.a libaesthete.a \
+	libreentrant_rand.a
 am_generate_aesthete_matrices_OBJECTS =  \
 	generate_aesthete_matrices.$(OBJEXT)
 generate_aesthete_matrices_OBJECTS =  \
@@ -230,9 +236,10 @@ SOURCES = $(libCoder_a_SOURCES) $(libSjclCryptoBridge_a_SOURCES) \
 	$(libarray_a_SOURCES) $(libbase64_a_SOURCES) \
 	$(libcrypto_a_SOURCES) $(libexperiment_a_SOURCES) \
 	$(libjpeg_codec_a_SOURCES) $(libjpeg_delta_a_SOURCES) \
-	$(libmodp_b64_a_SOURCES) $(libstring_piece_a_SOURCES) \
-	$(libutils_a_SOURCES) $(aesthete_thread_runner_SOURCES) \
-	$(cryptogram_main_SOURCES) $(ecc_experiment_SOURCES) \
+	$(libmodp_b64_a_SOURCES) $(libreentrant_rand_a_SOURCES) \
+	$(libstring_piece_a_SOURCES) $(libutils_a_SOURCES) \
+	$(aesthete_thread_runner_SOURCES) $(cryptogram_main_SOURCES) \
+	$(ecc_experiment_SOURCES) \
 	$(generate_aesthete_matrices_SOURCES) \
 	$(in_memory_experiment_SOURCES) $(jpeg_benchmark_SOURCES) \
 	$(queue_main_SOURCES) $(read_aesthete_matrices_SOURCES)
@@ -241,9 +248,10 @@ DIST_SOURCES = $(libCoder_a_SOURCES) $(libSjclCryptoBridge_a_SOURCES) \
 	$(libarray_a_SOURCES) $(libbase64_a_SOURCES) \
 	$(libcrypto_a_SOURCES) $(libexperiment_a_SOURCES) \
 	$(libjpeg_codec_a_SOURCES) $(libjpeg_delta_a_SOURCES) \
-	$(libmodp_b64_a_SOURCES) $(libstring_piece_a_SOURCES) \
-	$(libutils_a_SOURCES) $(aesthete_thread_runner_SOURCES) \
-	$(cryptogram_main_SOURCES) $(ecc_experiment_SOURCES) \
+	$(libmodp_b64_a_SOURCES) $(libreentrant_rand_a_SOURCES) \
+	$(libstring_piece_a_SOURCES) $(libutils_a_SOURCES) \
+	$(aesthete_thread_runner_SOURCES) $(cryptogram_main_SOURCES) \
+	$(ecc_experiment_SOURCES) \
 	$(generate_aesthete_matrices_SOURCES) \
 	$(in_memory_experiment_SOURCES) $(jpeg_benchmark_SOURCES) \
 	$(queue_main_SOURCES) $(read_aesthete_matrices_SOURCES)
@@ -443,7 +451,8 @@ ecc_experiment_SOURCES = ecc_experiment.cc
 ecc_experiment_CPPFLAGS = -Wall
 ecc_experiment_LDADD = \
   libarray.a \
-	libaesthete.a
+	libaesthete.a \
+  libreentrant_rand.a
 
 in_memory_experiment_SOURCES = in_memory_experiment.cc
 in_memory_experiment_CPPFLAGs = -Wall
@@ -462,7 +471,10 @@ SUBDIRS = cryptopp base reed_solomon
 noinst_LIBRARIES = libjpeg_delta.a libjpeg_codec.a libCoder.a \
 	libmodp_b64.a libbase64.a libstring_piece.a \
 	libSjclCryptoBridge.a libcrypto.a libutils.a libaesthete.a \
-	libaesthete_thread.a libexperiment.a libarray.a
+	libaesthete_thread.a libexperiment.a libarray.a \
+	libreentrant_rand.a
+libreentrant_rand_a_SOURCES = reentrant_rand.h reentrant_rand.cc
+libreentrant_rand_a_CPPFLAGS = -Wall
 libarray_a_SOURCES = array.cc array.h
 libarray_a_CPPFLAGS = -Wall
 libexperiment_a_SOURCES = experiment.cc experiment.h
@@ -565,6 +577,10 @@ libmodp_b64.a: $(libmodp_b64_a_OBJECTS) $(libmodp_b64_a_DEPENDENCIES) $(EXTRA_li
 	$(AM_V_at)-rm -f libmodp_b64.a
 	$(AM_V_AR)$(libmodp_b64_a_AR) libmodp_b64.a $(libmodp_b64_a_OBJECTS) $(libmodp_b64_a_LIBADD)
 	$(AM_V_at)$(RANLIB) libmodp_b64.a
+libreentrant_rand.a: $(libreentrant_rand_a_OBJECTS) $(libreentrant_rand_a_DEPENDENCIES) $(EXTRA_libreentrant_rand_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libreentrant_rand.a
+	$(AM_V_AR)$(libreentrant_rand_a_AR) libreentrant_rand.a $(libreentrant_rand_a_OBJECTS) $(libreentrant_rand_a_LIBADD)
+	$(AM_V_at)$(RANLIB) libreentrant_rand.a
 libstring_piece.a: $(libstring_piece_a_OBJECTS) $(libstring_piece_a_DEPENDENCIES) $(EXTRA_libstring_piece_a_DEPENDENCIES) 
 	$(AM_V_at)-rm -f libstring_piece.a
 	$(AM_V_AR)$(libstring_piece_a_AR) libstring_piece.a $(libstring_piece_a_OBJECTS) $(libstring_piece_a_LIBADD)
@@ -666,6 +682,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libexperiment_a-experiment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libjpeg_codec_a-jpeg_codec.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libjpeg_delta_a-jpeg_delta.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libreentrant_rand_a-reentrant_rand.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/modp_b64.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/queue_main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/read_aesthete_matrices.Po@am__quote@
@@ -790,6 +807,20 @@ libjpeg_delta_a-jpeg_delta.obj: jpeg_delta.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='jpeg_delta.cc' object='libjpeg_delta_a-jpeg_delta.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libjpeg_delta_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libjpeg_delta_a-jpeg_delta.obj `if test -f 'jpeg_delta.cc'; then $(CYGPATH_W) 'jpeg_delta.cc'; else $(CYGPATH_W) '$(srcdir)/jpeg_delta.cc'; fi`
+
+libreentrant_rand_a-reentrant_rand.o: reentrant_rand.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libreentrant_rand_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libreentrant_rand_a-reentrant_rand.o -MD -MP -MF $(DEPDIR)/libreentrant_rand_a-reentrant_rand.Tpo -c -o libreentrant_rand_a-reentrant_rand.o `test -f 'reentrant_rand.cc' || echo '$(srcdir)/'`reentrant_rand.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libreentrant_rand_a-reentrant_rand.Tpo $(DEPDIR)/libreentrant_rand_a-reentrant_rand.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='reentrant_rand.cc' object='libreentrant_rand_a-reentrant_rand.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libreentrant_rand_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libreentrant_rand_a-reentrant_rand.o `test -f 'reentrant_rand.cc' || echo '$(srcdir)/'`reentrant_rand.cc
+
+libreentrant_rand_a-reentrant_rand.obj: reentrant_rand.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libreentrant_rand_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libreentrant_rand_a-reentrant_rand.obj -MD -MP -MF $(DEPDIR)/libreentrant_rand_a-reentrant_rand.Tpo -c -o libreentrant_rand_a-reentrant_rand.obj `if test -f 'reentrant_rand.cc'; then $(CYGPATH_W) 'reentrant_rand.cc'; else $(CYGPATH_W) '$(srcdir)/reentrant_rand.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libreentrant_rand_a-reentrant_rand.Tpo $(DEPDIR)/libreentrant_rand_a-reentrant_rand.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='reentrant_rand.cc' object='libreentrant_rand_a-reentrant_rand.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libreentrant_rand_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libreentrant_rand_a-reentrant_rand.obj `if test -f 'reentrant_rand.cc'; then $(CYGPATH_W) 'reentrant_rand.cc'; else $(CYGPATH_W) '$(srcdir)/reentrant_rand.cc'; fi`
 
 aesthete_thread_runner-aesthete_thread_runner.o: aesthete_thread_runner.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(aesthete_thread_runner_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT aesthete_thread_runner-aesthete_thread_runner.o -MD -MP -MF $(DEPDIR)/aesthete_thread_runner-aesthete_thread_runner.Tpo -c -o aesthete_thread_runner-aesthete_thread_runner.o `test -f 'aesthete_thread_runner.cc' || echo '$(srcdir)/'`aesthete_thread_runner.cc

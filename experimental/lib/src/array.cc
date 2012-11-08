@@ -69,26 +69,24 @@ void array<unsigned char>::FillBlockFromInts(
   const int init_h = block_h * 8;
   const int init_w = block_w * 8;
 
-  for (int i = init_h; i < init_h + 8; i += 2) {
-    for (int j = init_w; j < init_w + 8; j += 2) {
-      const int value_index = indices[(i / 16) * 4 + (j / 16)];
-      std::cout << value_index << " " << init_h/16 << " " << init_w/16
-                << " | ";
+  for (int hi = init_h, i = 0; hi < init_h + 8; hi += 2, i++) {
+    for (int wi = init_w, j = 0; wi < init_w + 8; wi += 2, j++) {
+      const int value_index = indices[i * 4 + j];
       const int value = values[value_index];
 
-      data[(i * w + (3 * j))] = value;
-      data[(i * w + (3 * j)) + 1] = value;
-      data[(i * w + (3 * j)) + 2] = value;
-      data[(i * w + (3 * j)) + 3] = value;
-      data[(i * w + (3 * j)) + 4] = value;
-      data[(i * w + (3 * j)) + 5] = value;
+      data[(hi * w + (3 * wi))] = value;
+      data[(hi * w + (3 * wi)) + 1] = value;
+      data[(hi * w + (3 * wi)) + 2] = value;
+      data[(hi * w + (3 * wi)) + 3] = value;
+      data[(hi * w + (3 * wi)) + 4] = value;
+      data[(hi * w + (3 * wi)) + 5] = value;
 
-      data[((i + 1) * w + (3 * j))] = value;
-      data[((i + 1) * w + (3 * j)) + 1] = value;
-      data[((i + 1) * w + (3 * j)) + 2] = value;
-      data[((i + 1) * w + (3 * j)) + 3] = value;
-      data[((i + 1) * w + (3 * j)) + 4] = value;
-      data[((i + 1) * w + (3 * j)) + 5] = value;
+      data[((hi + 1) * w + (3 * wi))] = value;
+      data[((hi + 1) * w + (3 * wi)) + 1] = value;
+      data[((hi + 1) * w + (3 * wi)) + 2] = value;
+      data[((hi + 1) * w + (3 * wi)) + 3] = value;
+      data[((hi + 1) * w + (3 * wi)) + 4] = value;
+      data[((hi + 1) * w + (3 * wi)) + 5] = value;
     }
     std::cout << std::endl;
   }
