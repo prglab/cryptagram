@@ -130,9 +130,9 @@ PROGRAMS = $(bin_PROGRAMS)
 am_aesthete_thread_runner_OBJECTS =  \
 	aesthete_thread_runner-aesthete_thread_runner.$(OBJEXT)
 aesthete_thread_runner_OBJECTS = $(am_aesthete_thread_runner_OBJECTS)
-aesthete_thread_runner_DEPENDENCIES = libaesthete.a \
-	libaesthete_thread.a libreentrant_rand.a libexperiment.a \
-	libarray.a libjpeg_codec.a
+aesthete_thread_runner_DEPENDENCIES = libaesthete_thread.a \
+	libaesthete.a libreentrant_rand.a libexperiment.a libarray.a \
+	libjpeg_codec.a
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -414,7 +414,7 @@ queue_main_SOURCES = queue_main.cc queue.h
 queue_main_LDADD = -lpthread
 aesthete_thread_runner_SOURCES = aesthete_thread_runner.cc
 aesthete_thread_runner_CPPFLAGS = -Wall
-aesthete_thread_runner_LDADD = libaesthete.a libaesthete_thread.a \
+aesthete_thread_runner_LDADD = libaesthete_thread.a libaesthete.a \
 	libreentrant_rand.a libexperiment.a libarray.a libjpeg_codec.a \
 	-lpthread -lgflags
 

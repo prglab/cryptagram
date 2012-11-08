@@ -121,7 +121,6 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
 								 src/cryptopp/Makefile
                  src/reed_solomon/Makefile
-                 src/base/Makefile
                  ])
 
 AC_CONFIG_FILES([scripts/gtest-config], [chmod +x scripts/gtest-config])
