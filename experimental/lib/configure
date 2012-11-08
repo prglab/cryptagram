@@ -16883,7 +16883,7 @@ fi
 done
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/cryptopp/Makefile src/reed_solomon/Makefile src/base/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/cryptopp/Makefile src/reed_solomon/Makefile"
 
 
 ac_config_files="$ac_config_files scripts/gtest-config"
@@ -18015,7 +18015,6 @@ do
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "src/cryptopp/Makefile") CONFIG_FILES="$CONFIG_FILES src/cryptopp/Makefile" ;;
     "src/reed_solomon/Makefile") CONFIG_FILES="$CONFIG_FILES src/reed_solomon/Makefile" ;;
-    "src/base/Makefile") CONFIG_FILES="$CONFIG_FILES src/base/Makefile" ;;
     "scripts/gtest-config") CONFIG_FILES="$CONFIG_FILES scripts/gtest-config" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
