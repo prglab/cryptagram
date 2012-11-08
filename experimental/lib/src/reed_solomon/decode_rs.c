@@ -39,10 +39,7 @@
 
 	/* Check length parameter for validity */
 	pad = nn - nroots - len;
-  if (pad < 0 || pad >= nn) {
-    printf("pad: %d, nn: %d\n", pad, nn);
-    abort();
-  }
+  assert(!(pad < 0 || pad >= nn));
 
 	/* Does the caller provide the syndrome ? */
 	if (s != NULL)

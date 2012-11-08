@@ -1,7 +1,6 @@
 #include "array.h"
 
 #include <cstdlib>
-#include <iostream>
 
 namespace cryptogram {
 
@@ -88,7 +87,6 @@ void array<unsigned char>::FillBlockFromInts(
       data[((hi + 1) * w + (3 * wi)) + 4] = value;
       data[((hi + 1) * w + (3 * wi)) + 5] = value;
     }
-    std::cout << std::endl;
   }
 }
 

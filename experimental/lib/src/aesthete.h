@@ -69,6 +69,9 @@ class MatrixRepresentation {
   explicit MatrixRepresentation(const bitset<48>& bits);
   virtual ~MatrixRepresentation();
 
+  // Assumes that the memory from the address pointed to by @input up to @input
+  // + 5 are six valid bytes that can be used to initialize the
+  // MatrixRepresentation.
   void InitFromString(const char* input);
 
   // Vector of ints that fill the 4x4 matrix left to right and top to bottom.

@@ -303,21 +303,22 @@ install-data-local:
 	false
 
 
-SUBDIRS = src
+SUBDIRS = src/reed_solomon src
 
 noinst_PROGRAMS = jpeg_codec_unittest base64_unittest
-noinst_PROGRAMS += utils_test crypto_test
 
-utils_test_SOURCES = src/utils_test.cc
-utils_test_CPPFLAGS = -I$(top_srcdir)/include
-utils_test_LDADD = lib/libgtest.la lib/libgtest_main.la src/libutils.a \
-									src/cryptopp/libcryptopp.a -lboost_thread -lboost_system
+# noinst_PROGRAMS += utils_test 
+# utils_test_SOURCES = src/utils_test.cc
+# utils_test_CPPFLAGS = -I$(top_srcdir)/include
+# utils_test_LDADD = lib/libgtest.la lib/libgtest_main.la src/libutils.a \
+# 									src/cryptopp/libcryptopp.a -lboost_thread -lboost_system
 
-crypto_test_SOURCES = src/crypto_test.cc
-crypto_test_CPPFLAGS = -I$(top_srcdir)/include
-crypto_test_LDADD = lib/libgtest.la src/libcrypto.a src/libutils.a \
-										-lboost_system -lboost_filesystem \
-										src/cryptopp/libcryptopp.a lib/libgtest_main.la
+# noinst_PROGRAMS += crypto_test
+# crypto_test_SOURCES = src/crypto_test.cc
+# crypto_test_CPPFLAGS = -I$(top_srcdir)/include
+# crypto_test_LDADD = lib/libgtest.la src/libcrypto.a src/libutils.a \
+# 										-lboost_system -lboost_filesystem \
+# 										src/cryptopp/libcryptopp.a lib/libgtest_main.la
 
 jpeg_codec_unittest_SOURCES = src/jpeg_codec_unittest.cc
 jpeg_codec_unittest_CPPFLAGS = -I$(top_srcdir)/include
