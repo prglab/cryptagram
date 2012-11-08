@@ -1,53 +1,54 @@
-goog.provide('cryptogram.encoder');
+goog.provide('cryptogram.codec.bacchant');
+
+goog.require('cryptogram.codec');
+goog.require('goog.debug.Logger');
 
 
 /**
  * @constructor
+ * @extends {cryptogram.codec}
  */
-cryptogram.encoder = function() {};
+cryptogram.codec.bacchant = function() {
+  this.blockSize = 2;
+};
+
+cryptogram.codec.bacchant.octal_symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14];
+
+goog.inherits(cryptogram.codec.bacchant, cryptogram.codec);
+
+cryptogram.codec.bacchant.prototype.logger = goog.debug.Logger.getLogger('cryptogram.codec.bacchant');
 
 
-cryptogram.encoder.octal_symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14];
-
-// Each base-64 character gets split into two octal symbols, so we have one
-// function to turn an octal symbol into a single threshold and a base-64
-// character into a short array of thresholds.
-cryptogram.encoder.base64_values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-cryptogram.encoder.prototype.encrypt = function(data, password) {
-
-  // Get rid of data type information (for now assuming always JPEG.
-  var withoutMimeHeader = data.split('base64,')[1];
-
-  var encrypted_data = JSON.parse(sjcl.encrypt(password, withoutMimeHeader));
-  var iv = encrypted_data['iv'];
-  var salt = encrypted_data['salt'];
-  var ct = encrypted_data['ct'];
-  var to_hash = iv + salt + ct;
-
-	var bits = sjcl.hash.sha256.hash(to_hash);
-  var integrity_check_value = sjcl.codec.hex.fromBits(bits);
-  return integrity_check_value + to_hash;
+/** @inheritDoc */
+cryptogram.codec.bacchant.prototype.name = function() {
+  return "bacchant";
 };
 
 
-cryptogram.encoder.prototype.encode = function(data, width_to_height_ratio, header_string, block_width,
-								block_height) {
+/** @inheritDoc */
+cryptogram.codec.bacchant.prototype.processImage = function(img) {
+};
+
+
+cryptogram.codec.bacchant.prototype.encode = function(data, 
+    width_to_height_ratio, header_string, block_width, block_height) {
 
   width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
 		width_to_height_ratio : 1.0;
   header_string = typeof header_string !== 'undefined' ? header_string :
-		'aesthete';
+		'bacchant';
   block_width = typeof block_width !== 'undefined' ? block_width : 2;
   block_height = typeof block_height !== 'undefined' ? block_height : 2;
 
   n_header_symbols = header_string.length;
-
+  var self = this;
   // grow an array of grayscale values and then convert them to an RGB Image
   // afterward (so we don't have to precompute size or worry about the header
   // yet
+  
+  var self = this;
   function add_char(ch,values) {
-    var value = cryptogram.encoder.base64_values.indexOf(ch);
+    var value = self.base64Values.indexOf(ch);
     var x = Math.floor(value / 8);
     var y = value % 8;
     values.push(x);
@@ -135,7 +136,7 @@ cryptogram.encoder.prototype.encode = function(data, width_to_height_ratio, head
     }
     
     
-    /*if (stripeY == 0) {
+    if (stripeY == 0) {
       b = level + 25;
     } else if (stripeY == 1) {
       b = level - 25;
@@ -160,7 +161,7 @@ cryptogram.encoder.prototype.encode = function(data, width_to_height_ratio, head
 				(header_width / block_width);
 			level = 8;
       if (value_idx < n_header_values) {
-        level =  cryptogram.encoder.octal_symbol_thresholds[header_values[value_idx]];
+        level =  cryptogram.codec.bacchant.octal_symbol_thresholds[header_values[value_idx]];
       }
       set_block(x, y, level);
     }
@@ -173,7 +174,7 @@ cryptogram.encoder.prototype.encode = function(data, width_to_height_ratio, head
   var x_coord, y_coord, x, y, i2;
   for (var i = 0; i < n_values; i++) {
     octal = values[i];
-    level = cryptogram.encoder.octal_symbol_thresholds[octal];
+    level = cryptogram.codec.bacchant.octal_symbol_thresholds[octal];
     if (i < n_header_row_symbols) {
       y_coord = Math.floor(i / n_header_row_symbols_wide);
       x_coord = (i - (y_coord * n_header_row_symbols_wide));
@@ -195,7 +196,60 @@ cryptogram.encoder.prototype.encode = function(data, width_to_height_ratio, head
 };
 
 
-cryptogram.encoder.show_error = function(msg, url, linenumber) {
-  console.log('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber)
-  return true;
-};
+
+/** 
+ */
+cryptogram.codec.bacchant.prototype.getHeader = function(img, imageData) {
+
+    var newBase64 = "";
+
+    for (y = 0; y < 8; y+= this.blockSize) {
+      for (x = 0; x < 8; x+= 2*this.blockSize) {
+        
+        base8_0 = this.getBase8Value(img, imageData, x, y);
+        base8_1 = this.getBase8Value(img, imageData, x + this.blockSize, y);
+  
+        base64Num = base8_0 * 8 + base8_1 ;
+        base64 = this.base64Values.charAt(base64Num);                    
+        newBase64 += base64;
+      }
+    }
+    return newBase64;
+}
+
+
+// Takes the average over some block of pixels
+//
+//  -1 is black
+//  0-7 are decoded base8 values. 0 is white, 7 dark gray, etc
+
+/** 
+ * @private
+ */
+cryptogram.codec.bacchant.prototype.getBase8Value = function(img, imgData, x, y) {
+
+  var count = 0.0;
+  var vt = 0.0;
+  var avg;
+  
+  for (i = 0; i < this.blockSize; i++) {
+    for (j = 0; j < this.blockSize; j++) {
+      
+      base = (y + j) * img.width + (x + i);
+      
+      //Use green to estimate the luminance
+      green = imgData[4*base + 1];
+  
+      vt += green;
+      count++;
+    }
+  }
+  
+  v = vt / count;
+  var bin = Math.floor(v / 28.0);
+    
+  if (bin == 0) return -1;
+  if (bin > 8) return 0;
+  return (8 - bin);   
+}
+
