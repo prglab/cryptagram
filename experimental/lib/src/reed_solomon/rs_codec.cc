@@ -12,7 +12,8 @@ namespace cryptogram {
 RsCodec::RsCodec() {
   // Provides the standard Reed Solomon setup for RS(255, 223).
   // We use 32 bytes for the parity check.
-  rs_ = init_rs(8, 0x187, 0, 1, kRs255_223ParityBytes / (2 * sizeof(uint16_t)));
+  // rs_ = init_rs(8, 0x187, 0, 1, kRs255_223ParityBytes / (sizeof(uint16_t)));
+  rs_ = init_rs(8, 0x187, 0, 1, kRs255_223ParityBytes);
   assert(NULL != rs_);
 }
 
