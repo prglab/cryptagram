@@ -10,8 +10,9 @@ queue_main_LDADD = -lpthread
 
 aesthete_thread_runner_SOURCES = aesthete_thread_runner.cc
 aesthete_thread_runner_CPPFLAGS = -Wall
-aesthete_thread_runner_LDADD = libaesthete.a 
+aesthete_thread_runner_LDADD = 
 aesthete_thread_runner_LDADD += libaesthete_thread.a 
+aesthete_thread_runner_LDADD += libaesthete.a 
 aesthete_thread_runner_LDADD += libreentrant_rand.a 
 aesthete_thread_runner_LDADD += libexperiment.a 
 aesthete_thread_runner_LDADD += libarray.a 
