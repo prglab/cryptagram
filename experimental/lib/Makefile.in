@@ -42,8 +42,7 @@ host_triplet = @host@
 TESTS = samples/sample1_unittest$(EXEEXT) \
 	samples/sample10_unittest$(EXEEXT) \
 	test/gtest_all_test$(EXEEXT) $(am__EXEEXT_1) \
-	jpeg_codec_unittest$(EXEEXT) base64_unittest$(EXEEXT) \
-	utils_test crypto_test
+	jpeg_codec_unittest$(EXEEXT) base64_unittest$(EXEEXT)
 check_PROGRAMS = samples/sample1_unittest$(EXEEXT) \
 	samples/sample10_unittest$(EXEEXT) \
 	test/gtest_all_test$(EXEEXT) $(am__EXEEXT_1)
@@ -602,6 +601,18 @@ FUSED_GTEST_SRC = \
 # Death tests may produce core dumps in the build directory. In case
 # this happens, clean them to keep distcleancheck happy.
 CLEANFILES = core
+
+# Disables 'make install' as installing a compiled version of Google
+# Test can lead to undefined behavior due to violation of the
+# One-Definition Rule.
+
+# install-exec-local:
+# 	echo "'make install' is dangerous and not supported. Instead, see README for how to integrate Google Test into your build system."
+# 	false
+
+# install-data-local:
+# 	echo "'make install' is dangerous and not supported. Instead, see README for how to integrate Google Test into your build system."
+# 	false
 SUBDIRS = src/reed_solomon src
 
 # noinst_PROGRAMS += utils_test 
@@ -1532,14 +1543,14 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-data-local install-m4dataDATA \
-	install-pkgincludeHEADERS install-pkginclude_internalHEADERS
+install-data-am: install-m4dataDATA install-pkgincludeHEADERS \
+	install-pkginclude_internalHEADERS
 
 install-dvi: install-dvi-recursive
 
 install-dvi-am:
 
-install-exec-am: install-exec-local install-libLTLIBRARIES
+install-exec-am: install-libLTLIBRARIES
 
 install-html: install-html-recursive
 
@@ -1599,9 +1610,8 @@ uninstall-am: uninstall-libLTLIBRARIES uninstall-m4dataDATA \
 	distclean-hdr distclean-libtool distclean-tags distcleancheck \
 	distdir distuninstallcheck dvi dvi-am html html-am info \
 	info-am install install-am install-data install-data-am \
-	install-data-local install-dvi install-dvi-am install-exec \
-	install-exec-am install-exec-local install-html \
-	install-html-am install-info install-info-am \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
 	install-libLTLIBRARIES install-m4dataDATA install-man \
 	install-pdf install-pdf-am install-pkgincludeHEADERS \
 	install-pkginclude_internalHEADERS install-ps install-ps-am \
@@ -1632,18 +1642,6 @@ uninstall-am: uninstall-libLTLIBRARIES uninstall-m4dataDATA \
 
 @HAVE_PYTHON_TRUE@maintainer-clean-local:
 @HAVE_PYTHON_TRUE@	rm -rf "$(srcdir)/fused-src"
-
-# Disables 'make install' as installing a compiled version of Google
-# Test can lead to undefined behavior due to violation of the
-# One-Definition Rule.
-
-install-exec-local:
-	echo "'make install' is dangerous and not supported. Instead, see README for how to integrate Google Test into your build system."
-	false
-
-install-data-local:
-	echo "'make install' is dangerous and not supported. Instead, see README for how to integrate Google Test into your build system."
-	false
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

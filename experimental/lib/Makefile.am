@@ -294,13 +294,13 @@ CLEANFILES = core
 # Test can lead to undefined behavior due to violation of the
 # One-Definition Rule.
 
-install-exec-local:
-	echo "'make install' is dangerous and not supported. Instead, see README for how to integrate Google Test into your build system."
-	false
+# install-exec-local:
+# 	echo "'make install' is dangerous and not supported. Instead, see README for how to integrate Google Test into your build system."
+# 	false
 
-install-data-local:
-	echo "'make install' is dangerous and not supported. Instead, see README for how to integrate Google Test into your build system."
-	false
+# install-data-local:
+# 	echo "'make install' is dangerous and not supported. Instead, see README for how to integrate Google Test into your build system."
+# 	false
 
 
 SUBDIRS = src/reed_solomon src
@@ -329,4 +329,4 @@ base64_unittest_CPPFLAGS = -I$(top_srcdir)/include
 base64_unittest_LDADD = lib/libgtest.la lib/libgtest_main.la src/libbase64.a \
 												src/libmodp_b64.a
 
-TESTS += jpeg_codec_unittest base64_unittest utils_test crypto_test
+TESTS += jpeg_codec_unittest base64_unittest # utils_test crypto_test
