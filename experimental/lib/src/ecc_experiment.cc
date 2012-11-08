@@ -7,13 +7,14 @@
 
 #include "aesthete.h"
 #include "array.h"
+#include "boost/numeric/ublas/io.hpp"
 #include "ecc_image.h"
 #include "google/gflags.h"
 #include "jpeg_codec.h"
 #include "reentrant_rand.h"
 #include "reed_solomon/rs_codec.h"
 
-DEFINE_int32(quality, 72, "JPEG quality to use.");
+DEFINE_int32(quality, 95, "JPEG quality to use.");
 
 namespace cryptogram {
 
@@ -114,6 +115,7 @@ class EccMessage {
   uint16_t second_parity_[kParityArraySize];
 };
 
+
 void Foo() {
   std::vector<int> discretizations;
   discretizations.push_back(240);
@@ -124,9 +126,6 @@ void Foo() {
   discretizations.push_back(80);
   discretizations.push_back(48);
   discretizations.push_back(16);
-
-  array<unsigned char> image(kBlocksWide * kPixelDimPerBlock * kCharsPerPixel,
-                             kBlocksHigh * kPixelDimPerBlock);
 
   srand(time(NULL));
 
@@ -170,65 +169,69 @@ void Foo() {
   }
   std::cout << std::endl;
 
-  // memcpy(ecc_bytes,
-  //        data,
-  //        kRs255_223MessageBytes);
-
-  // memcpy(ecc_bytes + kRs255_223MessageBytes,
-  //        parity,
-  //        kRs255_223ParityBytes);
-
-  // memcpy(ecc_bytes + kRs255_223TotalBytes,
-  //        data,
-  //        kRs255_223MessageBytes);
-  // memcpy(ecc_bytes + kRs255_223TotalBytes + kRs255_223MessageBytes,
-  //        parity,
-  //        kRs255_223ParityBytes);
-
-
-  // for (int i = 0; i < 223; i++) {
-  //   std::cout << (int)ecc_bytes[i] << " ";
-  // }
-  // std::cout << std::endl;
-  // for (int i = 223; i < 223 + 16; i++) {
-  //   std::cout << (int)ecc_bytes[i] << " ";
-  // }
-  // std::cout << std::endl;
-
-  // for (int i = 255; i < 510; i++) {
-  //   std::cout << (int)ecc_bytes[i] << " ";
-  // }
-  // std::cout << std::endl;
-
+  array<unsigned char> image(kBlocksWide * kPixelDimPerBlock * kCharsPerPixel,
+                             kBlocksHigh * kPixelDimPerBlock);
 
   // Now we have all of the values set for embedding into a JPEG.
-  // for (int image_h = 0; image_h < kBlocksHigh; image_h++) {
-  //   for (int image_w = 0; image_w < kBlocksWide; image_w++) {
-  //     MatrixRepresentation mr;
-  //     mr.InitFromString(ecc_bytes + (image_h * kBlocksWide + image_w));
+  char *input_bytes = output;
+  for (int image_h = 0; image_h < kBlocksHigh; image_h++) {
+    for (int image_w = 0; image_w < kBlocksWide; image_w++) {
+      MatrixRepresentation mr;
+      mr.InitFromString(input_bytes + (image_h * kBlocksWide + image_w));
 
-  //     std::vector<int> matrix_entries;
-  //     mr.ToInts(&matrix_entries);
+      std::vector<int> matrix_entries;
+      mr.ToInts(&matrix_entries);
 
-  //     image.FillBlockFromInts(matrix_entries, discretizations, image_h, image_w);
-  //   }
-  // }
+      image.FillBlockFromInts(matrix_entries, discretizations, image_h, image_w);
+    }
+  }
 
-  // vector<unsigned char> output_jpeg;
-  // assert(gfx::JPEGCodec::Encode(image.data,
-  //                               gfx::JPEGCodec::FORMAT_RGB,
-  //                               kBlocksWide * kPixelDimPerBlock,
-  //                               kBlocksHigh * kPixelDimPerBlock,
-  //                               kBlocksWide * kPixelDimPerBlock * kCharsPerPixel,
-  //                               FLAGS_quality,
-  //                               &output_jpeg));
+  array<matrix<double> *> blocks(kBlocksWide, kBlocksHigh);
 
-  // std::string output(output_jpeg.begin(), output_jpeg.end());
-  // std::cout << output << std::endl;
-  // std::cout << std::endl;
+  matrix<unsigned char> orig_matrix(8, 8);
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      orig_matrix(i,j) = image.data[i * (kBlocksWide * kPixelDimPerBlock * 3) + 3 * j];
+    }
+  }
+  matrix<double> orig_aes(4, 4);
+  cryptogram::AverageAestheteBlocks(orig_matrix, &orig_aes);
+  std::cout << "Original image:\n" << orig_aes << std::endl;
 
+  // array @image is prepared with the all of the JPEG color space information.
+  vector<unsigned char> output_jpeg;
+  assert(gfx::JPEGCodec::Encode(image.data,
+                                gfx::JPEGCodec::FORMAT_RGB,
+                                kBlocksWide * kPixelDimPerBlock,
+                                kBlocksHigh * kPixelDimPerBlock,
+                                kBlocksWide * kPixelDimPerBlock * kCharsPerPixel,
+                                FLAGS_quality,
+                                &output_jpeg));
 
+  std::string output_bytes(output_jpeg.begin(), output_jpeg.end());
+  std::cerr << output_bytes << std::endl;
+  std::cout << std::endl;
 
+  vector<unsigned char> decoded;
+  int width = 0, height = 0;
+  assert(gfx::JPEGCodec::Decode(&output_jpeg[0],
+                                output_jpeg.size(),
+                                gfx::JPEGCodec::FORMAT_RGB,
+                                &decoded,
+                                &width, &height));
+
+  std::cout << width/8 << std::endl;
+  std::cout << height/8 << std::endl;
+
+  matrix<unsigned char> decoded_matrix(8, 8);
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      decoded_matrix(i,j) = decoded[i * (width * 3) + 3 * j];
+    }
+  }
+  matrix<double> decoded_aes(4, 4);
+  cryptogram::AverageAestheteBlocks(decoded_matrix, &decoded_aes);
+  std::cout << decoded_aes << std::endl;
 
   // for (int height = 0; height < kBlocksHigh * kPixelDimPerBlock; height++) {
   //   for (int width = 0;

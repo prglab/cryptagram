@@ -1,3 +1,6 @@
+// Copyright 2012. The Cryptogram Authors. BSD License.
+// Author: tierney@cs.nyu.edu (Matt Tierney)
+
 #ifndef _CRYPTOGRAM_ARRAY_H_
 #define _CRYPTOGRAM_ARRAY_H_
 
