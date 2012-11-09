@@ -331,7 +331,7 @@ void Foo() {
   mat_rep.InitFromInts(decoded_ints);
   std::string final(mat_rep.ToString());
   for (int i = 0; i < final.size(); i++) {
-    std::cout << final[i] << " ";
+    std::cout << (int)(unsigned char)final[i] << " ";
   }
   std::cout << std::endl;
   
