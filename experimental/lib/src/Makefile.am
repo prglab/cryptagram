@@ -53,14 +53,15 @@ ecc_experiment_LDADD += libreentrant_rand.a
 ecc_experiment_LDADD +=	libjpeg_codec.a
 ecc_experiment_LDADD +=	reed_solomon/librs_codec.a
 ecc_experiment_LDADD +=	reed_solomon/librs.a
-ecc_experiment_LDADD +=	-lgflags -lglog -lprofiler -ltcmalloc
+ecc_experiment_LDADD +=	libecc_message.a
+ecc_experiment_LDADD +=	-lgflags -lglog 
 if USE_LIBTCMALLOC
   ecc_experiment_CPPFLAGS +=  \
     -fno-builtin-malloc \
 		-fno-builtin-calloc \
 		-fno-builtin-realloc \
 		-fno-builtin-free
-  ecc_experiment_LDADD += $(libtcmalloc_LIBS)
+  ecc_experiment_LDADD += $(libtcmalloc_LIBS) -lprofiler
 endif
 
 bin_PROGRAMS += in_memory_experiment
@@ -90,6 +91,9 @@ noinst_LIBRARIES = libjpeg_delta.a libjpeg_codec.a libCoder.a libmodp_b64.a
 noinst_LIBRARIES += libbase64.a libstring_piece.a
 noinst_LIBRARIES += libaesthete.a libaesthete_thread.a
 noinst_LIBRARIES += libexperiment.a libarray.a
+
+noinst_LIBRARIES += libecc_message.a
+libecc_message_a_SOURCES = ecc_message.cc ecc_message.h
 
 noinst_LIBRARIES += libreentrant_rand.a
 libreentrant_rand_a_SOURCES = reentrant_rand.h reentrant_rand.cc

@@ -15,6 +15,11 @@
 
 namespace cryptogram {
 
+// This class drives the aesthete experiment without ECC. This is not a
+// thread-safe class. Experiment is designed to run the compression and
+// decompression algorithms, compare the results to computer the number of
+// errors, and, if there are errors, write out the number of errors and the
+// matrix to @output_filename.
 class Experiment {
  public:
   Experiment(const std::vector<int>& discretizations,

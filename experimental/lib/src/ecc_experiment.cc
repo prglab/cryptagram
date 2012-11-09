@@ -16,8 +16,11 @@
 #include "reentrant_rand.h"
 #include "reed_solomon/rs_codec.h"
 
+// Profiler headers.
+/*
 #include "gperftools/profiler.h"
 #include "gperftools/heap-profiler.h"
+*/
 
 DEFINE_int32(quality, 95, "JPEG quality to use.");
 DEFINE_int64(iterations, 1000, "Number of iterations to run.");
@@ -225,7 +228,8 @@ void Foo() {
   EccMessage ecc_msg;
 
   for (int iteration = 0; iteration < FLAGS_iterations; iteration++) {
-  EccMessage::FillWithRandomData(ecc_msg.first_message(), kRs255_223MessageBytes);
+  EccMessage::FillWithRandomData(ecc_msg.first_message(),
+                                 kRs255_223MessageBytes);
 
   RsCodec rs_codec;
   rs_codec.Encode(ecc_msg.first_message(), ecc_msg.first_parity());
@@ -237,19 +241,17 @@ void Foo() {
   for (int image_h = 0; image_h < kBlocksHigh; image_h++) {
     for (int image_w = 0; image_w < kBlocksWide; image_w++) {
       MatrixRepresentation mr;
-      // TODO(tierney): Check that we are indexed to the correct byte here.
+
+      // TODO(tierney): Bottleneck here. Make this faster.
       mr.InitFromString(input_bytes +
                         (image_h * (kBlocksWide * kMatrixStrBytes)
                          + (kMatrixStrBytes * image_w)));
 
-      std::string tmp(mr.ToString());
-      for (unsigned int i = 0; i < tmp.size(); i++) {
-      }
-
       std::vector<int> matrix_entries;
       mr.ToInts(&matrix_entries);
 
-      image.FillBlockFromInts(matrix_entries, discretizations, image_h, image_w);
+      image.FillBlockFromInts(
+          matrix_entries, discretizations, image_h, image_w);
     }
   }
 
@@ -258,19 +260,21 @@ void Foo() {
     for (int wide = 0; wide < kBlocksWide; wide++) {
       image.FillMatrixFromBlock(high, wide, blocks(wide, high));
 
-      cryptogram::AverageAestheteBlocks(*blocks(wide, high), aes_blocks(wide, high));
+      cryptogram::AverageAestheteBlocks(*blocks(wide, high),
+                                        aes_blocks(wide, high));
     }
   }
 
   // array @image is prepared with the all of the JPEG color space information.
   vector<unsigned char> output_jpeg;
-  assert(gfx::JPEGCodec::Encode(image.data,
-                                gfx::JPEGCodec::FORMAT_RGB,
-                                kBlocksWide * kPixelDimPerBlock,
-                                kBlocksHigh * kPixelDimPerBlock,
-                                kBlocksWide * kPixelDimPerBlock * kCharsPerPixel,
-                                FLAGS_quality,
-                                &output_jpeg));
+  assert(gfx::JPEGCodec::Encode(
+      image.data,
+      gfx::JPEGCodec::FORMAT_RGB,
+      kBlocksWide * kPixelDimPerBlock,
+      kBlocksHigh * kPixelDimPerBlock,
+      kBlocksWide * kPixelDimPerBlock * kCharsPerPixel,
+      FLAGS_quality,
+      &output_jpeg));
 
   std::string output_bytes(output_jpeg.begin(), output_jpeg.end());
   // std::cerr << output_bytes << std::endl;
@@ -339,10 +343,8 @@ void Foo() {
     int nerrors = rs_codec.Decode(data, parity);
     // std::cout << "nerrors: " << nerrors << std::endl;
   }
-  HeapProfilerDump("reason");
 
   }
-  HeapProfilerDump("mainreason");
   for (int high = 0; high < kBlocksHigh; high++) {
     for (int wide = 0; wide < kBlocksWide; wide++) {
       delete decoded_blocks(wide, high);
@@ -357,12 +359,16 @@ void Foo() {
 
 int main(int argc, char** argv) {
   google::ParseCommandLineFlags(&argc, &argv, false);
+  /*
   ProfilerStart("ecc_experiment.prof");
   HeapProfilerStart("ecc_experiemnt.hprof");
+  */
   cryptogram::Foo();
+  /*
   HeapProfilerDump("lastreason");
   HeapProfilerStop();
   ProfilerStop();
+  */
 
   return 0;
 }
