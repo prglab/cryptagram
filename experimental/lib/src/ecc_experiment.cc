@@ -322,7 +322,7 @@ void Foo() {
       for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
           (*decoded_blocks(wide, high))(i, j) =
-              decoded[(high + i) * (kBlocksWide * kPixelDimPerBlock * 3) +
+              decoded[((high + i) * (kBlocksWide * kPixelDimPerBlock * 3)) +
                       ((wide * 3 * kPixelDimPerBlock) + (3 * j))];
         }
       }
@@ -338,42 +338,30 @@ void Foo() {
   std::cout << "NERROR: "
             << CountErrors(*aes_blocks(0,0), *decoded_aes(0,0), 16) << std::endl;
 
-  matrix<double> *decoded_mat = decoded_aes(0,0);
-  vector<int> decoded_ints;
-  for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++) {
-      double val = (*decoded_mat)(i,j);
-      int idx = std::distance(set_discretizations.begin(),
-                              FindClosest(set_discretizations, DiscreteValue(val)));
-      decoded_ints.push_back(idx);
+  for (int block_h = 0; block_h < 2; block_h++) {
+    for (int block_w = 0; block_w < 8; block_w++) {
+      matrix<double> *decoded_mat = decoded_aes(block_w, block_h);
+      vector<int> decoded_ints;
+      for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+          double val = (*decoded_mat)(i,j);
+          int idx = std::distance(
+              set_discretizations.begin(),
+              FindClosest(set_discretizations, DiscreteValue(val)));
+          decoded_ints.push_back(idx);
+        }
+      }
+      MatrixRepresentation mat_rep;
+      mat_rep.InitFromInts(decoded_ints);
+      std::string final(mat_rep.ToString());
+      CHECK_EQ(final.size(), 6);
+
+      for (int i = 0; i < final.size(); i++) {
+        std::cout << (int)(unsigned char)final[i] << " ";
+      }
     }
-  }
-  MatrixRepresentation mat_rep;
-  mat_rep.InitFromInts(decoded_ints);
-  std::string final(mat_rep.ToString());
-  for (int i = 0; i < final.size(); i++) {
-    std::cout << (int)(unsigned char)final[i] << " ";
-  }
-  std::cout << "| ";
-  
-  decoded_mat = decoded_aes(1, 0);
-  decoded_ints.clear();
-  for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++) {
-      double val = (*decoded_mat)(i,j);
-      int idx = std::distance(set_discretizations.begin(),
-                              FindClosest(set_discretizations, DiscreteValue(val)));
-      decoded_ints.push_back(idx);
-    }
-  }
-  mat_rep.InitFromInts(decoded_ints);
-  final.clear();
-  final = mat_rep.ToString();
-  for (int i = 0; i < final.size(); i++) {
-    std::cout << (int)(unsigned char)final[i] << " ";
   }
   std::cout << std::endl;
-  
   
   // for (int height = 0; height < kBlocksHigh * kPixelDimPerBlock; height++) {
   //   for (int width = 0;
