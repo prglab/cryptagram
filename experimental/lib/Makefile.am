@@ -2,6 +2,9 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
+aclocaldir = $(datadir)/aclocal
+aclocal_DATA = m4/boost.m4
+
 # Nonstandard package files for distribution
 EXTRA_DIST = \
   CHANGES \

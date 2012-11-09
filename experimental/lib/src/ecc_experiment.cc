@@ -186,9 +186,15 @@ void Foo() {
     }
   }
 
-  array<matrix<double> *> blocks(kBlocksWide, kBlocksHigh);
-
+  array<matrix<unsigned char> *> blocks(kBlocksWide, kBlocksHigh);
+  for (int high = 0; high < kBlocksHigh; high++) {
+    for (int wide = 0; wide < kBlocksWide; wide++) {
+      blocks(wide, high) = new matrix<unsigned char>(8, 8);
+    }
+  }
   matrix<unsigned char> orig_matrix(8, 8);
+  image.FillMatrixFromBlock(0, 0, &orig_matrix);
+  
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
       orig_matrix(i,j) = image.data[i * (kBlocksWide * kPixelDimPerBlock * 3) + 3 * j];
