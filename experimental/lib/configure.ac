@@ -17,8 +17,8 @@ LT_PREREQ([2.2])
 LT_INIT([dlopen])
 
 # Checks for programs.
-AC_PROG_CC([clang])
-AC_PROG_CXX([clang++])
+AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
@@ -63,6 +63,7 @@ AS_IF([test "x$with_pthreads" != "xno"],
                  [--with-pthreads was specified, but unable to be used])])])
        have_pthreads="$acx_pthread_ok"])
 AM_CONDITIONAL([HAVE_PTHREADS],[test "x$have_pthreads" == "xyes"])
+
 AC_SUBST(PTHREAD_CFLAGS)
 AC_SUBST(PTHREAD_LIBS)
 
