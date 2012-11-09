@@ -142,7 +142,7 @@ class EccMessage {
 
 struct DiscreteValue {
   explicit DiscreteValue(double input) { data = input; }
-  
+
   double data;
 };
 
@@ -200,7 +200,7 @@ void Foo() {
             << std::distance(set_discretizations.begin(),
                              FindClosest(set_discretizations, DiscreteValue(query)))
             << std::endl;
-      
+
   srand(time(NULL));
 
   EccMessage ecc_msg;
@@ -262,7 +262,7 @@ void Foo() {
                         (image_h * kBlocksWide + (kMatrixStrBytes * image_w)));
 
       std::string tmp(mr.ToString());
-      for (int i = 0; i < tmp.size(); i++) {
+      for (unsigned int i = 0; i < tmp.size(); i++) {
         std::cout << (unsigned int)(unsigned char)tmp[i] << " ";
       }
 
@@ -308,10 +308,12 @@ void Foo() {
                                 gfx::JPEGCodec::FORMAT_RGB,
                                 &decoded,
                                 &width, &height));
+  std::cout << "Decompressed image dimensions. Width: " << width
+            << " Height: " << height << std::endl;
+  std::cout << "Length of decompressed vector: "  << decoded.size() << std::endl;
+  std::cout << "Width * 3 = " << width * 3 << std::endl;
 
-  std::cout << width/8 << std::endl;
-  std::cout << height/8 << std::endl;
-
+  std::cout << "The Decoded Matrices:" << std::endl;
   array<matrix<unsigned char> *> decoded_blocks(kBlocksWide, kBlocksHigh);
   array<matrix<double> *> decoded_aes(kBlocksWide, kBlocksHigh);
   for (int high = 0; high < kBlocksHigh; high++) {
@@ -319,19 +321,26 @@ void Foo() {
       decoded_blocks(wide, high) = new matrix<unsigned char>(8, 8);
       // For each block, we want to be sure to capture the exact 64 pixel values
       // of that block.
+      std::cout << "High: " << high << " Wide: " << wide << std::endl;
       for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-          (*decoded_blocks(wide, high))(i, j) =
-              decoded[((high + i) * (kBlocksWide * kPixelDimPerBlock * 3)) +
-                      ((wide * 3 * kPixelDimPerBlock) + (3 * j))];
+          int idx = (((high * kPixelDimPerBlock) + i) * (kBlocksWide * kPixelDimPerBlock * 3)) +
+              ((wide * 3 * kPixelDimPerBlock) + (3 * j));
+          std::cout << idx << " ";
+          (*decoded_blocks(wide, high))(i, j) = decoded[idx];
         }
+        std::cout << std::endl;
       }
-      
+      std::cout << std::endl;
+      std::cout << std::endl;
+
       decoded_aes(wide, high) = new matrix<double>(4, 4);
       cryptogram::AverageAestheteBlocks(*decoded_blocks(wide, high),
                                         decoded_aes(wide, high));
+
     }
   }
+  std::cout << std::endl;
 
   std::cout << "ENCODE: " << *aes_blocks(0,0) << std::endl;
   std::cout << "DECODE: " << *decoded_aes(0,0) << std::endl;
@@ -356,13 +365,13 @@ void Foo() {
       std::string final(mat_rep.ToString());
       CHECK_EQ(final.size(), 6);
 
-      for (int i = 0; i < final.size(); i++) {
+      for (unsigned int i = 0; i < final.size(); i++) {
         std::cout << (int)(unsigned char)final[i] << " ";
       }
     }
   }
   std::cout << std::endl;
-  
+
   // for (int height = 0; height < kBlocksHigh * kPixelDimPerBlock; height++) {
   //   for (int width = 0;
   //        width < kBlocksWide * kPixelDimPerBlock * kCharsPerPixel;
