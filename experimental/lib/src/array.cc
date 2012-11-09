@@ -98,7 +98,7 @@ void array<unsigned char>::FillMatrixFromBlock(
   CHECK_NOTNULL(lum_matrix);
   CHECK_EQ(lum_matrix->size1(), 8);
   CHECK_EQ(lum_matrix->size2(), 8);
-  
+
   const int init_h = block_h * 8;
   const int init_w = block_w * 8;
 
@@ -110,7 +110,7 @@ void array<unsigned char>::FillMatrixFromBlock(
     }
   }
 }
-   
-    
+
+
 
 } // namespace cryptogram
