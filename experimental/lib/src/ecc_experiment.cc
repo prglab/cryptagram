@@ -91,19 +91,14 @@ class EccMessage {
   }
 
   void SetParity(uint16_t *parity, Position pos) {
-    std::cout << "SetParity: " << std::endl;
+    // std::cout << "SetParity: " << std::endl;
     for (int i = 0, pos_i = pos * kRs255_223TotalBytes;
          i < kParityArraySize;
          i++, pos_i += 1) {
       // Sanity check that the parity values, even though they are stored in
       // uint16_t have a size of one byte.
       assert(parity[i] < kCharMax);
-
-      for (int ii = 0; ii < 16; ii++) {
-        int tmp = (parity[i] >> ii) & 1;
-        std::cout << tmp;
-      }
-      std::cout << " ";
+      // PrintTwoByteInt(parity[i]);
       bytes_[kRs255_223MessageBytes + pos_i] = parity[i];
 
       // For 16 bit parity values (greater than or equal to 256) we must store
@@ -129,13 +124,11 @@ class EccMessage {
   }
 
   unsigned char *flatten() {
-    std::cout << "First Message: " << sizeof(first_message_) << std::endl;
     memcpy(bytes_,
            first_message_,
            sizeof(first_message_));
     SetParity(first_parity_, FIRST);
 
-    std::cout << "Second Message: " << kRs255_223MessageBytes << std::endl;
     memcpy(bytes_ + kRs255_223TotalBytes,
            first_message_,
            sizeof(second_message_));
@@ -242,49 +235,42 @@ void Foo() {
   std::cout << std::endl;
   std::cout << " / Ecc Message Contents: " << std::endl;
 
-  std::cout << "CONTENTS" << std::endl;
-  uint16_t* pu = ecc_msg.first_parity();
-  for (int i = 0; i < 16; i++) {
-    int tmp = (*pu >> i) & 1;
-    std::cout << tmp;
-  }
-  std::cout << std::endl;
-
   std::cout << "Various parts: \n" << std::endl;
   unsigned char *output = ecc_msg.flatten();
-  std::cout << "\nFirst Message: \n" << std::endl;
-  for (int i = 0; i < kRs255_223MessageBytes; i++) {
-    std::cout << (int)output[i] << " ";
-    if (i % 101 == 0 && i > 0) {
-      std::cout << std::endl;
-    }
-  }
-  std::cout << "\n\nFirst Parity: \n" << std::endl;
-  for (int i = kRs255_223MessageBytes;
-       i < kRs255_223MessageBytes + kRs255_223ParityBytes;
-       i++) {
-    std::cout << output[i] << " ";
-  }
-  std::cout << std::endl;
 
-  std::cout << "\nSecond Message: \n" << std::endl;
-  for (int i = kRs255_223TotalBytes;
-       i < kRs255_223TotalBytes + kRs255_223MessageBytes;
-       i++) {
-    std::cout << (int)output[i] << " ";
-  }
-  std::cout << "\n\nSecond Parity: \n" << std::endl;
-  for (int i = kRs255_223TotalBytes + kRs255_223MessageBytes;
-       i < 2 * kRs255_223TotalBytes;
-       i++) {
-    std::cout << output[i] << " ";
-  }
-  std::cout << std::endl;
-  for (int i = kRs255_223TotalBytes + kRs255_223MessageBytes;
-       i < 2 * kRs255_223TotalBytes;
-       i++) {
-    std::cout << (int)output[i] << " ";
-  }
+  // std::cout << "\nFirst Message: \n" << std::endl;
+  // for (int i = 0; i < kRs255_223MessageBytes; i++) {
+  //   std::cout << (int)output[i] << " ";
+  //   if (i % 101 == 0 && i > 0) {
+  //     std::cout << std::endl;
+  //   }
+  // }
+  // std::cout << "\n\nFirst Parity: \n" << std::endl;
+  // for (int i = kRs255_223MessageBytes;
+  //      i < kRs255_223MessageBytes + kRs255_223ParityBytes;
+  //      i++) {
+  //   std::cout << output[i] << " ";
+  // }
+  // std::cout << std::endl;
+
+  // std::cout << "\nSecond Message: \n" << std::endl;
+  // for (int i = kRs255_223TotalBytes;
+  //      i < kRs255_223TotalBytes + kRs255_223MessageBytes;
+  //      i++) {
+  //   std::cout << (int)output[i] << " ";
+  // }
+  // std::cout << "\n\nSecond Parity: \n" << std::endl;
+  // for (int i = kRs255_223TotalBytes + kRs255_223MessageBytes;
+  //      i < 2 * kRs255_223TotalBytes;
+  //      i++) {
+  //   std::cout << output[i] << " ";
+  // }
+  // std::cout << std::endl;
+  // for (int i = kRs255_223TotalBytes + kRs255_223MessageBytes;
+  //      i < 2 * kRs255_223TotalBytes;
+  //      i++) {
+  //   std::cout << (int)output[i] << " ";
+  // }
   std::cout << std::endl;
 
   // Now we have all of the values set for embedding into a JPEG.
@@ -363,20 +349,14 @@ void Foo() {
       decoded_blocks(wide, high) = new matrix<unsigned char>(8, 8);
       // For each block, we want to be sure to capture the exact 64 pixel values
       // of that block.
-      LOG(INFO) << "High: " << high << " Wide: " << wide ;
       for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
           int idx = ((((high * kPixelDimPerBlock) + i) *
                       (kBlocksWide * kPixelDimPerBlock * 3))) +
               ((wide * 3 * kPixelDimPerBlock) + (3 * j));
-          LOG(INFO) << idx << " ";
           (*decoded_blocks(wide, high))(i, j) = decoded[idx];
         }
-        LOG(INFO) ;
       }
-      LOG(INFO) ;
-      LOG(INFO) ;
-
       decoded_aes(wide, high) = new matrix<double>(4, 4);
       cryptogram::AverageAestheteBlocks(*decoded_blocks(wide, high),
                                         decoded_aes(wide, high));
@@ -424,12 +404,12 @@ void Foo() {
     std::cout << "Message " << i << std::endl;
     for (int j = i * 255; j < i * 255 + 223; j++) {
       data[j - (i * 255)] = full_message[j];
-      std::cout << full_message[j] << " ";
+      // std::cout << full_message[j] << " ";
     }
     std::cout << std::endl;
     for (int j = i * 255 + 223, ii = 0; j < i * 255 + 255; j++, ii++) {
       parity[ii] = full_message[j];
-      std::cout << full_message[j] << " ";
+      // std::cout << full_message[j] << " ";
     }
     std::cout << std::endl;
 
@@ -438,13 +418,13 @@ void Foo() {
       std::cout << (int)(unsigned char)data[j] << " ";
     }
     std::cout << std::endl;
-    std::cout << std::endl;
-    for (int j = 0; j < 32; j++) {
-      std::cout << parity[j] << " ";
-    }
+    // std::cout << std::endl;
+    // for (int j = 0; j < 32; j++) {
+    //   std::cout << parity[j] << " ";
+    // }
 
-    std::cout << std::endl;
-    std::cout << std::endl;
+    // std::cout << std::endl;
+    // std::cout << std::endl;
   }
   // for (int height = 0; height < kBlocksHigh * kPixelDimPerBlock; height++) {
   //   for (int width = 0;
