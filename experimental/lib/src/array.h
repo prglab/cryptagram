@@ -34,12 +34,17 @@ struct array {
   }
 
   void RandomAesthete(const std::vector<int>& values);
+
   void FillFromInts(const std::vector<int>& indices,
                     const std::vector<int>& values);
+
   void FillBlockFromInts(const std::vector<int>& indices,
                          const std::vector<int>& values,
                          int block_h,
                          int block_w);
+
+  // Fill @lum_matrix with the contents contained in the block block_h, block_w
+  // assuming that this->data is the format for a Cryptogram image.
   void FillMatrixFromBlock(int block_h,
                            int block_w,
                            matrix<unsigned char>* lum_matrix);

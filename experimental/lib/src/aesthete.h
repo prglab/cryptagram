@@ -34,7 +34,7 @@ struct CompactMatrix {
 };
 
 struct CharMatrix {
-  char matrix[6];
+  unsigned char matrix[6];
 };
 
 void AverageAestheteBlocks(const matrix<unsigned char>& input,
@@ -73,6 +73,7 @@ class MatrixRepresentation {
   // + 5 are six valid bytes that can be used to initialize the
   // MatrixRepresentation.
   void InitFromString(const char* input);
+  void InitFromString(const unsigned char* input);
 
   // Vector of ints that fill the 4x4 matrix left to right and top to bottom.
   void InitFromInts(const vector<int>& values);

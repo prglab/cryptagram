@@ -39,6 +39,12 @@ void MatrixRepresentation::InitFromString(const char* input) {
   }
 }
 
+void MatrixRepresentation::InitFromString(const unsigned char* input) {
+  for (int j = 0; j < 48; j++) {
+    bits_[j] = ((input[j>>3] >> (j & 7)) & 1);
+  }
+}
+
 void MatrixRepresentation::InitFromInts(const vector<int>& values) {
   CHECK_EQ(values.size(), 16);
   const int kNumDiscretizations = 8;
