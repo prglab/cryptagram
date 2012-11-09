@@ -133,7 +133,7 @@ cryptogram.demo.prototype.handleFiles = function(files) {
   var zip;
   var images;
   var self = this;
-  var codec = new cryptogram.codec.aesthete();
+  var codec = new cryptogram.codec.bacchant();
   var cipher = new cryptogram.cipher();
   
   if (this.zip == null) {
@@ -146,42 +146,44 @@ cryptogram.demo.prototype.handleFiles = function(files) {
     f = files[i];
     var name = escape(f.name);
     if (f.size > 500000) {
-      console.log('Skipping ' + name);  
+      console.log('Skipping ' + name);
+      continue; 
     }
     var type = f.type || 'n/a';
     var reader = new FileReader();
-    
+    var ratio = 1.0;
     reader.onload = function (loadEvent) {
       var originalData = loadEvent.target.result;
       var originalImage = new Image();
       originalImage.onload = function () {
         goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
+        ratio = originalImage.width / originalImage.height;
+      
+    		var password = 'cryptogram';
+        var encryptedData = cipher.encrypt(originalData, password);
+        codec.setImage(originalImage);
+        var encodedImage = codec.encode(encryptedData, ratio);
+        encodedImage.onload = function () {
+          goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),encodedImage,0);
+          var str = encodedImage.src;
+          var idx = str.indexOf(",");
+          var dat = str.substring(idx+1);
+          self.images.file(self.numberImages + '.jpg', dat, {base64: true});
+          self.numberImages++;
+          
+          // Decode image to make sure it worked
+          var decodedImage = new Image();
+          goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), decodedImage, 0);
+          var container = new cryptogram.container(decodedImage);
+          var decoder = new cryptogram.decoder(container);
+          decoder.decodeData(str, function(result) {             
+            var decipher = cipher.decrypt(result, password);
+            container.setSrc(decipher);
+          });
+        };
       }
       originalImage.src = originalData;
-      
-      // TODO(tierney): Accept user-chosen password.
-  		var password = 'cryptogram';
-      var encryptedData = cipher.encrypt(originalData, password);
-      var encodedImage = codec.encode(encryptedData);
-      encodedImage.onload = function () {
-        goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),encodedImage,0);
-        var str = encodedImage.src;
-        var idx = str.indexOf(",");
-        var dat = str.substring(idx+1);
-        self.images.file(self.numberImages + '.jpg', dat, {base64: true});
-        self.numberImages++;
-        
-        // Decode image to make sure it worked
-        var decodedImage = new Image();
-        goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), decodedImage, 0);
-        var container = new cryptogram.container(decodedImage);
-        var decoder = new cryptogram.decoder(container);
-        decoder.decodeData(str, function(result) {             
-          var decipher = cipher.decrypt(result, password);
-          container.setSrc(decipher);
-        });
-      };
-    };  		
+    }; 		
     reader.onerror = cryptogram.demo.show_error;
     reader.readAsDataURL(f);
   }

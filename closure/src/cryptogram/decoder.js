@@ -16,8 +16,6 @@ cryptogram.decoder = function(container) {
 cryptogram.decoder.prototype.logger = goog.debug.Logger.getLogger('cryptogram.decoder');
 
 
-cryptogram.decoder.URIHeader = "data:image/jpeg;base64,";
-
 /**
  * Decodes the supplied base64 data and applies the callback.
  * @param data The input base64 data.
@@ -25,7 +23,6 @@ cryptogram.decoder.URIHeader = "data:image/jpeg;base64,";
  */
 cryptogram.decoder.prototype.decodeData = function(data, callback) {
 
-  this.base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
   var self = this;
 
   var canvas = document.createElement('canvas');
@@ -46,7 +43,7 @@ cryptogram.decoder.prototype.decodeData = function(data, callback) {
       self.container.setStatus();
     } else {
       self.callback = callback;
-      self.newBase64 = "";
+      self.data = "";
       self.codec.decode(img, imageData);
       self.processImage();
     }
@@ -81,24 +78,19 @@ cryptogram.decoder.prototype.processImage = function() {
   var chunk = this.codec.getChunk();
 
   if (chunk) {
-    //console.log(chunk.substring(0,20));
-    this.newBase64 += chunk;  
-  } else {
-    done = true;
-  }
+    this.data += chunk;
+    var percent = Math.round(100 * this.codec.decodeProgress(), 2);
+    this.container.setStatus("Decode<br>" + percent + "%");
+    var self = this;
+    setTimeout(function () { self.processImage() }, 1);
   
-  var _decoder = this;
-
-  if (!done) {
-      // Artificially inflate the percent so it gets to 100
-      var percent = Math.round(100 * this.codec.decodeProgress(),2);
-      this.container.setStatus("Decode<br>" + percent + "%");
-      setTimeout(function () { _decoder.processImage() }, 1);
+  // Done processing
   } else {
-      this.container.setStatus();
-      this.logger.info("Decoded image. " + this.newBase64.length + " base64 characters.");
-      _decoder.callback(this.newBase64);
-  }
+  
+    this.container.setStatus();
+    this.logger.info("Decoded image. " + this.data.length + " base64 characters.");
+    this.callback(this.data);
+ }  
 }
 
 

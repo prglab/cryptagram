@@ -30,6 +30,22 @@ cryptogram.codec.aesthete.prototype.name = function() {
 cryptogram.codec.aesthete.prototype.processImage = function(img) {
 };
 
+cryptogram.codec.aesthete.prototype.set_pixel = function(x, y, r, g, b) {
+  var idx = 4 * (x + y * this.width);
+  //set RGB channels to same level since we're encoding data as grayscale
+  this.data[idx] = r;
+  this.data[idx + 1] = g;
+  this.data[idx + 2] = b;
+  this.data[idx + 3] = 255; // alpha channel
+};
+
+cryptogram.codec.aesthete.prototype.set_block = function(x_start, y_start, level) {  
+  for (var i = 0; i < this.blockSize; i++) {
+    for (var j = 0; j < this.blockSize; j++) {
+      this.set_pixel(x_start + i, y_start + j, level, level, level);
+    }
+  }
+};
 
 cryptogram.codec.aesthete.prototype.encode = function(data, 
     width_to_height_ratio, header_string, block_width, block_height) {
@@ -98,29 +114,9 @@ cryptogram.codec.aesthete.prototype.encode = function(data,
   var cxt = c.getContext('2d');
   
   var imageData = cxt.createImageData(width, height);
-  var d = imageData.data;
+  this.data = imageData.data;
+  this.width = width;
 
-  function set_pixel(x, y, r, g, b) {
-    idx = 4 * (x + y * width);
- 
-    // set RGB channels to same level since we're encoding data as grayscale
-    d[idx] = r;
-    d[idx + 1] = g;
-    d[idx + 2] = b;
-    d[idx + 3] = 255; // alpha channel
-  }
-
-  function set_block(x_start, y_start, level) {
-   var r = level;
-   var b = level;
-   var g = level;       
-   
-    for (var i = 0; i < block_width; i++) {
-      for (var j = 0; j < block_height; j++) {
-        set_pixel(x_start+i, y_start+j, r, g, b);
-      }
-    }
-  }
   var pix_idx = 0;
   var value_idx;
   var level;
@@ -134,7 +130,7 @@ cryptogram.codec.aesthete.prototype.encode = function(data,
       if (value_idx < n_header_values) {
         level =  cryptogram.codec.aesthete.octal_symbol_thresholds[header_values[value_idx]];
       }
-      set_block(x, y, level);
+      this.set_block(x, y, level);
     }
   }
 
@@ -157,12 +153,12 @@ cryptogram.codec.aesthete.prototype.encode = function(data,
      x = x_coord * block_width;
     }
     y = y_coord * block_height;
-    set_block(x,y,level);
+    this.set_block(x,y,level);
   }
     
   cxt.putImageData(imageData, 0, 0);
   var img = new Image();
-  img.src = c.toDataURL('image/jpeg', 0.84);
+  img.src = c.toDataURL('image/jpeg', 0.74);
   return img;
 };
 
