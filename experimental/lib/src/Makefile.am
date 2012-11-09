@@ -46,14 +46,22 @@ read_aesthete_matrices_LDADD += -lpthread -lgflags -lglog
 bin_PROGRAMS += ecc_experiment
 ecc_experiment_SOURCES = ecc_experiment.cc ecc_image.h
 ecc_experiment_CPPFLAGS = -Wall
-ecc_experiment_LDADD = \
-  libarray.a \
-	libaesthete.a \
-  libreentrant_rand.a \
-	libjpeg_codec.a \
-	reed_solomon/librs_codec.a \
-	reed_solomon/librs.a \
-	-lgflags -lglog
+ecc_experiment_LDADD =
+ecc_experiment_LDADD += libarray.a
+ecc_experiment_LDADD +=	libaesthete.a
+ecc_experiment_LDADD += libreentrant_rand.a
+ecc_experiment_LDADD +=	libjpeg_codec.a
+ecc_experiment_LDADD +=	reed_solomon/librs_codec.a
+ecc_experiment_LDADD +=	reed_solomon/librs.a
+ecc_experiment_LDADD +=	-lgflags -lglog -lprofiler -ltcmalloc
+if USE_LIBTCMALLOC
+  ecc_experiment_CPPFLAGS +=  \
+    -fno-builtin-malloc \
+		-fno-builtin-calloc \
+		-fno-builtin-realloc \
+		-fno-builtin-free
+  ecc_experiment_LDADD += $(libtcmalloc_LIBS)
+endif
 
 bin_PROGRAMS += in_memory_experiment
 in_memory_experiment_SOURCES = in_memory_experiment.cc

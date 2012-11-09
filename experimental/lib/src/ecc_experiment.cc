@@ -16,7 +16,11 @@
 #include "reentrant_rand.h"
 #include "reed_solomon/rs_codec.h"
 
+#include "gperftools/profiler.h"
+#include "gperftools/heap-profiler.h"
+
 DEFINE_int32(quality, 95, "JPEG quality to use.");
+DEFINE_int64(iterations, 1000, "Number of iterations to run.");
 
 namespace cryptogram {
 
@@ -38,7 +42,6 @@ void FillWithRandomData(uint8_t *data, size_t len) {
     std::cout << tmp << " ";
     data[i] = tmp;
   }
-  std::cout << std::endl;
 }
 
 unsigned int CountErrors(const matrix<double>& matrix_a,
@@ -108,19 +111,13 @@ class EccMessage {
         bytes_[kRs255_223MessageBytes + pos_i + 1] = parity[i] / kCharMax;
       */
     }
-    std::cout << std::endl;
-    std::cout << std::endl;
   }
 
   static void FillWithRandomData(uint8_t *data, size_t len) {
     // Assumes that the PRNG has already been seeded.
-    std::cout << "FillWithRandomData:" << std::endl;
     for (unsigned int i = 0; i < len; i++) {
-      unsigned char generated = rand() % 256;
-      std::cout << (unsigned int)generated << " ";
-      data[i] = generated;
+      data[i] = rand() % 256;
     }
-    std::cout << std::endl;
   }
 
   unsigned char *flatten() {
@@ -208,77 +205,34 @@ void Foo() {
   set_discretizations.insert(DiscreteValue(48));
   set_discretizations.insert(DiscreteValue(16));
 
-  int query = 240 - 16;
-  std::cout << "CLOSEST VALUE: " << FindClosest(set_discretizations, DiscreteValue(query))->data << std::endl;
-  std::cout << "INDEX: "
-            << std::distance(set_discretizations.begin(),
-                             FindClosest(set_discretizations, DiscreteValue(query)))
-            << std::endl;
-
   srand(time(NULL));
 
+  array<matrix<unsigned char> *> decoded_blocks(kBlocksWide, kBlocksHigh);
+  array<matrix<double> *> decoded_aes(kBlocksWide, kBlocksHigh);
+  array<matrix<unsigned char> *> blocks(kBlocksWide, kBlocksHigh);
+  array<matrix<double> *> aes_blocks(kBlocksWide, kBlocksHigh);
+
+  for (int high = 0; high < kBlocksHigh; high++) {
+    for (int wide = 0; wide < kBlocksWide; wide++) {
+      decoded_blocks(wide, high) = new matrix<unsigned char>(8, 8);
+      decoded_aes(wide, high) = new matrix<double>(4, 4);
+      blocks(wide, high) = new matrix<unsigned char>(8, 8);
+      aes_blocks(wide, high) = new matrix<double>(4, 4);
+    }
+  }
+  array<unsigned char> image(kBlocksWide * kPixelDimPerBlock * kCharsPerPixel,
+                             kBlocksHigh * kPixelDimPerBlock);
   EccMessage ecc_msg;
+
+  for (int iteration = 0; iteration < FLAGS_iterations; iteration++) {
   EccMessage::FillWithRandomData(ecc_msg.first_message(), kRs255_223MessageBytes);
 
   RsCodec rs_codec;
   rs_codec.Encode(ecc_msg.first_message(), ecc_msg.first_parity());
 
-  std::cout << "Ecc Message Contents: " << std::endl;
-  for (int i = 0; i < kRs255_223MessageBytes; i++) {
-    std::cout << (int)ecc_msg.first_message()[i] << " ";
-  }
-  std::cout << std::endl;
-
-  for (int i = 0; i < kParityArraySize; i++) {
-    std::cout << ecc_msg.first_parity()[i] << " ";
-  }
-  std::cout << std::endl;
-  std::cout << " / Ecc Message Contents: " << std::endl;
-
-  std::cout << "Various parts: \n" << std::endl;
-  unsigned char *output = ecc_msg.flatten();
-
-  // std::cout << "\nFirst Message: \n" << std::endl;
-  // for (int i = 0; i < kRs255_223MessageBytes; i++) {
-  //   std::cout << (int)output[i] << " ";
-  //   if (i % 101 == 0 && i > 0) {
-  //     std::cout << std::endl;
-  //   }
-  // }
-  // std::cout << "\n\nFirst Parity: \n" << std::endl;
-  // for (int i = kRs255_223MessageBytes;
-  //      i < kRs255_223MessageBytes + kRs255_223ParityBytes;
-  //      i++) {
-  //   std::cout << output[i] << " ";
-  // }
-  // std::cout << std::endl;
-
-  // std::cout << "\nSecond Message: \n" << std::endl;
-  // for (int i = kRs255_223TotalBytes;
-  //      i < kRs255_223TotalBytes + kRs255_223MessageBytes;
-  //      i++) {
-  //   std::cout << (int)output[i] << " ";
-  // }
-  // std::cout << "\n\nSecond Parity: \n" << std::endl;
-  // for (int i = kRs255_223TotalBytes + kRs255_223MessageBytes;
-  //      i < 2 * kRs255_223TotalBytes;
-  //      i++) {
-  //   std::cout << output[i] << " ";
-  // }
-  // std::cout << std::endl;
-  // for (int i = kRs255_223TotalBytes + kRs255_223MessageBytes;
-  //      i < 2 * kRs255_223TotalBytes;
-  //      i++) {
-  //   std::cout << (int)output[i] << " ";
-  // }
-  std::cout << std::endl;
-
   // Now we have all of the values set for embedding into a JPEG.
-  unsigned char *input_bytes = output;
-  array<unsigned char> image(kBlocksWide * kPixelDimPerBlock * kCharsPerPixel,
-                             kBlocksHigh * kPixelDimPerBlock);
+  unsigned char *input_bytes = ecc_msg.flatten();
 
-  std::cout << "\nWrite MRs" << std::endl;
   const int kMatrixStrBytes = 6;
   for (int image_h = 0; image_h < kBlocksHigh; image_h++) {
     for (int image_w = 0; image_w < kBlocksWide; image_w++) {
@@ -290,7 +244,6 @@ void Foo() {
 
       std::string tmp(mr.ToString());
       for (unsigned int i = 0; i < tmp.size(); i++) {
-        std::cout << (unsigned int)(unsigned char)tmp[i] << " ";
       }
 
       std::vector<int> matrix_entries;
@@ -298,19 +251,13 @@ void Foo() {
 
       image.FillBlockFromInts(matrix_entries, discretizations, image_h, image_w);
     }
-    std::cout << std::endl;
   }
-  std::cout << std::endl;
 
   // Prepare the matrices so that they are able to hold the values for the code.
-  array<matrix<unsigned char> *> blocks(kBlocksWide, kBlocksHigh);
-  array<matrix<double> *> aes_blocks(kBlocksWide, kBlocksHigh);
   for (int high = 0; high < kBlocksHigh; high++) {
     for (int wide = 0; wide < kBlocksWide; wide++) {
-      blocks(wide, high) = new matrix<unsigned char>(8, 8);
       image.FillMatrixFromBlock(high, wide, blocks(wide, high));
 
-      aes_blocks(wide, high) = new matrix<double>(4, 4);
       cryptogram::AverageAestheteBlocks(*blocks(wide, high), aes_blocks(wide, high));
     }
   }
@@ -326,8 +273,7 @@ void Foo() {
                                 &output_jpeg));
 
   std::string output_bytes(output_jpeg.begin(), output_jpeg.end());
-  std::cerr << output_bytes << std::endl;
-  std::cout << std::endl;
+  // std::cerr << output_bytes << std::endl;
 
   vector<unsigned char> decoded;
   int width = 0, height = 0;
@@ -336,17 +282,9 @@ void Foo() {
                                 gfx::JPEGCodec::FORMAT_RGB,
                                 &decoded,
                                 &width, &height));
-  std::cout << "Decompressed image dimensions. Width: " << width
-            << " Height: " << height << std::endl;
-  std::cout << "Length of decompressed vector: "  << decoded.size() << std::endl;
-  std::cout << "Width * 3 = " << width * 3 << std::endl;
 
-  LOG(INFO) << "The Decoded Matrices:" ;
-  array<matrix<unsigned char> *> decoded_blocks(kBlocksWide, kBlocksHigh);
-  array<matrix<double> *> decoded_aes(kBlocksWide, kBlocksHigh);
   for (int high = 0; high < kBlocksHigh; high++) {
     for (int wide = 0; wide < kBlocksWide; wide++) {
-      decoded_blocks(wide, high) = new matrix<unsigned char>(8, 8);
       // For each block, we want to be sure to capture the exact 64 pixel values
       // of that block.
       for (int i = 0; i < 8; i++) {
@@ -357,17 +295,10 @@ void Foo() {
           (*decoded_blocks(wide, high))(i, j) = decoded[idx];
         }
       }
-      decoded_aes(wide, high) = new matrix<double>(4, 4);
       cryptogram::AverageAestheteBlocks(*decoded_blocks(wide, high),
                                         decoded_aes(wide, high));
     }
   }
-  LOG(INFO) ;
-
-  std::cout << "ENCODE: " << *aes_blocks(0,0) << std::endl;
-  std::cout << "DECODE: " << *decoded_aes(0,0) << std::endl;
-  std::cout << "NERROR: "
-            << CountErrors(*aes_blocks(0,0), *decoded_aes(0,0), 16) << std::endl;
 
   vector<unsigned char> full_message;
   for (int block_h = 0; block_h < kBlocksHigh; block_h++) {
@@ -390,61 +321,48 @@ void Foo() {
       CHECK_EQ(final.size(), 6);
 
       for (unsigned int i = 0; i < final.size(); i++) {
-        std::cout << (int)(unsigned char)final[i] << " ";
         full_message.push_back(final[i]);
       }
     }
   }
 
-  std::cout << std::endl;
-
   for (int i = 0; i < 2; i++) {
     uint8_t data[223];
     uint16_t parity[32];
-    std::cout << "Message " << i << std::endl;
     for (int j = i * 255; j < i * 255 + 223; j++) {
       data[j - (i * 255)] = full_message[j];
-      // std::cout << full_message[j] << " ";
     }
-    std::cout << std::endl;
     for (int j = i * 255 + 223, ii = 0; j < i * 255 + 255; j++, ii++) {
       parity[ii] = full_message[j];
-      // std::cout << full_message[j] << " ";
     }
-    std::cout << std::endl;
 
-    std::cout << "Num errors: " << rs_codec.Decode(data, parity) << std::endl;
-    for (int j = 0; j < 223; j++) {
-      std::cout << (int)(unsigned char)data[j] << " ";
-    }
-    std::cout << std::endl;
-    // std::cout << std::endl;
-    // for (int j = 0; j < 32; j++) {
-    //   std::cout << parity[j] << " ";
-    // }
-
-    // std::cout << std::endl;
-    // std::cout << std::endl;
+    int nerrors = rs_codec.Decode(data, parity);
+    // std::cout << "nerrors: " << nerrors << std::endl;
   }
-  // for (int height = 0; height < kBlocksHigh * kPixelDimPerBlock; height++) {
-  //   for (int width = 0;
-  //        width < kBlocksWide * kPixelDimPerBlock * kCharsPerPixel;
-  //        width += kCharsPerPixel) {
+  HeapProfilerDump("reason");
 
-  //     std::cout <<
-  //         (int)image.data[
-  //             height * kBlocksWide * kPixelDimPerBlock * kCharsPerPixel +
-  //             width] << " ";
-  //   }
-  //   std::cout << std::endl;
-  // }
+  }
+  HeapProfilerDump("mainreason");
+  for (int high = 0; high < kBlocksHigh; high++) {
+    for (int wide = 0; wide < kBlocksWide; wide++) {
+      delete decoded_blocks(wide, high);
+      delete decoded_aes(wide, high);
+      delete blocks(wide, high);
+      delete aes_blocks(wide, high);
+    }
+  }
 }
 
 } // namespace cryptogram
 
 int main(int argc, char** argv) {
   google::ParseCommandLineFlags(&argc, &argv, false);
+  ProfilerStart("ecc_experiment.prof");
+  HeapProfilerStart("ecc_experiemnt.hprof");
   cryptogram::Foo();
+  HeapProfilerDump("lastreason");
+  HeapProfilerStop();
+  ProfilerStop();
 
   return 0;
 }
