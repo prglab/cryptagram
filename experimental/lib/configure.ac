@@ -85,14 +85,14 @@ Make sure you link to libjpeg.
 dnl libtcmalloc
 
 AC_ARG_WITH([tcmalloc],
-  [AS_HELP_STRING([--without-tcmalloc],
-    [disable support for tcmalloc])],
-  [],
-  [with_tcmalloc=yes])
+  [AS_HELP_STRING([--with-tcmalloc],
+    [enable support for tcmalloc])],
+  [with_tcmalloc=yes],
+  [with_tcmalloc=no])
 
 AS_IF([test "x$with_tcmalloc" != xno],
   [AC_CHECK_LIB([tcmalloc], [tc_malloc],
-    [AC_SUBST([LIBTCMALLOC], ["-ltcmalloc"])
+    [AC_SUBST([LIBTCMALLOC], ["-lprofiler -ltcmalloc"])
      AC_DEFINE([HAVE_LIBTCMALLOC], [1],
                [Define if you have libtcmalloc])
     ],
