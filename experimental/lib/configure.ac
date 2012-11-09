@@ -8,7 +8,7 @@ AM_INIT_AUTOMAKE
 
 AC_CANONICAL_HOST
 
-AM_SILENT_RULES([no])
+AM_SILENT_RULES([yes])
 
 AC_CONFIG_SRCDIR([src/jpeg_codec.cc])
 AC_CONFIG_HEADERS([config.h])
@@ -22,6 +22,16 @@ AC_PROG_CXX([clang++])
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
+AC_PROG_GREP
+AC_PROG_EGREP
+AC_PROG_CXX
+
+dnl First look for Boost, maybe for a specific minimum version:
+BOOST_REQUIRE([1.34])
+
+dnl Then look for specific Boost libraries you need:
+dnl BOOST_ARRAY
+dnl BOOST_DATE_TIME
 
 AC_DEFINE(CONFIG_REED_SOLOMON_ENC8, 1, Reed Solomon encoding word length)
 AC_DEFINE(CONFIG_REED_SOLOMON_DEC8, 1, Reed Solomon decoding word length)
@@ -95,7 +105,6 @@ dnl AS_IF([test -z "${BOOST_LIB_SUFFIX+x}"], [BOOST_LIB_SUFFIX=-mt])
 dnl AC_ARG_VAR([BOOST_LIB_SUFFIX], [Boost library name suffix [default=-mt]])
 
 BOOST_SYSTEM
-BOOST_THREAD
 
 dnl AC_CHECK_LIB([gtest], [_ZN7testing14InitGoogleTestEPiPPc], ,
 dnl   AC_MSG_WARN([
