@@ -87,11 +87,17 @@ class EccMessage {
          i++, pos_i += 1) {
       // Sanity check that the parity values, even though they are stored in
       // uint16_t have a size of one byte.
-      assert(parity[i] % kCharMax == parity[i]);
+      assert(parity[i] < kCharMax);
 
       std::cout << kRs255_223MessageBytes + pos_i << " ";
-      bytes_[kRs255_223MessageBytes + pos_i + 0] = parity[i] % kCharMax;
-      bytes_[kRs255_223MessageBytes + pos_i + 1] = parity[i] / kCharMax;
+      bytes_[kRs255_223MessageBytes + pos_i] = parity[i];
+
+      // For 16 bit parity values (greater than or equal to 256) we must store
+      // the 8 bit value.
+      /*
+        bytes_[kRs255_223MessageBytes + pos_i + 0] = parity[i] % kCharMax;
+        bytes_[kRs255_223MessageBytes + pos_i + 1] = parity[i] / kCharMax;
+      */
     }
     std::cout << std::endl;
     std::cout << std::endl;
@@ -224,11 +230,14 @@ void Foo() {
 
   std::cout << "Various parts: \n" << std::endl;
   unsigned char *output = ecc_msg.flatten();
-  std::cout << "First Message: \n" << std::endl;
+  std::cout << "\nFirst Message: \n" << std::endl;
   for (int i = 0; i < kRs255_223MessageBytes; i++) {
     std::cout << (int)output[i] << " ";
+    if (i % 101 == 0 && i > 0) {
+      std::cout << std::endl;
+    }
   }
-  std::cout << "\nFirst Parity: \n" << std::endl;
+  std::cout << "\n\nFirst Parity: \n" << std::endl;
   for (int i = kRs255_223MessageBytes;
        i < kRs255_223MessageBytes + kRs255_223ParityBytes;
        i++) {
@@ -236,13 +245,13 @@ void Foo() {
   }
   std::cout << std::endl;
 
-  std::cout << "Second Message: \n" << std::endl;
+  std::cout << "\nSecond Message: \n" << std::endl;
   for (int i = kRs255_223TotalBytes;
        i < kRs255_223TotalBytes + kRs255_223MessageBytes;
        i++) {
     std::cout << (int)output[i] << " ";
   }
-  std::cout << "\nSecond Parity: \n" << std::endl;
+  std::cout << "\n\nSecond Parity: \n" << std::endl;
   for (int i = kRs255_223TotalBytes + kRs255_223MessageBytes;
        i < 2 * kRs255_223TotalBytes;
        i++) {
@@ -254,13 +263,16 @@ void Foo() {
   unsigned char *input_bytes = output;
   array<unsigned char> image(kBlocksWide * kPixelDimPerBlock * kCharsPerPixel,
                              kBlocksHigh * kPixelDimPerBlock);
+
   std::cout << "\nWrite MRs" << std::endl;
   const int kMatrixStrBytes = 6;
   for (int image_h = 0; image_h < kBlocksHigh; image_h++) {
     for (int image_w = 0; image_w < kBlocksWide; image_w++) {
       MatrixRepresentation mr;
+      // TODO(tierney): Check that we are indexed to the correct byte here.
       mr.InitFromString(input_bytes +
-                        (image_h * kBlocksWide + (kMatrixStrBytes * image_w)));
+                        (image_h * (kBlocksWide * kMatrixStrBytes)
+                         + (kMatrixStrBytes * image_w)));
 
       std::string tmp(mr.ToString());
       for (unsigned int i = 0; i < tmp.size(); i++) {
@@ -272,6 +284,7 @@ void Foo() {
 
       image.FillBlockFromInts(matrix_entries, discretizations, image_h, image_w);
     }
+    std::cout << std::endl;
   }
   std::cout << std::endl;
 
@@ -349,6 +362,7 @@ void Foo() {
   std::cout << "NERROR: "
             << CountErrors(*aes_blocks(0,0), *decoded_aes(0,0), 16) << std::endl;
 
+  vector<unsigned char> full_message;
   for (int block_h = 0; block_h < kBlocksHigh; block_h++) {
     for (int block_w = 0; block_w < kBlocksWide; block_w++) {
       matrix<double> *decoded_mat = decoded_aes(block_w, block_h);
@@ -370,11 +384,32 @@ void Foo() {
 
       for (unsigned int i = 0; i < final.size(); i++) {
         std::cout << (int)(unsigned char)final[i] << " ";
+        full_message.push_back(final[i]);
       }
     }
   }
+
   std::cout << std::endl;
 
+  for (int i = 0; i < 2; i++) {
+    uint8_t data[223];
+    uint16_t parity[32];
+    for (int j = i * 255; j < i * 255 + 223; j++) {
+      data[j - (i * 255)] = full_message[j];
+    }
+    for (int j = i * 255 + 223; j < i * 255 + 255; j++) {
+      parity[j - (i * 255)] = (uint16_t)full_message[j];
+    }
+    std::cout << "Num errors: " << rs_codec.Decode(data, parity) << std::endl;
+    for (int j = 0; j < 223; j++) {
+      std::cout << (int)(unsigned char)data[j] << " ";
+    }
+    std::cout << std::endl;
+    for (int j = 223; j < 255; j++) {
+      std::cout << (int)(unsigned char)parity[j] << " ";
+    }
+    std::cout << std::endl;
+  }
   // for (int height = 0; height < kBlocksHigh * kPixelDimPerBlock; height++) {
   //   for (int width = 0;
   //        width < kBlocksWide * kPixelDimPerBlock * kCharsPerPixel;
