@@ -22,6 +22,16 @@ namespace cryptogram {
 
 const int ByteSize = 8;
 
+void PrintTwoByteInt(uint16_t num) {
+  std::cout << std::endl;
+  std::cout << "Printing Little Endian: '" << num << "'." << std::endl;
+  for (int ii = 0; ii < 16; ii++) {
+    int tmp = (num >> ii) & 1;
+    std::cout << tmp;
+  }
+  std::cout << std::endl;
+}
+
 void FillWithRandomData(uint8_t *data, size_t len) {
   for (unsigned int i = 0; i < len; i++) {
     uint8_t tmp = rand() % 256;
@@ -89,7 +99,11 @@ class EccMessage {
       // uint16_t have a size of one byte.
       assert(parity[i] < kCharMax);
 
-      std::cout << kRs255_223MessageBytes + pos_i << " ";
+      for (int ii = 0; ii < 16; ii++) {
+        int tmp = (parity[i] >> ii) & 1;
+        std::cout << tmp;
+      }
+      std::cout << " ";
       bytes_[kRs255_223MessageBytes + pos_i] = parity[i];
 
       // For 16 bit parity values (greater than or equal to 256) we must store
@@ -228,6 +242,14 @@ void Foo() {
   std::cout << std::endl;
   std::cout << " / Ecc Message Contents: " << std::endl;
 
+  std::cout << "CONTENTS" << std::endl;
+  uint16_t* pu = ecc_msg.first_parity();
+  for (int i = 0; i < 16; i++) {
+    int tmp = (*pu >> i) & 1;
+    std::cout << tmp;
+  }
+  std::cout << std::endl;
+
   std::cout << "Various parts: \n" << std::endl;
   unsigned char *output = ecc_msg.flatten();
   std::cout << "\nFirst Message: \n" << std::endl;
@@ -241,7 +263,7 @@ void Foo() {
   for (int i = kRs255_223MessageBytes;
        i < kRs255_223MessageBytes + kRs255_223ParityBytes;
        i++) {
-    std::cout << (int)output[i] << " ";
+    std::cout << output[i] << " ";
   }
   std::cout << std::endl;
 
@@ -252,6 +274,12 @@ void Foo() {
     std::cout << (int)output[i] << " ";
   }
   std::cout << "\n\nSecond Parity: \n" << std::endl;
+  for (int i = kRs255_223TotalBytes + kRs255_223MessageBytes;
+       i < 2 * kRs255_223TotalBytes;
+       i++) {
+    std::cout << output[i] << " ";
+  }
+  std::cout << std::endl;
   for (int i = kRs255_223TotalBytes + kRs255_223MessageBytes;
        i < 2 * kRs255_223TotalBytes;
        i++) {
@@ -352,7 +380,6 @@ void Foo() {
       decoded_aes(wide, high) = new matrix<double>(4, 4);
       cryptogram::AverageAestheteBlocks(*decoded_blocks(wide, high),
                                         decoded_aes(wide, high));
-
     }
   }
   LOG(INFO) ;
@@ -394,20 +421,29 @@ void Foo() {
   for (int i = 0; i < 2; i++) {
     uint8_t data[223];
     uint16_t parity[32];
+    std::cout << "Message " << i << std::endl;
     for (int j = i * 255; j < i * 255 + 223; j++) {
       data[j - (i * 255)] = full_message[j];
+      std::cout << full_message[j] << " ";
     }
-    for (int j = i * 255 + 223; j < i * 255 + 255; j++) {
-      parity[j - (i * 255)] = (uint16_t)full_message[j];
+    std::cout << std::endl;
+    for (int j = i * 255 + 223, ii = 0; j < i * 255 + 255; j++, ii++) {
+      parity[ii] = full_message[j];
+      std::cout << full_message[j] << " ";
     }
+    std::cout << std::endl;
+
     std::cout << "Num errors: " << rs_codec.Decode(data, parity) << std::endl;
     for (int j = 0; j < 223; j++) {
       std::cout << (int)(unsigned char)data[j] << " ";
     }
     std::cout << std::endl;
-    for (int j = 223; j < 255; j++) {
-      std::cout << (int)(unsigned char)parity[j] << " ";
+    std::cout << std::endl;
+    for (int j = 0; j < 32; j++) {
+      std::cout << parity[j] << " ";
     }
+
+    std::cout << std::endl;
     std::cout << std::endl;
   }
   // for (int height = 0; height < kBlocksHigh * kPixelDimPerBlock; height++) {
