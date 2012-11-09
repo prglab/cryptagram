@@ -98,9 +98,13 @@ class EccMessage {
 
   static void FillWithRandomData(uint8_t *data, size_t len) {
     // Assumes that the PRNG has already been seeded.
+    std::cout << "FillWithRandomData:" << std::endl;
     for (unsigned int i = 0; i < len; i++) {
-      data[i] = rand() % 256;
+      unsigned char generated = rand() % 256;
+      std::cout << (unsigned int)generated << " ";
+      data[i] = generated;
     }
+    std::cout << std::endl;
   }
 
   unsigned char *flatten() {
@@ -224,17 +228,23 @@ void Foo() {
     std::cout << (int)output[i] << " ";
   }
   std::cout << "\nFirst Parity: \n" << std::endl;
-  for (int i = kRs255_223MessageBytes; i < kRs255_223MessageBytes + kRs255_223ParityBytes; i++) {
+  for (int i = kRs255_223MessageBytes;
+       i < kRs255_223MessageBytes + kRs255_223ParityBytes;
+       i++) {
     std::cout << (int)output[i] << " ";
   }
   std::cout << std::endl;
 
   std::cout << "Second Message: \n" << std::endl;
-  for (int i = kRs255_223TotalBytes; i < kRs255_223TotalBytes + kRs255_223MessageBytes; i++) {
+  for (int i = kRs255_223TotalBytes;
+       i < kRs255_223TotalBytes + kRs255_223MessageBytes;
+       i++) {
     std::cout << (int)output[i] << " ";
   }
   std::cout << "\nSecond Parity: \n" << std::endl;
-  for (int i = kRs255_223TotalBytes + kRs255_223MessageBytes; i < 2 * kRs255_223TotalBytes; i++) {
+  for (int i = kRs255_223TotalBytes + kRs255_223MessageBytes;
+       i < 2 * kRs255_223TotalBytes;
+       i++) {
     std::cout << (int)output[i] << " ";
   }
   std::cout << std::endl;
@@ -243,10 +253,18 @@ void Foo() {
   unsigned char *input_bytes = output;
   array<unsigned char> image(kBlocksWide * kPixelDimPerBlock * kCharsPerPixel,
                              kBlocksHigh * kPixelDimPerBlock);
+  std::cout << "\nWrite MRs" << std::endl;
+  const int kMatrixStrBytes = 6;
   for (int image_h = 0; image_h < kBlocksHigh; image_h++) {
     for (int image_w = 0; image_w < kBlocksWide; image_w++) {
       MatrixRepresentation mr;
-      mr.InitFromString(input_bytes + (image_h * kBlocksWide + image_w));
+      mr.InitFromString(input_bytes +
+                        (image_h * kBlocksWide + (kMatrixStrBytes * image_w)));
+
+      std::string tmp(mr.ToString());
+      for (int i = 0; i < tmp.size(); i++) {
+        std::cout << (unsigned int)(unsigned char)tmp[i] << " ";
+      }
 
       std::vector<int> matrix_entries;
       mr.ToInts(&matrix_entries);
@@ -254,6 +272,7 @@ void Foo() {
       image.FillBlockFromInts(matrix_entries, discretizations, image_h, image_w);
     }
   }
+  std::cout << std::endl;
 
   // Prepare the matrices so that they are able to hold the values for the code.
   array<matrix<unsigned char> *> blocks(kBlocksWide, kBlocksHigh);
@@ -298,11 +317,13 @@ void Foo() {
   for (int high = 0; high < kBlocksHigh; high++) {
     for (int wide = 0; wide < kBlocksWide; wide++) {
       decoded_blocks(wide, high) = new matrix<unsigned char>(8, 8);
+      // For each block, we want to be sure to capture the exact 64 pixel values
+      // of that block.
       for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
           (*decoded_blocks(wide, high))(i, j) =
               decoded[(high + i) * (kBlocksWide * kPixelDimPerBlock * 3) +
-                      (wide + 3 * j)];
+                      ((wide * 3 * kPixelDimPerBlock) + (3 * j))];
         }
       }
       
@@ -333,7 +354,26 @@ void Foo() {
   for (int i = 0; i < final.size(); i++) {
     std::cout << (int)(unsigned char)final[i] << " ";
   }
+  std::cout << "| ";
+  
+  decoded_mat = decoded_aes(1, 0);
+  decoded_ints.clear();
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      double val = (*decoded_mat)(i,j);
+      int idx = std::distance(set_discretizations.begin(),
+                              FindClosest(set_discretizations, DiscreteValue(val)));
+      decoded_ints.push_back(idx);
+    }
+  }
+  mat_rep.InitFromInts(decoded_ints);
+  final.clear();
+  final = mat_rep.ToString();
+  for (int i = 0; i < final.size(); i++) {
+    std::cout << (int)(unsigned char)final[i] << " ";
+  }
   std::cout << std::endl;
+  
   
   // for (int height = 0; height < kBlocksHigh * kPixelDimPerBlock; height++) {
   //   for (int width = 0;
