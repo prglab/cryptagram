@@ -105,7 +105,7 @@ void array<unsigned char>::FillMatrixFromBlock(
   for (int i = 0; i < kPixelDimPerBlock; i++) {
     for (int j = 0; j < kPixelDimPerBlock; j++) {
       (*lum_matrix)(i,j) =
-          data[init_h * (kBlocksWide * kPixelDimPerBlock * 3) +
+          data[(init_h + i) * (kBlocksWide * kPixelDimPerBlock * 3) +
                (init_w + 3 * j)];
     }
   }
