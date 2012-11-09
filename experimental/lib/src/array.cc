@@ -90,4 +90,27 @@ void array<unsigned char>::FillBlockFromInts(
   }
 }
 
+template<>
+void array<unsigned char>::FillMatrixFromBlock(
+    int block_h,
+    int block_w,
+    matrix<unsigned char>* lum_matrix) {
+  CHECK_NOTNULL(lum_matrix);
+  CHECK_EQ(lum_matrix->size1(), 8);
+  CHECK_EQ(lum_matrix->size2(), 8);
+  
+  const int init_h = block_h * 8;
+  const int init_w = block_w * 8;
+
+  for (int i = 0; i < kPixelDimPerBlock; i++) {
+    for (int j = 0; j < kPixelDimPerBlock; j++) {
+      (*lum_matrix)(i,j) =
+          data[init_h * (kBlocksWide * kPixelDimPerBlock * 3) +
+               (init_w + 3 * j)];
+    }
+  }
+}
+   
+    
+
 } // namespace cryptogram

@@ -5,6 +5,10 @@
 #define _CRYPTOGRAM_ARRAY_H_
 
 #include "glog/logging.h"
+#include "boost/numeric/ublas/matrix.hpp"
+#include "ecc_image.h"
+
+using boost::numeric::ublas::matrix;
 
 namespace cryptogram {
 
@@ -36,6 +40,9 @@ struct array {
                          const std::vector<int>& values,
                          int block_h,
                          int block_w);
+  void FillMatrixFromBlock(int block_h,
+                           int block_w,
+                           matrix<unsigned char>* lum_matrix);
 };
 
 } // namespace cryptogram

@@ -3,11 +3,13 @@
 
 AC_PREREQ([2.68])
 AC_INIT([Cryptogram], [1.0], [tierney@cs.nyu.edu])
+AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE
+
+AC_CANONICAL_HOST
+
 AM_SILENT_RULES([no])
 
-AC_DEFINE(CONFIG_REED_SOLOMON_ENC8, 1, Reed Solomon encoding word length)
-AC_DEFINE(CONFIG_REED_SOLOMON_DEC8, 1, Reed Solomon decoding word length)
 AC_CONFIG_SRCDIR([src/jpeg_codec.cc])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -20,6 +22,9 @@ AC_PROG_CXX([clang++])
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
+
+AC_DEFINE(CONFIG_REED_SOLOMON_ENC8, 1, Reed Solomon encoding word length)
+AC_DEFINE(CONFIG_REED_SOLOMON_DEC8, 1, Reed Solomon decoding word length)
 
 # TODO(chandlerc@google.com): Currently we aren't running the Python tests
 # against the interpreter detected by AM_PATH_PYTHON, and so we condition
@@ -86,8 +91,11 @@ AS_IF([test "x$with_tcmalloc" != xno],
 AM_CONDITIONAL(USE_LIBTCMALLOC, test "x$with_tcmalloc" == "xyes")
 
 dnl Boost specific suffices.
-AS_IF([test -z "${BOOST_LIB_SUFFIX+x}"], [BOOST_LIB_SUFFIX=-mt])
-AC_ARG_VAR([BOOST_LIB_SUFFIX], [Boost library name suffix [default=-mt]])
+dnl AS_IF([test -z "${BOOST_LIB_SUFFIX+x}"], [BOOST_LIB_SUFFIX=-mt])
+dnl AC_ARG_VAR([BOOST_LIB_SUFFIX], [Boost library name suffix [default=-mt]])
+
+BOOST_SYSTEM
+BOOST_THREAD
 
 dnl AC_CHECK_LIB([gtest], [_ZN7testing14InitGoogleTestEPiPPc], ,
 dnl   AC_MSG_WARN([

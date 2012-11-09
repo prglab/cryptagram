@@ -28,8 +28,8 @@ aesthete_thread_runner_LDADD += -lpthread -lgflags
 
 jpeg_benchmark_SOURCES = jpeg_benchmark.cc
 jpeg_benchmark_LDADD = libaesthete.a libjpeg_codec.a libarray.a
-jpeg_benchmark_LDADD += -lboost_system$(BOOST_LIB_SUFFIX)
-jpeg_benchmark_LDADD += -lboost_thread$(BOOST_LIB_SUFFIX) 
+jpeg_benchmark_LDADD += $(BOOST_SYSTEM_LIBS)
+jpeg_benchmark_LDADD += $(BOOST_THREAD_LIBS)
 jpeg_benchmark_LDADD += -lgflags
 
 generate_aesthete_matrices_SOURCES = generate_aesthete_matrices.cc
