@@ -1,6 +1,6 @@
 # Binaries.
 
-SUBDIRS = reed_solomon # cryptopp base 
+SUBDIRS = reed_solomon # cryptopp base
 
 bin_PROGRAMS = jpeg_benchmark generate_aesthete_matrices \
 			         read_aesthete_matrices aesthete_thread_runner queue_main
@@ -10,13 +10,13 @@ queue_main_LDADD = -lpthread
 
 aesthete_thread_runner_SOURCES = aesthete_thread_runner.cc
 aesthete_thread_runner_CPPFLAGS = -Wall
-aesthete_thread_runner_LDADD = 
-aesthete_thread_runner_LDADD += libaesthete_thread.a 
-aesthete_thread_runner_LDADD += libaesthete.a 
-aesthete_thread_runner_LDADD += libreentrant_rand.a 
-aesthete_thread_runner_LDADD += libexperiment.a 
-aesthete_thread_runner_LDADD += libarray.a 
-aesthete_thread_runner_LDADD += libjpeg_codec.a 
+aesthete_thread_runner_LDADD =
+aesthete_thread_runner_LDADD += libaesthete_thread.a
+aesthete_thread_runner_LDADD += libaesthete.a
+aesthete_thread_runner_LDADD += libreentrant_rand.a
+aesthete_thread_runner_LDADD += libexperiment.a
+aesthete_thread_runner_LDADD += libarray.a
+aesthete_thread_runner_LDADD += libjpeg_codec.a
 aesthete_thread_runner_LDADD += -lpthread -lgflags
 
 # bin_PROGRAMS = cryptogram_main
@@ -35,12 +35,12 @@ generate_aesthete_matrices_SOURCES = generate_aesthete_matrices.cc
 generate_aesthete_matrices_LDADD = libaesthete.a -lgflags -lglog
 
 read_aesthete_matrices_SOURCES = read_aesthete_matrices.cc
-read_aesthete_matrices_LDADD = libaesthete_thread.a  
+read_aesthete_matrices_LDADD = libaesthete_thread.a
 read_aesthete_matrices_LDADD += libaesthete.a
 read_aesthete_matrices_LDADD += libexperiment.a
 read_aesthete_matrices_LDADD += libreentrant_rand.a
-read_aesthete_matrices_LDADD += libjpeg_codec.a 
-read_aesthete_matrices_LDADD += libarray.a  
+read_aesthete_matrices_LDADD += libjpeg_codec.a
+read_aesthete_matrices_LDADD += libarray.a
 read_aesthete_matrices_LDADD += -lpthread -lgflags -lglog
 
 bin_PROGRAMS += ecc_experiment
@@ -53,7 +53,7 @@ ecc_experiment_LDADD = \
 	libjpeg_codec.a \
 	reed_solomon/librs_codec.a \
 	reed_solomon/librs.a \
-	-lgflags
+	-lgflags -lglog
 
 bin_PROGRAMS += in_memory_experiment
 in_memory_experiment_SOURCES = in_memory_experiment.cc
@@ -79,7 +79,7 @@ endif
 # Libraries.
 
 noinst_LIBRARIES = libjpeg_delta.a libjpeg_codec.a libCoder.a libmodp_b64.a
-noinst_LIBRARIES += libbase64.a libstring_piece.a 
+noinst_LIBRARIES += libbase64.a libstring_piece.a
 noinst_LIBRARIES += libaesthete.a libaesthete_thread.a
 noinst_LIBRARIES += libexperiment.a libarray.a
 
@@ -97,8 +97,8 @@ libaesthete_a_SOURCES = aesthete.cc aesthete.h
 libaesthete_a_CPPFLAGS = -Wall
 
 libaesthete_thread_a_SOURCES = aesthete_thread.cc aesthete_thread.h queue.h types.h
-libaesthete_thread_a_CPPFLAGS = -Wall 
-libaesthete_thread_a_LIBADD = 
+libaesthete_thread_a_CPPFLAGS = -Wall
+libaesthete_thread_a_LIBADD =
 
 libjpeg_delta_a_SOURCES = jpeg_delta.cc jpeg_delta.h basictypes.h
 libjpeg_delta_a_CPPFLAGS = -Wall
@@ -122,6 +122,6 @@ libstring_piece_a_SOURCES += hash_tables.h build_config.h string16.h
 # noinst_LIBRARIES += libcrypto.a
 # libcrypto_a_SOURCES = crypto.cc crypto.h
 
-# noinst_LIBRARIES += libutils.a 
+# noinst_LIBRARIES += libutils.a
 # libutils_a_SOURCES = utils.h utils.cc
 
