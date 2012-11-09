@@ -6,6 +6,12 @@
 /* Reed Solomon encoding word length */
 #undef CONFIG_REED_SOLOMON_ENC8
 
+/* Defined if the requested minimum BOOST version is satisfied */
+#undef HAVE_BOOST
+
+/* Define to 1 if you have <boost/system/error_code.hpp> */
+#undef HAVE_BOOST_SYSTEM_ERROR_CODE_HPP
+
 /* Define to 1 if you have the `bzero' function. */
 #undef HAVE_BZERO
 

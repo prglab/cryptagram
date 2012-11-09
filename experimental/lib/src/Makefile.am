@@ -23,22 +23,25 @@ aesthete_thread_runner_LDADD += -lpthread -lgflags
 # cryptogram_main_SOURCES = main.cc discretizations.h util.h
 # cryptogram_main_CPPFLAGS = -Wall
 # cryptogram_main_LDADD = libjpeg_delta.a libjpeg_codec.a libcrypto.a libutils.a \
-# 											  cryptopp/libcryptopp.a -lglog -ljpeg -lboost_system-mt \
+# 											  cryptopp/libcryptopp.a -lglog -ljpeg $(BOOST_SYSTEM_LIBS) \
 # 												libbase64.a libmodp_b64.a libstring_piece.a
 
 jpeg_benchmark_SOURCES = jpeg_benchmark.cc
 jpeg_benchmark_LDADD = libaesthete.a libjpeg_codec.a libarray.a
 jpeg_benchmark_LDADD += $(BOOST_SYSTEM_LIBS)
-jpeg_benchmark_LDADD += $(BOOST_THREAD_LIBS)
 jpeg_benchmark_LDADD += -lgflags
 
 generate_aesthete_matrices_SOURCES = generate_aesthete_matrices.cc
 generate_aesthete_matrices_LDADD = libaesthete.a -lgflags -lglog
 
 read_aesthete_matrices_SOURCES = read_aesthete_matrices.cc
-read_aesthete_matrices_LDADD = libaesthete_thread.a  libaesthete.a libexperiment.a \
-  libreentrant_rand.a \
-   libjpeg_codec.a libarray.a  -lpthread -lgflags -lglog
+read_aesthete_matrices_LDADD = libaesthete_thread.a  
+read_aesthete_matrices_LDADD += libaesthete.a
+read_aesthete_matrices_LDADD += libexperiment.a
+read_aesthete_matrices_LDADD += libreentrant_rand.a
+read_aesthete_matrices_LDADD += libjpeg_codec.a 
+read_aesthete_matrices_LDADD += libarray.a  
+read_aesthete_matrices_LDADD += -lpthread -lgflags -lglog
 
 bin_PROGRAMS += ecc_experiment
 ecc_experiment_SOURCES = ecc_experiment.cc ecc_image.h

@@ -1,9 +1,9 @@
 # Automake file
 
-ACLOCAL_AMFLAGS = -I m4
+ACLOCAL_AMFLAGS = -I m4 -I build-aux
 
 aclocaldir = $(datadir)/aclocal
-aclocal_DATA = m4/boost.m4
+aclocal_DATA = build-aux/boost.m4
 
 # Nonstandard package files for distribution
 EXTRA_DIST = \
