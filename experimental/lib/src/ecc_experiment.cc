@@ -82,7 +82,7 @@ class EccMessage {
     }
   }
 
-  char *flatten() {
+  unsigned char *flatten() {
     std::cout << "First Message: " << sizeof(first_message_) << std::endl;
     memcpy(bytes_,
            first_message_,
@@ -98,7 +98,7 @@ class EccMessage {
     return bytes_;
   }
 
-  char *bytes() { return bytes_; }
+  unsigned char *bytes() { return bytes_; }
 
   uint8_t *first_message() { return first_message_; }
   uint16_t *first_parity() { return first_parity_; }
@@ -107,7 +107,7 @@ class EccMessage {
   uint16_t *second_parity() { return second_parity_; }
 
  private:
-  char bytes_[2 * kRs255_223TotalBytes];
+  unsigned char bytes_[2 * kRs255_223TotalBytes];
 
   uint8_t first_message_[kRs255_223MessageBytes];
   uint16_t first_parity_[kParityArraySize];
@@ -148,7 +148,7 @@ void Foo() {
   std::cout << " / Ecc Message Contents: " << std::endl;
 
   std::cout << "Various parts: \n" << std::endl;
-  char *output = ecc_msg.flatten();
+  unsigned char *output = ecc_msg.flatten();
   std::cout << "First Message: \n" << std::endl;
   for (int i = 0; i < kRs255_223MessageBytes; i++) {
     std::cout << (int)output[i] << " ";
@@ -173,7 +173,7 @@ void Foo() {
                              kBlocksHigh * kPixelDimPerBlock);
 
   // Now we have all of the values set for embedding into a JPEG.
-  char *input_bytes = output;
+  unsigned char *input_bytes = output;
   for (int image_h = 0; image_h < kBlocksHigh; image_h++) {
     for (int image_w = 0; image_w < kBlocksWide; image_w++) {
       MatrixRepresentation mr;
@@ -186,27 +186,22 @@ void Foo() {
     }
   }
 
+  // Prepare the matrices so that they are able to hold the values for the code.
   array<matrix<unsigned char> *> blocks(kBlocksWide, kBlocksHigh);
+  array<matrix<double> *> aes_blocks(kBlocksWide, kBlocksHigh);
   for (int high = 0; high < kBlocksHigh; high++) {
     for (int wide = 0; wide < kBlocksWide; wide++) {
       blocks(wide, high) = new matrix<unsigned char>(8, 8);
+      image.FillMatrixFromBlock(high, wide, blocks(wide, high));
+
+      aes_blocks(wide, high) = new matrix<double>(4, 4);
+      cryptogram::AverageAestheteBlocks(*blocks(wide, high), aes_blocks(wide, high));
     }
   }
-  matrix<unsigned char> orig_matrix(8, 8);
-  image.FillMatrixFromBlock(0, 0, &orig_matrix);
-  
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
-      orig_matrix(i,j) = image.data[i * (kBlocksWide * kPixelDimPerBlock * 3) + 3 * j];
-    }
-  }
-  matrix<double> orig_aes(4, 4);
-  cryptogram::AverageAestheteBlocks(orig_matrix, &orig_aes);
-  std::cout << "Original image:\n" << orig_aes << std::endl;
 
   // array @image is prepared with the all of the JPEG color space information.
   vector<unsigned char> output_jpeg;
-  assert(gfx::JPEGCodec::Encode(image.data,
+  assert(gfx::JPEGCodec::Encode(output,       // image.data
                                 gfx::JPEGCodec::FORMAT_RGB,
                                 kBlocksWide * kPixelDimPerBlock,
                                 kBlocksHigh * kPixelDimPerBlock,
