@@ -10,6 +10,7 @@
 #include "array.h"
 #include "boost/numeric/ublas/io.hpp"
 #include "ecc_image.h"
+#include "glog/logging.h"
 #include "google/gflags.h"
 #include "jpeg_codec.h"
 #include "reentrant_rand.h"
@@ -313,7 +314,7 @@ void Foo() {
   std::cout << "Length of decompressed vector: "  << decoded.size() << std::endl;
   std::cout << "Width * 3 = " << width * 3 << std::endl;
 
-  std::cout << "The Decoded Matrices:" << std::endl;
+  LOG(INFO) << "The Decoded Matrices:" ;
   array<matrix<unsigned char> *> decoded_blocks(kBlocksWide, kBlocksHigh);
   array<matrix<double> *> decoded_aes(kBlocksWide, kBlocksHigh);
   for (int high = 0; high < kBlocksHigh; high++) {
@@ -321,18 +322,19 @@ void Foo() {
       decoded_blocks(wide, high) = new matrix<unsigned char>(8, 8);
       // For each block, we want to be sure to capture the exact 64 pixel values
       // of that block.
-      std::cout << "High: " << high << " Wide: " << wide << std::endl;
+      LOG(INFO) << "High: " << high << " Wide: " << wide ;
       for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-          int idx = (((high * kPixelDimPerBlock) + i) * (kBlocksWide * kPixelDimPerBlock * 3)) +
+          int idx = ((((high * kPixelDimPerBlock) + i) *
+                      (kBlocksWide * kPixelDimPerBlock * 3))) +
               ((wide * 3 * kPixelDimPerBlock) + (3 * j));
-          std::cout << idx << " ";
+          LOG(INFO) << idx << " ";
           (*decoded_blocks(wide, high))(i, j) = decoded[idx];
         }
-        std::cout << std::endl;
+        LOG(INFO) ;
       }
-      std::cout << std::endl;
-      std::cout << std::endl;
+      LOG(INFO) ;
+      LOG(INFO) ;
 
       decoded_aes(wide, high) = new matrix<double>(4, 4);
       cryptogram::AverageAestheteBlocks(*decoded_blocks(wide, high),
@@ -340,15 +342,15 @@ void Foo() {
 
     }
   }
-  std::cout << std::endl;
+  LOG(INFO) ;
 
   std::cout << "ENCODE: " << *aes_blocks(0,0) << std::endl;
   std::cout << "DECODE: " << *decoded_aes(0,0) << std::endl;
   std::cout << "NERROR: "
             << CountErrors(*aes_blocks(0,0), *decoded_aes(0,0), 16) << std::endl;
 
-  for (int block_h = 0; block_h < 2; block_h++) {
-    for (int block_w = 0; block_w < 8; block_w++) {
+  for (int block_h = 0; block_h < kBlocksHigh; block_h++) {
+    for (int block_w = 0; block_w < kBlocksWide; block_w++) {
       matrix<double> *decoded_mat = decoded_aes(block_w, block_h);
       vector<int> decoded_ints;
       for (int i = 0; i < 4; i++) {
@@ -360,6 +362,7 @@ void Foo() {
           decoded_ints.push_back(idx);
         }
       }
+
       MatrixRepresentation mat_rep;
       mat_rep.InitFromInts(decoded_ints);
       std::string final(mat_rep.ToString());
