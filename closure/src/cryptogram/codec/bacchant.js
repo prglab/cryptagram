@@ -13,6 +13,7 @@ cryptogram.codec.bacchant = function() {
 };
 
 cryptogram.codec.bacchant.octal_symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14];
+//cryptogram.codec.bacchant.octal_symbol_thresholds = [240, 208, 176, 144, 112, 80, 48, 16];
 
 goog.inherits(cryptogram.codec.bacchant, cryptogram.codec);
 
@@ -29,6 +30,89 @@ cryptogram.codec.bacchant.prototype.name = function() {
 cryptogram.codec.bacchant.prototype.processImage = function(img) {
 };
 
+cryptogram.codec.bacchant.prototype.set_pixel = function(x, y, r, g, b) {
+  var idx = 4 * (x + y * this.width);
+  //set RGB channels to same level since we're encoding data as grayscale
+  this.data[idx] = r;
+  this.data[idx + 1] = g;
+  this.data[idx + 2] = b;
+  this.data[idx + 3] = 255; // alpha channel
+};
+
+cryptogram.codec.bacchant.prototype.set_block = function(x_start, y_start, level) {
+  
+  var tint = 30;
+    
+  var x_cell = Math.floor(x_start / 8);
+  var max_x = Math.ceil(this.width / 8);
+  var y_cell = Math.floor(y_start / 8);
+  var max_y = Math.floor(this.height / 8);
+  
+  var idx = 4 * (x_cell + y_cell * max_x);
+  var tr = this.thumbnail[idx];
+  var tg = this.thumbnail[idx + 1];
+  var tb = this.thumbnail[idx + 2];
+    
+  var cb = Math.floor(128 + (-0.168736 * tr - 0.331264 * tg + 0.5 * tb));
+  var cr = Math.floor(128 + (0.5 * tr - 0.418688 * tg - 0.081312 * tb));
+
+  max_c = 148;
+  min_c = 108;
+  
+  if (cb > max_c) cb = max_c;
+  if (cb < min_c) cb = min_c;
+  
+  if (cr > max_c) cr = max_c;
+  if (cr < min_c) cr = min_c;
+
+  var r = level + 1.402 * (cr - 128.0);
+  r = Math.round(r,0);
+  var g = level - 0.34414 * (cb - 128.0) - 0.71414 * (cr - 128.0);
+  g = Math.round(g, 0);
+  var b = level + 1.772 * (cb - 128.0);
+  b = Math.round(b, 0);
+    
+  for (var i = 0; i < this.blockSize; i++) {
+    for (var j = 0; j < this.blockSize; j++) {
+      this.set_pixel(x_start + i, y_start + j, r, g, b);
+    }
+  }
+};
+
+cryptogram.codec.bacchant.prototype.setImage = function(img) {
+  this.img = img;
+};
+
+cryptogram.codec.bacchant.prototype.loadThumbnail = function() {
+  
+  var width = Math.ceil(this.width / 8.0);
+  var height = Math.ceil(this.height / 8.0);
+  
+  var canvas = document.createElement('canvas');  
+  var ctx = canvas.getContext("2d");
+  
+  var canvasCopy = document.createElement("canvas");
+  var copyContext = canvasCopy.getContext("2d");
+
+  var ratio = 1;
+
+  /*if(img.width > maxWidth)
+    ratio = maxWidth / img.width;
+  else if(img.height > maxHeight)
+    ratio = maxHeight / img.height;*/
+  
+  canvas.width = width;
+  canvas.height = height;
+  
+  canvasCopy.width = this.img.width;
+  canvasCopy.height = this.img.height;
+  
+  copyContext.drawImage(this.img, 0, 0);
+  ctx.drawImage(canvasCopy, 0, 0, canvasCopy.width, canvasCopy.height, 0, 0, canvas.width, canvas.height);
+  
+  var imageData = ctx.getImageData(0, 0, width, height);
+  this.thumbnail = imageData.data;
+};
 
 cryptogram.codec.bacchant.prototype.encode = function(data, 
     width_to_height_ratio, header_string, block_width, block_height) {
@@ -95,61 +179,14 @@ cryptogram.codec.bacchant.prototype.encode = function(data,
   c.width = width;
   c.height = height;
   var cxt = c.getContext('2d');
-  
   var imageData = cxt.createImageData(width, height);
-  var d = imageData.data;
+  
+  this.data = imageData.data;
+  this.width = width;
+  this.height = height;
+  
+  self.loadThumbnail();
 
-  function set_pixel(x, y, r, g, b) {
-    idx = 4 * (x + y * width);
- 
-    // set RGB channels to same level since we're encoding data as grayscale
-    d[idx] = r;
-    d[idx + 1] = g;
-    d[idx + 2] = b;
-    d[idx + 3] = 255; // alpha channel
-  }
-
-  function set_block(x_start, y_start, level) {
-   var r = level;
-   var b = level;
-   var g = level;
-   
-   /* var max = 255 - level;
-    
-    if (level > 128) {
-      b = level + max;
-      r  = level -  ((.114 / .299) * max);
-      var Y = 0.299 * r + 0.587 * level + 0.114 * b;
-    
-      if (x_start == y_start) {
-        console.log(x_start + " >> "+ Y +": (" + r + "," + level + "," + b + ")");
-      }
-    }*/
-    
-    var stripeX = Math.floor(x_start / 16) % 3;
-    var stripeY = Math.floor(y_start / 16) % 3;
-    
-    if (stripeX == 0) {
-      r = level + 25;
-    } else if (stripeX == 1) {
-      r = level - 25;
-    }
-    
-    
-    if (stripeY == 0) {
-      b = level + 25;
-    } else if (stripeY == 1) {
-      b = level - 25;
-    }
-    
-       
-   
-    for (var i = 0; i < block_width; i++) {
-      for (var j = 0; j < block_height; j++) {
-        set_pixel(x_start+i, y_start+j, r, g, b);
-      }
-    }
-  }
   var pix_idx = 0;
   var value_idx;
   var level;
@@ -163,7 +200,7 @@ cryptogram.codec.bacchant.prototype.encode = function(data,
       if (value_idx < n_header_values) {
         level =  cryptogram.codec.bacchant.octal_symbol_thresholds[header_values[value_idx]];
       }
-      set_block(x, y, level);
+      this.set_block(x, y, level);
     }
   }
 
@@ -172,6 +209,7 @@ cryptogram.codec.bacchant.prototype.encode = function(data,
 		(header_height / block_height)
   n_symbols_in_full_row = width / block_width;
   var x_coord, y_coord, x, y, i2;
+  
   for (var i = 0; i < n_values; i++) {
     octal = values[i];
     level = cryptogram.codec.bacchant.octal_symbol_thresholds[octal];
@@ -186,12 +224,12 @@ cryptogram.codec.bacchant.prototype.encode = function(data,
      x = x_coord * block_width;
     }
     y = y_coord * block_height;
-    set_block(x,y,level);
+    this.set_block(x,y,level);
   }
     
   cxt.putImageData(imageData, 0, 0);
   var img = new Image();
-  img.src = c.toDataURL('image/jpeg', 0.74);
+  img.src = c.toDataURL('image/jpeg', 0.76);
   return img;
 };
 
@@ -237,10 +275,12 @@ cryptogram.codec.bacchant.prototype.getBase8Value = function(img, imgData, x, y)
       
       base = (y + j) * img.width + (x + i);
       
-      //Use green to estimate the luminance
-      green = imgData[4*base + 1];
-  
-      vt += green;
+      r = imgData[4*base];
+      g = imgData[4*base + 1];
+      b = imgData[4*base + 2];
+      lum = 0.299 * r + 0.587 * g + 0.114 * b;
+
+      vt += lum;
       count++;
     }
   }
@@ -253,3 +293,96 @@ cryptogram.codec.bacchant.prototype.getBase8Value = function(img, imgData, x, y)
   return (8 - bin);   
 }
 
+/** @inheritDoc */
+cryptogram.codec.bacchant.prototype.decodeProgress = function() {
+  return this.y / this.img.height;
+  
+}
+
+cryptogram.codec.bacchant.prototype.decode = function(img, imageData) {
+  this.count = 0;
+  this.headerSize = this.blockSize * 4;
+  this.chunkSize = 10;
+  this.y = 0;
+  this.img = img;
+  this.imageData = imageData;
+  this.lengthString = "";
+  this.length = null;
+};
+
+cryptogram.codec.bacchant.prototype.getChunk = function() {
+
+  var newBase64 = "";
+  
+  if (this.y >= this.img.height) {
+    return false;
+  }
+  var count = 0;
+  
+  while (count < this.chunkSize) {
+      
+    for (var x = 0; x < this.img.width; x+= (this.blockSize * 2)) {
+        
+        // Skip over header super-block
+        if (this.y < this.headerSize && x < this.headerSize) {
+          continue;
+        }
+                        
+        base8_0 = this.getBase8Value(this.img, this.imageData, x, this.y);
+        base8_1 = this.getBase8Value(this.img, this.imageData, x + this.blockSize, this.y);
+        
+        base64Num = base8_0 * 8 + base8_1 ;
+        base64 = this.base64Values.charAt(base64Num);
+        
+        
+        if (this.y == 0 && x < this.headerSize + 32) {
+          this.length += base64;
+          console.log(this.length);
+        } else {
+        
+          if (this.length == null) {
+            this.length = parseInt(this.lengthString);
+          }
+          console.log(this.length);
+          newBase64 += base64;
+        }
+        
+        // Found black, stop
+        //if (base8_0 == -1 || base8_1 == -1) {
+        //  this.y = this.img.height;
+        //  return newBase64;
+        //};  
+        
+
+      }
+    this.y+= this.blockSize;
+    count++;
+    
+    if (this.y >= this.img.height) {
+      break;
+    }
+  }
+  return newBase64;
+}
+  
+
+
+
+
+/*  
+    var stripeX = Math.floor(x_start / 16) % 3;
+    var stripeY = Math.floor(y_start / 16) % 3;
+    
+    if (stripeX == 0) {
+      r = level + 25;
+    } else if (stripeX == 1) {
+      r = level - 25;
+    }
+    
+    
+    if (stripeY == 0) {
+      b = level + 25;
+    } else if (stripeY == 1) {
+      b = level - 25;
+    }
+*/   
