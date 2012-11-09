@@ -87,7 +87,7 @@ class EccMessage {
          i++, pos_i += 1) {
       // Sanity check that the parity values, even though they are stored in
       // uint16_t have a size of one byte.
-      assert(parity[i] % 256 == parity[i]);
+      assert(parity[i] % kCharMax == parity[i]);
 
       std::cout << kRs255_223MessageBytes + pos_i << " ";
       bytes_[kRs255_223MessageBytes + pos_i + 0] = parity[i] % kCharMax;
