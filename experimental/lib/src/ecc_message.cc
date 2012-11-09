@@ -6,6 +6,8 @@
 #include <assert.h>
 #include <limits.h>
 
+#include "glog/logging.h"
+
 namespace cryptogram {
 
 EccMessage::EccMessage() {
@@ -32,7 +34,7 @@ void EccMessage::SetParity(uint16_t *parity, Position pos) {
        i++, pos_i += 1) {
     // Sanity check that the parity values, even though they are stored in
     // uint16_t have a size of one byte.
-    assert(parity[i] <= CHAR_MAX);
+    CHECK_LE(parity[i], UCHAR_MAX);
     bytes_[kRs255_223MessageBytes + pos_i] = parity[i];
   }
 }
