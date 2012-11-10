@@ -306,9 +306,7 @@ CLEANFILES = core
 # 	false
 
 
-SUBDIRS = src
-
-noinst_PROGRAMS = jpeg_codec_unittest base64_unittest
+SUBDIRS = . src
 
 # noinst_PROGRAMS += utils_test
 # utils_test_SOURCES = src/utils_test.cc
@@ -323,13 +321,4 @@ noinst_PROGRAMS = jpeg_codec_unittest base64_unittest
 # 										-lboost_system -lboost_filesystem \
 # 										src/cryptopp/libcryptopp.a lib/libgtest_main.la
 
-jpeg_codec_unittest_SOURCES = src/jpeg_codec_unittest.cc
-jpeg_codec_unittest_CPPFLAGS = -I$(top_srcdir)/include
-jpeg_codec_unittest_LDADD = lib/libgtest.la src/libjpeg_codec.a
-
-base64_unittest_SOURCES = src/base64_unittest.cc
-base64_unittest_CPPFLAGS = -I$(top_srcdir)/include
-base64_unittest_LDADD = lib/libgtest.la lib/libgtest_main.la src/libbase64.a \
-												src/libmodp_b64.a
-
-TESTS += jpeg_codec_unittest base64_unittest # utils_test crypto_test
+TESTS += # utils_test crypto_test
