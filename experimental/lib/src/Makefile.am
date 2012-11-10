@@ -144,7 +144,7 @@ libjpeg_codec_a_CPPFLAGS = -Wall
 noinst_PROGRAMS += jpeg_codec_unittest
 jpeg_codec_unittest_SOURCES = jpeg_codec_unittest.cc
 jpeg_codec_unittest_CPPFLAGS = -I$(top_srcdir)/include
-jpeg_codec_unittest_LDADD = $(top_srcdir)/lib/libgtest.la 
+jpeg_codec_unittest_LDADD = $(top_builddir)/lib/libgtest.la 
 jpeg_codec_unittest_LDADD += libjpeg_codec.a
 TESTS += jpeg_codec_unittest
 
@@ -158,10 +158,11 @@ libbase64_a_SOURCES = base64.h base64.cc
 noinst_PROGRAMS += base64_unittest
 base64_unittest_SOURCES = base64_unittest.cc
 base64_unittest_CPPFLAGS = -I$(top_srcdir)/include
-base64_unittest_LDADD = $(top_srcdir)/lib/libgtest.la 
-base64_unittest_LDADD += $(top_srcdir)/lib/libgtest_main.la 
+base64_unittest_LDADD = 
+base64_unittest_LDADD += $(top_builddir)/lib/libgtest.la 
+base64_unittest_LDADD += $(top_builddir)/lib/libgtest_main.la 
 base64_unittest_LDADD += libbase64.a
-base64_unittest_LDADD +=libmodp_b64.a
+base64_unittest_LDADD += libmodp_b64.a
 TESTS += base64_unittest 
 
 libstring_piece_a_SOURCES = string_piece.h string_piece.cc base_export.h
