@@ -20,20 +20,18 @@ namespace {
 class ArrayTest : public ::testing::Test {
  protected:
   ArrayTest()
-      : arr_from_vector_(new array<unsigned char>(8,8)),
-        arr_from_set_(new array<unsigned char>(8,8)) {
+      : arr_from_vector_(array<unsigned char>(8,8)),
+        arr_from_set_(array<unsigned char>(8,8)) {
   }
 
   virtual ~ArrayTest() {
-    delete arr_from_vector_;
-    delete arr_from_set_;
   }
         
   void SetUp() {
   }
 
-  array<unsigned char> *arr_from_vector_;
-  array<unsigned char> *arr_from_set_;
+  array<unsigned char> arr_from_vector_;
+  array<unsigned char> arr_from_set_;
 };
 
 TEST_F(ArrayTest, TestThis) {
@@ -79,14 +77,15 @@ TEST_F(ArrayTest, VectorSetParity) {
   indices.push_back(6);
   indices.push_back(7);
   
-  // arr_from_vector_->FillBlockFromInts(indices, discretizations, 0, 0);
-  arr_from_set_->FillBlockFromInts(indices, set_discretizations, 0, 0);
-  // for (int i = 0; i < 8; i++) {
-  //   for (int j = 0; j < 8; j++) {
-  //     //EXPECT_EQ((*arr_from_vector_)(j, i), (*arr_from_set_)(j, i));
-  //     (*arr_from_vector_)(j, i) ==  (*arr_from_set_)(j, i);
-  //   }
-  // }
+  arr_from_vector_.FillBlockFromInts(indices, discretizations, 0, 0);
+  // arr_from_set_.FillBlockFromInts(indices, set_discretizations, 0, 0);
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      unsigned char set_val = arr_from_set_(j, i);
+      // EXPECT_EQ(arr_from_vector_(j, i), arr_from_set_(j, i));
+      // (*arr_from_vector_)(j, i) ==  (*arr_from_set_)(j, i);
+    }
+  }
 }
 
 } // namespace

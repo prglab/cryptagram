@@ -91,43 +91,6 @@ void array<unsigned char>::FillBlockFromInts(
 }
 
 template<>
-void array<unsigned char>::FillBlockFromInts(
-    const std::vector<int>& indices,
-    const Discretizations& values,
-    int block_h,
-    int block_w) {
-  CHECK_EQ(indices.size(), 16);
-  CHECK_EQ(values.size(), 8);
-
-  const int init_h = block_h * 8;
-  const int init_w = block_w * 8;
-
-  for (int hi = init_h, i = 0; hi < init_h + 8; hi += 2, i++) {
-    for (int wi = init_w, j = 0; wi < init_w + 8; wi += 2, j++) {
-      const int value_index = indices[i * 4 + j];
-      // const Discretizations::iterator idx =
-      //     values.find(DiscreteValue(value_index));
-      // const int value = std::distance(values.begin(), idx);
-      // const int value = values[value_index];
-      const int value = 0;
-      data[(hi * w + (3 * wi))] = value;
-      data[(hi * w + (3 * wi)) + 1] = value;
-      data[(hi * w + (3 * wi)) + 2] = value;
-      data[(hi * w + (3 * wi)) + 3] = value;
-      data[(hi * w + (3 * wi)) + 4] = value;
-      data[(hi * w + (3 * wi)) + 5] = value;
-
-      data[((hi + 1) * w + (3 * wi))] = value;
-      data[((hi + 1) * w + (3 * wi)) + 1] = value;
-      data[((hi + 1) * w + (3 * wi)) + 2] = value;
-      data[((hi + 1) * w + (3 * wi)) + 3] = value;
-      data[((hi + 1) * w + (3 * wi)) + 4] = value;
-      data[((hi + 1) * w + (3 * wi)) + 5] = value;
-    }
-  }
-}
-
-template<>
 void array<unsigned char>::FillMatrixFromBlock(
     int block_h,
     int block_w,

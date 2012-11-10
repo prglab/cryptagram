@@ -44,11 +44,6 @@ struct array {
                          int block_h,
                          int block_w);
 
-  void FillBlockFromInts(const std::vector<int>& indices,
-                         const Discretizations& values,
-                         int block_h,
-                         int block_w);
-  
   // Fill @lum_matrix with the contents contained in the block block_h, block_w
   // assuming that this->data is the format for a Cryptogram image.
   void FillMatrixFromBlock(int block_h,
