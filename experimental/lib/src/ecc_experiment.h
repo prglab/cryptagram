@@ -4,6 +4,7 @@
 #ifndef _ECC_EXPERIMENT_H_
 #define _ECC_EXPERIMENT_H_
 
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -30,10 +31,7 @@ class EccExperiment {
 
   virtual ~EccExperiment();
 
-  void Run(int *first_nerrors, int *second_nerrors) {
-    CHECK_NOTNULL(first_nerrors);
-    CHECK_NOTNULL(second_nerrors);
-
+  void Run() {
     ecc_msg_.Reset();
     ecc_msg_.InitWithRandomData();
 
@@ -112,6 +110,7 @@ class EccExperiment {
             int idx = std::distance(
                 set_discretizations_.begin(),
                 FindClosest(set_discretizations_, DiscreteValue(val)));
+
             decoded_ints.push_back(idx);
           }
         }
@@ -142,9 +141,12 @@ class EccExperiment {
       }
       // std::cout << std::endl;
     
-      (i == 0 ? *first_nerrors : *second_nerrors) =
-          rs_codec_.Decode(data, parity);
+      int nerrors = rs_codec_.Decode(data, parity);
+      if (nerrors > 0) {
+        f_stream_ << nerrors << std::endl;
+      }
     }
+    f_stream_.flush();
   }
       
  private:
@@ -172,6 +174,8 @@ class EccExperiment {
 
   int width;
   int height;
+
+  std::ofstream f_stream_;
 };
 
 

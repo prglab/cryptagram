@@ -24,6 +24,11 @@ namespace cryptogram {
 Experiment::Experiment(const std::vector<int>& discretizations,
                        const std::string& output_filename)
     : discretizations_(discretizations), output_filename_(output_filename) {
+  Init();
+}
+
+Experiment::~Experiment() {
+  f_stream_.close();
 }
 
 void Experiment::Init() {

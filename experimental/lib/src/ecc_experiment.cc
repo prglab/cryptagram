@@ -41,6 +41,8 @@ EccExperiment::EccExperiment(const string& filename)
   set_discretizations_.insert(DiscreteValue(80));
   set_discretizations_.insert(DiscreteValue(48));
   set_discretizations_.insert(DiscreteValue(16));
+
+  f_stream_.open(output_filename_.c_str(), std::ofstream::binary);
 }
 
 EccExperiment::~EccExperiment() {
@@ -52,6 +54,7 @@ EccExperiment::~EccExperiment() {
       delete aes_blocks(wide, high);
     }
   }
+  f_stream_.close();
 }
 
 
