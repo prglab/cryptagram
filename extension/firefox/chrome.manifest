@@ -1,0 +1,9 @@
+content cryptogram  chrome/content
+content cryptogram  chrome/content/ contentaccessible=yes
+overlay chrome://browser/content/browser.xul chrome://cryptogram/content/browser.xul
+
+locale  cryptogram  en-US locale/en-US/
+skin    cryptogram  classic/1.0 skin/
+style   chrome://global/content/customizeToolbar.xul  chrome://cryptogram/skin/skin.css
+
+
