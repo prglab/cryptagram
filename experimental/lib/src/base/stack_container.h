@@ -6,6 +6,7 @@
 #define BASE_STACK_CONTAINER_H_
 #pragma once
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -250,5 +251,35 @@ class StackVector : public StackContainer<
     return this->container().operator[](i);
   }
 };
+
+template<typename T, size_t stack_capacity, class Compare = std::less<T> >
+class StackSet : public StackContainer<
+  std::set<T, Compare, StackAllocator<T, stack_capacity> >,
+  stack_capacity> {
+ public:
+  StackSet() : StackContainer<
+      std::set<T, Compare, StackAllocator<T, stack_capacity> >,
+      stack_capacity>() {
+  }
+
+  // We need to put this in STL containers sometimes, which requires a copy
+  // constructor. We can't call the regular copy constructor because that will
+  // take the stack buffer from the original. Here, we create an empty object
+  // and make a stack buffer of its own.
+  StackSet(const StackSet<T, stack_capacity, Compare>& other)
+      : StackContainer<
+            std::set<T, Compare, StackAllocator<T, stack_capacity> >,
+            stack_capacity>() {
+    this->container().assign(other->begin(), other->end());
+  }
+
+  StackSet<T, stack_capacity>& operator=(
+      const StackSet<T, stack_capacity>& other) {
+    this->container().assign(other->begin(), other->end());
+    return *this;
+  }
+};
+
+
 
 #endif  // BASE_STACK_CONTAINER_H_

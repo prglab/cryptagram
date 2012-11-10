@@ -28,6 +28,8 @@ class EccMessage {
   EccMessage();
   virtual ~EccMessage();
 
+  void Reset();
+
   void InitWithRandomData();
   
   void SetMessage(uint8_t *message, Position pos);

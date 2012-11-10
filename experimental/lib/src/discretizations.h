@@ -9,6 +9,7 @@
 #define DISCRETIZATIONS_H_
 
 #include <set>
+#include "base/stack_container.h"
 
 namespace cryptogram {
 

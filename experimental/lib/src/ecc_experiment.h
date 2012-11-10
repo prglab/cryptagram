@@ -7,11 +7,15 @@
 #include <string>
 #include <vector>
 
+#include "array.h"
+#include "aesthete.h"
 #include "discretizations.h"
 #include "ecc_image.h"
 #include "ecc_message.h"
 #include "jpeg_codec.h"
 #include "google/gflags.h"
+
+#include "base/stack_container.h"
 
 DECLARE_int32(quality);
 
@@ -22,60 +26,15 @@ namespace cryptogram {
 
 class EccExperiment {
  public:
-  explicit EccExperiment(const string& filename) :
-      output_filename_(filename),
-      decoded_blocks(kBlocksWide, kBlocksHigh),
-      decoded_aes(kBlocksWide, kBlocksHigh),
-      blocks(kBlocksWide, kBlocksHigh),
-      aes_blocks(kBlocksWide, kBlocksHigh),
-      image(kBlocksWide * kPixelDimPerBlock * kCharsPerPixel,
-              kBlocksHigh * kPixelDimPerBlock) {
-    
-    
-    // Initialize all of the pointers in our containers.
-    for (int high = 0; high < kBlocksHigh; high++) {
-      for (int wide = 0; wide < kBlocksWide; wide++) {
-        decoded_blocks(wide, high) = new matrix<unsigned char>(8, 8);
-        decoded_aes(wide, high) = new matrix<double>(4, 4);
-        blocks(wide, high) = new matrix<unsigned char>(8, 8);
-        aes_blocks(wide, high) = new matrix<double>(4, 4);
-      }
-    }
+  explicit EccExperiment(const string& filename);
 
-    discretizations_.push_back(240);
-    discretizations_.push_back(208);
-    discretizations_.push_back(176);
-    discretizations_.push_back(144);
-    discretizations_.push_back(112);
-    discretizations_.push_back(80);
-    discretizations_.push_back(48);
-    discretizations_.push_back(16);
-
-    set_discretizations_.insert(DiscreteValue(240));
-    set_discretizations_.insert(DiscreteValue(208));
-    set_discretizations_.insert(DiscreteValue(176));
-    set_discretizations_.insert(DiscreteValue(144));
-    set_discretizations_.insert(DiscreteValue(112));
-    set_discretizations_.insert(DiscreteValue(80));
-    set_discretizations_.insert(DiscreteValue(48));
-    set_discretizations_.insert(DiscreteValue(16));
-  }
-
-  virtual ~EccExperiment() {
-    for (int high = 0; high < kBlocksHigh; high++) {
-      for (int wide = 0; wide < kBlocksWide; wide++) {
-        delete decoded_blocks(wide, high);
-        delete decoded_aes(wide, high);
-        delete blocks(wide, high);
-        delete aes_blocks(wide, high);
-      }
-    }
-  }
+  virtual ~EccExperiment();
 
   void Run(int *first_nerrors, int *second_nerrors) {
     CHECK_NOTNULL(first_nerrors);
     CHECK_NOTNULL(second_nerrors);
-    
+
+    ecc_msg_.Reset();
     ecc_msg_.InitWithRandomData();
 
     rs_codec_.Encode(ecc_msg_.first_message(), ecc_msg_.first_parity());
@@ -109,7 +68,6 @@ class EccExperiment {
     }
 
     // array @image is prepared with the all of the JPEG color space information.
-    vector<unsigned char> output_jpeg;
     assert(gfx::JPEGCodec::Encode(
         image.data,
         gfx::JPEGCodec::FORMAT_RGB,
@@ -119,8 +77,7 @@ class EccExperiment {
         FLAGS_quality,
         &output_jpeg));
 
-    vector<unsigned char> decoded;
-    int width = 0, height = 0;
+    decoded.clear();
     assert(gfx::JPEGCodec::Decode(&output_jpeg[0],
                                   output_jpeg.size(),
                                   gfx::JPEGCodec::FORMAT_RGB,
@@ -144,11 +101,11 @@ class EccExperiment {
       }
     }
 
-    vector<unsigned char> full_message;
+    full_message.clear();
     for (int block_h = 0; block_h < kBlocksHigh; block_h++) {
       for (int block_w = 0; block_w < kBlocksWide; block_w++) {
         matrix<double> *decoded_mat = decoded_aes(block_w, block_h);
-        vector<int> decoded_ints;
+        decoded_ints.clear();
         for (int i = 0; i < 4; i++) {
           for (int j = 0; j < 4; j++) {
             double val = (*decoded_mat)(i,j);
@@ -159,9 +116,8 @@ class EccExperiment {
           }
         }
 
-        MatrixRepresentation mat_rep;
-        mat_rep.InitFromInts(decoded_ints);
-        std::string final(mat_rep.ToString());
+        matrix_rep_.InitFromInts(decoded_ints);
+        std::string final(matrix_rep_.ToString());
         CHECK_EQ(final.size(), 6);
 
         for (unsigned int i = 0; i < final.size(); i++) {
@@ -206,8 +162,16 @@ class EccExperiment {
 
   array<unsigned char> image;
 
-  vector<int> discretizations_;
+  StackVector<int, 8> discretizations_;
   Discretizations set_discretizations_;
+
+  vector<unsigned char> output_jpeg;
+  vector<unsigned char> full_message;
+  vector<int> decoded_ints;
+  vector<unsigned char> decoded;
+
+  int width;
+  int height;
 };
 
 
