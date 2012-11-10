@@ -13,14 +13,18 @@
 namespace cryptogram {
 
 EccMessage::EccMessage() {
+  Reset();
+}
+
+EccMessage::~EccMessage() {
+}
+
+void EccMessage::Reset() {
   memset(bytes_, 0, sizeof(bytes_));
   memset(first_message_, 0, sizeof(first_message_));
   memset(first_parity_, 0, sizeof(first_parity_));
   memset(second_message_, 0, sizeof(second_message_));
   memset(second_parity_, 0, sizeof(second_parity_));
-}
-
-EccMessage::~EccMessage() {
 }
 
 void EccMessage::InitWithRandomData() {

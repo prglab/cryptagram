@@ -16,8 +16,8 @@ void AverageAestheteBlocks(const matrix<unsigned char>& input,
   CHECK_NOTNULL(output);
   for (int i = 0; i < 8; i += 2) {
     for (int j = 0; j < 8; j += 2) {
-      double temp = (input(i,j) + input(i+1,j) + input(i,j+1) +
-                     input(i+1,j+1)) / 4.;
+      const double temp = (input(i,j) + input(i+1,j) + input(i,j+1) +
+                           input(i+1,j+1)) / 4.;
       (*output)(i/2,j/2) = temp;
     }
   }
@@ -34,12 +34,14 @@ MatrixRepresentation::~MatrixRepresentation() {
 }
 
 void MatrixRepresentation::InitFromString(const char* input) {
+  bits_.reset();
   for (int j = 0; j < 48; j++) {
     bits_[j] = ((input[j>>3] >> (j & 7)) & 1);
   }
 }
 
 void MatrixRepresentation::InitFromString(const unsigned char* input) {
+  bits_.reset();
   for (int j = 0; j < 48; j++) {
     bits_[j] = ((input[j>>3] >> (j & 7)) & 1);
   }
@@ -47,6 +49,7 @@ void MatrixRepresentation::InitFromString(const unsigned char* input) {
 
 void MatrixRepresentation::InitFromInts(const vector<int>& values) {
   CHECK_EQ(values.size(), 16);
+  bits_.reset();
   const int kNumDiscretizations = 8;
   for (unsigned int i = 0; i < values.size(); i++) {
     const int val = values[i];
@@ -76,7 +79,7 @@ int MatrixRepresentation::operator()(int x, int y) {
 
 void MatrixRepresentation::ToInts(vector<int>* output) {
   CHECK_NOTNULL(output);
-
+  output->clear();
   for (int i = 0; i < 16; i++) {
     output->push_back((*this)(i % 4, i / 4));
   }
@@ -90,6 +93,7 @@ string MatrixRepresentation::ToString() {
 
 void MatrixRepresentation::BitsetFromBytes(const char* input, bitset<48>* bits) {
   // TODO(tierney): Should enforce the lengith of input is six bytes.
+  bits->reset();
   for (int j = 0; j < 48; j++) {
     (*bits)[j] = ((input[j>>3] >> (j & 7)) & 1);
   }
