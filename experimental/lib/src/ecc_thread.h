@@ -1,7 +1,9 @@
 #ifndef _ECC_THREAD_H_
 #define _ECC_THREAD_H_
 
-#include "types.h"
+#include <pthread.h>
+
+#include "base/basictypes.h"
 
 namespace cryptogram {
 
