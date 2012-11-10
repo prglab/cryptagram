@@ -25,6 +25,7 @@
 */
 
 DEFINE_int32(quality, 95, "JPEG quality to use.");
+DEFINE_int64(iters, 2, "Number of iterations to run.");
 
 namespace cryptogram {
 
@@ -99,8 +100,9 @@ void Foo() {
   }
   array<unsigned char> image(kBlocksWide * kPixelDimPerBlock * kCharsPerPixel,
                              kBlocksHigh * kPixelDimPerBlock);
-  EccMessage ecc_msg;
 
+  for (int iteration = 0; iteration < FLAGS_iters; iteration++) {
+  EccMessage ecc_msg;
   EccMessage::FillWithRandomData(ecc_msg.first_message(),
                                  kRs255_223MessageBytes);
   EccMessage::FillWithRandomData(ecc_msg.second_message(),
@@ -126,10 +128,8 @@ void Foo() {
       std::vector<int> matrix_entries;
       mr.ToInts(&matrix_entries);
 
-      // image.FillBlockFromInts(
-      //     matrix_entries, discretizations, image_h, image_w);
       image.FillBlockFromInts(
-          matrix_entries, set_discretizations, image_h, image_w);
+          matrix_entries, discretizations, image_h, image_w);
     }
   }
 
@@ -227,7 +227,7 @@ void Foo() {
     int nerrors = rs_codec.Decode(data, parity);
     std::cout << "nerrors: " << nerrors << std::endl;
   }
-
+  }
   for (int high = 0; high < kBlocksHigh; high++) {
     for (int wide = 0; wide < kBlocksWide; wide++) {
       delete decoded_blocks(wide, high);
@@ -236,6 +236,7 @@ void Foo() {
       delete aes_blocks(wide, high);
     }
   }
+
 }
 } // namespace cryptogram
 
