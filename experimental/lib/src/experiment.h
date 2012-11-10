@@ -25,6 +25,8 @@ class Experiment {
   Experiment(const std::vector<int>& discretizations,
              const std::string& output_filename);
 
+  virtual ~Experiment();
+  
   // Initialization method that sets the f_stream_ according to the
   // output_filename.
   void Init();

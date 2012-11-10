@@ -51,10 +51,15 @@ read_aesthete_matrices_LDADD += -lpthread -lgflags -lglog
 noinst_LIBRARIES += libecc_experiment.a
 libecc_experiment_a_SOURCES = ecc_experiment.cc ecc_experiment.h ecc_image.h
 
+noinst_LIBRARIES += libecc_thread.a
+libecc_thread_a_SOURCES = ecc_thread.h ecc_thread.cc
+
 bin_PROGRAMS += ecc_experiment_main
 ecc_experiment_main_SOURCES = ecc_experiment_main.cc
 ecc_experiment_main_CPPFLAGS = -Wall
-ecc_experiment_main_LDADD =  libecc_experiment.a
+ecc_experiment_main_LDADD =  
+ecc_experiment_main_LDADD += libecc_thread.a
+ecc_experiment_main_LDADD += libecc_experiment.a
 ecc_experiment_main_LDADD += libarray.a
 ecc_experiment_main_LDADD += libaesthete.a
 ecc_experiment_main_LDADD += libreentrant_rand.a
@@ -110,15 +115,15 @@ libreentrant_rand_a_CPPFLAGS = -Wall
 libarray_a_SOURCES = array.cc array.h
 libarray_a_CPPFLAGS = -Wall
 
-TESTS += array_test
-bin_PROGRAMS += array_test
-array_test_SOURCES = array_test.cc
-array_test_CPPFLAGS = -I$(top_srcdir)/include
-array_test_LDFLAGS = -L..
-array_test_LDADD =
-array_test_LDADD += libarray.a
-array_test_LDADD += $(top_srcdir)/lib/libgtest.la 
-array_test_LDADD += $(top_srcdir)/lib/libgtest_main.la
+# TESTS += array_test
+# bin_PROGRAMS += array_test
+# array_test_SOURCES = array_test.cc
+# array_test_CPPFLAGS = -I$(top_srcdir)/include
+# array_test_LDFLAGS = -L..
+# array_test_LDADD =
+# array_test_LDADD += libarray.a
+# array_test_LDADD += $(top_srcdir)/lib/libgtest.la 
+# array_test_LDADD += $(top_srcdir)/lib/libgtest_main.la
 
 libexperiment_a_SOURCES = experiment.cc experiment.h
 libexperiment_a_CPPFLAGS = -Wall
