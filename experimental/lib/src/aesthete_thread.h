@@ -8,11 +8,12 @@
 #include <fstream>
 #include <iostream>
 #include <pthread.h>
+#include <string>
 
 #include "queue.h"
 #include "types.h"
 
-// typedef vector<bitset<48> > MatrixQueueEntry;
+using std::string;
 
 namespace cryptogram {
 

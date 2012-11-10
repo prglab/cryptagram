@@ -4,6 +4,7 @@
 #include "ecc_message.h"
 
 #include <assert.h>
+#include <cstdlib>
 #include <limits.h>
 
 #include <iostream>
