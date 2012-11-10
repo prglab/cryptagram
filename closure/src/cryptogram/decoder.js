@@ -1,6 +1,7 @@
 goog.provide('cryptogram.decoder');
 
 goog.require('cryptogram.codec.aesthete');
+goog.require('cryptogram.codec.bacchant');
 goog.require('cryptogram.storage');
 goog.require('goog.debug.Logger');
 
@@ -15,17 +16,13 @@ cryptogram.decoder = function(container) {
 cryptogram.decoder.prototype.logger = goog.debug.Logger.getLogger('cryptogram.decoder');
 
 
-cryptogram.decoder.URIHeader = "data:image/jpeg;base64,";
-
 /**
  * Decodes the supplied base64 data and applies the callback.
  * @param data The input base64 data.
- * @param password The cryptogram password.
  * @param callback The function to call on the resulting data.
  */
-cryptogram.decoder.prototype.decodeData = function(data, password, callback) {
+cryptogram.decoder.prototype.decodeData = function(data, callback) {
 
-  this.base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
   var self = this;
 
   var canvas = document.createElement('canvas');
@@ -38,25 +35,17 @@ cryptogram.decoder.prototype.decodeData = function(data, password, callback) {
     canvas.width = img.width;
     canvas.height = img.height;
     ctx.drawImage(img,0,0);
-    
     var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;               
   
-    self.callback = callback;
-    self.img = img;
-    self.imageData = imageData;
-    self.blockSize = blockSize;
-    self.headerSize = blockSize * 4;
-    self.password = password;
-    self.chunkSize = img.height / 20.0;
-    self.y = 0;
-    self.newBase64 = "";
-
-    var codec = self.getCodec(img, imageData);
+    self.codec = self.getCodec(img, imageData);
     
-    if (!codec) {
+    if (!self.codec) {
       self.container.setStatus();
     } else {
-      self.processImage();    
+      self.callback = callback;
+      self.data = "";
+      self.codec.decode(img, imageData);
+      self.processImage();
     }
   };
   
@@ -66,9 +55,7 @@ cryptogram.decoder.prototype.decodeData = function(data, password, callback) {
 
 cryptogram.decoder.prototype.getCodec = function(img, imageData) {
 
-
-  
-  var knownCodecs = [cryptogram.codec.aesthete];
+  var knownCodecs = [cryptogram.codec.aesthete, cryptogram.codec.bacchant];
   var testCodec;
   for (var i = 0; i < knownCodecs.length; i++) {
     testCodec = new knownCodecs[i]();
@@ -77,7 +64,7 @@ cryptogram.decoder.prototype.getCodec = function(img, imageData) {
       return testCodec;
     }
   }
-  //this.logger.severe("Unknown codec.");
+  this.logger.severe("Unknown codec.");
   return null;
 }
 
@@ -85,123 +72,28 @@ cryptogram.decoder.prototype.getCodec = function(img, imageData) {
 /** 
  * @private
  */
-cryptogram.decoder.prototype.getHeader = function() {
-
-    var newBase64 = "";
-    
-    for (y = 0; y < 8; y+= this.blockSize) {
-      for (x = 0; x < 8; x+= 2*this.blockSize) {
-        
-        base8_0 = this.getBase8Value(x, y);
-        base8_1 = this.getBase8Value(x + this.blockSize, y);
-  
-        base64Num = base8_0 * 8 + base8_1 ;
-        base64 = this.base64Values.charAt(base64Num);                    
-        newBase64 += base64;
-      }
-    }
-    
-    return newBase64;       
-}
-
-/** 
- * @private
- */
 cryptogram.decoder.prototype.processImage = function() {
-
-  var count = 0;
-  var y = this.y;
+  
   var done = false;
-      
-  while (this.chunkSize == 0 || count < this.chunkSize) {
-      
-    for (x = 0; x < this.img.width; x+= (this.blockSize * 2)) {
-        
-        // Skip over header super-block
-        if (y < this.headerSize && x < this.headerSize) {
-          continue;
-        }
-                        
-        base8_0 = this.getBase8Value(x, y);
-        base8_1 = this.getBase8Value(x + this.blockSize, y);
-        
-        // Found black, stop
-        if (base8_0 == -1 || base8_1 == -1) break;  
-        
-        base64Num = base8_0 * 8 + base8_1 ;
-        base64 = this.base64Values.charAt(base64Num);
-        this.newBase64 += base64;
-      } 
-    count++;  
-    y+= this.blockSize;
-    
-    
-    if (y >= this.img.height) {
-      done = true;
-      break;
-    }
-  }
-  
-  this.y = y;
-  var _decoder = this;
+  var chunk = this.codec.getChunk();
 
-  if (!done) {
-      // Artificially inflate the percent so it gets to 100
-      var percent = Math.ceil(100.0 * ((y + (4 * this.blockSize)) / this.img.height));
-      if (percent > 100) percent = 100;
-      this.container.setStatus("Decode<br>" + percent + "%");
-      setTimeout(function () { _decoder.processImage() }, 1);
+  if (chunk) {
+    this.data += chunk;
+    var percent = Math.round(100 * this.codec.decodeProgress(), 2);
+    this.container.setStatus("Decode<br>" + percent + "%");
+    var self = this;
+    setTimeout(function () { self.processImage() }, 1);
+  
+  // Done processing
   } else {
-      this.container.setStatus();
-      this.logger.info("Decoded image. " + this.newBase64.length + " base64 characters.");
-      _decoder.decryptImage();
-  }
   
-  
+    this.container.setStatus();
+    this.logger.info("Decoded image. " + this.data.length + " base64 characters.");
+    this.callback(this.data);
+ }  
 }
 
-/** 
- * @private
- */
-cryptogram.decoder.prototype.decryptImage = function () {
 
-  var newBase64 = this.newBase64;
-  
-  var check = newBase64.substring(0,64);
-  var iv = newBase64.substring(64,86);
-  var salt = newBase64.substring(86,97);
-  var ct = newBase64.substring(97,newBase64.length);
-  var full = newBase64.substring(64,newBase64.length);
-  var bits = sjcl.hash.sha256.hash(full);
-  var hexHash = sjcl.codec.hex.fromBits(bits);
-      
-  if (hexHash != check) {
-    this.logger.severe("Checksum failed. Image is corrupted.");
-    return;
-  } else {
-    this.logger.info("Checksum passed.");
-  }
-    
-  var obj = new Object();
-  obj.iv = iv;
-  obj.salt = salt;
-  obj.ct = ct;
-  var base64Decode = JSON.stringify(obj);
-  var decrypted;
-  
-  try {
-    decrypted = sjcl.decrypt(this.password, base64Decode);
-  } 
-  
-  catch(err) {
-    this.logger.severe("Error decrypting:" + err.toString());
-    return;
-  }
-  
-  this.logger.info("Decrypted " + decrypted.length + " base64 characters.");
-  var payload = cryptogram.decoder.URIHeader + decrypted;
-  this.callback(payload);
-}
 
     
 // Takes the average over some block of pixels
@@ -217,6 +109,10 @@ cryptogram.decoder.prototype.getBase8Value = function(x, y) {
   var count = 0.0;
   var vt = 0.0;
   var avg;
+  var r;
+  var g;
+  var b;
+  var Y;
   
   for (i = 0; i < this.blockSize; i++) {
     for (j = 0; j < this.blockSize; j++) {
@@ -224,9 +120,17 @@ cryptogram.decoder.prototype.getBase8Value = function(x, y) {
       base = (y + j) * this.img.width + (x + i);
       
       //Use green to estimate the luminance
-      green = this.imageData[4*base + 1];
-  
-      vt += green;
+      
+      r = this.imageData[4*base];
+      g = this.imageData[4*base + 1];
+      b = this.imageData[4*base + 2];
+      Y = 0.299 * r + 0.587 * g + 0.114 * b;
+      
+      /*if (x == y) {
+        console.log(x + " -> " + Y + ": (" + r + "," + g + "," + b + ")");
+      }*/
+      
+      vt += g;
       count++;
     }
   }

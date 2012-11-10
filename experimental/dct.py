@@ -176,7 +176,7 @@ class Experiment(object):
 
 def main(argv):
   print "Generating messages"
-  num_matrices = 100000
+  num_matrices = 10000
 
   # orig_quality = 95
   # quant_table = QuantizationTableFromQuality(LuminanceQuantizationTable,
@@ -226,15 +226,14 @@ def main(argv):
 
   # These are the discrete values written in luminance.
   discrete_values = [
-    238,
-    210,
-    182,
-    154,
-    126,
-    98,
-    70,
-    42,
-    14]
+    240,
+    208,
+    176,
+    144,
+    112,
+    80,
+    48,
+    16]
 
   random_matrices = [CreateAestheteRandomMatrix(discrete_values)
                      for i in range(num_matrices)]
@@ -246,7 +245,7 @@ def main(argv):
       print >>fh, '%d ' * 64 % tuple(random_matrices[i].flatten())
 
   experiments = []
-  for quality in range(68, 80, 4):
+  for quality in range(70, 88, 4):
     experiments.append(Experiment(quality, random_matrices))
 
   print "Starting experiments."
@@ -309,16 +308,31 @@ class Experiment(threading.Thread):
 
         new_image = Image.new('RGB', (8, 8))
         pixel = new_image.load()
+
+        tint = 0
+        rtint = numpy.floor(numpy.random.random() * tint)
+        btint = numpy.floor(numpy.random.random() * tint)
+
         for j in range(8):
           for k in range(8):
             lum = self.random_matrices[i][j,k]
+            #tint = 10
+            
+            
+            cr = 128 - (tint/2.0) + rtint
+            cb = 128 - (tint/2.0) + btint
 
-            tint = 20
-            r = lum + tint
-            g = lum
-            b = lum
+            rr = lum + 1.402 * (cr - 128.0)
+            r = round(rr,0)
+            gg = lum - 0.34414 * (cb - 128.0) - 0.71414 * (cr - 128.0)
+            g = round(gg, 0)
+            bb = lum + 1.772 * (cb - 128.0)
+            b = round(bb, 0)
+            #g = lum - delt * (0.299 / 0.587)
             #b = lum - tint * (0.299 / 0.114)
-
+            y = 0.299 * r + 0.587 * g + 0.114 * b
+            diff = lum - y
+            print "(%d, %d, %d) %f - %f = %f" % (r, g, b, lum, y, diff)
             pixel[j,k] = tuple(map(int, [r, g, b]))
 
         import cStringIO
@@ -328,8 +342,8 @@ class Experiment(threading.Thread):
         decompressed = Image.open(new_file)
 
         decompressed_pixel = decompressed.load()
-        # decompressed_averaged_ = AverageAestheteBlocksLuminance(decompressed_pixel)
-        decompressed_averaged_ = AverageAestheteBlocks(decompressed_pixel, 1)
+        decompressed_averaged_ = AverageAestheteBlocksLuminance(decompressed_pixel)
+        #decompressed_averaged_ = AverageAestheteBlocks(decompressed_pixel, 1)
 
         # jpeg = JpegCompress(self.random_matrices[i], quant_table)
         # decompressed = JpegDecompress(jpeg, quant_table)
@@ -340,10 +354,10 @@ class Experiment(threading.Thread):
         # decompressed_averaged_ = AverageAestheteBlocks(decompressed)
 
         mismatch_table = numpy.absolute(
-          decompressed_averaged_ - orig_averaged_) < 14
+          decompressed_averaged_ - orig_averaged_) < 16
         try:
           num_mismatches, num_matches = numpy.bincount(mismatch_table.flatten())
-          if num_mismatches > 0:
+          if num_mismatches > -1:
             base = "debug/" + str(self.quality) + "_" + str(i) + "_"
             #im_in = decompressed.resize((256,256),'NEAREST')
 
