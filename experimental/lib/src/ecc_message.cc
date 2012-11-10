@@ -23,6 +23,11 @@ EccMessage::EccMessage() {
 EccMessage::~EccMessage() {
 }
 
+void EccMessage::InitWithRandomData() {
+  EccMessage::FillWithRandomData(first_message_, kRs255_223MessageBytes);
+  EccMessage::FillWithRandomData(second_message_, kRs255_223MessageBytes);
+}
+
 void EccMessage::SetMessage(uint8_t *message, Position pos) {
   memcpy(bytes_ + (pos * kRs255_223TotalBytes),
          message,
