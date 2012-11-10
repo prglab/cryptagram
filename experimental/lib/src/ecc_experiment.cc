@@ -10,6 +10,7 @@
 #include "array.h"
 #include "boost/numeric/ublas/io.hpp"
 #include "discretizations.h"
+#include "ecc_experiment.h"
 #include "ecc_image.h"
 #include "ecc_message.h"
 #include "glog/logging.h"
@@ -73,7 +74,6 @@ void Foo() {
   discretizations.push_back(48);
   discretizations.push_back(16);
 
-  Discretizations set_discretizations;
   set_discretizations.insert(DiscreteValue(240));
   set_discretizations.insert(DiscreteValue(208));
   set_discretizations.insert(DiscreteValue(176));
@@ -154,7 +154,7 @@ void Foo() {
       FLAGS_quality,
       &output_jpeg));
 
-  std::string output_bytes(output_jpeg.begin(), output_jpeg.end());
+  // std::string output_bytes(output_jpeg.begin(), output_jpeg.end());
   // std::cerr << output_bytes << std::endl;
 
   vector<unsigned char> decoded;

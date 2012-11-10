@@ -18,6 +18,12 @@ const int kBlocksWide = 17;
 const int kBlocksHigh = 5;
 const int kPixelDimPerBlock = 8;
 const int kCharsPerPixel = 3;
+const int kMatrixStrBytes = 6;
+
+struct EccImageErrors {
+  int first_nerrors;
+  int second_nerrors;
+};
 
 // class ECCImage {
 //  public:
