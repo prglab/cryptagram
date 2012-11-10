@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://cryptogram/skin/skin.css" type="text/css"?>
+<!DOCTYPE cryptogram SYSTEM "chrome://cryptogram/locale/translations.dtd">
+<overlay id="sample" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="text/javascrip">
+  var DEBUG_MODE = false;
+  if (DEBUG_MODE === true){
+    console.log = function(arg){
+        if (Firebug !== undefined){
+          Firebug.Console.log(arg);
+        }
+        else {
+          console.log(arg);
+        }
+    }
+  }else{
+    console.log = function () { }
+  }
+  
+  </script>
+  <script src="sjcl.js" />
+  <script src="cryptogram-lib.js"/>
+  <script type="text/javascript">
+    console.log("Test: " + cryptogram.testVar);
+    console.log(cryptogram);
+    console.log(cryptogram.decryptByURL);
+    
+  </script>
+  <script src="cryptogram.js" />
+  
+  <commandset>
+    <command id="cmd_cryptogram_decrypt" oncommand="cryptogramFirefox.decrypt();"/>
+  </commandset>
+  
+  <menupopup id="menu_toolsPopup">
+    <menuitem label="&runcryptogram;" key="cryptogram-decrypt-key" oncommand="cryptogramFirefox.run();" />
+  </menupopup>
+
+  <!-- Keyboard shortcut pattern <keyset>
+    
+    <key id="cryptogram-decrypt-key" modifiers="accel alt shift" key="L" oncommand="cryptogram.run()" />
+  </keyset> 
+  -->
+
+  <statusbar id="status-bar">
+    <statusbarpanel id="cryptogram-status-bar-icon" class="statusbarpanel-iconic" src="chrome://cryptogram/skin/status-bar.png" tooltiptext="&runcryptogram;" onclick="cryptogram.run();" />
+  </statusbar>
+  
+  <!-- Right click popup menu 
+  -->
+
+    <popup id="contentAreaContextMenu">       
+        <menuitem id="cryptogram-context-decrypt" label="&cryptogram.decryptimage;" command="cmd_cryptogram_decrypt" />
+    </popup>
+
+  <!-- Add the option to add a cryptogram icon to the toolbar -->
+
+  <toolbarpalette id="BrowserToolbarPalette">
+    <toolbarbutton type="menu" id="cryptogram-toolbar-button" tooltiptext="&runcryptogram;">
+        <menupopup>
+            <menuitem type="checkbox" autocheck="true" label="&cryptogram.autodecrypt;" />
+            <menuitem type="checkbox" autocheck="true" label="&cryptogram.savepasswords;" />
+            <menuitem type="checkbox" autocheck="true" label="&cryptogram.albumpasswords;" />
+        </menupopup>
+    </toolbarbutton>
+  </toolbarpalette> 
+
+  
+  
+  
+  
+  
+
+</overlay>

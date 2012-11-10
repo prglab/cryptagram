@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="sjcl.js" type="text/javascript"></script>
+    <script src="encoder.js" type="text/javascript"></script>
+    <script src="json2.js" type="text/javascript"></script>
+</head>
+
+<body>
+	<p id="output"></p>
+    <img id="cryptImg"></img>
+    <img id="extra"></img>   
+    <canvas id="drawCanvas"></canvas
+     <canvas id="drawCanvas"></canvas> 
+	<script type="text/javascript">
+	
+	// Read a page's GET URL variables and return them as an object.
+	function getUrlVars()
+	{
+		var vars = [], hash;
+		var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+		for(var i = 0; i < hashes.length; i++)
+		{
+		    hash = hashes[i].split('=');
+		    vars.push(hash[0]);
+		    vars[hash[0]] = hash[1];
+		}
+		return vars;
+	}
+	
+	var args = getUrlVars();
+    if (args.password !== undefined && args.data !== undefined){
+    	
+        encoded =  JSON.parse(sjcl.encrypt(args.password, args.data));//encrypt(args.data, args.password));
+        // call functions with workaround
+
+        //img.src = "|setDataUrl|" + encode(encrypt(args.data, args.password));//dataUrl;
+        //document.getElementById("output").innerHTML = dataUrl;
+        //#DEBUG
+        //document.getElementById("cryptImg").src = dataUrl;   
+		//var encoded = JSON.parse(sjcl.encrypt(args.password, args.data));
+        img = new Image();
+        //console.log("First space: " + encoded['iv'].indexOf(' '));
+		img.src = "|setIv|"+encoded['iv'];
+		img.src = "|setCt|"+encoded['ct'];
+		img.src = "|setSalt|"+encoded['salt'];
+    //var integrity_check_value = sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(encoded['iv'] + encoded['salt'] +  encoded['ct']));
+    //console.log("ct len " + encoded['ct'].length);
+    //img.src = "|setHash|" + integrity_check_value;
+		img.src = "|setDone|"+"empty";
+
+    document.getElementById("output").innerHTML = integrity_check_value;
+    
+		//window.location = "http://example.com/|setSalt|"+encoded.salt;
+		//window.location = "http://example.com/|setCt|"+encoded.ct;
+		//dataAccessor.setIv(encoded['iv']);
+		//dataAccessor.setCt
+		//document.getElementById("output").innerHTML = '<a href="http://example.com/|setIv|' + encoded.iv +'">Link</a>';
+	}
+  else { // Default, non-processing page
+    //console.log("No args");
+    var data = encrypt( "Eat it!", "password" );
+    var encoded = encode(data);
+
+  }
+		
+	</script>
+
+</body>
+
+</html>
