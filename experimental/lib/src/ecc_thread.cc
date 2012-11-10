@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <pthread.h>
 
 #include "ecc_experiment.h"
 #include "glog/logging.h"

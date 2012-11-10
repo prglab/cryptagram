@@ -112,7 +112,7 @@ noinst_LIBRARIES += libreentrant_rand.a
 libreentrant_rand_a_SOURCES = reentrant_rand.h reentrant_rand.cc
 libreentrant_rand_a_CPPFLAGS = -Wall
 
-libarray_a_SOURCES = array.cc array.h
+libarray_a_SOURCES = array.cc array.h base/stack_container.h base/basictypes.h base/port.h build/build_config.h discretizations.h
 libarray_a_CPPFLAGS = -Wall
 
 # TESTS += array_test
