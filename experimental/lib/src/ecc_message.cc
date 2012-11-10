@@ -6,6 +6,8 @@
 #include <assert.h>
 #include <limits.h>
 
+#include <iostream>
+
 #include "glog/logging.h"
 
 namespace cryptogram {
@@ -42,8 +44,11 @@ void EccMessage::SetParity(uint16_t *parity, Position pos) {
 void EccMessage::FillWithRandomData(uint8_t *data, size_t len) {
   // Assumes that the PRNG has already been seeded.
   for (unsigned int i = 0; i < len; i++) {
-    data[i] = rand() % 256;
+    unsigned char tmp = rand() % 256;
+    // std::cout << (unsigned int)tmp << " ";
+    data[i] = tmp;
   }
+  // std::cout << std::endl;
 }
 
 unsigned char *EccMessage::flatten() {
@@ -54,10 +59,10 @@ unsigned char *EccMessage::flatten() {
   SetParity(first_parity_, FIRST);
 
   memcpy(bytes_ + kRs255_223TotalBytes,
-         first_message_,
+         second_message_,
          sizeof(second_message_));
 
-  SetParity(first_parity_, SECOND);
+  SetParity(second_parity_, SECOND);
 
   return bytes_;
 }

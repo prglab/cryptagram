@@ -25,7 +25,6 @@
 */
 
 DEFINE_int32(quality, 95, "JPEG quality to use.");
-DEFINE_int64(iterations, 1000, "Number of iterations to run.");
 
 namespace cryptogram {
 
@@ -39,14 +38,6 @@ void PrintTwoByteInt(uint16_t num) {
     std::cout << tmp;
   }
   std::cout << std::endl;
-}
-
-void FillWithRandomData(uint8_t *data, size_t len) {
-  for (unsigned int i = 0; i < len; i++) {
-    uint8_t tmp = rand() % 256;
-    std::cout << tmp << " ";
-    data[i] = tmp;
-  }
 }
 
 unsigned int CountErrors(const matrix<double>& matrix_a,
@@ -110,12 +101,14 @@ void Foo() {
                              kBlocksHigh * kPixelDimPerBlock);
   EccMessage ecc_msg;
 
-  for (int iteration = 0; iteration < FLAGS_iterations; iteration++) {
   EccMessage::FillWithRandomData(ecc_msg.first_message(),
+                                 kRs255_223MessageBytes);
+  EccMessage::FillWithRandomData(ecc_msg.second_message(),
                                  kRs255_223MessageBytes);
 
   RsCodec rs_codec;
   rs_codec.Encode(ecc_msg.first_message(), ecc_msg.first_parity());
+  rs_codec.Encode(ecc_msg.second_message(), ecc_msg.second_parity());
 
   // Now we have all of the values set for embedding into a JPEG.
   unsigned char *input_bytes = ecc_msg.flatten();
@@ -133,8 +126,10 @@ void Foo() {
       std::vector<int> matrix_entries;
       mr.ToInts(&matrix_entries);
 
+      // image.FillBlockFromInts(
+      //     matrix_entries, discretizations, image_h, image_w);
       image.FillBlockFromInts(
-          matrix_entries, discretizations, image_h, image_w);
+          matrix_entries, set_discretizations, image_h, image_w);
     }
   }
 
@@ -213,21 +208,26 @@ void Foo() {
     }
   }
 
+  uint8_t data[223];
+  uint16_t parity[32];
   for (int i = 0; i < 2; i++) {
-    uint8_t data[223];
-    uint16_t parity[32];
+    bzero(data, sizeof(data));
+    bzero(parity, sizeof(parity));
     for (int j = i * 255; j < i * 255 + 223; j++) {
       data[j - (i * 255)] = full_message[j];
+      // std::cout << (int)(unsigned char)full_message[j] << " ";
     }
+    // std::cout << std::endl;
     for (int j = i * 255 + 223, ii = 0; j < i * 255 + 255; j++, ii++) {
       parity[ii] = full_message[j];
+      // std::cout << (int)(unsigned char)full_message[j] << " ";
     }
-
+    // std::cout << std::endl;
+    
     int nerrors = rs_codec.Decode(data, parity);
-    // std::cout << "nerrors: " << nerrors << std::endl;
+    std::cout << "nerrors: " << nerrors << std::endl;
   }
 
-  }
   for (int high = 0; high < kBlocksHigh; high++) {
     for (int wide = 0; wide < kBlocksWide; wide++) {
       delete decoded_blocks(wide, high);
@@ -237,7 +237,6 @@ void Foo() {
     }
   }
 }
-
 } // namespace cryptogram
 
 int main(int argc, char** argv) {

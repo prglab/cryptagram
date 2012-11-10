@@ -1,8 +1,12 @@
 # Binaries.
 
+TESTS =
+bin_PROGRAMS = 
+noinst_LIBRARIES =
+
 SUBDIRS = reed_solomon # cryptopp base
 
-bin_PROGRAMS = jpeg_benchmark generate_aesthete_matrices \
+bin_PROGRAMS += jpeg_benchmark generate_aesthete_matrices \
 			         read_aesthete_matrices aesthete_thread_runner queue_main
 
 queue_main_SOURCES = queue_main.cc queue.h
@@ -87,7 +91,7 @@ endif
 
 # Libraries.
 
-noinst_LIBRARIES = libjpeg_delta.a libjpeg_codec.a libCoder.a libmodp_b64.a
+noinst_LIBRARIES += libjpeg_delta.a libjpeg_codec.a libCoder.a libmodp_b64.a
 noinst_LIBRARIES += libbase64.a libstring_piece.a
 noinst_LIBRARIES += libaesthete.a libaesthete_thread.a
 noinst_LIBRARIES += libexperiment.a libarray.a
@@ -101,6 +105,16 @@ libreentrant_rand_a_CPPFLAGS = -Wall
 
 libarray_a_SOURCES = array.cc array.h
 libarray_a_CPPFLAGS = -Wall
+
+TESTS += array_test
+bin_PROGRAMS += array_test
+array_test_SOURCES = array_test.cc
+array_test_CPPFLAGS = -I$(top_srcdir)/include
+array_test_LDFLAGS = -L..
+array_test_LDADD =
+array_test_LDADD += libarray.a
+array_test_LDADD += $(top_srcdir)/lib/libgtest.la 
+array_test_LDADD += $(top_srcdir)/lib/libgtest_main.la
 
 libexperiment_a_SOURCES = experiment.cc experiment.h
 libexperiment_a_CPPFLAGS = -Wall
