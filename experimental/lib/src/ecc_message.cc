@@ -10,7 +10,6 @@
 #include <iostream>
 
 #include "glog/logging.h"
-#include "reentrant_rand.h"
 
 namespace cryptogram {
 
@@ -30,8 +29,8 @@ void EccMessage::Reset() {
 }
 
 void EccMessage::InitWithRandomData() {
-  EccMessage::FillWithRandomData(first_message_, kRs255_223MessageBytes);
-  EccMessage::FillWithRandomData(second_message_, kRs255_223MessageBytes);
+  FillWithRandomData(first_message_, kRs255_223MessageBytes);
+  FillWithRandomData(second_message_, kRs255_223MessageBytes);
 }
 
 void EccMessage::SetMessage(uint8_t *message, Position pos) {
@@ -57,7 +56,7 @@ void EccMessage::FillWithRandomData(uint8_t *data, size_t len) {
   for (unsigned int i = 0; i < len; i++) {
     // unsigned char tmp = rand() % 256;
     // std::cout << (unsigned int)tmp << " ";
-    data[i] = ReentrantRNG::RandChar();
+    data[i] = prng_.RandChar();
   }
   // std::cout << std::endl;
 }

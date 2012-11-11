@@ -60,13 +60,13 @@ ecc_experiment_main_CPPFLAGS = -Wall
 ecc_experiment_main_LDADD =  
 ecc_experiment_main_LDADD += libecc_thread.a
 ecc_experiment_main_LDADD += libecc_experiment.a
+ecc_experiment_main_LDADD += libecc_message.a
+ecc_experiment_main_LDADD += libreentrant_rand.a
 ecc_experiment_main_LDADD += libarray.a
 ecc_experiment_main_LDADD += libaesthete.a
-ecc_experiment_main_LDADD += libreentrant_rand.a
 ecc_experiment_main_LDADD += libjpeg_codec.a
 ecc_experiment_main_LDADD += reed_solomon/librs_codec.a
 ecc_experiment_main_LDADD += reed_solomon/librs.a
-ecc_experiment_main_LDADD += libecc_message.a
 ecc_experiment_main_LDADD += -lgflags -lglog 
 if USE_LIBTCMALLOC
   ecc_experiment_main_CPPFLAGS +=  \

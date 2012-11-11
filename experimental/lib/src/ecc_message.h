@@ -9,6 +9,7 @@
 
 #include "ecc_image.h"
 #include "reed_solomon/rs_codec.h"
+#include "reentrant_rand.h"
 
 namespace cryptogram {
 
@@ -36,7 +37,7 @@ class EccMessage {
 
   void SetParity(uint16_t *parity, Position pos);
 
-  static void FillWithRandomData(uint8_t *data, size_t len);
+  void FillWithRandomData(uint8_t *data, size_t len);
 
   unsigned char *flatten();
 
@@ -50,6 +51,8 @@ class EccMessage {
   uint16_t *second_parity() { return second_parity_; }
 
  private:
+  ReentrantRNG prng_;
+  
   unsigned char bytes_[2 * kRs255_223TotalBytes];
 
   uint8_t first_message_[kRs255_223MessageBytes];
