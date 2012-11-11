@@ -174,9 +174,7 @@ void EccExperiment::Run() {
     // std::cout << std::endl;
     
     int nerrors = rs_codec_.Decode(data, parity);
-    if (nerrors > 0) {
-      f_stream_ << nerrors << std::endl;
-    }
+    f_stream_ << nerrors << std::endl;
   }
   f_stream_.flush();
 }  
