@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include "glog/logging.h"
+#include "reentrant_rand.h"
 
 namespace cryptogram {
 
@@ -53,9 +54,9 @@ void EccMessage::SetParity(uint16_t *parity, Position pos) {
 void EccMessage::FillWithRandomData(uint8_t *data, size_t len) {
   // Assumes that the PRNG has already been seeded.
   for (unsigned int i = 0; i < len; i++) {
-    unsigned char tmp = rand() % 256;
+    // unsigned char tmp = rand() % 256;
     // std::cout << (unsigned int)tmp << " ";
-    data[i] = tmp;
+    data[i] = ReentrantRNG::RandChar();
   }
   // std::cout << std::endl;
 }
