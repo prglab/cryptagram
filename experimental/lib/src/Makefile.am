@@ -74,7 +74,7 @@ if USE_LIBTCMALLOC
 		-fno-builtin-calloc \
 		-fno-builtin-realloc \
 		-fno-builtin-free
-  ecc_experiment_main_LDADD += $(libtcmalloc_LIBS) -lprofiler
+  ecc_experiment_main_LDADD += $(LIBTCMALLOC) -lprofiler
 endif
 
 bin_PROGRAMS += in_memory_experiment
@@ -88,6 +88,14 @@ in_memory_experiment_LDADD = \
 	libjpeg_codec.a \
 	libarray.a  \
 	-lpthread -lgflags -lglog
+if USE_LIBTCMALLOC
+  ecc_experiment_main_CPPFLAGS +=  \
+    -fno-builtin-malloc \
+		-fno-builtin-calloc \
+		-fno-builtin-realloc \
+		-fno-builtin-free
+  ecc_experiment_main_LDADD += $(LIBTCMALLOC)
+endif
 
 if USE_LIBTCMALLOC
   in_memory_experiment_CPPFLAGS =  \
@@ -95,7 +103,7 @@ if USE_LIBTCMALLOC
 		-fno-builtin-calloc \
 		-fno-builtin-realloc \
 		-fno-builtin-free
-  in_memory_experiment_LDADD += $(libtcmalloc_LIBS)
+  in_memory_experiment_LDADD += $(LIBTCMALLOC)
 endif
 
 # Libraries.
