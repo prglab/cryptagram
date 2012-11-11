@@ -5,6 +5,9 @@
 
 #include "ecc_experiment.h"
 #include "glog/logging.h"
+#include "google/gflags.h"
+
+DECLARE_int32(quality);
 
 namespace cryptogram {
 
@@ -27,7 +30,13 @@ void* EccThread::Run(void* context) {
   EccThread* self = static_cast<EccThread*>(context);
 
   std::ostringstream f_str_stream;
-  f_str_stream << "ecc_out_" << self->iterations_ << "_" << self->id_ << ".txt";
+  f_str_stream << "ecc_out_iters_"
+               << self->iterations_
+               << "_quality_"
+               << FLAGS_quality
+               << "_"
+               << self->id_
+               << ".txt";
   
   EccExperiment experiment(f_str_stream.str());
   for (int iteration = 0; iteration < self->iterations_; iteration++) {
