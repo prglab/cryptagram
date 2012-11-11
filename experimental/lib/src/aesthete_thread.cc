@@ -13,12 +13,15 @@
 
 DEFINE_int64(chunk_size, 50000, "Chunk size.");
 
+DECLARE_int32(quality);
+
 namespace cryptogram {
 
 // AestheteRunner Implementation.
 
-AestheteRunner::AestheteRunner(int id, Queue* queue)
-    : id_(id), done_(false), queue_(queue) {
+AestheteRunner::AestheteRunner(int id, int total_num_matrices, Queue* queue)
+    : id_(id), done_(false), total_num_matrices_(total_num_matrices),
+      queue_(queue) {
   CHECK_NOTNULL(queue);
 }
 
@@ -38,7 +41,13 @@ void* AestheteRunner::Run(void* context) {
 
   // Initialize the name of the output file for this particular thread.
   std::ostringstream f_str_stream;
-  f_str_stream << "out_" << self->id_ << ".txt";
+  f_str_stream << "reg_out_total_matrices_"
+               << self->total_num_matrices_
+               << "_quality_"
+               << FLAGS_quality
+               << "_"
+               << self->id_
+               << ".txt";
 
   std::vector<int> discretizations;
   discretizations.push_back(240);

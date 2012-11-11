@@ -19,7 +19,7 @@ namespace cryptogram {
 
 class AestheteRunner {
  public:
-  AestheteRunner(int id, Queue* queue);
+  AestheteRunner(int id, int total_num_matrices, Queue* queue);
   virtual ~AestheteRunner();
 
   void Start();
@@ -34,6 +34,7 @@ class AestheteRunner {
  private:
   int id_;
   bool done_;
+  int total_num_matrices_;
   pthread_t thread_;
   Queue* queue_;
 

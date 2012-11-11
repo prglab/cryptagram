@@ -7,22 +7,22 @@ noinst_LIBRARIES =
 
 SUBDIRS = reed_solomon # cryptopp base
 
-bin_PROGRAMS += jpeg_benchmark generate_aesthete_matrices \
-			         read_aesthete_matrices aesthete_thread_runner queue_main
+bin_PROGRAMS += jpeg_benchmark generate_aesthete_matrices queue_main
 
 queue_main_SOURCES = queue_main.cc queue.h
 queue_main_LDADD = -lpthread
 
-aesthete_thread_runner_SOURCES = aesthete_thread_runner.cc
-aesthete_thread_runner_CPPFLAGS = -Wall
-aesthete_thread_runner_LDADD =
-aesthete_thread_runner_LDADD += libaesthete_thread.a
-aesthete_thread_runner_LDADD += libaesthete.a
-aesthete_thread_runner_LDADD += libreentrant_rand.a
-aesthete_thread_runner_LDADD += libexperiment.a
-aesthete_thread_runner_LDADD += libarray.a
-aesthete_thread_runner_LDADD += libjpeg_codec.a
-aesthete_thread_runner_LDADD += -lpthread -lgflags
+# bin_programs += aesthete_thread_runner
+# aesthete_thread_runner_SOURCES = aesthete_thread_runner.cc
+# aesthete_thread_runner_CPPFLAGS = -Wall
+# aesthete_thread_runner_LDADD =
+# aesthete_thread_runner_LDADD += libaesthete_thread.a
+# aesthete_thread_runner_LDADD += libaesthete.a
+# aesthete_thread_runner_LDADD += libreentrant_rand.a
+# aesthete_thread_runner_LDADD += libexperiment.a
+# aesthete_thread_runner_LDADD += libarray.a
+# aesthete_thread_runner_LDADD += libjpeg_codec.a
+# aesthete_thread_runner_LDADD += -lpthread -lgflags
 
 # bin_PROGRAMS = cryptogram_main
 # cryptogram_main_SOURCES = main.cc discretizations.h util.h
@@ -39,14 +39,15 @@ jpeg_benchmark_LDADD += -lgflags
 generate_aesthete_matrices_SOURCES = generate_aesthete_matrices.cc
 generate_aesthete_matrices_LDADD = libaesthete.a -lgflags -lglog
 
-read_aesthete_matrices_SOURCES = read_aesthete_matrices.cc
-read_aesthete_matrices_LDADD = libaesthete_thread.a
-read_aesthete_matrices_LDADD += libaesthete.a
-read_aesthete_matrices_LDADD += libexperiment.a
-read_aesthete_matrices_LDADD += libreentrant_rand.a
-read_aesthete_matrices_LDADD += libjpeg_codec.a
-read_aesthete_matrices_LDADD += libarray.a
-read_aesthete_matrices_LDADD += -lpthread -lgflags -lglog
+# bin_PROGRAMS += read_aesthete_matrices
+# read_aesthete_matrices_SOURCES = read_aesthete_matrices.cc
+# read_aesthete_matrices_LDADD = libaesthete_thread.a
+# read_aesthete_matrices_LDADD += libaesthete.a
+# read_aesthete_matrices_LDADD += libexperiment.a
+# read_aesthete_matrices_LDADD += libreentrant_rand.a
+# read_aesthete_matrices_LDADD += libjpeg_codec.a
+# read_aesthete_matrices_LDADD += libarray.a
+# read_aesthete_matrices_LDADD += -lpthread -lgflags -lglog
 
 noinst_LIBRARIES += libecc_experiment.a
 libecc_experiment_a_SOURCES = ecc_experiment.cc ecc_experiment.h ecc_image.h
