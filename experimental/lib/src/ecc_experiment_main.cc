@@ -67,7 +67,6 @@ unsigned int CountErrors(const matrix<double>& matrix_a,
 
 void Foo() {
   // srand(time(NULL));
-  ReentrantRNG::SeedRNG();
 
   vector<EccThread *> experiment_threads;
   int iterations_per_thread = FLAGS_iterations / FLAGS_num_threads;
