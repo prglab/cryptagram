@@ -9,6 +9,7 @@ goog.require('goog.debug.Logger');
  * @extends {cryptogram.codec}
  */
 cryptogram.codec.bacchant = function() {
+  this.quality = .74;
   this.blockSize = 2;
 };
 
@@ -40,38 +41,41 @@ cryptogram.codec.bacchant.prototype.set_pixel = function(x, y, r, g, b) {
 };
 
 cryptogram.codec.bacchant.prototype.set_block = function(x_start, y_start, level) {
+  var r = level;
+  var g = level;
+  var b = level;
   
-  var tint = 30;
+  if (this.thumbnail) {
+    var x_cell = Math.floor(x_start / 8);
+    var max_x = Math.ceil(this.width / 8);
+    var y_cell = Math.floor(y_start / 8);
+    var max_y = Math.floor(this.height / 8);
     
-  var x_cell = Math.floor(x_start / 8);
-  var max_x = Math.ceil(this.width / 8);
-  var y_cell = Math.floor(y_start / 8);
-  var max_y = Math.floor(this.height / 8);
+    var idx = 4 * (x_cell + y_cell * max_x);
+    var tr = this.thumbnail[idx];
+    var tg = this.thumbnail[idx + 1];
+    var tb = this.thumbnail[idx + 2];
+      
+    var cb = Math.floor(128 + (-0.168736 * tr - 0.331264 * tg + 0.5 * tb));
+    var cr = Math.floor(128 + (0.5 * tr - 0.418688 * tg - 0.081312 * tb));
   
-  var idx = 4 * (x_cell + y_cell * max_x);
-  var tr = this.thumbnail[idx];
-  var tg = this.thumbnail[idx + 1];
-  var tb = this.thumbnail[idx + 2];
+    max_c = 148;
+    min_c = 108;
     
-  var cb = Math.floor(128 + (-0.168736 * tr - 0.331264 * tg + 0.5 * tb));
-  var cr = Math.floor(128 + (0.5 * tr - 0.418688 * tg - 0.081312 * tb));
-
-  max_c = 148;
-  min_c = 108;
-  
-  if (cb > max_c) cb = max_c;
-  if (cb < min_c) cb = min_c;
-  
-  if (cr > max_c) cr = max_c;
-  if (cr < min_c) cr = min_c;
-
-  var r = level + 1.402 * (cr - 128.0);
-  r = Math.round(r,0);
-  var g = level - 0.34414 * (cb - 128.0) - 0.71414 * (cr - 128.0);
-  g = Math.round(g, 0);
-  var b = level + 1.772 * (cb - 128.0);
-  b = Math.round(b, 0);
+    if (cb > max_c) cb = max_c;
+    if (cb < min_c) cb = min_c;
     
+    if (cr > max_c) cr = max_c;
+    if (cr < min_c) cr = min_c;
+  
+    r = level + 1.402 * (cr - 128.0);
+    r = Math.round(r,0);
+    g = level - 0.34414 * (cb - 128.0) - 0.71414 * (cr - 128.0);
+    g = Math.round(g, 0);
+    b = level + 1.772 * (cb - 128.0);
+    b = Math.round(b, 0);
+  }
+     
   for (var i = 0; i < this.blockSize; i++) {
     for (var j = 0; j < this.blockSize; j++) {
       this.set_pixel(x_start + i, y_start + j, r, g, b);
@@ -120,9 +124,9 @@ cryptogram.codec.bacchant.prototype.encode = function(data,
   width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
 		width_to_height_ratio : 1.0;
   header_string = typeof header_string !== 'undefined' ? header_string :
-		'bacchant';
-  block_width = typeof block_width !== 'undefined' ? block_width : 2;
-  block_height = typeof block_height !== 'undefined' ? block_height : 2;
+		this.name();
+  block_width = typeof block_width !== 'undefined' ? block_width : this.blockSize;
+  block_height = typeof block_height !== 'undefined' ? block_height : this.blockSize;
 
   n_header_symbols = header_string.length;
   var self = this;
@@ -229,7 +233,7 @@ cryptogram.codec.bacchant.prototype.encode = function(data,
     
   cxt.putImageData(imageData, 0, 0);
   var img = new Image();
-  img.src = c.toDataURL('image/jpeg', 0.76);
+  img.src = c.toDataURL('image/jpeg', this.quality);
   return img;
 };
 
@@ -240,18 +244,20 @@ cryptogram.codec.bacchant.prototype.encode = function(data,
 cryptogram.codec.bacchant.prototype.getHeader = function(img, imageData) {
 
     var newBase64 = "";
-
-    for (y = 0; y < 8; y+= this.blockSize) {
-      for (x = 0; x < 8; x+= 2*this.blockSize) {
+    var headerSize = this.blockSize * 4;
+    for (y = 0; y < headerSize; y+= this.blockSize) {
+      for (x = 0; x < headerSize; x+= 2*this.blockSize) {
         
         base8_0 = this.getBase8Value(img, imageData, x, y);
         base8_1 = this.getBase8Value(img, imageData, x + this.blockSize, y);
-  
         base64Num = base8_0 * 8 + base8_1 ;
+        console.log(base8_0 + "/" + base8_1 + ":" + base64Num);
+
         base64 = this.base64Values.charAt(base64Num);                    
         newBase64 += base64;
       }
     }
+    console.log(newBase64);
     return newBase64;
 }
 
@@ -301,7 +307,6 @@ cryptogram.codec.bacchant.prototype.decodeProgress = function() {
 
 cryptogram.codec.bacchant.prototype.decode = function(img, imageData) {
   this.count = 0;
-  this.headerSize = this.blockSize * 4;
   this.chunkSize = 10;
   this.y = 0;
   this.img = img;
@@ -318,13 +323,14 @@ cryptogram.codec.bacchant.prototype.getChunk = function() {
     return false;
   }
   var count = 0;
+  var headerSize = this.blockSize * 4;
   
   while (count < this.chunkSize) {
       
     for (var x = 0; x < this.img.width; x+= (this.blockSize * 2)) {
         
         // Skip over header super-block
-        if (this.y < this.headerSize && x < this.headerSize) {
+        if (this.y < headerSize && x < headerSize) {
           continue;
         }
                         
@@ -334,17 +340,15 @@ cryptogram.codec.bacchant.prototype.getChunk = function() {
         base64Num = base8_0 * 8 + base8_1 ;
         base64 = this.base64Values.charAt(base64Num);
         
-        
-        if (this.y == 0 && x < this.headerSize + 32) {
-          this.length += base64;
-          console.log(this.length);
+        newBase64 += base64;
+
+        if (this.y == 0 && x < headerSize + 32) {
+          this.lengthString += base64; 
         } else {
         
           if (this.length == null) {
             this.length = parseInt(this.lengthString);
           }
-          console.log(this.length);
-          newBase64 += base64;
         }
         
         // Found black, stop
