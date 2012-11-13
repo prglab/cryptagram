@@ -84,7 +84,7 @@ int Experiment::Run(const std::vector<int>& matrix_entries) {
   unsigned int nerrors = 0;
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
-      if (abs((int)(char)diff(i,j)) >= 16) {
+      if (abs((int)(char)diff(i,j)) >= 32) {
         nerrors++;
       }
     }
