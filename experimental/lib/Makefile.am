@@ -1,6 +1,6 @@
 # Automake file
 
-ACLOCAL_AMFLAGS = -I m4 -I build-aux
+ACLOCAL_AMFLAGS = -I m4 -I build-aux -I lib
 
 aclocaldir = $(datadir)/aclocal
 aclocal_DATA = build-aux/boost.m4

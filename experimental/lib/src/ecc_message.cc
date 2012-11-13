@@ -4,6 +4,7 @@
 #include "ecc_message.h"
 
 #include <assert.h>
+#include <cstdlib>
 #include <limits.h>
 
 #include <iostream>
@@ -28,8 +29,8 @@ void EccMessage::Reset() {
 }
 
 void EccMessage::InitWithRandomData() {
-  EccMessage::FillWithRandomData(first_message_, kRs255_223MessageBytes);
-  EccMessage::FillWithRandomData(second_message_, kRs255_223MessageBytes);
+  FillWithRandomData(first_message_, kRs255_223MessageBytes);
+  FillWithRandomData(second_message_, kRs255_223MessageBytes);
 }
 
 void EccMessage::SetMessage(uint8_t *message, Position pos) {
@@ -53,9 +54,9 @@ void EccMessage::SetParity(uint16_t *parity, Position pos) {
 void EccMessage::FillWithRandomData(uint8_t *data, size_t len) {
   // Assumes that the PRNG has already been seeded.
   for (unsigned int i = 0; i < len; i++) {
-    unsigned char tmp = rand() % 256;
+    // unsigned char tmp = rand() % 256;
     // std::cout << (unsigned int)tmp << " ";
-    data[i] = tmp;
+    data[i] = prng_.RandChar();
   }
   // std::cout << std::endl;
 }

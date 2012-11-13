@@ -9,6 +9,8 @@
 #include "google/gflags.h"
 #include "types.h"
 
+using std::ofstream;
+
 DEFINE_int64(num_matrices, 100, "Number of matrices to generate.");
 DEFINE_string(output_file, "matrices.txt", "Output file.");
 DEFINE_bool(progress_bar, false, "Display progress bar.");
