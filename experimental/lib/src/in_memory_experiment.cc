@@ -62,7 +62,8 @@ int main(int argc, char** argv) {
 
   vector<cryptogram::AestheteRunner*> runners;
   for (int i = 0; i < FLAGS_run_threads; i++) {
-    runners.push_back(new cryptogram::AestheteRunner(i, &queue));
+    runners.push_back(new cryptogram::AestheteRunner(
+        i, FLAGS_num_matrices, &queue));
   }
   for (int i = 0; i < FLAGS_run_threads; i++) {
     runners[i]->Start();

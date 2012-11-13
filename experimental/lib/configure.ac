@@ -99,7 +99,7 @@ AS_IF([test "x$with_tcmalloc" != xno],
     [AC_MSG_FAILURE(
        [tcmalloc test failed (--without-tcmalloc to disable)])],
     [])])
-AM_CONDITIONAL(USE_LIBTCMALLOC, test "x$with_tcmalloc" == "xyes")
+AM_CONDITIONAL(USE_LIBTCMALLOC, test "x$with_tcmalloc" != "xno")
 
 dnl Boost specific suffices.
 dnl AS_IF([test -z "${BOOST_LIB_SUFFIX+x}"], [BOOST_LIB_SUFFIX=-mt])
