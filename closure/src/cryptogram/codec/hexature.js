@@ -1,4 +1,4 @@
-goog.provide('cryptogram.codec.bacchant');
+goog.provide('cryptogram.codec.hexature');
 
 goog.require('cryptogram.codec');
 goog.require('goog.debug.Logger');
@@ -8,31 +8,29 @@ goog.require('goog.debug.Logger');
  * @constructor
  * @extends {cryptogram.codec}
  */
-cryptogram.codec.bacchant = function() {
+cryptogram.codec.hexature = function() {
+  this.quality = .04;
   this.blockSize = 1;
-  this.quality = 1;
 };
 
-//cryptogram.codec.bacchant.octal_symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14];
-cryptogram.codec.bacchant.octal_symbol_thresholds = [255, 208, 176, 144, 112, 80, 48, 0];
-//cryptogram.codec.bacchant.octal_symbol_thresholds = [240, 208, 176, 144, 112, 80, 48, 16];
+cryptogram.codec.hexature.octal_symbol_thresholds = [248, 232, 216, 200, 184, 168, 152, 136, 120, 104, 88, 72, 56, 40, 24, 8];
 
-goog.inherits(cryptogram.codec.bacchant, cryptogram.codec);
+goog.inherits(cryptogram.codec.hexature, cryptogram.codec);
 
-cryptogram.codec.bacchant.prototype.logger = goog.debug.Logger.getLogger('cryptogram.codec.bacchant');
+cryptogram.codec.hexature.prototype.logger = goog.debug.Logger.getLogger('cryptogram.codec.hexature');
 
 
 /** @inheritDoc */
-cryptogram.codec.bacchant.prototype.name = function() {
-  return "bacchant";
+cryptogram.codec.hexature.prototype.name = function() {
+  return "hexature";
 };
 
 
 /** @inheritDoc */
-cryptogram.codec.bacchant.prototype.processImage = function(img) {
+cryptogram.codec.hexature.prototype.processImage = function(img) {
 };
 
-cryptogram.codec.bacchant.prototype.set_pixel = function(x, y, r, g, b) {
+cryptogram.codec.hexature.prototype.set_pixel = function(x, y, r, g, b) {
   var idx = 4 * (x + y * this.width);
   //set RGB channels to same level since we're encoding data as grayscale
   this.data[idx] = r;
@@ -41,7 +39,7 @@ cryptogram.codec.bacchant.prototype.set_pixel = function(x, y, r, g, b) {
   this.data[idx + 3] = 255; // alpha channel
 };
 
-cryptogram.codec.bacchant.prototype.set_block = function(x_start, y_start, level) {
+cryptogram.codec.hexature.prototype.set_block = function(x_start, y_start, level) {
   var r = level;
   var g = level;
   var b = level;
@@ -84,11 +82,11 @@ cryptogram.codec.bacchant.prototype.set_block = function(x_start, y_start, level
   }
 };
 
-cryptogram.codec.bacchant.prototype.setImage = function(img) {
+cryptogram.codec.hexature.prototype.setImage = function(img) {
   this.img = img;
 };
 
-cryptogram.codec.bacchant.prototype.loadThumbnail = function() {
+cryptogram.codec.hexature.prototype.loadThumbnail = function() {
   
   if (!this.img) return;
   
@@ -121,7 +119,7 @@ cryptogram.codec.bacchant.prototype.loadThumbnail = function() {
   this.thumbnail = imageData.data;
 };
 
-cryptogram.codec.bacchant.prototype.encode = function(data, 
+cryptogram.codec.hexature.prototype.encode = function(data, 
     width_to_height_ratio, header_string, block_width, block_height) {
 
   var timeA = new Date().getTime();
@@ -142,8 +140,9 @@ cryptogram.codec.bacchant.prototype.encode = function(data,
   var self = this;
   function add_char(ch,values) {
     var value = self.base64Values.indexOf(ch);
-    var x = Math.floor(value / 8);
-    var y = value % 8;
+    var x = Math.floor(value / 4);
+    var y = value % 16;
+        
     values.push(x);
     values.push(y);
   }
@@ -153,7 +152,6 @@ cryptogram.codec.bacchant.prototype.encode = function(data,
   for (var i = 0; i < header_string.length; i++) {
     add_char(header_string[i], header_values);
   }
-
 
   // next translate the image data
   var values1 = new Array();
@@ -225,7 +223,7 @@ cryptogram.codec.bacchant.prototype.encode = function(data,
 				(header_width / block_width);
 			level = 8;
       if (value_idx < n_header_values) {
-        level =  cryptogram.codec.bacchant.octal_symbol_thresholds[header_values[value_idx]];
+        level =  cryptogram.codec.hexature.octal_symbol_thresholds[header_values[value_idx]];
       }
       this.set_block(x, y, level);
     }
@@ -239,7 +237,7 @@ cryptogram.codec.bacchant.prototype.encode = function(data,
   
   for (var i = 0; i < n_values; i++) {
     octal = values[i];
-    level = cryptogram.codec.bacchant.octal_symbol_thresholds[octal];
+    level = cryptogram.codec.hexature.octal_symbol_thresholds[octal];
     if (i < n_header_row_symbols) {
       y_coord = Math.floor(i / n_header_row_symbols_wide);
       x_coord = (i - (y_coord * n_header_row_symbols_wide));
@@ -264,7 +262,7 @@ cryptogram.codec.bacchant.prototype.encode = function(data,
   var timeB = new Date().getTime();
   var elapsed = timeB - timeA;
   this.logger.info("Encoded in: " + elapsed + " ms");  
-  console.log("Encoded in: " + elapsed + " ms");
+
   return img;
 };
 
@@ -272,7 +270,7 @@ cryptogram.codec.bacchant.prototype.encode = function(data,
 
 /** 
  */
-cryptogram.codec.bacchant.prototype.getHeader = function(img, imageData) {
+cryptogram.codec.hexature.prototype.getHeader = function(img, imageData) {
 
     var newBase64 = "";
     var headerSize = this.blockSize * 4;
@@ -299,11 +297,13 @@ cryptogram.codec.bacchant.prototype.getHeader = function(img, imageData) {
 /** 
  * @private
  */
-cryptogram.codec.bacchant.prototype.getBase8Value = function(img, imgData, x, y) {
+cryptogram.codec.hexature.prototype.getBase8Value = function(img, imgData, x, y) {
 
   var count = 0.0;
   var vt = 0.0;
   var avg;
+  
+  var inc = (256 / 16.0);
   
   for (i = 0; i < this.blockSize; i++) {
     for (j = 0; j < this.blockSize; j++) {
@@ -321,20 +321,21 @@ cryptogram.codec.bacchant.prototype.getBase8Value = function(img, imgData, x, y)
   }
   
   v = vt / count;
-  var bin = Math.floor(v / 32.0);
-    
+  var bin = Math.floor(v / 16.0);
+  if (bin > 15) bin = 15;
+  
   //if (bin == 0) return -1;
   //if (bin > 8) return 0;
-  return (7 - bin);   
+  return (15 - bin);  
 }
 
 /** @inheritDoc */
-cryptogram.codec.bacchant.prototype.decodeProgress = function() {
+cryptogram.codec.hexature.prototype.decodeProgress = function() {
   return this.y / this.img.height;
   
 }
 
-cryptogram.codec.bacchant.prototype.decode = function(img, imageData) {
+cryptogram.codec.hexature.prototype.decode = function(img, imageData) {
   this.count = 0;
   this.chunkSize = 10;
   this.y = 0;
@@ -344,7 +345,7 @@ cryptogram.codec.bacchant.prototype.decode = function(img, imageData) {
   this.errorCount = 0;
 };
 
-cryptogram.codec.bacchant.prototype.getChunk = function() {
+cryptogram.codec.hexature.prototype.getChunk = function() {
 
   var newBase64 = "";
   
@@ -381,18 +382,20 @@ cryptogram.codec.bacchant.prototype.getChunk = function() {
         if (this.y == 0 && x < headerSize + 16*this.blockSize) {
           this.lengthString += base64; 
         } else {
-          
-          var last_0 = this.lastOctal[this.count * 2];
-          var last_1 = this.lastOctal[this.count * 2 + 1];
-          
+            
+            var last_0 = this.lastOctal[this.count * 2];
+            var last_1 = this.lastOctal[this.count * 2 + 1];
           if (base8_0 != last_0) {
             this.errorCount++;
           }
           
           if (base8_1 != last_1) {
             this.errorCount++;
+            //console.log(base8_1 + "/" + last_1);
           }
-                                  
+          
+
+                        
           newBase64 += base64;
           this.count++;
           
@@ -412,3 +415,25 @@ cryptogram.codec.bacchant.prototype.getChunk = function() {
   }
   return newBase64;
 }
+  
+
+
+
+
+/*  
+    var stripeX = Math.floor(x_start / 16) % 3;
+    var stripeY = Math.floor(y_start / 16) % 3;
+    
+    if (stripeX == 0) {
+      r = level + 25;
+    } else if (stripeX == 1) {
+      r = level - 25;
+    }
+    
+    
+    if (stripeY == 0) {
+      b = level + 25;
+    } else if (stripeY == 1) {
+      b = level - 25;
+    }
+*/   
