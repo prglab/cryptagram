@@ -49,7 +49,7 @@ cryptogram.codec.aesthete.prototype.set_block = function(x_start, y_start, level
 
 cryptogram.codec.aesthete.prototype.encode = function(data, 
     width_to_height_ratio, header_string, block_width, block_height) {
-
+      
   width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
 		width_to_height_ratio : 1.0;
   header_string = typeof header_string !== 'undefined' ? header_string :
@@ -158,7 +158,8 @@ cryptogram.codec.aesthete.prototype.encode = function(data,
     
   cxt.putImageData(imageData, 0, 0);
   var img = new Image();
-  img.src = c.toDataURL('image/jpeg', 0.74);
+  img.src = c.toDataURL('image/jpeg', this.quality);
+  
   return img;
 };
 
@@ -233,6 +234,7 @@ cryptogram.codec.aesthete.prototype.decode = function(img, imageData) {
   this.y = 0;
   this.img = img;
   this.imageData = imageData;
+  
 };
 
 cryptogram.codec.aesthete.prototype.getChunk = function() {

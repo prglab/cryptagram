@@ -1,4 +1,4 @@
-goog.provide('cryptogram.demo');
+goog.provide('cryptogram.experiment');
 
 goog.require('goog.debug.Console');
 goog.require('goog.debug.Logger');
@@ -10,6 +10,10 @@ goog.require('cryptogram.container');
 goog.require('cryptogram.decoder');
 goog.require('cryptogram.cipher');
 goog.require('cryptogram.codec.bacchant');
+goog.require('cryptogram.codec.quadrant');
+goog.require('cryptogram.codec.octant');
+goog.require('cryptogram.codec.hexature');
+goog.require('cryptogram.codec.binature');
 goog.require('cryptogram.loader');
 
 
@@ -17,42 +21,10 @@ goog.require('cryptogram.loader');
  * This class demonstrates some of the core functionality of Cryptogram.
  * @constructor
  */
-cryptogram.demo = function() {
+cryptogram.experiment = function() {
 
-  document.body.innerHTML += cryptogram.templates.demo();
-        
-  goog.events.listen(goog.dom.getElement('encrypt_link'),
-                     goog.events.EventType.CLICK, this.showEncrypt, false, this);
-    
-  goog.events.listen(goog.dom.getElement('decrypt_link'),
-                     goog.events.EventType.CLICK, this.showDecrypt, false, this);
-
-  var logconsole = new goog.debug.Console();
-  logconsole.setCapturing(true);
-};
-
-cryptogram.demo.prototype.logger = goog.debug.Logger.getLogger('cryptogram.demo');
-
-
-/**
- * Shows the decryption demo.
- */
-cryptogram.demo.prototype.showDecrypt = function() {
-  this.settings = {image: 'images/secret.jpg'};
-  goog.dom.getElement('main').innerHTML = cryptogram.templates.decrypt(this.settings);
-  this.decrypted = false;
-  this.button = goog.dom.getElement('decrypt_button');
-  this.container = new cryptogram.container(goog.dom.getElement('image'));
-  goog.events.listen(this.button, goog.events.EventType.CLICK, this.runDecrypt, false, this);
-};
-
-
-/**
- * Shows the encryption demo. 
- */
-cryptogram.demo.prototype.showEncrypt = function() {
-  var self = this;  
-  goog.dom.getElement('main').innerHTML = cryptogram.templates.encrypt();
+  document.body.innerHTML += cryptogram.templates.experiment.experiment();
+  var self = this;
   
   var selector = goog.dom.getElement('file_selector');
   goog.events.listen(selector, goog.events.EventType.CHANGE, function(e) {
@@ -84,21 +56,23 @@ cryptogram.demo.prototype.showEncrypt = function() {
     append: false,
     enabled: true
   });
+
+  var logconsole = new goog.debug.Console();
+  //logconsole.setCapturing(true);
 };
 
+cryptogram.experiment.prototype.logger = goog.debug.Logger.getLogger('cryptogram.experiment');
 
-cryptogram.demo.prototype.setStatus = function(message) {
+cryptogram.experiment.prototype.setStatus = function(message) {
   console.log(message);
 };
-
-
 
 /**
  * Runs decryption on the loaded image, replacing it with the
  * decrypted image. If the image is already decrypted, it reverts
  * to the original.
  */
-cryptogram.demo.prototype.runDecrypt = function() {
+cryptogram.experiment.prototype.runDecrypt = function() {
 
   if (this.decrypted) {
     this.decrypted = false;
@@ -122,7 +96,7 @@ cryptogram.demo.prototype.runDecrypt = function() {
 };
 
 
-cryptogram.demo.prototype.compareStrings = function(str1, str2) {
+cryptogram.experiment.prototype.compareStrings = function(str1, str2) {
   
   var errorCount = 0;
   
@@ -145,7 +119,7 @@ cryptogram.demo.prototype.compareStrings = function(str1, str2) {
  * @param{Array} files
  * @private
  */
-cryptogram.demo.prototype.handleFiles = function(files) {
+cryptogram.experiment.prototype.handleFiles = function(files) {
 
   // Files is a FileList of File objects. List some properties.
   var output = [];
@@ -164,7 +138,7 @@ cryptogram.demo.prototype.handleFiles = function(files) {
   for (var i = 0; i < files.length; i++) {
     f = files[i];
     var name = escape(f.name);
-    if (f.size > 600000) {
+    if (f.size > 700000) {
       console.log('Skipping ' + name);
       continue; 
     }
@@ -196,28 +170,28 @@ cryptogram.demo.prototype.handleFiles = function(files) {
           goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), decodedImage, 0);
           var container = new cryptogram.container(decodedImage);
           var decoder = new cryptogram.decoder(container);
-          codec.length = encryptedData.length;
+          //codec.length = encryptedData.length;
           decoder.decodeData(str, codec, function(result) {
             var percent = codec.errorCount / codec.lastOctal.length;
             this.logger.info("Octal decoding errors: " + codec.errorCount + "\t" + codec.lastOctal.length + "\t" + percent);
             
-            var decipher = cipher.decrypt(result, password);
-            container.setSrc(decipher);
+            //var decipher = cipher.decrypt(result, password);
+            //container.setSrc(decipher);
           });
         };
       }
       originalImage.src = originalData;
     }; 		
-    reader.onerror = cryptogram.demo.show_error;
+    reader.onerror = cryptogram.experiment.show_error;
     reader.readAsDataURL(f);
   }
 };
 
-cryptogram.demo.show_error = function(msg, url, linenumber) {
+cryptogram.experiment.show_error = function(msg, url, linenumber) {
   console.log('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber)
   return true;
 };
 
-goog.exportSymbol('cryptogram.demo', cryptogram.demo);
-goog.exportSymbol('cryptogram.demo.prototype.showDecrypt', cryptogram.demo.prototype.showDecrypt);
-goog.exportSymbol('cryptogram.demo.prototype.showEncrypt', cryptogram.demo.prototype.showEncrypt);
+goog.exportSymbol('cryptogram.experiment', cryptogram.experiment);
+goog.exportSymbol('cryptogram.experiment.prototype.showDecrypt', cryptogram.experiment.prototype.showDecrypt);
+goog.exportSymbol('cryptogram.experiment.prototype.showEncrypt', cryptogram.experiment.prototype.showEncrypt);
