@@ -9,11 +9,9 @@ goog.require('goog.events.EventType');
 goog.require('cryptogram.container');
 goog.require('cryptogram.decoder');
 goog.require('cryptogram.cipher');
+goog.require('cryptogram.codec.aesthete');
 goog.require('cryptogram.codec.bacchant');
-goog.require('cryptogram.codec.quadrant');
-goog.require('cryptogram.codec.octant');
-goog.require('cryptogram.codec.hexature');
-goog.require('cryptogram.codec.binature');
+goog.require('cryptogram.codec.experimental');
 goog.require('cryptogram.loader');
 
 
@@ -58,7 +56,7 @@ cryptogram.experiment = function() {
   });
 
   var logconsole = new goog.debug.Console();
-  //logconsole.setCapturing(true);
+  logconsole.setCapturing(true);
 };
 
 cryptogram.experiment.prototype.logger = goog.debug.Logger.getLogger('cryptogram.experiment');
@@ -121,12 +119,12 @@ cryptogram.experiment.prototype.compareStrings = function(str1, str2) {
  */
 cryptogram.experiment.prototype.handleFiles = function(files) {
 
-  // Files is a FileList of File objects. List some properties.
   var output = [];
   var zip;
   var images;
   var self = this;
-  var codec = new cryptogram.codec.bacchant();
+  var codec = new cryptogram.codec.experimental(2, .7, 8);
+
   var cipher = new cryptogram.cipher();
   
   if (this.zip == null) {
@@ -173,10 +171,10 @@ cryptogram.experiment.prototype.handleFiles = function(files) {
           //codec.length = encryptedData.length;
           decoder.decodeData(str, codec, function(result) {
             var percent = codec.errorCount / codec.lastOctal.length;
-            this.logger.info("Octal decoding errors: " + codec.errorCount + "\t" + codec.lastOctal.length + "\t" + percent);
+            self.logger.info("Octal decoding errors: " + codec.errorCount + "/" + codec.lastOctal.length + " = " + percent);
             
-            //var decipher = cipher.decrypt(result, password);
-            //container.setSrc(decipher);
+            var decipher = cipher.decrypt(result, password);
+            container.setSrc(decipher);
           });
         };
       }

@@ -10,10 +10,11 @@ goog.require('goog.debug.Logger');
  */
 cryptogram.codec.aesthete = function() {
   this.blockSize = 2;
+  this.symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14];
 };
 
 //cryptogram.codec.aesthete.base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-cryptogram.codec.aesthete.octal_symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14];
+//cryptogram.codec.aesthete.octal_symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14];
 
 goog.inherits(cryptogram.codec.aesthete, cryptogram.codec);
 
@@ -128,7 +129,7 @@ cryptogram.codec.aesthete.prototype.encode = function(data,
 				(header_width / block_width);
 			level = 8;
       if (value_idx < n_header_values) {
-        level =  cryptogram.codec.aesthete.octal_symbol_thresholds[header_values[value_idx]];
+        level =  this.symbol_thresholds[header_values[value_idx]];
       }
       this.set_block(x, y, level);
     }
@@ -141,7 +142,7 @@ cryptogram.codec.aesthete.prototype.encode = function(data,
   var x_coord, y_coord, x, y, i2;
   for (var i = 0; i < n_values; i++) {
     octal = values[i];
-    level = cryptogram.codec.aesthete.octal_symbol_thresholds[octal];
+    level = this.symbol_thresholds[octal];
     if (i < n_header_row_symbols) {
       y_coord = Math.floor(i / n_header_row_symbols_wide);
       x_coord = (i - (y_coord * n_header_row_symbols_wide));
