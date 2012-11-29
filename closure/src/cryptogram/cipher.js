@@ -63,7 +63,7 @@ cryptogram.cipher.prototype.encrypt = function(data, password) {
   var salt = encrypted_data['salt'];
   var ct = encrypted_data['ct'];
   var to_hash = iv + salt + ct;
-	var bits = "";//sjcl.hash.sha256.hash(to_hash);
+	var bits = sjcl.hash.sha256.hash(to_hash);
   var integrity_check_value = sjcl.codec.hex.fromBits(bits);
   return integrity_check_value + to_hash;
 };
