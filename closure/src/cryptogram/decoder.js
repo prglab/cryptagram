@@ -93,9 +93,9 @@ cryptogram.decoder.prototype.processImage = function() {
   } else {
 
     var timeB = new Date().getTime();
-    var elapsed = timeB - this.timeA;
+    this.elapsed = timeB - this.timeA;
  
-    this.logger.info("Decoded in: " + elapsed + " ms");
+    this.logger.info("Decoded in: " + this.elapsed + " ms");
 
     this.container.setStatus();
     this.logger.info("Decoded image. " + this.data.length + " base64 characters.");  

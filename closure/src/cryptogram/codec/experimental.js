@@ -172,8 +172,7 @@ cryptogram.codec.experimental.prototype.encode = function(data,
   img.src = c.toDataURL('image/jpeg', this.quality);
   
   var timeB = new Date().getTime();
-  var elapsed = timeB - timeA;
-  this.logger.info("Encoded in: " + elapsed + " ms");  
+  this.elapsed = timeB - timeA;
 
   return img;
 };

@@ -28,33 +28,7 @@ cryptogram.experiment = function() {
   goog.events.listen(selector, goog.events.EventType.CHANGE, function(e) {
       self.handleFiles(e.target.files);
   }, false, self);
-
-  var dropZone = goog.dom.getElement('drop_zone');
-  var handler = new goog.events.FileDropHandler(dropZone, true);
   
-  goog.events.listen(handler, goog.events.FileDropHandler.EventType.DROP, function(e) {
-    var files = e.getBrowserEvent().dataTransfer.files;
-    self.handleFiles(files);
-  });
-  
-  this.downloadify = Downloadify.create('downloadify',{
-    filename: "encrypted.zip",
-    data: function(){ 
-      return self.zip.generate();
-    },
-    onError: function(){ 
-      alert('Nothing to save.'); 
-    },
-    dataType: 'base64',
-    swf: 'media/downloadify.swf',
-    downloadImage: 'images/download.png',
-    width: 100,
-    height: 30,
-    transparent: false,
-    append: false,
-    enabled: true
-  });
-
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
 };
@@ -121,68 +95,62 @@ cryptogram.experiment.prototype.handleFiles = function(files) {
 
   var output = [];
   var zip;
-  var images;
   var self = this;
-  var codec = new cryptogram.codec.experimental(2, .7, 8);
-
+  var file = files[0];
+  var codices = [];
+  for (var q = 30; q < 96; q+= 2) {
+    var quality = q / 100.0;
+    codices.push(new cryptogram.codec.experimental(1, quality, 8));
+  }
+  var results = goog.dom.getElement('results');
+  results.value = "";
   var cipher = new cryptogram.cipher();
   
-  if (this.zip == null) {
-      this.zip = new JSZip();
-      this.images = this.zip.folder('images');
-      this.numberImages = 0;
-  }
-
-  for (var i = 0; i < files.length; i++) {
-    f = files[i];
-    var name = escape(f.name);
-    if (f.size > 700000) {
-      console.log('Skipping ' + name);
-      continue; 
-    }
-    var type = f.type || 'n/a';
+    var name = escape(file.name);
+    
+    var type = file.type || 'n/a';
     var reader = new FileReader();
     var ratio = 1.0;
     reader.onload = function (loadEvent) {
       var originalData = loadEvent.target.result;
       var originalImage = new Image();
       originalImage.onload = function () {
-        goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
         ratio = originalImage.width / originalImage.height;
       
     		var password = 'cryptogram';
         var encryptedData = cipher.encrypt(originalData, password);
-        //codec.setImage(originalImage);
-        
-        var encodedImage = codec.encode(encryptedData, ratio);
-        encodedImage.onload = function () {
-          goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),encodedImage,0);
+
+        for (var c = 0; c < codices.length; c++) {
+          var codec = codices[c];
+          var encodedImage = codec.encode(encryptedData, ratio);
+          self.logger.info("Encoded in: " + codec.elapsed + " ms");  
+
           var str = encodedImage.src;
           var idx = str.indexOf(",");
           var dat = str.substring(idx+1);
-          self.images.file(self.numberImages + '.jpg', dat, {base64: true});
-          self.numberImages++;
           
           // Decode image to make sure it worked
           var decodedImage = new Image();
-          goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), decodedImage, 0);
           var container = new cryptogram.container(decodedImage);
           var decoder = new cryptogram.decoder(container);
-          //codec.length = encryptedData.length;
+
           decoder.decodeData(str, codec, function(result) {
+            var codec = this.codec;
             var percent = codec.errorCount / codec.lastOctal.length;
-            self.logger.info("Octal decoding errors: " + codec.errorCount + "/" + codec.lastOctal.length + " = " + percent);
-            
-            var decipher = cipher.decrypt(result, password);
-            container.setSrc(decipher);
+            self.logger.info("Octal decoding errors: " + codec.errorCount + "/" +
+                              codec.lastOctal.length + " = " + percent);
+                              
+            var report = codec.quality.toPrecision(2) + "\t" + codec.base + "\t" + codec.blockSize + "\t" +
+              codec.errorCount + "\t" + codec.lastOctal.length + "\t" + percent + "\n";
+            results.value += report;
+                              
           });
-        };
+        }
       }
       originalImage.src = originalData;
-    }; 		
+    };
     reader.onerror = cryptogram.experiment.show_error;
-    reader.readAsDataURL(f);
-  }
+    reader.readAsDataURL(file);
 };
 
 cryptogram.experiment.show_error = function(msg, url, linenumber) {
