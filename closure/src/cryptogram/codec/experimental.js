@@ -55,33 +55,40 @@ cryptogram.codec.experimental.prototype.encode = function(data,
     var value = self.base64Values.indexOf(ch);
     var x = Math.floor(value * (self.base / 64.0));
     var y = value % self.base;
-        
     values.push(x);
     values.push(y);
   }
 
   // first translate the header string
   var header_values = new Array();
+  var all_values = new Array();
   for (var i = 0; i < header_string.length; i++) {
     add_char(header_string[i], header_values);
+    add_char(header_string[i], all_values);
   }
 
   // next translate the image data
-  var values1 = new Array();
-  for (var i = 0; i < data.length; i++) {
-    add_char(data[i], values1);
-  }
+  //var values1 = new Array();
+  //for (var i = 0; i < data.length; i++) {
+  //  add_char(data[i], values1);
+  //}
   
-  this.lastOctal = values1;
-  this.lastOctalString = values1.join("");
-
+  //this.lastOctalString = values1.join("");
+  
   var payloadLength = data.length;
   var lengthString = "" + payloadLength;
   
   while (lengthString.length < 8) {
     lengthString = "0" + lengthString;
   }
-  
+    
+   // next translate the image data
+  var values1 = new Array();
+  for (var i = 0; i < data.length; i++) {
+    add_char(data[i], values1);
+  }
+  this.lastOctal = values1;
+
   data = lengthString + data;
   
   // next translate the image data
@@ -90,6 +97,7 @@ cryptogram.codec.experimental.prototype.encode = function(data,
     add_char(data[i], values);
   }
 
+  
   // how many octal values did we get from the header string?
   var n_header_values = header_values.length;
   var n_header_values_in_row = Math.ceil(Math.sqrt(n_header_values));
@@ -252,6 +260,8 @@ cryptogram.codec.experimental.prototype.decode = function(img, imageData) {
   this.imageData = imageData;
   this.lengthString = "";
   this.errorCount = 0;
+  
+  this.newOctal = [];
 };
 
 cryptogram.codec.experimental.prototype.getChunk = function() {
@@ -271,46 +281,57 @@ cryptogram.codec.experimental.prototype.getChunk = function() {
   
   while (count < this.chunkSize) {
       
+    if (this.count >= this.length) {
+          break;
+    }
+        
     for (var x = 0; x < this.img.width; x+= (this.blockSize * 2)) {
         
         if (this.count >= this.length) {
-          break;   
+          break;
         }
+        
   
         // Skip over header super-block
-        if (this.y < headerSize && x < headerSize) {
+        if (this.y < headerSize && x < headerSize) {           
           continue;
         }
                         
         base8_0 = this.getBaseValue(this.img, this.imageData, x, this.y);
         base8_1 = this.getBaseValue(this.img, this.imageData, x + this.blockSize, this.y);
         
+        this.newOctal.push(base8_0);
+        this.newOctal.push(base8_1);
+        
         base64Num = base8_0 * 8 + base8_1 ;
         base64 = this.base64Values.charAt(base64Num);
-                                  
-        if (this.y == 0 && x < headerSize + 16*this.blockSize) {
-          this.lengthString += base64; 
+                           
+       
+        // Next super-block contains the length
+        if (this.y == 0 && x < headerSize + 16 * this.blockSize) {
+          this.lengthString += base64;
         } else {
-            
-            var last_0 = this.lastOctal[this.count * 2];
-            var last_1 = this.lastOctal[this.count * 2 + 1];
+          
+          var last_0 = this.lastOctal[this.count];
+          var last_1 = this.lastOctal[this.count + 1];
+                    
           if (base8_0 != last_0) {
             this.errorCount++;
           }
           
           if (base8_1 != last_1) {
             this.errorCount++;
-            //console.log(base8_1 + "/" + last_1);
           }
-          
-
-                        
+                       
           newBase64 += base64;
-          this.count++;
-          
+                    
           if (this.length == null) {
             this.length = parseInt(this.lengthString);
           }
+        
+        
+           this.count += 2;
+
         }
     
     
