@@ -68,25 +68,6 @@ cryptogram.experiment.prototype.runDecrypt = function() {
 };
 
 
-cryptogram.experiment.prototype.compareStrings = function(str1, str2) {
-  
-  var errorCount = 0;
-  
-  for (var i = 0; i < str1.length; i++) {
-    if (str1[i] != str2[i]) {
-      errorCount++;
-    }
-  }
-  if (str1.length != str2.length) {
-    this.logger.info("Base64 strings are different lengths!");
-    this.logger.info(str1.length + "/" + str2.length);
-  }
-
-  var percent = errorCount / str1.length; 
-  this.logger.info("Base64 errors: " + errorCount + "\t" + str1.length + "\t" + percent);
-}
-
-
 /**
  * @param{Array} files
  * @private
@@ -98,10 +79,12 @@ cryptogram.experiment.prototype.handleFiles = function(files) {
   var self = this;
   var file = files[0];
   var codices = [];
-  for (var q = 30; q < 96; q+= 2) {
+  
+  for (var q = 50; q < 96; q += 2) {
     var quality = q / 100.0;
     codices.push(new cryptogram.codec.experimental(1, quality, 8));
   }
+  
   var results = goog.dom.getElement('results');
   results.value = "";
   var cipher = new cryptogram.cipher();
@@ -126,17 +109,22 @@ cryptogram.experiment.prototype.handleFiles = function(files) {
           self.logger.info("Encoded in: " + codec.elapsed + " ms");  
 
           var str = encodedImage.src;
+                    
           var idx = str.indexOf(",");
           var dat = str.substring(idx+1);
+          //alert(dat);
           
           // Decode image to make sure it worked
           var decodedImage = new Image();
           var container = new cryptogram.container(decodedImage);
           var decoder = new cryptogram.decoder(container);
-
+          
+          codec.length = codec.lastOctal.length;
+                    
           decoder.decodeData(str, codec, function(result) {
             var codec = this.codec;
-            var percent = codec.errorCount / codec.lastOctal.length;
+            var percent = codec.errorCount / codec.length;
+            
             self.logger.info("Octal decoding errors: " + codec.errorCount + "/" +
                               codec.lastOctal.length + " = " + percent);
                               
