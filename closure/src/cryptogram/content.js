@@ -2,6 +2,7 @@ goog.provide('cryptogram.content');
 
 goog.require('cryptogram.container');
 goog.require('cryptogram.decoder');
+goog.require('cryptogram.cipher');
 goog.require('cryptogram.loader');
 goog.require('cryptogram.media.facebook');
 goog.require('cryptogram.media.googleplus');
@@ -117,7 +118,8 @@ cryptogram.content.prototype.decryptImage = function(image, password, queue) {
   var container = this.media.loadContainer(image.src);
   var self = this;
   var loader = new cryptogram.loader(container);
-  
+  var cipher = new cryptogram.cipher();
+
   
   var fullURL = this.media.fixURL(image.src);
   if (!fullURL) return;
@@ -126,11 +128,13 @@ cryptogram.content.prototype.decryptImage = function(image, password, queue) {
   
     loader.queue(fullURL, function(data) {
       var decoder = new cryptogram.decoder(container);
-      decoder.decodeData(data, password, function(result) {
+      decoder.decodeData(data, function(result) {
+
       loader.state = cryptogram.loader.state.DONE;
 
         if (result) {
-          self.media.setContainerSrc(container, result);
+          var decipher = cipher.decrypt(result, password);
+          self.media.setContainerSrc(container, decipher);
         }
       });
     });
@@ -140,7 +144,7 @@ cryptogram.content.prototype.decryptImage = function(image, password, queue) {
   
     loader.getImageData(fullURL, function(data) {
       var decoder = new cryptogram.decoder(container);
-      decoder.decodeData(data, password, function(result) {
+      decoder.decodeData(data, function(result) {
         if (result) {
           self.containers[result] = container;
           self.media.setContainerSrc(container, result);
@@ -164,7 +168,7 @@ cryptogram.content.prototype.decryptByURL = function(URL, password) {
   var self = this;
   loader.getImageData(fullURL, function(data) {
     var decoder = new cryptogram.decoder(container);
-    decoder.decodeData(data, password, function(result) {
+    decoder.decodeData(data, function(result) {
       if (result) {
         self.containers[result] = container;
         self.media.setContainerSrc(container, result);

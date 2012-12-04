@@ -122,6 +122,25 @@ cryptogram.demo.prototype.runDecrypt = function() {
 };
 
 
+cryptogram.demo.prototype.compareStrings = function(str1, str2) {
+  
+  var errorCount = 0;
+  
+  for (var i = 0; i < str1.length; i++) {
+    if (str1[i] != str2[i]) {
+      errorCount++;
+    }
+  }
+  if (str1.length != str2.length) {
+    this.logger.info("Base64 strings are different lengths!");
+    this.logger.info(str1.length + "/" + str2.length);
+  }
+
+  var percent = errorCount / str1.length; 
+  this.logger.info("Base64 errors: " + errorCount + "\t" + str1.length + "\t" + percent);
+}
+
+
 /**
  * @param{Array} files
  * @private
@@ -145,7 +164,7 @@ cryptogram.demo.prototype.handleFiles = function(files) {
   for (var i = 0; i < files.length; i++) {
     f = files[i];
     var name = escape(f.name);
-    if (f.size > 500000) {
+    if (f.size > 600000) {
       console.log('Skipping ' + name);
       continue; 
     }
@@ -161,7 +180,8 @@ cryptogram.demo.prototype.handleFiles = function(files) {
       
     		var password = 'cryptogram';
         var encryptedData = cipher.encrypt(originalData, password);
-        codec.setImage(originalImage);
+        //codec.setImage(originalImage);
+        
         var encodedImage = codec.encode(encryptedData, ratio);
         encodedImage.onload = function () {
           goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),encodedImage,0);
@@ -176,7 +196,11 @@ cryptogram.demo.prototype.handleFiles = function(files) {
           goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), decodedImage, 0);
           var container = new cryptogram.container(decodedImage);
           var decoder = new cryptogram.decoder(container);
-          decoder.decodeData(str, function(result) {             
+          codec.length = encryptedData.length;
+          decoder.decodeData(str, codec, function(result) {
+            var percent = codec.errorCount / codec.lastOctal.length;
+            this.logger.info("Octal decoding errors: " + codec.errorCount + "\t" + codec.lastOctal.length + "\t" + percent);
+            
             var decipher = cipher.decrypt(result, password);
             container.setSrc(decipher);
           });
