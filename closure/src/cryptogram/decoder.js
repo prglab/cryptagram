@@ -98,7 +98,8 @@ cryptogram.decoder.prototype.processImage = function() {
     this.logger.info("Decoded in: " + this.elapsed + " ms");
 
     this.container.setStatus();
-    this.logger.info("Decoded image. " + this.data.length + " base64 characters.");  
+    this.logger.info("Decoded image. " + this.data.length + " base64 characters.");
+
     this.callback(this.data);
  }  
 }

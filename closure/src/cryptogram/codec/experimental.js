@@ -67,15 +67,7 @@ cryptogram.codec.experimental.prototype.encode = function(data,
     add_char(header_string[i], all_values);
   }
 
-  // next translate the image data
-  //var values1 = new Array();
-  //for (var i = 0; i < data.length; i++) {
-  //  add_char(data[i], values1);
-  //}
-  
-  //this.lastOctalString = values1.join("");
-  
-  var payloadLength = data.length;
+  var payloadLength = data.length * 2;
   var lengthString = "" + payloadLength;
   
   while (lengthString.length < 8) {
@@ -182,6 +174,8 @@ cryptogram.codec.experimental.prototype.encode = function(data,
   var timeB = new Date().getTime();
   this.elapsed = timeB - timeA;
 
+  this.logger.info("Encoded in: " + this.elapsed + " ms");  
+
   return img;
 };
 
@@ -272,6 +266,7 @@ cryptogram.codec.experimental.prototype.getChunk = function() {
     return false;
   }
   
+  
   if (this.y >= this.img.height) {
     return false;
   }
@@ -291,7 +286,6 @@ cryptogram.codec.experimental.prototype.getChunk = function() {
           break;
         }
         
-  
         // Skip over header super-block
         if (this.y < headerSize && x < headerSize) {           
           continue;
@@ -340,7 +334,7 @@ cryptogram.codec.experimental.prototype.getChunk = function() {
       break;
     }
     
-    this.y+= this.blockSize;
+    this.y += this.blockSize;
     count++;
   }
   return newBase64;
