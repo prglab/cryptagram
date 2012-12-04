@@ -1,0 +1,17 @@
+{namespace cryptogram.templates.experiment}
+
+/**
+ * Displays HTML for the encryption demo including file selection and
+ * a container for drag & drop interactions.
+ */
+{template .experiment}
+<div id="main">
+<input type="file" id="file_selector" name="file_selector" multiple/></span>
+<hr>
+<div id="original_image"></div>
+<div id="encoded_image"></div>
+<div id="decoded_image"></div>
+</div>
+<textarea id="results" rows=20 cols=100></textarea>
+
+{/template}

@@ -25,7 +25,7 @@ cryptogram.cipher.prototype.decrypt = function(newBase64, password) {
   var full = newBase64.substring(64,newBase64.length);
   var bits = sjcl.hash.sha256.hash(full);
   var hexHash = sjcl.codec.hex.fromBits(bits);
-      
+  
   if (hexHash != check) {
     this.logger.severe("Checksum failed. Image is corrupted.");
     return;
@@ -59,11 +59,12 @@ cryptogram.cipher.prototype.encrypt = function(data, password) {
   // Get rid of data type information (for now assuming always JPEG.
   var withoutMimeHeader = data.split('base64,')[1];
   var encrypted_data = JSON.parse(sjcl.encrypt(password, withoutMimeHeader));
+    
   var iv = encrypted_data['iv'];
   var salt = encrypted_data['salt'];
   var ct = encrypted_data['ct'];
   var to_hash = iv + salt + ct;
 	var bits = sjcl.hash.sha256.hash(to_hash);
-  var integrity_check_value = sjcl.codec.hex.fromBits(bits);
+  var integrity_check_value = sjcl.codec.hex.fromBits(bits);  
   return integrity_check_value + to_hash;
 };
