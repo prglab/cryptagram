@@ -1,4 +1,4 @@
-goog.provide('cryptogram.codec.aesthete');
+goog.provide('cryptogram.codec.experimental');
 
 goog.require('cryptogram.codec');
 goog.require('goog.debug.Logger');
@@ -8,55 +8,41 @@ goog.require('goog.debug.Logger');
  * @constructor
  * @extends {cryptogram.codec}
  */
-cryptogram.codec.aesthete = function() {
-  this.blockSize = 2;
-  this.symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14];
+cryptogram.codec.experimental = function(blockSize, quality, numberSymbols) {
+
+  this.quality = quality;
+  this.blockSize = blockSize;
+  this.symbol_thresholds = [];
+  this.base = numberSymbols;
+  
+  for (var i = 0; i < numberSymbols; i++) {
+    var level = (i / (numberSymbols - 1)) * 255;
+    this.symbol_thresholds.push(Math.round(level));
+  }  
 };
 
-//cryptogram.codec.aesthete.base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-//cryptogram.codec.aesthete.octal_symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14];
+goog.inherits(cryptogram.codec.experimental, cryptogram.codec);
 
-goog.inherits(cryptogram.codec.aesthete, cryptogram.codec);
-
-cryptogram.codec.aesthete.prototype.logger = goog.debug.Logger.getLogger('cryptogram.codec.aesthete');
+cryptogram.codec.experimental.prototype.logger = goog.debug.Logger.getLogger('cryptogram.codec.experimental');
 
 
 /** @inheritDoc */
-cryptogram.codec.aesthete.prototype.name = function() {
-  return "aesthete";
+cryptogram.codec.experimental.prototype.name = function() {
+  return " testing";
 };
 
 
-/** @inheritDoc */
-cryptogram.codec.aesthete.prototype.processImage = function(img) {
-};
-
-cryptogram.codec.aesthete.prototype.set_pixel = function(x, y, r, g, b) {
-  var idx = 4 * (x + y * this.width);
-  //set RGB channels to same level since we're encoding data as grayscale
-  this.data[idx] = r;
-  this.data[idx + 1] = g;
-  this.data[idx + 2] = b;
-  this.data[idx + 3] = 255; // alpha channel
-};
-
-cryptogram.codec.aesthete.prototype.set_block = function(x_start, y_start, level) {  
-  for (var i = 0; i < this.blockSize; i++) {
-    for (var j = 0; j < this.blockSize; j++) {
-      this.set_pixel(x_start + i, y_start + j, level, level, level);
-    }
-  }
-};
-
-cryptogram.codec.aesthete.prototype.encode = function(data, 
+cryptogram.codec.experimental.prototype.encode = function(data, 
     width_to_height_ratio, header_string, block_width, block_height) {
-      
+
+  var timeA = new Date().getTime();
+
   width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
 		width_to_height_ratio : 1.0;
   header_string = typeof header_string !== 'undefined' ? header_string :
-		'aesthete';
-  block_width = typeof block_width !== 'undefined' ? block_width : 2;
-  block_height = typeof block_height !== 'undefined' ? block_height : 2;
+		this.name();
+  block_width = typeof block_width !== 'undefined' ? block_width : this.blockSize;
+  block_height = typeof block_height !== 'undefined' ? block_height : this.blockSize;
 
   n_header_symbols = header_string.length;
   var self = this;
@@ -65,26 +51,53 @@ cryptogram.codec.aesthete.prototype.encode = function(data,
   // yet
   
   var self = this;
-  function add_char(ch,values) {
+  function add_char(ch, values) {
     var value = self.base64Values.indexOf(ch);
-    var x = Math.floor(value / 8);
-    var y = value % 8;
+    var x = Math.floor(value * (self.base / 64.0));
+    var y = value % self.base;
     values.push(x);
     values.push(y);
   }
 
   // first translate the header string
   var header_values = new Array();
+  var all_values = new Array();
   for (var i = 0; i < header_string.length; i++) {
     add_char(header_string[i], header_values);
+    add_char(header_string[i], all_values);
   }
 
+  // next translate the image data
+  //var values1 = new Array();
+  //for (var i = 0; i < data.length; i++) {
+  //  add_char(data[i], values1);
+  //}
+  
+  //this.lastOctalString = values1.join("");
+  
+  var payloadLength = data.length;
+  var lengthString = "" + payloadLength;
+  
+  while (lengthString.length < 8) {
+    lengthString = "0" + lengthString;
+  }
+    
+   // next translate the image data
+  var values1 = new Array();
+  for (var i = 0; i < data.length; i++) {
+    add_char(data[i], values1);
+  }
+  this.lastOctal = values1;
+
+  data = lengthString + data;
+  
   // next translate the image data
   var values = new Array();
   for (var i = 0; i < data.length; i++) {
     add_char(data[i], values);
   }
 
+  
   // how many octal values did we get from the header string?
   var n_header_values = header_values.length;
   var n_header_values_in_row = Math.ceil(Math.sqrt(n_header_values));
@@ -113,11 +126,12 @@ cryptogram.codec.aesthete.prototype.encode = function(data,
   c.width = width;
   c.height = height;
   var cxt = c.getContext('2d');
-  
   var imageData = cxt.createImageData(width, height);
+  
   this.data = imageData.data;
   this.width = width;
-
+  this.height = height;
+  
   var pix_idx = 0;
   var value_idx;
   var level;
@@ -140,6 +154,7 @@ cryptogram.codec.aesthete.prototype.encode = function(data,
 		(header_height / block_height)
   n_symbols_in_full_row = width / block_width;
   var x_coord, y_coord, x, y, i2;
+  
   for (var i = 0; i < n_values; i++) {
     octal = values[i];
     level = this.symbol_thresholds[octal];
@@ -159,8 +174,14 @@ cryptogram.codec.aesthete.prototype.encode = function(data,
     
   cxt.putImageData(imageData, 0, 0);
   var img = new Image();
+  
+  this.logger.info("JPEG quality " + this.quality);
+  
   img.src = c.toDataURL('image/jpeg', this.quality);
   
+  var timeB = new Date().getTime();
+  this.elapsed = timeB - timeA;
+
   return img;
 };
 
@@ -168,17 +189,17 @@ cryptogram.codec.aesthete.prototype.encode = function(data,
 
 /** 
  */
-cryptogram.codec.aesthete.prototype.getHeader = function(img, imageData) {
+cryptogram.codec.experimental.prototype.getHeader = function(img, imageData) {
 
     var newBase64 = "";
-
-    for (y = 0; y < 8; y+= this.blockSize) {
-      for (x = 0; x < 8; x+= 2*this.blockSize) {
+    var headerSize = this.blockSize * 4;
+    for (y = 0; y < headerSize; y+= this.blockSize) {
+      for (x = 0; x < headerSize; x+= 2*this.blockSize) {
         
-        base8_0 = this.getBase8Value(img, imageData, x, y);
-        base8_1 = this.getBase8Value(img, imageData, x + this.blockSize, y);
-  
+        base8_0 = this.getBaseValue(img, imageData, x, y);
+        base8_1 = this.getBaseValue(img, imageData, x + this.blockSize, y);
         base64Num = base8_0 * 8 + base8_1 ;
+
         base64 = this.base64Values.charAt(base64Num);                    
         newBase64 += base64;
       }
@@ -195,87 +216,154 @@ cryptogram.codec.aesthete.prototype.getHeader = function(img, imageData) {
 /** 
  * @private
  */
-cryptogram.codec.aesthete.prototype.getBase8Value = function(img, imgData, x, y) {
+cryptogram.codec.experimental.prototype.getBaseValue = function(img, imgData, x, y) {
 
   var count = 0.0;
   var vt = 0.0;
   var avg;
+  
+  var inc = (255 / (this.base - 1));
   
   for (i = 0; i < this.blockSize; i++) {
     for (j = 0; j < this.blockSize; j++) {
       
       base = (y + j) * img.width + (x + i);
       
-      //Use green to estimate the luminance
-      green = imgData[4*base + 1];
-  
-      vt += green;
+      r = imgData[4*base];
+      g = imgData[4*base + 1];
+      b = imgData[4*base + 2];
+      lum = 0.299 * r + 0.587 * g + 0.114 * b;
+
+      vt += lum;
       count++;
     }
   }
   
   v = vt / count;
-  var bin = Math.floor(v / 28.0);
-    
-  if (bin == 0) return -1;
-  if (bin > 8) return 0;
-  return (8 - bin);   
+  var bin = Math.round(v / inc);
+  if (bin >= this.base) bin = this.base - 1;
+  
+  return bin;  
 }
 
 /** @inheritDoc */
-cryptogram.codec.aesthete.prototype.decodeProgress = function() {
+cryptogram.codec.experimental.prototype.decodeProgress = function() {
   return this.y / this.img.height;
   
 }
 
-cryptogram.codec.aesthete.prototype.decode = function(img, imageData) {
+cryptogram.codec.experimental.prototype.decode = function(img, imageData) {
   this.count = 0;
-  this.headerSize = this.blockSize * 4;
   this.chunkSize = 10;
   this.y = 0;
   this.img = img;
   this.imageData = imageData;
+  this.lengthString = "";
+  this.errorCount = 0;
   
+  this.newOctal = [];
 };
 
-cryptogram.codec.aesthete.prototype.getChunk = function() {
+cryptogram.codec.experimental.prototype.getChunk = function() {
 
   var newBase64 = "";
+  
+  if (this.count >= this.length) {
+    return false;
+  }
   
   if (this.y >= this.img.height) {
     return false;
   }
+  
   var count = 0;
+  var headerSize = this.blockSize * 4;
   
   while (count < this.chunkSize) {
       
+    if (this.count >= this.length) {
+          break;
+    }
+        
     for (var x = 0; x < this.img.width; x+= (this.blockSize * 2)) {
         
+        if (this.count >= this.length) {
+          break;
+        }
+        
+  
         // Skip over header super-block
-        if (this.y < this.headerSize && x < this.headerSize) {
+        if (this.y < headerSize && x < headerSize) {           
           continue;
         }
                         
-        base8_0 = this.getBase8Value(this.img, this.imageData, x, this.y);
-        base8_1 = this.getBase8Value(this.img, this.imageData, x + this.blockSize, this.y);
+        base8_0 = this.getBaseValue(this.img, this.imageData, x, this.y);
+        base8_1 = this.getBaseValue(this.img, this.imageData, x + this.blockSize, this.y);
         
-        // Found black, stop
-        if (base8_0 == -1 || base8_1 == -1) {
-          this.y = this.img.height;
-          return newBase64;
-        };  
+        this.newOctal.push(base8_0);
+        this.newOctal.push(base8_1);
         
         base64Num = base8_0 * 8 + base8_1 ;
         base64 = this.base64Values.charAt(base64Num);
-        newBase64 += base64;
-      }
-    this.y+= this.blockSize;
-    count++;
+                           
+       
+        // Next super-block contains the length
+        if (this.y == 0 && x < headerSize + 16 * this.blockSize) {
+          this.lengthString += base64;
+        } else {
+          
+          var last_0 = this.lastOctal[this.count];
+          var last_1 = this.lastOctal[this.count + 1];
+                    
+          if (base8_0 != last_0) {
+            this.errorCount++;
+          }
+          
+          if (base8_1 != last_1) {
+            this.errorCount++;
+          }
+                       
+          newBase64 += base64;
+                    
+          if (this.length == null) {
+            this.length = parseInt(this.lengthString);
+          }
+        
+        
+           this.count += 2;
+
+        }
     
+    
+    }
     if (this.y >= this.img.height) {
       break;
     }
+    
+    this.y+= this.blockSize;
+    count++;
   }
   return newBase64;
 }
   
+
+
+
+
+/*  
+    var stripeX = Math.floor(x_start / 16) % 3;
+    var stripeY = Math.floor(y_start / 16) % 3;
+    
+    if (stripeX == 0) {
+      r = level + 25;
+    } else if (stripeX == 1) {
+      r = level - 25;
+    }
+    
+    
+    if (stripeY == 0) {
+      b = level + 25;
+    } else if (stripeY == 1) {
+      b = level - 25;
+    }
+*/   
