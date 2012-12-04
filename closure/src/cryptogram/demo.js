@@ -108,13 +108,18 @@ cryptogram.demo.prototype.runDecrypt = function() {
     var self = this;
     var password = 'cryptogram';
     var loader = new cryptogram.loader(self.container);
+    var decoder = new cryptogram.decoder(self.container);
+    //decoder.decodeData(str, codec, function(result) {
     
     loader.getImageData(self.container.getSrc(), function(data) {
-      var decoder = new cryptogram.decoder(self.container);
-      decoder.decodeData(data, password, function(result) {
-        self.container.setSrc(result);
+      decoder.decodeData(data, null, function(result) {
+        var cipher = new cryptogram.cipher();
+        var decryptedData = cipher.decrypt(result, password);
+        self.container.setSrc(decryptedData);
       });
-    });
+      
+      });
+ 
     
     this.decrypted = true;
     this.button.value = 'Reset';
@@ -152,7 +157,7 @@ cryptogram.demo.prototype.handleFiles = function(files) {
   var zip;
   var images;
   var self = this;
-  var codec = new cryptogram.codec.bacchant();
+  var codec = new cryptogram.codec.experimental(2,.9,8);
   var cipher = new cryptogram.cipher();
   
   if (this.zip == null) {
@@ -177,10 +182,11 @@ cryptogram.demo.prototype.handleFiles = function(files) {
       originalImage.onload = function () {
         goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
         ratio = originalImage.width / originalImage.height;
-      
+        
+        var str = originalData;
+     
     		var password = 'cryptogram';
         var encryptedData = cipher.encrypt(originalData, password);
-        //codec.setImage(originalImage);
         
         var encodedImage = codec.encode(encryptedData, ratio);
         encodedImage.onload = function () {
@@ -196,11 +202,10 @@ cryptogram.demo.prototype.handleFiles = function(files) {
           goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), decodedImage, 0);
           var container = new cryptogram.container(decodedImage);
           var decoder = new cryptogram.decoder(container);
-          codec.length = encryptedData.length;
+          //codec.length = encryptedData.length;
           decoder.decodeData(str, codec, function(result) {
             var percent = codec.errorCount / codec.lastOctal.length;
-            this.logger.info("Octal decoding errors: " + codec.errorCount + "\t" + codec.lastOctal.length + "\t" + percent);
-            
+            //this.logger.info("Octal decoding errors: " + codec.errorCount + "\t" + codec.lastOctal.length + "\t" + percent);
             var decipher = cipher.decrypt(result, password);
             container.setSrc(decipher);
           });
