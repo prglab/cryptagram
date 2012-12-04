@@ -19,8 +19,9 @@ cryptogram.container = function(img, node) {
     this.backgroundMode = true;
     node = img;
   }
-
-  node.appendChild(this.div);
+  if (node) {
+    node.appendChild(this.div);
+  }
 };
 
 cryptogram.container.prototype.getSrc = function() {
