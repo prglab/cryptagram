@@ -50,20 +50,15 @@ void* AestheteRunner::Run(void* context) {
                << ".txt";
 
   std::vector<int> discretizations;
-  // discretizations.push_back(240);
-  // discretizations.push_back(208);
-  // discretizations.push_back(176);
-  // discretizations.push_back(144);
-  // discretizations.push_back(112);
-  // discretizations.push_back(80);
-  // discretizations.push_back(48);
-  // discretizations.push_back(16);
+  discretizations.push_back(240);
+  discretizations.push_back(208);
+  discretizations.push_back(176);
+  discretizations.push_back(144);
+  discretizations.push_back(112);
+  discretizations.push_back(80);
+  discretizations.push_back(48);
+  discretizations.push_back(16);
 
-  discretizations.push_back(224);
-  discretizations.push_back(150);
-  discretizations.push_back(86);
-  discretizations.push_back(32);
-  
   Experiment experiment(discretizations, f_str_stream.str());
   vector<CharMatrix>* queue_entry = NULL;
   while(true) {
