@@ -13,7 +13,7 @@ goog.require('cryptogram.codec.aesthete');
 goog.require('cryptogram.codec.bacchant');
 goog.require('cryptogram.codec.experimental');
 goog.require('cryptogram.loader');
-
+goog.require('cryptogram.RemoteLog');
 
 /**
  * This class demonstrates some of the core functionality of Cryptogram.
@@ -31,9 +31,13 @@ cryptogram.experiment = function() {
   
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
+
+  var remoteLog = new cryptogram.RemoteLog();
+  remoteLog.setCapturing(true);
 };
 
-cryptogram.experiment.prototype.logger = goog.debug.Logger.getLogger('cryptogram.experiment');
+cryptogram.experiment.prototype.logger = 
+    goog.debug.Logger.getLogger('cryptogram.experiment');
 
 cryptogram.experiment.prototype.setStatus = function(message) {
   console.log(message);
