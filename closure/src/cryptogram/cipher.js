@@ -25,6 +25,8 @@ cryptogram.cipher.prototype.decrypt = function(newBase64, password) {
   var bits = sjcl.hash.sha256.hash(full);
   var hexHash = sjcl.codec.hex.fromBits(bits);
 
+  this.logger.shout("Decrypting Image. Checksum " + check +
+                    " hexHash " + hexHash);
   if (hexHash != check) {
     this.logger.severe("Checksum failed. Image is corrupted.");
     return;
@@ -63,5 +65,6 @@ cryptogram.cipher.prototype.encrypt = function(data, password) {
   var to_hash = iv + salt + ct;
 	var bits = sjcl.hash.sha256.hash(to_hash);
   var integrity_check_value = sjcl.codec.hex.fromBits(bits);
+  this.logger.shout("Encrypting Image. Hash:" + integrity_check_value);
   return integrity_check_value + to_hash;
 };
