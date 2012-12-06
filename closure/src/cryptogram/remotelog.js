@@ -72,6 +72,8 @@ cryptogram.RemoteLog.prototype.addLogRecord = function(logRecord) {
   var host = cryptogram.RemoteLog.host_;
   if (host) {
     switch (logRecord.getLevel()) {
+      // TODO(tierney): Here is where we can choose to filter messages by level
+      // if we do not use the per-class logger setting.
       case goog.debug.Logger.Level.SHOUT:
         cryptogram.RemoteLog.logToRemoteLog_(host, 'info', record);
         break;
