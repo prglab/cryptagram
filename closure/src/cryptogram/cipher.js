@@ -1,7 +1,6 @@
 goog.provide('cryptogram.cipher');
 
-goog.require('cryptogram.logger');
-
+goog.require('cryptogram.RemoteLog');
 goog.require('goog.debug.Logger');
 
 /**
@@ -10,9 +9,7 @@ goog.require('goog.debug.Logger');
 cryptogram.cipher = function() {
 };
 
-// cryptogram.cipher.prototype.logger = goog.debug.Logger.getLogger('cryptogram.cipher');
-
-cryptogram.cipher.prototype.logger = new cryptogram.logger();
+cryptogram.cipher.prototype.logger = goog.debug.Logger.getLogger('cryptogram.cipher');
 
 cryptogram.cipher.URIHeader = "data:image/jpeg;base64,";
 

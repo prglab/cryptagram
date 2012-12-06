@@ -9,6 +9,7 @@ goog.require('cryptogram.media.googleplus');
 goog.require('cryptogram.media.image');
 goog.require('cryptogram.media.web');
 goog.require('cryptogram.storage');
+goog.require('cryptogram.RemoteLog');
 
 goog.require('goog.debug.Console');
 goog.require('goog.debug.Logger');
@@ -26,6 +27,9 @@ cryptogram.content = function() {
 
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
+
+  var remoteLog = new cryptogram.RemoteLog();
+  remoteLog.setCapturing(true);
   
   this.logger.info('Initializing injected content.');
   
@@ -56,9 +60,11 @@ cryptogram.content = function() {
   });
 };
 
-cryptogram.content.prototype.logger = goog.debug.Logger.getLogger('cryptogram.content');
+cryptogram.content.prototype.logger = 
+    goog.debug.Logger.getLogger('cryptogram.content');
 
-cryptogram.content.prototype.handleRequest = function(request, sender, callback) {
+cryptogram.content.prototype.handleRequest = 
+    function(request, sender, callback) {
   
   var self = this;
   var password = null;
@@ -222,7 +228,8 @@ cryptogram.content.prototype.autoDecrypt = function() {
   var images = this.media.getImages();
   
   if (images) {
-    this.logger.info('Checking '+ images.length +' images against saved passwords.');
+    this.logger.info('Checking ' + images.length + 
+                     ' images against saved passwords.');
   }
   
   var needsQueue = true;
