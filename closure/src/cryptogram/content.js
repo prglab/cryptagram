@@ -119,6 +119,7 @@ cryptogram.content.prototype.decryptImage = function(image, password, queue) {
   var self = this;
   var loader = new cryptogram.loader(container);
   var cipher = new cryptogram.cipher();
+  var decoder = new cryptogram.decoder(container);
 
   
   var fullURL = this.media.fixURL(image.src);
@@ -127,9 +128,7 @@ cryptogram.content.prototype.decryptImage = function(image, password, queue) {
   if (queue) {
   
     loader.queue(fullURL, function(data) {
-      var decoder = new cryptogram.decoder(container);
-      decoder.decodeData(data, function(result) {
-
+      decoder.decodeData(data, null, function(result) {
       loader.state = cryptogram.loader.state.DONE;
 
         if (result) {
@@ -143,11 +142,11 @@ cryptogram.content.prototype.decryptImage = function(image, password, queue) {
   } else {
   
     loader.getImageData(fullURL, function(data) {
-      var decoder = new cryptogram.decoder(container);
-      decoder.decodeData(data, function(result) {
+      decoder.decodeData(data, null, function(result) {
         if (result) {
-          self.containers[result] = container;
-          self.media.setContainerSrc(container, result);
+          var decipher = cipher.decrypt(result, password);
+          self.containers[decipher] = container;
+          self.media.setContainerSrc(container, decipher);
         }
       });
     });
@@ -168,10 +167,14 @@ cryptogram.content.prototype.decryptByURL = function(URL, password) {
   var self = this;
   loader.getImageData(fullURL, function(data) {
     var decoder = new cryptogram.decoder(container);
-    decoder.decodeData(data, function(result) {
+    decoder.decodeData(data, null, function(result) {
       if (result) {
-        self.containers[result] = container;
-        self.media.setContainerSrc(container, result);
+        
+        var cipher = new cryptogram.cipher();
+        var decryptedData = cipher.decrypt(result, password);
+        
+        self.containers[decryptedData] = container;
+        self.media.setContainerSrc(container, decryptedData);
         var photoName = self.media.getPhotoName(URL);
         var albumName = self.media.getAlbumName(URL);
         self.callback({'outcome': 'success', 'id' : photoName, 'password' : password, 'album' : albumName});
