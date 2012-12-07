@@ -13,6 +13,7 @@ goog.require('cryptogram.RemoteLog');
 
 goog.require('goog.debug.Console');
 goog.require('goog.debug.Logger');
+goog.require('goog.debug.Logger.Level');
 goog.require('goog.dom');
 goog.require('goog.ui.Dialog');
 goog.require('goog.Uri');
@@ -30,9 +31,11 @@ cryptogram.content = function() {
 
   var remoteLog = new cryptogram.RemoteLog();
   remoteLog.setCapturing(true);
-  
+
+  this.logger.setLevel(goog.debug.Logger.Level.WARNING);
+
   this.logger.info('Initializing injected content.');
-  
+
   var URL = new goog.Uri(window.location);
   var knownMedia = [cryptogram.media.facebook,
                     cryptogram.media.googleplus,
