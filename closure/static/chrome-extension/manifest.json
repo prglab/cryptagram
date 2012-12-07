@@ -1,7 +1,7 @@
 {
-"name" : "Cryptogram",
-"version" : "0.12",
-"description" : "Decrypt Cryptogram photos.",
+"name" : "Cryptagram",
+"version" : "0.14",
+"description" : "Decrypt Cryptagram photos.",
 "permissions" : [
   "contextMenus",
   "tabs",
@@ -22,6 +22,6 @@
   "manifest_version": 2,
   "browser_action": {
     "default_icon": "icon19.png",
-    "default_title": "Cryptogram Settings"
+    "default_title": "Cryptagram Settings"
   }
 }
