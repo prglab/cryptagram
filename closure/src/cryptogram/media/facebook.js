@@ -243,9 +243,3 @@ cryptogram.media.facebook.prototype.fixURL = function(URL) {
 
   return URL;
 };
-
-
-/** @inheritDoc */
-cryptogram.media.facebook.prototype.setContainerSrc = function(container, src) {
-    container.setSrc(src);
-};
