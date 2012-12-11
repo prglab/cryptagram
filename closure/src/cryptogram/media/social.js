@@ -48,11 +48,6 @@ cryptogram.media.social.prototype.onReady = function(callback) {
 };
 
 
-cryptogram.media.social.prototype.setContainerSrc = function(container, src) {
-    container.setSrc(src);
-};
-
-
 cryptogram.media.social.prototype.getPhotoName = function(URL) {
   return URL;
 };

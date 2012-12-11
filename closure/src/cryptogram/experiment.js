@@ -80,14 +80,9 @@ cryptogram.experiment.prototype.handleFiles = function(files) {
   var file = files[0];
   var codices = [];
   
-  for (var q = 50; q < 96; q += 2) {
+  for (var q = 70; q < 96; q += 2) {
     var quality = q / 100.0;
     codices.push(new cryptogram.codec.experimental(1, quality, 8));
-  }
-  
-  for (var q = 50; q < 96; q += 2) {
-    var quality = q / 100.0;
-    codices.push(new cryptogram.codec.experimental(2, quality, 8));
   }
   
   var results = goog.dom.getElement('results');

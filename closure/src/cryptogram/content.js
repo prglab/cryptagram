@@ -85,9 +85,9 @@ cryptogram.content.prototype.handleRequest = function(request, sender, callback)
   if (request['decryptURL']) {
     var URL = request['decryptURL'];
         
-    
+    // If already decoded, URL starts with 'data:'
     if (URL.search('data:') == 0) {
-      var container = this.containers[URL];
+      var container = this.media.getContainer(URL);
       if (container) {
         container.revertSrc();
         this.logger.info("Reverted to " + container.img.src);
@@ -172,8 +172,6 @@ cryptogram.content.prototype.decryptByURL = function(URL, password) {
         
         var cipher = new cryptogram.cipher();
         var decryptedData = cipher.decrypt(result, password);
-        
-        self.containers[decryptedData] = container;
         self.media.setContainerSrc(container, decryptedData);
         var photoName = self.media.getPhotoName(URL);
         var albumName = self.media.getAlbumName(URL);
