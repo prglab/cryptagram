@@ -9,9 +9,11 @@ goog.require('cryptogram.media.googleplus');
 goog.require('cryptogram.media.image');
 goog.require('cryptogram.media.web');
 goog.require('cryptogram.storage');
+goog.require('cryptogram.RemoteLog');
 
 goog.require('goog.debug.Console');
 goog.require('goog.debug.Logger');
+goog.require('goog.debug.Logger.Level');
 goog.require('goog.dom');
 goog.require('goog.ui.Dialog');
 goog.require('goog.Uri');
@@ -26,9 +28,14 @@ cryptogram.content = function() {
 
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
-  
+
+  var remoteLog = new cryptogram.RemoteLog();
+  remoteLog.setCapturing(true);
+
+  this.logger.setLevel(goog.debug.Logger.Level.WARNING);
+
   this.logger.info('Initializing injected content.');
-  
+
   var URL = new goog.Uri(window.location);
   var knownMedia = [cryptogram.media.facebook,
                     cryptogram.media.googleplus,
@@ -56,9 +63,11 @@ cryptogram.content = function() {
   });
 };
 
-cryptogram.content.prototype.logger = goog.debug.Logger.getLogger('cryptogram.content');
+cryptogram.content.prototype.logger = 
+    goog.debug.Logger.getLogger('cryptogram.content');
 
-cryptogram.content.prototype.handleRequest = function(request, sender, callback) {
+cryptogram.content.prototype.handleRequest = 
+    function(request, sender, callback) {
   
   var self = this;
   var password = null;
@@ -228,7 +237,8 @@ cryptogram.content.prototype.autoDecrypt = function() {
   var images = this.media.getImages();
   
   if (images) {
-    this.logger.info('Checking '+ images.length +' images against saved passwords.');
+    this.logger.info('Checking ' + images.length + 
+                     ' images against saved passwords.');
   }
   
   var needsQueue = true;

@@ -11,7 +11,7 @@ goog.require('cryptogram.decoder');
 goog.require('cryptogram.cipher');
 goog.require('cryptogram.codec.bacchant');
 goog.require('cryptogram.loader');
-
+goog.require('cryptogram.RemoteLog');
 
 /**
  * This class demonstrates some of the core functionality of Cryptogram.
@@ -29,6 +29,9 @@ cryptogram.demo = function() {
 
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
+
+  var remoteLog = new cryptogram.RemoteLog();
+  remoteLog.setCapturing(true);
 };
 
 cryptogram.demo.prototype.logger = goog.debug.Logger.getLogger('cryptogram.demo');

@@ -8,17 +8,18 @@
 #include <fstream>
 #include <iostream>
 #include <pthread.h>
+#include <string>
 
 #include "queue.h"
 #include "types.h"
 
-// typedef vector<bitset<48> > MatrixQueueEntry;
+using std::string;
 
 namespace cryptogram {
 
 class AestheteRunner {
  public:
-  AestheteRunner(int id, Queue* queue);
+  AestheteRunner(int id, int total_num_matrices, Queue* queue);
   virtual ~AestheteRunner();
 
   void Start();
@@ -33,6 +34,7 @@ class AestheteRunner {
  private:
   int id_;
   bool done_;
+  int total_num_matrices_;
   pthread_t thread_;
   Queue* queue_;
 

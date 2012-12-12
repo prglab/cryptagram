@@ -4,6 +4,7 @@
 #ifndef _CRYPTOGRAM_ARRAY_H_
 #define _CRYPTOGRAM_ARRAY_H_
 
+#include "base/stack_container.h"
 #include "boost/numeric/ublas/matrix.hpp"
 #include "discretizations.h"
 #include "ecc_image.h"
@@ -43,7 +44,12 @@ struct array {
                          const std::vector<int>& values,
                          int block_h,
                          int block_w);
-
+  void FillBlockFromInts(
+      const std::vector<int>& indices,
+      const StackVector<int, 8>& values,
+      int block_h,
+      int block_w);
+  
   // Fill @lum_matrix with the contents contained in the block block_h, block_w
   // assuming that this->data is the format for a Cryptogram image.
   void FillMatrixFromBlock(int block_h,

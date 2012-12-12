@@ -1,150 +1,98 @@
 // Copyright 2012. The Cryptogram Authors. BSD License.
 // Author: tierney@cs.nyu.edu (Matt Tierney)
 
-#include <cstring>
-#include <iostream>
-#include <set>
-#include <vector>
-
-#include "aesthete.h"
-#include "array.h"
-#include "boost/numeric/ublas/io.hpp"
-#include "discretizations.h"
-#include "ecc_image.h"
-#include "ecc_message.h"
-#include "glog/logging.h"
-#include "google/gflags.h"
-#include "jpeg_codec.h"
-#include "reentrant_rand.h"
-#include "reed_solomon/rs_codec.h"
-
-// Profiler headers.
-/*
-#include "gperftools/profiler.h"
-#include "gperftools/heap-profiler.h"
-*/
-
-DEFINE_int32(quality, 95, "JPEG quality to use.");
-DEFINE_int64(iters, 2, "Number of iterations to run.");
+#include "ecc_experiment.h"
 
 namespace cryptogram {
 
-const int ByteSize = 8;
-
-void PrintTwoByteInt(uint16_t num) {
-  std::cout << std::endl;
-  std::cout << "Printing Little Endian: '" << num << "'." << std::endl;
-  for (int ii = 0; ii < 16; ii++) {
-    int tmp = (num >> ii) & 1;
-    std::cout << tmp;
-  }
-  std::cout << std::endl;
-}
-
-unsigned int CountErrors(const matrix<double>& matrix_a,
-                         const matrix<double>& matrix_b,
-                         int threshold) {
-  CHECK_EQ(matrix_a.size1(), 4);
-  CHECK_EQ(matrix_a.size2(), 4);
-  CHECK_EQ(matrix_b.size1(), 4);
-  CHECK_EQ(matrix_b.size2(), 4);
-
-  matrix<unsigned char> diff = matrix_a - matrix_b;
-  unsigned int nerrors = 0;
-  for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++) {
-      if (abs((int)(char)diff(i,j)) >= threshold) {
-        nerrors++;
-      }
-    }
-  }
-  return nerrors;
-}
-
-
-void Foo() {
-  std::vector<int> discretizations;
-  discretizations.push_back(240);
-  discretizations.push_back(208);
-  discretizations.push_back(176);
-  discretizations.push_back(144);
-  discretizations.push_back(112);
-  discretizations.push_back(80);
-  discretizations.push_back(48);
-  discretizations.push_back(16);
-
-  Discretizations set_discretizations;
-  set_discretizations.insert(DiscreteValue(240));
-  set_discretizations.insert(DiscreteValue(208));
-  set_discretizations.insert(DiscreteValue(176));
-  set_discretizations.insert(DiscreteValue(144));
-  set_discretizations.insert(DiscreteValue(112));
-  set_discretizations.insert(DiscreteValue(80));
-  set_discretizations.insert(DiscreteValue(48));
-  set_discretizations.insert(DiscreteValue(16));
-
-  srand(time(NULL));
-
-  array<matrix<unsigned char> *> decoded_blocks(kBlocksWide, kBlocksHigh);
-  array<matrix<double> *> decoded_aes(kBlocksWide, kBlocksHigh);
-  array<matrix<unsigned char> *> blocks(kBlocksWide, kBlocksHigh);
-  array<matrix<double> *> aes_blocks(kBlocksWide, kBlocksHigh);
-
+EccExperiment::EccExperiment(const string& filename)
+    : output_filename_(filename),
+      decoded_blocks(kBlocksWide, kBlocksHigh),
+      decoded_aes(kBlocksWide, kBlocksHigh),
+      blocks(kBlocksWide, kBlocksHigh),
+      aes_blocks(kBlocksWide, kBlocksHigh),
+      image(kBlocksWide * kPixelDimPerBlock * kCharsPerPixel,
+            kBlocksHigh * kPixelDimPerBlock) {
+    
+  // Initialize all of the pointers in our containers.
   for (int high = 0; high < kBlocksHigh; high++) {
     for (int wide = 0; wide < kBlocksWide; wide++) {
+      // TODO(tierney): Figure out if these are or can be stack-allocated.
       decoded_blocks(wide, high) = new matrix<unsigned char>(8, 8);
       decoded_aes(wide, high) = new matrix<double>(4, 4);
       blocks(wide, high) = new matrix<unsigned char>(8, 8);
       aes_blocks(wide, high) = new matrix<double>(4, 4);
     }
   }
-  array<unsigned char> image(kBlocksWide * kPixelDimPerBlock * kCharsPerPixel,
-                             kBlocksHigh * kPixelDimPerBlock);
 
-  for (int iteration = 0; iteration < FLAGS_iters; iteration++) {
-  EccMessage ecc_msg;
-  EccMessage::FillWithRandomData(ecc_msg.first_message(),
-                                 kRs255_223MessageBytes);
-  EccMessage::FillWithRandomData(ecc_msg.second_message(),
-                                 kRs255_223MessageBytes);
+  discretizations_->push_back(240);
+  discretizations_->push_back(208);
+  discretizations_->push_back(176);
+  discretizations_->push_back(144);
+  discretizations_->push_back(112);
+  discretizations_->push_back(80);
+  discretizations_->push_back(48);
+  discretizations_->push_back(16);
 
-  RsCodec rs_codec;
-  rs_codec.Encode(ecc_msg.first_message(), ecc_msg.first_parity());
-  rs_codec.Encode(ecc_msg.second_message(), ecc_msg.second_parity());
+  set_discretizations_.insert(DiscreteValue(240));
+  set_discretizations_.insert(DiscreteValue(208));
+  set_discretizations_.insert(DiscreteValue(176));
+  set_discretizations_.insert(DiscreteValue(144));
+  set_discretizations_.insert(DiscreteValue(112));
+  set_discretizations_.insert(DiscreteValue(80));
+  set_discretizations_.insert(DiscreteValue(48));
+  set_discretizations_.insert(DiscreteValue(16));
 
-  // Now we have all of the values set for embedding into a JPEG.
-  unsigned char *input_bytes = ecc_msg.flatten();
+  f_stream_.open(output_filename_.c_str(), std::ofstream::binary);
+}
 
-  const int kMatrixStrBytes = 6;
+EccExperiment::~EccExperiment() {
+  for (int high = 0; high < kBlocksHigh; high++) {
+    for (int wide = 0; wide < kBlocksWide; wide++) {
+      delete decoded_blocks(wide, high);
+      delete decoded_aes(wide, high);
+      delete blocks(wide, high);
+      delete aes_blocks(wide, high);
+    }
+  }
+  f_stream_.close();
+}
+
+void EccExperiment::Run() {
+  ecc_msg_.Reset();
+  ecc_msg_.InitWithRandomData();
+
+  rs_codec_.Encode(ecc_msg_.first_message(), ecc_msg_.first_parity());
+  rs_codec_.Encode(ecc_msg_.second_message(), ecc_msg_.second_parity());
+
+  unsigned char *input_bytes = ecc_msg_.flatten();
+
+  // Fill the blocks of the image.
   for (int image_h = 0; image_h < kBlocksHigh; image_h++) {
     for (int image_w = 0; image_w < kBlocksWide; image_w++) {
-      MatrixRepresentation mr;
 
       // TODO(tierney): Bottleneck here. Make this faster.
-      mr.InitFromString(input_bytes +
-                        (image_h * (kBlocksWide * kMatrixStrBytes)
-                         + (kMatrixStrBytes * image_w)));
-
-      std::vector<int> matrix_entries;
-      mr.ToInts(&matrix_entries);
+      matrix_rep_.InitFromString(input_bytes +
+                                 (image_h * (kBlocksWide * kMatrixStrBytes)
+                                  + (kMatrixStrBytes * image_w)));
+      matrix_rep_.ToInts(&matrix_entries_);
 
       image.FillBlockFromInts(
-          matrix_entries, discretizations, image_h, image_w);
+          matrix_entries_, discretizations_, image_h, image_w);
     }
   }
 
-  // Prepare the matrices so that they are able to hold the values for the code.
+  // Compute the aesthete block values.
   for (int high = 0; high < kBlocksHigh; high++) {
     for (int wide = 0; wide < kBlocksWide; wide++) {
       image.FillMatrixFromBlock(high, wide, blocks(wide, high));
-
+        
       cryptogram::AverageAestheteBlocks(*blocks(wide, high),
                                         aes_blocks(wide, high));
     }
   }
 
   // array @image is prepared with the all of the JPEG color space information.
-  vector<unsigned char> output_jpeg;
   assert(gfx::JPEGCodec::Encode(
       image.data,
       gfx::JPEGCodec::FORMAT_RGB,
@@ -154,11 +102,7 @@ void Foo() {
       FLAGS_quality,
       &output_jpeg));
 
-  std::string output_bytes(output_jpeg.begin(), output_jpeg.end());
-  // std::cerr << output_bytes << std::endl;
-
-  vector<unsigned char> decoded;
-  int width = 0, height = 0;
+  decoded.clear();
   assert(gfx::JPEGCodec::Decode(&output_jpeg[0],
                                 output_jpeg.size(),
                                 gfx::JPEGCodec::FORMAT_RGB,
@@ -173,7 +117,7 @@ void Foo() {
         for (int j = 0; j < 8; j++) {
           int idx = ((((high * kPixelDimPerBlock) + i) *
                       (kBlocksWide * kPixelDimPerBlock * 3))) +
-              ((wide * 3 * kPixelDimPerBlock) + (3 * j));
+                    ((wide * 3 * kPixelDimPerBlock) + (3 * j));
           (*decoded_blocks(wide, high))(i, j) = decoded[idx];
         }
       }
@@ -182,24 +126,29 @@ void Foo() {
     }
   }
 
-  vector<unsigned char> full_message;
+  full_message.clear();
   for (int block_h = 0; block_h < kBlocksHigh; block_h++) {
     for (int block_w = 0; block_w < kBlocksWide; block_w++) {
       matrix<double> *decoded_mat = decoded_aes(block_w, block_h);
-      vector<int> decoded_ints;
+      decoded_ints.clear();
       for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
           double val = (*decoded_mat)(i,j);
+          // TODO(tierney): Because we are using a set, which heap-allocates
+          // memory, and this is heavily used piece of code, we should find a
+          // way to do a stack based search for the matching. Even something
+          // that is linear time with the size of the necessary values being 8
+          // will be much faster than having a set with heap memory accesses.
           int idx = std::distance(
-              set_discretizations.begin(),
-              FindClosest(set_discretizations, DiscreteValue(val)));
+              set_discretizations_.begin(),
+              FindClosest(set_discretizations_, DiscreteValue(val)));
+
           decoded_ints.push_back(idx);
         }
       }
 
-      MatrixRepresentation mat_rep;
-      mat_rep.InitFromInts(decoded_ints);
-      std::string final(mat_rep.ToString());
+      matrix_rep_.InitFromInts(decoded_ints);
+      std::string final(matrix_rep_.ToString());
       CHECK_EQ(final.size(), 6);
 
       for (unsigned int i = 0; i < final.size(); i++) {
@@ -224,35 +173,11 @@ void Foo() {
     }
     // std::cout << std::endl;
     
-    int nerrors = rs_codec.Decode(data, parity);
-    std::cout << "nerrors: " << nerrors << std::endl;
+    int nerrors = rs_codec_.Decode(data, parity);
+    f_stream_ << nerrors << std::endl;
   }
-  }
-  for (int high = 0; high < kBlocksHigh; high++) {
-    for (int wide = 0; wide < kBlocksWide; wide++) {
-      delete decoded_blocks(wide, high);
-      delete decoded_aes(wide, high);
-      delete blocks(wide, high);
-      delete aes_blocks(wide, high);
-    }
-  }
+  f_stream_.flush();
+}  
 
-}
+
 } // namespace cryptogram
-
-int main(int argc, char** argv) {
-  google::InitGoogleLogging(argv[0]);
-  google::ParseCommandLineFlags(&argc, &argv, false);
-  /*
-  ProfilerStart("ecc_experiment.prof");
-  HeapProfilerStart("ecc_experiemnt.hprof");
-  */
-  cryptogram::Foo();
-  /*
-  HeapProfilerDump("lastreason");
-  HeapProfilerStop();
-  ProfilerStop();
-  */
-
-  return 0;
-}
