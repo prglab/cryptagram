@@ -161,7 +161,6 @@ cryptogram.loader.prototype.start = function() {
   this.state = cryptogram.loader.state.LOADING;
   this.oHTTP.open("GET", this.src, true);
   if (this.oHTTP.overrideMimeType) this.oHTTP.overrideMimeType('text/plain; charset=x-user-defined');
-  console.log(this.oHTTP);
   this.oHTTP.send(null);
 };
 

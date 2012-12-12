@@ -115,7 +115,13 @@ cryptogram.content.prototype.setStatus = function(message) {
 
 cryptogram.content.prototype.decryptImage = function(image, password, queue) {
 
+  if (image.previousSrc != null) {
+    this.logger.info("URL already decrypted: " + image.previousSrc);
+    return;
+  }
   var container = this.media.loadContainer(image.src);
+  
+
   var self = this;
   var loader = new cryptogram.loader(container);
   var cipher = new cryptogram.cipher();
@@ -133,6 +139,7 @@ cryptogram.content.prototype.decryptImage = function(image, password, queue) {
 
         if (result) {
           var decipher = cipher.decrypt(result, password);
+          image.previousSrc =image.src;
           self.media.setContainerSrc(container, decipher);
         }
       });
@@ -145,6 +152,7 @@ cryptogram.content.prototype.decryptImage = function(image, password, queue) {
       decoder.decodeData(data, null, function(result) {
         if (result) {
           var decipher = cipher.decrypt(result, password);
+          image.previousSrc = image.src;
           self.containers[decipher] = container;
           self.media.setContainerSrc(container, decipher);
         }
@@ -187,7 +195,7 @@ cryptogram.content.prototype.checkQueue = function() {
   
   if (this.loaders.length == 0) return;
     
-  var maxLoading = 3;
+  var maxLoading = 1;
   var loadingCount = 0;
   
   for (var i = this.loaders.length - 1; i >= 0; i--) {
