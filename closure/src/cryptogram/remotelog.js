@@ -153,16 +153,22 @@ cryptogram.RemoteLog.show = function() {
 
 
 /**
- * Logs the record to the remote log using the given function.  If the function is
- * not available on the remote log object, the log function is used instead.
+ * Logs the record to the remote log using the given function.  If the function
+ * is not available on the remote log object, the log function is used instead.
  * @param {string} remote log The remote log host .
  * @param {string} fnName The name of the function to use.
  * @param {string} record The record to log.
  * @private
  */
 cryptogram.RemoteLog.logToRemoteLog_ = function(host, fnName, record) {
+/* Working solution but causes warning messages that we may want to avoid.
   var img = new Image();
   img.src = "http://" + host + 
             "?sev=" + encodeURIComponent(fnName) + 
             "&msg=" + encodeURIComponent(record);
+*/
+  $.post("http://" + host,
+				 { "sev" : encodeURIComponent(fnName), 
+					 "msg" : encodeURIComponent(record) }
+				);
 };
