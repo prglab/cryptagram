@@ -7,7 +7,6 @@
 
   "paths": ["src"],
   "externs": ["externs/sjcl.js", 
-              "externs/jquery-1.8.3.min.js",
               "externs/chrome_extensions.js"],
   "mode": "simple"
 }
