@@ -167,8 +167,10 @@ cryptogram.RemoteLog.logToRemoteLog_ = function(host, fnName, record) {
             "?sev=" + encodeURIComponent(fnName) + 
             "&msg=" + encodeURIComponent(record);
 */
-  $.post("http://" + host,
-				 { "sev" : encodeURIComponent(fnName), 
-					 "msg" : encodeURIComponent(record) }
-				);
+  var xhr = new XMLHttpRequest();
+  var url = "http://" + host;
+  var params = "sev=" + encodeURIComponent(fnName) + 
+               "&msg=" + encodeURIComponent(record);
+  xhr.open("POST", url, true);
+  xhr.send(params);
 };
