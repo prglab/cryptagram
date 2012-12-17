@@ -19,12 +19,10 @@ cryptogram.media.prototype.getPhotoName = goog.abstractMethod;
 cryptogram.media.prototype.getImages = goog.abstractMethod;
 
 cryptogram.media.prototype.loadContainer = function(URL) {
-  
   var images = this.getImages(URL);
   var container = new cryptogram.container(images[0]);
   return container;
 };
-
 
 cryptogram.media.prototype.fixURL = function(URL) {
   return URL;
@@ -33,7 +31,6 @@ cryptogram.media.prototype.fixURL = function(URL) {
 cryptogram.media.prototype.onReady = function(callback) {
   callback();
 };
-
 
 cryptogram.media.prototype.containers = {};
 
