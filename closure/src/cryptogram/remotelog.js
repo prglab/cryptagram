@@ -161,16 +161,16 @@ cryptogram.RemoteLog.show = function() {
  * @private
  */
 cryptogram.RemoteLog.logToRemoteLog_ = function(host, fnName, record) {
-/* Working solution but causes warning messages that we may want to avoid.
+/* Working solution but causes warning messages that we may want to avoid. */
   var img = new Image();
   img.src = "http://" + host + 
             "?sev=" + encodeURIComponent(fnName) + 
             "&msg=" + encodeURIComponent(record);
-*/
-  var xhr = new XMLHttpRequest();
+
+  /*var xhr = new XMLHttpRequest();
   var url = "http://" + host;
   var params = "sev=" + encodeURIComponent(fnName) + 
                "&msg=" + encodeURIComponent(record);
   xhr.open("POST", url, true);
-  xhr.send(params);
+  xhr.send(params);*/
 };

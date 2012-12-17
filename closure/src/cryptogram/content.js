@@ -29,10 +29,10 @@ cryptogram.content = function() {
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
 
-  var remoteLog = new cryptogram.RemoteLog();
-  remoteLog.setCapturing(true);
+  //var remoteLog = new cryptogram.RemoteLog();
+  //remoteLog.setCapturing(true);
 
-  this.logger.setLevel(goog.debug.Logger.Level.WARNING);
+  //this.logger.setLevel(goog.debug.Logger.Level.WARNING);
 
   this.logger.info('Initializing injected content.');
 
