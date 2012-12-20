@@ -66,7 +66,7 @@ cryptogram.handleRequest = function(request, sender, callback) {
           }
           
           if (!password) {
-            password = prompt("Enter password for\n" + request.decryptURL, "cryptogram");
+            password = prompt("Enter password for\n" + request.decryptURL, "cryptagram");
           }
           
           if (!password) return;
