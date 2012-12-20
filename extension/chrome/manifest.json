@@ -1,7 +1,7 @@
-  {
-  "name" : "Cryptogram",
-  "version" : "0.12",
-  "description" : "Decrypt Cryptogram photos.",
+{
+  "name" : "Cryptagram",
+  "version" : "0.14",
+  "description" : "Decrypt Cryptagram photos (http://cryptagr.am).",
   "permissions" : [
     "contextMenus",
     "tabs",
