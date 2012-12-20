@@ -1,6 +1,6 @@
 goog.provide('cryptogram.media.image');
 
-goog.require('cryptogram.container');
+goog.require('cryptogram.container.url');
 goog.require('cryptogram.media');
 goog.require('goog.debug.Logger');
 
@@ -48,14 +48,8 @@ cryptogram.media.image.prototype.getAlbumName = function() {
 
 
 /** @inheritDoc */
-cryptogram.media.image.prototype.setContainerSrc = function(container, src) {
-    window.location = src;
-};
-
-
-/** @inheritDoc */
 cryptogram.media.image.prototype.loadContainer = function(URL) {
-  var container =  cryptogram.media.loadContainer.call(this, URL);
-  container.singleImageMode();
+  var images = this.getImages(URL);  
+  var container = new cryptogram.container.url(images[0]);
   return container;
 };
