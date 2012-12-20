@@ -29,10 +29,10 @@ cryptogram.content = function() {
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
 
-  //var remoteLog = new cryptogram.RemoteLog();
-  //remoteLog.setCapturing(true);
+  var remoteLog = new cryptogram.RemoteLog();
+  remoteLog.setCapturing(true);
 
-  //this.logger.setLevel(goog.debug.Logger.Level.WARNING);
+  this.logger.setLevel(goog.debug.Logger.Level.WARNING);
 
   this.logger.info('Initializing injected content.');
 
@@ -129,14 +129,12 @@ cryptogram.content.prototype.decryptImage = function(image, password, queue) {
     return;
   }
   var container = this.media.loadContainer(image.src);
-  
 
   var self = this;
   var loader = new cryptogram.loader(container);
   var cipher = new cryptogram.cipher();
   var decoder = new cryptogram.decoder(container);
 
-  
   var fullURL = this.media.fixURL(image.src);
   if (!fullURL) return;
   
@@ -178,6 +176,7 @@ cryptogram.content.prototype.decryptByURL = function(URL, password) {
   this.logger.info('Request to decrypt ' + URL + '.');
     
   var container = this.media.loadContainer(URL);
+    
   var loader = new cryptogram.loader(container);
   var fullURL = this.media.fixURL(URL);
   
@@ -188,7 +187,7 @@ cryptogram.content.prototype.decryptByURL = function(URL, password) {
       if (result) {
         
         var cipher = new cryptogram.cipher();
-        var decryptedData = cipher.decrypt(result, password);
+        var decryptedData = cipher.decrypt(result, password);        
         self.media.setContainerSrc(container, decryptedData);
         var photoName = self.media.getPhotoName(URL);
         var albumName = self.media.getAlbumName(URL);

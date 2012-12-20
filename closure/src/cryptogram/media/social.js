@@ -18,12 +18,12 @@ goog.inherits(cryptogram.media.social, cryptogram.media);
 
 cryptogram.media.social.prototype.logger = goog.debug.Logger.getLogger('cryptogram.media.social');
 
-
+/** @inheritDoc */
 cryptogram.media.social.prototype.getAlbumName = function() {
   return "untitled album";
 };
 
-
+/** @inheritDoc */
 cryptogram.media.social.prototype.getPhotoName = function() {
   return "untitled image";
 };
@@ -49,10 +49,5 @@ cryptogram.media.social.prototype.onReady = function(callback) {
 
 
 cryptogram.media.social.prototype.getPhotoName = function(URL) {
-  return URL;
-};
-
-
-cryptogram.media.social.prototype.getAlbumName = function(URL) {
   return URL;
 };
