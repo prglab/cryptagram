@@ -90,93 +90,54 @@ cryptogram.media.googleplus.prototype.checkIfReady = function(callback) {
   }  
 };
 
-
-
-/*
-cryptogram.media.facebook.prototype.getImages = function(opt_URL) {
-    
-  var valid = [];
-  var images = [];
-  
-  if (this.state == cryptogram.media.facebook.state.SPOTLIGHT) {
-    images = goog.dom.getElementsByClass('spotlight');
-  } else if (this.state == cryptogram.media.facebook.state.PHOTO) {
-    images = goog.dom.getElementsByClass('fbPhotoImage');
-  } else {
-  
-    var thumbs = goog.dom.getElementsByClass('uiMediaThumbImg');
-    
-    for (var i = 0; i < thumbs.length; i++) {
-      var testURL = thumbs[i].style.backgroundImage;
-      testURL = testURL.substr(4,testURL.length - 5);
-      var ajaxNode = thumbs[i].parentNode.parentNode;
-      
-      
-      if (ajaxNode.tagName == 'A') {
-      
-        var ajaxify = ajaxNode.getAttribute('ajaxify')
-        var ajaxParts = ajaxify.split("&");
-        var src = ajaxParts[3];
-              
-        if (src.substring(0,4)=="src=") {
-          var fullSrc = unescape(src.substring(4,src.length));
-          this.logger.info("Extracted src from ajaxify: " + fullSrc);
-          thumbs[i].src = fullSrc;
-          images.push(thumbs[i]);
-        }
-      }
-    }
-  }
-    
-  for (var i = 0; i < images.length; i++) {
-    var testURL = images[i].src;
-        
-    if (opt_URL) {
-      if (testURL == opt_URL) {
-        valid.push(images[i]);
-      }
-    } else {  
-      if (testURL.search('_o.jpg') != -1  || testURL.search('_n.jpg') != -1 ) {
-        valid.push(images[i]);  
-      }
-    }
-  }
-  return valid;
-};
-*/
-
 /** @inheritDoc */
 cryptogram.media.googleplus.prototype.getImages = function(opt_URL) {
   var images = document.getElementsByTagName('img');
   var valid = [];
-  
+  var albumRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-a-zA-Z0-9]*\/[_\-a-zA-Z0-9]*\/[_\-a-zA-Z0-9]*\/[_\-a-zA-Z0-9]*\/[_\-a-zA-Z0-9]*\/[_\-a-zA-Z0-9\.]*/);
+    
   for (i = 0; i < images.length; i++) { 
     if (opt_URL) {
       if (images[i].src == opt_URL) {
         valid.push(images[i]);        
       }
     } else {
-      if (images[i].parentElement && images[i].parentElement.style.opacity == "1") {
-        valid.push(images[i]);
+    
+      if (this.state == cryptogram.media.googleplus.state.ALBUM) {
+        if (albumRegex.test(images[i].src)) {
+          valid.push(images[i]);
+        }     
+      } else {
+        if (images[i].parentElement && images[i].parentElement.style.opacity == "1") {
+          valid.push(images[i]);
+        }
       }
     }
-      
   }
   return valid;
 };
 
 
 /** @inheritDoc */
-cryptogram.media.googleplus.getPhotoName = function(URL) {
+cryptogram.media.googleplus.prototype.getPhotoName = function(URL) {
       var URLParts = URL.split("/");
       return "g+_photo://" + URLParts[4];
 };
   
 
 /** @inheritDoc */
-cryptogram.media.googleplus.getAlbumName = function(URL) {
+cryptogram.media.googleplus.prototype.getAlbumName = function(URL) {
   var browserURL = document.URL;
-  var albumIDs = browserURL.match(/\/albums\/([0-9]*)/);
+  var albumIDs = browserURL.match(/\/albums\/([0-9]*)\/?([0-9]*)/);  
   if (albumIDs) return "g+_album://" + albumIDs[1];
   return null;
+};
+
+
+/** @inheritDoc */
+cryptogram.media.googleplus.prototype.fixURL = function(URL) {
+  
+  var parts = URL.split("/");
+  parts[7] = "s0";
+  return parts.join("/");
 };

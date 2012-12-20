@@ -1,6 +1,7 @@
 goog.provide('cryptogram.media');
 
 goog.require('cryptogram.util');
+goog.require('cryptogram.container.img');
 
 
 /**
@@ -20,7 +21,7 @@ cryptogram.media.prototype.getImages = goog.abstractMethod;
 
 cryptogram.media.prototype.loadContainer = function(URL) {
   var images = this.getImages(URL);
-  var container = new cryptogram.container(images[0]);
+  var container = new cryptogram.container.img(images[0]);
   return container;
 };
 
@@ -36,7 +37,7 @@ cryptogram.media.prototype.containers = {};
 
 cryptogram.media.prototype.setContainerSrc = function(container, src) {
   var check = cryptogram.util.SHA1(src);
-  this.containers[check] = container;
+  this.containers[check] = container;  
   container.setSrc(src);
 };
 
