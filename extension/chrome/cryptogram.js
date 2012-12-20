@@ -66,7 +66,7 @@ cryptogram.handleRequest = function(request, sender, callback) {
           }
           
           if (!password) {
-            password = prompt("Enter password for\n" + request.decryptURL, "cryptogram");
+            password = prompt("Enter password for\n" + request.decryptURL, "cryptagram");
           }
           
           if (!password) return;
@@ -827,8 +827,8 @@ cryptogram.log = function(str1, str2) {
 
 cryptogram.log.sendDebugReport = function() {
   
-  var addresses = "ispiro@gmail.com,mrtierney@gmail.com";
-  var subject = "Cryptogram Debug Report";
+  var addresses = "cryptagram@prglab.org";
+  var subject = "[Cryptagram Debug Report]";
   var href = "mailto:" + addresses + "?subject=" + subject + "&body=" + cryptogram.log.report;
   window.open(href, "_blank");
 }
