@@ -23,7 +23,7 @@ cryptogram.storage.prototype.getPasswordForURL = function(URL) {
     var photoId = this.media.getPhotoName(URL);
     var albumId = this.media.getAlbumName(URL);
     
-    this.logger.info('Looking up password for photo: ' + photoId + " (album: " + albumId +")");        
+    this.logger.info('Looking up password for photo: ' + photoId + " (" + albumId +")");        
 
     var password = null;
     var albumPassword = null;

@@ -1,6 +1,8 @@
 goog.provide('cryptogram.media.facebook');
 
 goog.require('cryptogram.media.social');
+goog.require('cryptogram.container.img');
+goog.require('cryptogram.container.div');
 
 goog.require('goog.dom');
 goog.require('goog.debug.Logger');
@@ -42,13 +44,23 @@ cryptogram.media.facebook.prototype.matchesURL = function(URL) {
   return regex.test(URL);
 }
 
+/** @inheritDoc */
+cryptogram.media.facebook.prototype.loadContainer = function(URL) {
+  var images = this.getImages(URL);
+  var image = images[0];
+  if (this.state == cryptogram.media.facebook.state.ALBUM) {
+    return new cryptogram.container.div(image);  
+  } else {
+    return new cryptogram.container.img(image);
+  }
+};
 
 /** @inheritDoc */
 cryptogram.media.facebook.prototype.getImages = function(opt_URL) {
     
   var valid = [];
   var images = [];
-  
+
   if (this.state == cryptogram.media.facebook.state.SPOTLIGHT) {
     images = goog.dom.getElementsByClass('spotlight');
   } else if (this.state == cryptogram.media.facebook.state.PHOTO) {
@@ -62,9 +74,7 @@ cryptogram.media.facebook.prototype.getImages = function(opt_URL) {
       testURL = testURL.substr(4,testURL.length - 5);
       var ajaxNode = thumbs[i].parentNode.parentNode;
       
-      
       if (ajaxNode.tagName == 'A') {
-      
         var ajaxify = ajaxNode.getAttribute('ajaxify')
         var ajaxParts = ajaxify.split("&");
         var src = ajaxParts[3];
@@ -82,7 +92,7 @@ cryptogram.media.facebook.prototype.getImages = function(opt_URL) {
   for (var i = 0; i < images.length; i++) {
     var testURL = images[i].src;
         
-    if (opt_URL) {
+    if (opt_URL) {    
       if (testURL == opt_URL) {
         valid.push(images[i]);
       }
