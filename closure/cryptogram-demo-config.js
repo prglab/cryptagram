@@ -1,6 +1,7 @@
 {
   "id": "cryptogram",
-  "inputs": [ "src/cryptogram/demo.js",
+  "inputs": [ "src/closure/renaming_map.js",
+              "src/cryptogram/demo.js",
               "src/cryptogram/experiment.js",
               "src/thirdparty/sjcl.js",
               "src/thirdparty/jszip.js", 
@@ -8,8 +9,6 @@
               "src/thirdparty/swfobject.js",
               "soy/demo.soy",
               "soy/experiment.soy"],
-  "css-inputs": ["gss/style.gss"],
-  "css-output-file": "build/demo/style.css",
   "paths": ["src", "soy"],
   "externs": ["externs/sjcl.js", 
               "externs/downloadify.js", 
