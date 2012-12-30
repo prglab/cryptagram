@@ -1,0 +1,5 @@
+.frame {
+  border: 1px solid red;
+  position: relative;
+  display: inline-block;
+}
