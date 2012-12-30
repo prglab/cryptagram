@@ -109,7 +109,7 @@ cryptogram.demo.prototype.runDecrypt = function() {
     this.container.revertSrc();
   } else {
     var self = this;
-    var password = 'cryptogram';
+    var password = 'cryptagram';
     var loader = new cryptogram.loader(self.container);
     var decoder = new cryptogram.decoder(self.container);
     //decoder.decodeData(str, codec, function(result) {
@@ -160,7 +160,8 @@ cryptogram.demo.prototype.handleFiles = function(files) {
   var zip;
   var images;
   var self = this;
-  var codec = new cryptogram.codec.experimental(2,.9,8);
+  //var codec = new cryptogram.codec.experimental(2,.9,8);
+  var codec = new cryptogram.codec.aesthete();
   var cipher = new cryptogram.cipher();
   
   if (this.zip == null) {
@@ -185,10 +186,10 @@ cryptogram.demo.prototype.handleFiles = function(files) {
       originalImage.onload = function () {
         goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
         ratio = originalImage.width / originalImage.height;
-        
+
         var str = originalData;
      
-    		var password = 'cryptogram';
+    		var password = 'cryptagram';
         var encryptedData = cipher.encrypt(originalData, password);
         
         var encodedImage = codec.encode(encryptedData, ratio);

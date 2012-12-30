@@ -13,7 +13,7 @@ cryptogram.codec.prototype.getHeader = goog.abstractMethod;
 
 cryptogram.codec.prototype.base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-cryptogram.codec.prototype.quality = .64;
+cryptogram.codec.prototype.quality = .74;
 
 cryptogram.codec.prototype.setImage = function(img) {};
 

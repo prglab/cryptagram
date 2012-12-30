@@ -22,10 +22,12 @@ cryptogram.cipher.prototype.decrypt = function(newBase64, password) {
   var salt = newBase64.substring(86,97);
   var ct = newBase64.substring(97,newBase64.length);
   var full = newBase64.substring(64,newBase64.length);
+
   var bits = sjcl.hash.sha256.hash(full);
   var hexHash = sjcl.codec.hex.fromBits(bits);
 
-  this.logger.info("Decrypting Image " + check);
+  this.logger.info("Decrypting Image " + check + "/" + hexHash);
+  
   if (hexHash != check) {
     this.logger.severe("Checksum failed. Image is corrupted.");
     return;
@@ -62,8 +64,10 @@ cryptogram.cipher.prototype.encrypt = function(data, password) {
   var salt = encrypted_data['salt'];
   var ct = encrypted_data['ct'];
   var to_hash = iv + salt + ct;
+  
 	var bits = sjcl.hash.sha256.hash(to_hash);
   var integrity_check_value = sjcl.codec.hex.fromBits(bits);
   this.logger.shout("Encrypting Image. Hash:" + integrity_check_value);
+  
   return integrity_check_value + to_hash;
 };
