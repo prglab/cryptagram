@@ -2,7 +2,7 @@ var page = chrome.extension.getBackgroundPage();
 
 document.addEventListener('DOMContentLoaded', function () {
   
-  var settings = page.cryptogram.extension.settings;
+  var settings = page.cryptagram.extension.settings;
     
   for (i = 0; i < settings.length; i++) {
     var setting = settings[i];

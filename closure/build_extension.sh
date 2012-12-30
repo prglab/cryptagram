@@ -21,9 +21,9 @@ java -jar ../../plovr/lib/closure-stylesheets.jar --output-renaming-map-format C
 
 # Compile with plovr
 echo "plovr compilation: background."
-java -jar ../../plovr/build/plovr.jar build cryptogram-background-config.js > ${EXTENSION_BUILD_DIR}/cryptogram-background.js
+java -jar ../../plovr/build/plovr.jar build cryptagram-background-config.js > ${EXTENSION_BUILD_DIR}/cryptagram-background.js
 echo "plovr compilation: content."
-java -jar ../../plovr/build/plovr.jar build cryptogram-content-config.js > ${EXTENSION_BUILD_DIR}/cryptogram-content.js
+java -jar ../../plovr/build/plovr.jar build cryptagram-content-config.js > ${EXTENSION_BUILD_DIR}/cryptagram-content.js
 
 # Zip the extension for upload.
 echo "Packaging."

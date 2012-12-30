@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Serve with plovr
-java -jar ../../plovr/build/plovr.jar serve cryptogram-demo-config.js
+java -jar ../../plovr/build/plovr.jar serve cryptagram-demo-config.js
