@@ -1,0 +1,3 @@
+goog.setCssNameMapping({
+  "frame": "a"
+});

@@ -70,7 +70,7 @@ cryptogram.demo.prototype.showEncrypt = function() {
     self.handleFiles(files);
   });
   
-  this.downloadify = Downloadify.create('downloadify',{
+  this.downloadify = Downloadify.create('downloadify', {
     filename: "encrypted.zip",
     data: function(){ 
       return self.zip.generate();
@@ -160,8 +160,12 @@ cryptogram.demo.prototype.handleFiles = function(files) {
   var zip;
   var images;
   var self = this;
+<<<<<<< HEAD
   //var codec = new cryptogram.codec.experimental(2,.9,8);
   var codec = new cryptogram.codec.aesthete();
+=======
+  var codec = new cryptogram.codec.bacchant();
+>>>>>>> c8963b970bd13e7a18e3cd220b3a1c7aeeeb4c2f
   var cipher = new cryptogram.cipher();
   
   if (this.zip == null) {

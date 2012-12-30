@@ -10,7 +10,7 @@ goog.require('goog.debug.Logger');
  */
 cryptogram.codec.bacchant = function() {
   this.blockSize = 2;
-  this.quality = .8;
+  this.quality = .95;
   this.symbol_thresholds = [0, 48, 80, 112, 144, 176, 208, 255];
   this.symbol_thresholds = [0, 36, 72, 109, 145, 182, 218, 255];
   
@@ -269,7 +269,7 @@ cryptogram.codec.bacchant.prototype.getChunk = function() {
         if (this.count >= this.length) {
           break;   
         }
-  
+
         // Skip over header super-block
         if (this.y < headerSize && x < headerSize) {
           continue;
@@ -282,20 +282,9 @@ cryptogram.codec.bacchant.prototype.getChunk = function() {
         base64 = this.base64Values.charAt(base64Num);
                                   
         if (this.y == 0 && x < headerSize + 16*this.blockSize) {
-          this.lengthString += base64; 
+          this.lengthString += base64;
         } else {
-          
-          var last_0 = this.lastOctal[this.count * 2];
-          var last_1 = this.lastOctal[this.count * 2 + 1];
-          
-          if (base8_0 != last_0) {
-            this.errorCount++;
-          }
-          
-          if (base8_1 != last_1) {
-            this.errorCount++;
-          }
-                                  
+                                            
           newBase64 += base64;
           this.count++;
           
