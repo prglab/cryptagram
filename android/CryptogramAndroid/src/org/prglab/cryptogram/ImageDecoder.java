@@ -22,6 +22,9 @@ public class ImageDecoder {
 	
 	/** Bin size - the decoder uses 28 for now, but a more complicated binning scheme may be in order **/
 	private final static int BIN_SIZE = 28;
+	
+	/** The base64 header string for the cryptogram protocol */
+	private final static String PROTOCOL_NAME = "aesthete";
 
 	/**RL Grayscale bins */
 	private final static int[] THRESHOLDS = {	
@@ -38,7 +41,7 @@ public class ImageDecoder {
 	
 	public static final String base64Symbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	
-	private int getBase8(Bitmap encryptedImage, int x, int y){
+	private static int getBase8(Bitmap encryptedImage, int x, int y){
 		int count = 0;
 		double avg = 0.0;
 		
@@ -64,7 +67,7 @@ public class ImageDecoder {
 		return 8 - bin;
 	}
 	
-	private String getHeader(Bitmap encryptedImage){
+	private static String getHeader(Bitmap encryptedImage){
 		
 		StringBuilder base64Sb= new StringBuilder();
 		for (int y = 0; y < HEADER_HEIGHT; y += BLOCK_HEIGHT){
@@ -84,73 +87,42 @@ public class ImageDecoder {
 	
 	}
 	
-	public static Bitmap decodeBitmap(Bitmap encryptedImage, String password){
-		int length = data.size() * BLOCK_WIDTH*BLOCK_HEIGHT + HEADER_HEIGHT * HEADER_WIDTH;
-		// Add a little extra space
-		int width = (int)Math.ceil(Math.sqrt(length*widthHeightRatio));
-		int height = (int)Math.ceil(width/widthHeightRatio);
+	/**
+	 * Try decoding the given bitmap with the given password using the
+	 * Cryptagram decoding scheme
+	 * 
+	 * @param encryptedImage the Bitmap of the image to decode
+	 * @param password the password protecting the image
+	 * @return the base64-encoded data in the image
+	 */
+	public static String decodeBitmap(Bitmap encryptedImage, String password){
+		StringBuilder imageData = new StringBuilder();
 		
-		// Make output height a multiple of block height
-		height = (int)Math.ceil(Math.ceil((double)height) / BLOCK_HEIGHT) * BLOCK_HEIGHT;
-		
-		// Make width a multiple of block width * 2 so that all octal pairs are contained in the same line
-		width = (int)Math.ceil((double)width / (2*BLOCK_WIDTH)) * 2 * BLOCK_WIDTH;
-					
-		int[] imageData = new int[(int)(width*height)];
-		
-		// Write header
-		for (int y = 0; y < HEADER_HEIGHT; y += BLOCK_HEIGHT){
-			for (int x = 0; x < HEADER_WIDTH; x += BLOCK_WIDTH){
-				int idx = (x / BLOCK_WIDTH + (y / BLOCK_HEIGHT) * (HEADER_WIDTH / BLOCK_WIDTH)); 
-				int val = THRESHOLDS[header.get(idx)];
-				int pixel = Color.argb(255, val, val, val);
-				
-				//TODO: Change this to be block-size agnostic later
-				imageData[(y*width + x)] = pixel;
-				imageData[(y*width + x + 1)] = pixel;
-				imageData[((y+1)*width + x)] = pixel;
-				imageData[((y+1)*width + x + 1)] = pixel;
-			}
-			
+		String header = getHeader(encryptedImage);
+		if (!header.equals(PROTOCOL_NAME)){
+			return null;
 		}
-		
-		int headerRowSymbolsWidth = (int)((width - HEADER_WIDTH) / BLOCK_WIDTH);
-		int headerRowSymbolsTotal = (int)(headerRowSymbolsWidth * (HEADER_HEIGHT / BLOCK_HEIGHT));
-		
-		for (int i = 0; i < data.size(); i++){
-			int idx = data.get(i);
-			int val = THRESHOLDS[idx];
-			int x;
-			int y;
-			
-			if (i < headerRowSymbolsTotal){
-				y = i / headerRowSymbolsWidth;
-				x = (i - (y*headerRowSymbolsWidth));
-				x = (HEADER_WIDTH + (x * BLOCK_WIDTH));
-			}
-			else{
-				int new_i = i + header.size();
-				y = (int)Math.floor(new_i / (width/BLOCK_WIDTH));
-				x = new_i - (y * (width/BLOCK_WIDTH));
-				x *= BLOCK_WIDTH;
+
+		for (int y = 0; y < encryptedImage.getHeight(); y += BLOCK_HEIGHT){
+			for (int x = 0; x < encryptedImage.getWidth(); x += BLOCK_WIDTH * 2){
+				
+				// Skip the header block
+				if (y < HEADER_HEIGHT && x < HEADER_WIDTH){
+					continue;
+				}
+				
+				int upperBase8 = getBase8(encryptedImage, x, y);
+				int lowerBase8 = getBase8(encryptedImage, x + HEADER_WIDTH, y);
+				
+				int base64num = 8*upperBase8 +lowerBase8;
+				
+				return imageData.toString();
 				
 			}
-			
-			y *= BLOCK_WIDTH;
-			
-			int pixel = Color.argb(255, val, val, val);
-			
-			//TODO: Change this to be block-size agnostic later
-			imageData[(y*width + x)] = pixel;
-			imageData[(y*width + x + 1)] = pixel;
-			imageData[(y+1)*width + x] = pixel;
-			imageData[((y+1)*width + x + 1)] = pixel;
 		}
 		
-		Bitmap encodedBitmap = Bitmap.createBitmap(imageData, (int)width, (int)height, Bitmap.Config.ARGB_8888);
-		
-		
-		return encodedBitmap;
+		return imageData.toString();
+
 	}
 
 }
