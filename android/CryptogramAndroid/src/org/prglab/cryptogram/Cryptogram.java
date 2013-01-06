@@ -37,7 +37,7 @@ import android.widget.Toast;
 import android.webkit.MimeTypeMap;
 
 
-public class MainActivity extends Activity {
+public class Cryptogram extends Activity {
 	
 	public final String DEBUG_TAG = "Cryptogram Main Activity";
 	private final int GALLERY_IMAGE_CODE = 1;
@@ -299,14 +299,14 @@ public class MainActivity extends Activity {
 			//Make sure we don't crash the app with huge images: resize to something reasonable
 			if (imageBitmap.getWidth() > MAX_IMAGE_WIDTH){
 				//Resize the bitmap
-				imageBitmap = Bitmap.createBitmap(imageBitmap, 0, 0, MAX_IMAGE_WIDTH, (int)(MAX_IMAGE_WIDTH*(((double)imageBitmap.getHeight())/imageBitmap.getWidth())));
+				imageBitmap = Bitmap.createScaledBitmap(imageBitmap, MAX_IMAGE_WIDTH, (int)(MAX_IMAGE_WIDTH*(((double)imageBitmap.getHeight())/imageBitmap.getWidth())), true);
 			}
 			
 			Toast.makeText(this, "Width: " + imageBitmap.getWidth() + " Height: " + imageBitmap.getHeight(), Toast.LENGTH_SHORT).show();
 			
 			if (imageBitmap.getHeight() > MAX_IMAGE_HEIGHT){
 				//Resize the bitmap
-				imageBitmap = Bitmap.createBitmap(imageBitmap, 0, 0, (int)(MAX_IMAGE_HEIGHT*(((double)imageBitmap.getWidth())/imageBitmap.getHeight())), MAX_IMAGE_HEIGHT);
+				imageBitmap = Bitmap.createScaledBitmap(imageBitmap, (int)(MAX_IMAGE_HEIGHT*(((double)imageBitmap.getWidth())/imageBitmap.getHeight())), MAX_IMAGE_HEIGHT, true);
 			}
 			
 			targetWidth = imageBitmap.getWidth();
