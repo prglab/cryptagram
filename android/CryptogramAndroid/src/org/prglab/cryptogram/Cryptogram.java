@@ -15,13 +15,16 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.webkit.ConsoleMessage;
@@ -29,6 +32,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.util.Base64;
 import android.util.Log;
@@ -43,11 +47,16 @@ public class Cryptogram extends Activity {
 	private final int GALLERY_IMAGE_CODE = 1;
 	private final int CAMERA_IMAGE_CODE = 2;
 	
+	AlertDialog a;
+	
 	//TODO: Make this a user setting
 	/** The largest width for an image so that the app doesn't crash.*/
 	public final int MAX_IMAGE_WIDTH = 800;
 	/** The largest height for an image so that the app doesn't crash.*/
 	public final int MAX_IMAGE_HEIGHT = 600;
+	
+	/** The fewest number of characters acceptable in the password */
+	public final int MIN_PASSWORD_LENGTH = 8;
 	
 	private final String HEADER = "aesthete";
 	
@@ -282,16 +291,58 @@ public class Cryptogram extends Activity {
     	return;
     }
     
-    /**
-     * Click handler of buttonUploadPhoto
-     * @param v
-     */
-    public void encryptPhoto(View v){
-    	Toast.makeText(this, "Starting encode", Toast.LENGTH_SHORT).show();
-    	// Convert the image to jpeg if it is not already. Then turn it into a base-64 stream   	
-    	String base64String;    	
+    private void showPasswordPrompt(){
+    	
+    	// get prompts.xml view
+    	LayoutInflater li = LayoutInflater.from(context);
+		View promptsView = li.inflate(R.layout.password_prompt, null);
 
-		try{
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+				context);
+
+		// set prompts.xml to alertdialog builder
+		alertDialogBuilder.setView(promptsView);
+		
+		alertDialogBuilder.setTitle(R.string.password_prompt);
+
+		final EditText userInput = (EditText) promptsView
+				.findViewById(R.id.inputText);
+
+		// set dialog message
+		alertDialogBuilder
+			.setCancelable(false)
+			.setPositiveButton("OK",
+			  new DialogInterface.OnClickListener() {
+			    public void onClick(DialogInterface dialog,int id) {
+			    	String password = userInput.getText().toString();
+			    	if (password.length() >= MIN_PASSWORD_LENGTH)
+			    		//Encrypt the photo using the user-defined password
+			    		encryptPhoto(password);
+			    	
+			    	else
+			    		Toast.makeText(context, "Please enter a password of at least " + MIN_PASSWORD_LENGTH + " characters.", Toast.LENGTH_LONG)
+			    			.show();
+			    }
+			  })
+			.setNegativeButton("Cancel",
+			  new DialogInterface.OnClickListener() {
+			    public void onClick(DialogInterface dialog,int id) {
+					dialog.cancel();
+			    }
+			  });
+
+		// create alert dialog
+		AlertDialog alertDialog = alertDialogBuilder.create();
+
+		// show it
+		alertDialog.show();
+    
+    }
+    
+    private void encryptPhoto(String password){
+    	String base64String; 
+    	
+    	try{
 			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 			
 			Toast.makeText(this, "Width: " + imageBitmap.getWidth() + " Height: " + imageBitmap.getHeight(), Toast.LENGTH_SHORT).show();
@@ -334,7 +385,7 @@ public class Cryptogram extends Activity {
 		
 		dataAccessor.setData(base64String);
 		//TODO:Implement password prompt
-		dataAccessor.setPassword("password");
+		dataAccessor.setPassword(password);
 		
 		// Send the string to the WebView here using DataAccessor
 		//jsExecutionView.addJavascriptInterface(dataAccessor, "dataAccessor");
@@ -354,6 +405,17 @@ public class Cryptogram extends Activity {
 		});
 		
 		jsExecutionView.loadUrl("file:///android_asset/run_sjcl.html?password="+"password"+"&data="+base64String);
+    }
+    
+    /**
+     * Click handler of buttonUploadPhoto
+     * @param v
+     */
+    public void encryptPhoto(View v){
+    	Toast.makeText(this, "Starting encode", Toast.LENGTH_SHORT).show();
+    	// Convert the image to jpeg if it is not already. Then turn it into a base-64 stream   	
+    	
+    	showPasswordPrompt();	
     }
 
 	/**
