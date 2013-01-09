@@ -6,4 +6,4 @@ cp -r build/chrome-extension build/chrome-extension-dev
 cp static/chrome-extension-dev/* build/chrome-extension-dev/.
 
 PORT=2012
-java -jar ../../plovr/build/plovr.jar serve --port ${PORT} cryptagram-content-config.js
+java -jar ../../plovr/build/plovr.jar serve --port ${PORT} cryptagram-content-dev-config.js
