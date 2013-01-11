@@ -1,0 +1,19 @@
+{namespace cryptagram.templates}
+
+/**
+ * Content for password dialog
+ * @param URL The URL of the image
+ */
+{template .passwordDialog}
+<table>
+<tr><td><b>Image:</b></td><td style="word-break: break-all">{$URL}</td></tr>
+<tr><td><b>Password:</b></td><td><input type=password id=password size=35>
+<input type=checkbox id=hidePassword>Hide</td></tr>
+<tr><td colspan=2><br></td></tr>
+<tr><td></td><td>
+<input type=checkbox id=savePassword>Save Password &nbsp;&nbsp;
+<input type=checkbox id=albumPassword disabled>Album Password<br>
+</td></tr>
+</table>
+{/template}
+

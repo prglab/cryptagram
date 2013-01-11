@@ -10,19 +10,20 @@ cryptagram.container = function(img, node) {
   this.img = img;
   this.createStatus();
   
+  if (!img) {
+    console.log("Bad Container");
+    return;
+  }
   if (node == null) {
     node = img.parentNode;
   }
   if (node) {
     node.insertBefore(this.div, node.childNodes[0]);
   }
-
 };
 
 
 cryptagram.container.prototype.createStatus = function() {
-
-
   this.div = goog.dom.createDom('div', { 'class': 'status'});
   this.div.style.display = 'none';
   this.div.style.position = "absolute";
@@ -37,7 +38,6 @@ cryptagram.container.prototype.createStatus = function() {
   this.div.style.font = "10px arial";
   this.div.style.textAlign = "center";
   this.div.style.borderRadius = "3px";
-
 };
 
 cryptagram.container.prototype.remove = function() {
@@ -67,8 +67,13 @@ cryptagram.container.prototype.setStatus = function(status) {
     this.div.innerHTML = '';
     this.div.style.display = 'none';
   } else {
-    this.div.style.left = this.img.width / 2;
+    
+    var width = this.img.width;
+    if (this.displayWidth) {
+      width = this.displayWidth;      
+    }
+    this.div.style.left = (width / 2) + "px";
+    this.div.style.display = 'inline-block';
     this.div.innerHTML = status;  
-    this.div.style.display = '';
-  }
+    }
 };

@@ -10,6 +10,10 @@ cryptagram.container.div = function(img, node) {
   this.img = img;
   this.createStatus();
   img.insertBefore(this.div, img.childNodes[0]);
+
+  // Hard-coded for Facebook album view
+  this.displayWidth = 206;
+
 };
 
 goog.inherits(cryptagram.container.div, cryptagram.container);

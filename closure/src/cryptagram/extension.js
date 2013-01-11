@@ -5,6 +5,7 @@ goog.require('goog.net.XhrIo');
 
 
 cryptagram.extension.settings = ['save_passwords',
+                                 'hide_passwords',
                                  'auto_decrypt',
                                  'album_passwords'];
 cryptagram.extension.lastCheck = '';

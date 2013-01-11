@@ -44,30 +44,6 @@ cryptagram.storage.prototype.getPasswordForURL = function(URL) {
 };
 
 
-cryptagram.storage.prototype.savePassword = function(id, password) {
-  if (this.lookup['save_passwords'] == 'true') {
-        
-    var photoId = this.media.getPhotoName(id);
-    var albumId = this.media.getAlbumName(id);
-    
-    if (albumId && this.lookup[albumId]) return;
-    
-    this.logger.info('Saving password for photo: ' + photoId);
-
-    if (albumId && this.lookup['album_passwords'] == 'true' &&
-        !this.lookup[albumId]) { 
-      var saveAlbum = confirm('Save password for current album?');
-      if (!saveAlbum) {
-        albumId = null;
-      } else {
-        this.logger.info('Saving password for album: ' + albumId);
-      }
-    } else {
-      albumId = null;
-    } 
-  }
-};
-
 cryptagram.storage.prototype.autoDecrypt = function() {
         
   var images = this.media.getImages();

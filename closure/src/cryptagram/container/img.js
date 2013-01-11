@@ -27,16 +27,13 @@ cryptagram.container.img.prototype.setSrc = function(src) {
 
 /** @inheritDoc */
 cryptagram.container.img.prototype.revertSrc = function() {
-
-    if (!this.previousSrc) return;    
-
-    if (this.newImg) {
-      document.body.removeChild(this.newImg);
-      this.newImg = null;
-      this.img.style.display = "";
-    } else {
-      this.img.src = this.previousSrc;
-    }
-    
-    this.previousSrc = null;
+  if (!this.previousSrc) return;    
+  if (this.newImg) {
+    document.body.removeChild(this.newImg);
+    this.newImg = null;
+    this.img.style.display = "";
+  } else {
+    this.img.src = this.previousSrc;
+  }
+  this.previousSrc = null;
 };
