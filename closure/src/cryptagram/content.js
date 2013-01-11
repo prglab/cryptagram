@@ -29,10 +29,8 @@ cryptagram.content = function() {
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
 
-  var remoteLog = new cryptagram.RemoteLog();
-  remoteLog.setCapturing(true);
-
-  this.logger.setLevel(goog.debug.Logger.Level.WARNING);
+  //var remoteLog = new cryptagram.RemoteLog();
+  //remoteLog.setCapturing(true);
 
   this.logger.info('Initializing injected content.');
 
@@ -77,8 +75,8 @@ cryptagram.content.prototype.handleRequest =
     this.storage.load(request['storage']);
   }
 
-  if (request['autoDecrypt']) {
-      
+  if (request['autoDecrypt'] && this.media.supportsAutodecrypt) {
+
     if (request['autoDecrypt'] == this.lastAutoDecrypt) {
       this.logger.info('Ignoring redundant autodecrypt request.');
       return;
@@ -104,15 +102,10 @@ cryptagram.content.prototype.handleRequest =
       }
       return;
     }
-  
-    password = this.storage.getPasswordForURL((URL));
-
-    if (!password) {
-      password = prompt('Enter password for\n' + URL, 'cryptagram');
-    }
-    if (!password) return;
     
-    this.decryptByURL(request['decryptURL'], password);
+    this.media.onReady(function() {
+      self.getPassword(URL);
+    });
   }
 };
 
@@ -146,7 +139,7 @@ cryptagram.content.prototype.decryptImage = function(image, password, queue) {
 
         if (result) {
           var decipher = cipher.decrypt(result, password);
-          image.previousSrc =image.src;
+          image.previousSrc = image.src;
           self.media.setContainerSrc(container, decipher);
         }
       });
@@ -174,9 +167,8 @@ cryptagram.content.prototype.decryptImage = function(image, password, queue) {
 cryptagram.content.prototype.decryptByURL = function(URL, password) {
   
   this.logger.info('Request to decrypt ' + URL + '.');
-    
   var container = this.media.loadContainer(URL);
-    
+  
   var loader = new cryptagram.loader(container);
   var fullURL = this.media.fixURL(URL);
   
@@ -187,11 +179,34 @@ cryptagram.content.prototype.decryptByURL = function(URL, password) {
       if (result) {
         
         var cipher = new cryptagram.cipher();
-        var decryptedData = cipher.decrypt(result, password);        
+        var decryptedData = cipher.decrypt(result, password);  
+        
+        if (!decryptedData) {
+          return;  
+        }     
         self.media.setContainerSrc(container, decryptedData);
         var photoName = self.media.getPhotoName(URL);
         var albumName = self.media.getAlbumName(URL);
-        self.callback({'outcome': 'success', 'id' : photoName, 'password' : password, 'album' : albumName});
+        
+        var savePassword = (self.storage.lookup['save_passwords'] == 'true');
+        if (self.overrideSavePassword != null) {
+          savePassword = self.overrideSavePassword;
+        }
+  
+        var albumPassword = (self.storage.lookup['album_passwords'] == 'true');
+        if (self.overrideAlbumPassword != null) {
+          albumPassword = self.overrideAlbumPassword;
+        }
+  
+        if (savePassword) {
+          self.logger.info("Saving image password for " + photoName); 
+          var obj = {'outcome': 'success', 'id' : photoName, 'password' : password};
+          if (albumPassword) {
+            self.logger.info("Saving album password for " + albumName); 
+            obj['album'] = albumName;
+          }
+          self.callback(obj);
+        }
       }
     });
   });
@@ -249,8 +264,74 @@ cryptagram.content.prototype.autoDecrypt = function() {
       this.decryptImage(images[i], password, needsQueue);
     }
   }
-
   this.checkQueue();
+};
+
+
+cryptagram.content.prototype.getPassword = function(URL) {
+  var password = this.storage.getPasswordForURL(URL);
+  if (password) {
+    this.decryptByURL(URL, password);
+    return;
+  }
+  
+  var self = this;
+  var dialog = new goog.ui.Dialog(null, true);
+    
+  dialog.setContent(cryptagram.templates.passwordDialog({'URL':URL}));
+  dialog.setTitle('Cryptagram');
+  dialog.setButtonSet(goog.ui.Dialog.ButtonSet.OK_CANCEL);
+  dialog.setDisposeOnHide(true);
+
+  goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
+    if (e.key == "ok") {
+      var password = document.getElementById('password').value;
+      if (password.length > 0) {
+        self.decryptByURL(URL, password);
+      }
+    }
+  });
+  dialog.setVisible(true);
+  goog.dom.getElement('password').focus();
+  
+  var hidePassword = goog.dom.getElement('hidePassword');
+  if (this.storage.lookup['hide_passwords'] == 'true') {
+    hidePassword.checked = true;
+  } else {
+    goog.dom.getElement('password').type = 'text';
+  }
+  goog.events.listen(hidePassword, goog.events.EventType.CHANGE, function(e) {
+    if (hidePassword.checked) {
+      goog.dom.getElement('password').type = 'password';
+    } else {
+      goog.dom.getElement('password').type = 'text';
+    }
+  }, false);
+
+  self.overrideSavePassword = null;
+  self.overrideAlbumPassword = null;
+  var savePassword = goog.dom.getElement('savePassword');
+  var albumPassword = goog.dom.getElement('albumPassword');
+
+  if (this.storage.lookup['save_passwords'] == 'true') {
+    savePassword.checked = true;
+    albumPassword.disabled = false;
+  }
+  goog.events.listen(savePassword, goog.events.EventType.CHANGE, function(e) {
+    self.overrideSavePassword = savePassword.checked;
+    if (savePassword.checked) {
+      albumPassword.disabled = false;
+    } else {
+      albumPassword.disabled = true;
+    }
+  }, false);
+
+  if (this.storage.lookup['album_passwords'] == 'true') {
+    albumPassword.checked = true;
+  }
+  goog.events.listen(albumPassword, goog.events.EventType.CHANGE, function(e) {
+    self.overrideAlbumPassword = albumPassword.checked;
+  }, false);
 };
 
 

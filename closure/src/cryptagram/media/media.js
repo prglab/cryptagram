@@ -19,6 +19,8 @@ cryptagram.media.prototype.getPhotoName = goog.abstractMethod;
 
 cryptagram.media.prototype.getImages = goog.abstractMethod;
 
+cryptagram.media.prototype.supportsAutodecrypt = false;
+
 cryptagram.media.prototype.loadContainer = function(URL) {
   var images = this.getImages(URL);
   var container = new cryptagram.container.img(images[0]);

@@ -46,7 +46,7 @@ cryptagram.cipher.prototype.decrypt = function(newBase64, password) {
     decrypted = sjcl.decrypt(password, base64Decode);
   } catch(err) {
     this.logger.severe("Error decrypting:" + err.toString());
-    return;
+    return null;
   }
 
   this.logger.info("Decrypted " + decrypted.length + " base64 characters.");
