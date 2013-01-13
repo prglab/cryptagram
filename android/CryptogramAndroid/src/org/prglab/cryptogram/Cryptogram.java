@@ -20,6 +20,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
 import android.view.Menu;
 import android.view.View;
@@ -36,11 +37,17 @@ import android.widget.Toast;
 import android.webkit.MimeTypeMap;
 
 
-public class MainActivity extends Activity {
+public class Cryptogram extends Activity {
 	
 	public final String DEBUG_TAG = "Cryptogram Main Activity";
 	private final int GALLERY_IMAGE_CODE = 1;
 	private final int CAMERA_IMAGE_CODE = 2;
+	
+	//TODO: Make this a user setting
+	/** The largest width for an image so that the app doesn't crash.*/
+	public final int MAX_IMAGE_WIDTH = 800;
+	/** The largest height for an image so that the app doesn't crash.*/
+	public final int MAX_IMAGE_HEIGHT = 600;
 	
 	private final String HEADER = "aesthete";
 	
@@ -238,6 +245,8 @@ public class MainActivity extends Activity {
 	
 	Bitmap cryptogramImage;
 	
+	int targetWidth, targetHeight;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -284,8 +293,30 @@ public class MainActivity extends Activity {
 
 		try{
 			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+			
+			Toast.makeText(this, "Width: " + imageBitmap.getWidth() + " Height: " + imageBitmap.getHeight(), Toast.LENGTH_SHORT).show();
+			
+			//Make sure we don't crash the app with huge images: resize to something reasonable
+			if (imageBitmap.getWidth() > MAX_IMAGE_WIDTH){
+				//Resize the bitmap
+				imageBitmap = Bitmap.createScaledBitmap(imageBitmap, MAX_IMAGE_WIDTH, (int)(MAX_IMAGE_WIDTH*(((double)imageBitmap.getHeight())/imageBitmap.getWidth())), true);
+			}
+			
+			Toast.makeText(this, "Width: " + imageBitmap.getWidth() + " Height: " + imageBitmap.getHeight(), Toast.LENGTH_SHORT).show();
+			
+			if (imageBitmap.getHeight() > MAX_IMAGE_HEIGHT){
+				//Resize the bitmap
+				imageBitmap = Bitmap.createScaledBitmap(imageBitmap, (int)(MAX_IMAGE_HEIGHT*(((double)imageBitmap.getWidth())/imageBitmap.getHeight())), MAX_IMAGE_HEIGHT, true);
+			}
+			
+			targetWidth = imageBitmap.getWidth();
+			targetHeight = imageBitmap.getHeight();
+			
+			// Save some memory!
+			imagePreview.setImageBitmap(null);
     		
 			imageBitmap.compress(CompressFormat.JPEG, 80, byteOut);
+			imageBitmap = null;
 			byte[] readBuffer = byteOut.toByteArray();
 			
     		base64String = Base64.encodeToString(readBuffer, Base64.NO_WRAP | Base64.NO_PADDING);
@@ -296,6 +327,7 @@ public class MainActivity extends Activity {
 		
 		catch (Exception e){
 			Toast.makeText(this, "Could not read file, aborting..." + e.toString(), Toast.LENGTH_SHORT).show();
+			Log.d("cryptogram", e.toString());
 			return;
 		}
 		
@@ -353,6 +385,7 @@ public class MainActivity extends Activity {
     	//Toast.makeText(context, Integer.toString(dataAccessor.getCt().indexOf(' ')), Toast.LENGTH_SHORT).show();
     	// Debug: check hashing in java vs. sjcl
     	
+    	// 
     	base64String = base64String.replace(' ', '+');
     	try {
 			String checksum = ImageEncoder.computeHash(base64String);
@@ -375,7 +408,7 @@ public class MainActivity extends Activity {
 		}
     	
     	
-    	Bitmap encodedBitmap = ImageEncoder.encodeBase64(base64String, dataAccessor.getHash(), "aesthete", imageBitmap.getWidth()/(double)imageBitmap.getHeight());
+    	Bitmap encodedBitmap = ImageEncoder.encodeBase64(base64String, dataAccessor.getHash(), "aesthete", targetWidth/(double)targetHeight);
 
 		imagePreview.setImageBitmap(encodedBitmap);
 		
