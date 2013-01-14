@@ -9,12 +9,11 @@
               "src/thirdparty/swfobject.js",
               "soy/demo.soy",
               "soy/experiment.soy"],
-  "paths": ["src", "soy"],
+  "paths": ["src"],
   "externs": ["externs/sjcl.js", 
               "externs/downloadify.js", 
               "externs/swfobject.js",
               "externs/chrome_extensions.js"],
   "mode": "simple",
-  "prettyPrint": "yes",
   "jsdoc-html-output-path": "docs"
 }
