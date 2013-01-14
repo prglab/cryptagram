@@ -20,10 +20,10 @@ goog.require('cryptagram.RemoteLog');
 cryptagram.demo = function() {
 
   document.body.innerHTML += cryptagram.templates.demo();
-        
+
   goog.events.listen(goog.dom.getElement('encrypt_link'),
                      goog.events.EventType.CLICK, this.showEncrypt, false, this);
-    
+
   goog.events.listen(goog.dom.getElement('decrypt_link'),
                      goog.events.EventType.CLICK, this.showDecrypt, false, this);
 
@@ -51,12 +51,12 @@ cryptagram.demo.prototype.showDecrypt = function() {
 
 
 /**
- * Shows the encryption demo. 
+ * Shows the encryption demo.
  */
 cryptagram.demo.prototype.showEncrypt = function() {
-  var self = this;  
+  var self = this;
   goog.dom.getElement('main').innerHTML = cryptagram.templates.encrypt();
-  
+
   var selector = goog.dom.getElement('file_selector');
   goog.events.listen(selector, goog.events.EventType.CHANGE, function(e) {
       self.handleFiles(e.target.files);
@@ -64,19 +64,19 @@ cryptagram.demo.prototype.showEncrypt = function() {
 
   var dropZone = goog.dom.getElement('drop_zone');
   var handler = new goog.events.FileDropHandler(dropZone, true);
-  
+
   goog.events.listen(handler, goog.events.FileDropHandler.EventType.DROP, function(e) {
     var files = e.getBrowserEvent().dataTransfer.files;
     self.handleFiles(files);
   });
-  
+
   this.downloadify = Downloadify.create('downloadify', {
     filename: "encrypted.zip",
-    data: function(){ 
+    data: function(){
       return self.zip.generate();
     },
-    onError: function(){ 
-      alert('Nothing to save.'); 
+    onError: function(){
+      alert('Nothing to save.');
     },
     dataType: 'base64',
     swf: 'media/downloadify.swf',
@@ -113,27 +113,27 @@ cryptagram.demo.prototype.runDecrypt = function() {
     var loader = new cryptagram.loader(self.container);
     var decoder = new cryptagram.decoder(self.container);
     //decoder.decodeData(str, codec, function(result) {
-    
+
     loader.getImageData(self.container.getSrc(), function(data) {
       decoder.decodeData(data, null, function(result) {
         var cipher = new cryptagram.cipher();
         var decryptedData = cipher.decrypt(result, password);
         self.container.setSrc(decryptedData);
       });
-      
+
       });
- 
-    
+
+
     this.decrypted = true;
     this.button.value = 'Reset';
-  }   
+  }
 };
 
 
 cryptagram.demo.prototype.compareStrings = function(str1, str2) {
-  
+
   var errorCount = 0;
-  
+
   for (var i = 0; i < str1.length; i++) {
     if (str1[i] != str2[i]) {
       errorCount++;
@@ -144,7 +144,7 @@ cryptagram.demo.prototype.compareStrings = function(str1, str2) {
     this.logger.info(str1.length + "/" + str2.length);
   }
 
-  var percent = errorCount / str1.length; 
+  var percent = errorCount / str1.length;
   this.logger.info("Base64 errors: " + errorCount + "\t" + str1.length + "\t" + percent);
 }
 
@@ -162,7 +162,7 @@ cryptagram.demo.prototype.handleFiles = function(files) {
   var self = this;
   var codec = new cryptagram.codec.bacchant();
   var cipher = new cryptagram.cipher();
-  
+
   if (this.zip == null) {
       this.zip = new JSZip();
       this.images = this.zip.folder('images');
@@ -172,9 +172,11 @@ cryptagram.demo.prototype.handleFiles = function(files) {
   for (var i = 0; i < files.length; i++) {
     f = files[i];
     var name = escape(f.name);
+
+    // TODO(tierney): Resize large images instead of punting.
     if (f.size > 600000) {
       console.log('Skipping ' + name);
-      continue; 
+      continue;
     }
     var type = f.type || 'n/a';
     var reader = new FileReader();
@@ -187,10 +189,10 @@ cryptagram.demo.prototype.handleFiles = function(files) {
         ratio = originalImage.width / originalImage.height;
 
         var str = originalData;
-     
+
     		var password = 'cryptagram';
         var encryptedData = cipher.encrypt(originalData, password);
-        
+
         var encodedImage = codec.encode(encryptedData, ratio);
         encodedImage.onload = function () {
           goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),encodedImage,0);
@@ -199,7 +201,7 @@ cryptagram.demo.prototype.handleFiles = function(files) {
           var dat = str.substring(idx+1);
           self.images.file(self.numberImages + '.jpg', dat, {base64: true});
           self.numberImages++;
-          
+
           // Decode image to make sure it worked
           var decodedImage = new Image();
           goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), decodedImage, 0);
@@ -215,7 +217,7 @@ cryptagram.demo.prototype.handleFiles = function(files) {
         };
       }
       originalImage.src = originalData;
-    }; 		
+    };
     reader.onerror = cryptagram.demo.show_error;
     reader.readAsDataURL(f);
   }
