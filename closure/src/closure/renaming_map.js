@@ -1,3 +1,4 @@
 goog.setCssNameMapping({
-  "frame": "a"
+  "status": "a",
+  "frame": "b"
 });
