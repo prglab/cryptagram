@@ -1,0 +1,22 @@
+body {
+  font: 12px arial;
+  background: #EEEEEE;
+}
+
+iframe {
+  width: 600px;
+  height: 400px;
+  margin-top: 50px;
+  margin-bottom: 10px;
+  border: 1px solid gray;
+  background: white;
+}
+
+#buttons {
+  width: 600px;
+  text-align: center;
+}
+
+#buttons input {
+  width: 100px;
+}

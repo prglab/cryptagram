@@ -4,12 +4,13 @@ goog.require('goog.dom');
 goog.require('goog.net.XhrIo');
 
 
-cryptagram.extension.settings = ['save_passwords',
-                                 'hide_passwords',
-                                 'auto_decrypt',
-                                 'album_passwords'];
+cryptagram.extension.settings = [['save_passwords','true'],
+                                 ['hide_passwords','true'],
+                                 ['auto_decrypt','true'],
+                                 ['album_passwords','true'],
+                                 ['user_study','false']];
+                                 
 cryptagram.extension.lastCheck = '';
-
 
 cryptagram.extension.onInstall =  function() {
   chrome.tabs.create({
@@ -51,8 +52,8 @@ cryptagram.extension.init = function() {
   });
   
   for (var i = 0; i < cryptagram.extension.settings.length; i++) {
-    var setting = cryptagram.extension.settings[i];
-    if (!localStorage[setting]) localStorage[setting] = 'true';
+    var setting = cryptagram.extension.settings[i][0];
+    if (!localStorage[setting]) localStorage[setting] = cryptagram.extension.settings[i][1];
   }
     
   chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {

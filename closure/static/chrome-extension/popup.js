@@ -5,10 +5,10 @@ document.addEventListener('DOMContentLoaded', function () {
   var settings = page.cryptagram.extension.settings;
     
   for (i = 0; i < settings.length; i++) {
-    var setting = settings[i];
+    var setting = settings[i][0];
     var checkboxName = "checkbox_" + setting;
     if (localStorage[setting] == null) {
-      localStorage[setting] = "true";
+      localStorage[setting] = page.cryptagram.extension.settings[i][1];
     }
      
     var settingCheckbox = document.getElementById(checkboxName);
