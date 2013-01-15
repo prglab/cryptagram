@@ -173,7 +173,7 @@ cryptagram.media.facebook.prototype.parseMedia = function() {
 cryptagram.media.facebook.prototype.checkIfReady = function(callback) {
   
   if (this.parseMedia()) {
-    this.logger.info("Facebook media is ready: " + this.state + " mode");
+    this.logger.shout("Facebook media is ready: " + this.state + " mode");
     callback();
     return;
   }
