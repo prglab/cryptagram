@@ -20,7 +20,10 @@ goog.require('cryptagram.RemoteLog');
  * This class demonstrates some of the core functionality of cryptagram.
  * @constructor
  */
-cryptagram.encoder = function () {
+cryptagram.encoder = function (eventTarget) {
+  var self = this;
+  self.eventTarget = eventTarget;
+
   console.log("Instantiated.");
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
@@ -104,8 +107,8 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
 
       // Trigger it!
       console.log("Dispatching with this much data: " + dat.length);
-      var source = new goog.events.EventTarget();
-      source.dispatchEvent({
+      // var source = new goog.events.EventTarget();
+      self.eventTarget.dispatchEvent({
         type: "imageDone",
         dat: dat
       });

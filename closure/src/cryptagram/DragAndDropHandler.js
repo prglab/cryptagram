@@ -101,7 +101,7 @@ cryptagram.DragAndDropHandler.prototype.handleFiles = function (files) {
   var completed = 0;
 
   var source = new goog.events.EventTarget();
-  var encoder = new cryptagram.encoder();
+  var encoder = new cryptagram.encoder(source);
   goog.events.listen(source, "imageDone", function (event) {
     console.log ("Got a message back!");
     completed++;
