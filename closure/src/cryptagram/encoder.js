@@ -1,4 +1,7 @@
-goog.provide('cryptagram.demo');
+// Encoder class for the cryptagram web frontend. This class is intended to
+// provide a portable, drag-and-drop medium for creating cryptagram images.
+
+goog.provide('cryptagram.encoder');
 
 goog.require('goog.debug.Console');
 goog.require('goog.debug.Logger');
@@ -17,15 +20,12 @@ goog.require('cryptagram.RemoteLog');
  * This class demonstrates some of the core functionality of cryptagram.
  * @constructor
  */
-cryptagram.demo = function() {
+cryptagram.encoder = function() {
 
   document.body.innerHTML += cryptagram.templates.demo();
 
   goog.events.listen(goog.dom.getElement('encrypt_link'),
                      goog.events.EventType.CLICK, this.showEncrypt, false, this);
-
-  goog.events.listen(goog.dom.getElement('decrypt_link'),
-                     goog.events.EventType.CLICK, this.showDecrypt, false, this);
 
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
@@ -34,26 +34,13 @@ cryptagram.demo = function() {
   remoteLog.setCapturing(true);
 };
 
-cryptagram.demo.prototype.logger = goog.debug.Logger.getLogger('cryptagram.demo');
+cryptagram.encoder.prototype.logger = goog.debug.Logger.getLogger('cryptagram.encoder');
 
 
 /**
- * Shows the decryption demo.
+ * Shows the encryption encoder.
  */
-cryptagram.demo.prototype.showDecrypt = function() {
-  this.settings = {image: 'images/secret.jpg'};
-  goog.dom.getElement('main').innerHTML = cryptagram.templates.decrypt(this.settings);
-  this.decrypted = false;
-  this.button = goog.dom.getElement('decrypt_button');
-  this.container = new cryptagram.container(goog.dom.getElement('image'));
-  goog.events.listen(this.button, goog.events.EventType.CLICK, this.runDecrypt, false, this);
-};
-
-
-/**
- * Shows the encryption demo.
- */
-cryptagram.demo.prototype.showEncrypt = function() {
+cryptagram.encoder.prototype.showEncrypt = function() {
   var self = this;
   goog.dom.getElement('main').innerHTML = cryptagram.templates.encrypt();
 
@@ -90,47 +77,11 @@ cryptagram.demo.prototype.showEncrypt = function() {
 };
 
 
-cryptagram.demo.prototype.setStatus = function(message) {
+cryptagram.encoder.prototype.setStatus = function(message) {
   console.log(message);
 };
 
-
-
-/**
- * Runs decryption on the loaded image, replacing it with the
- * decrypted image. If the image is already decrypted, it reverts
- * to the original.
- */
-cryptagram.demo.prototype.runDecrypt = function() {
-
-  if (this.decrypted) {
-    this.decrypted = false;
-    this.button.value = 'Decrypt';
-    this.container.revertSrc();
-  } else {
-    var self = this;
-    var password = 'cryptagram';
-    var loader = new cryptagram.loader(self.container);
-    var decoder = new cryptagram.decoder(self.container);
-    //decoder.decodeData(str, codec, function(result) {
-
-    loader.getImageData(self.container.getSrc(), function(data) {
-      decoder.decodeData(data, null, function(result) {
-        var cipher = new cryptagram.cipher();
-        var decryptedData = cipher.decrypt(result, password);
-        self.container.setSrc(decryptedData);
-      });
-
-      });
-
-
-    this.decrypted = true;
-    this.button.value = 'Reset';
-  }
-};
-
-
-cryptagram.demo.prototype.compareStrings = function(str1, str2) {
+cryptagram.encoder.prototype.compareStrings = function(str1, str2) {
 
   var errorCount = 0;
 
@@ -148,12 +99,26 @@ cryptagram.demo.prototype.compareStrings = function(str1, str2) {
   this.logger.info("Base64 errors: " + errorCount + "\t" + str1.length + "\t" + percent);
 }
 
+cryptagram.encoder.prototype.reduceQuality = function(image, quality) {
+		var img = new Image();
+		img.onload = function () {
+				var width = img.width;
+				var height = img.height;
+				context.drawImage(img, 0, 0, width, height);
+				document.images[0].src = canvas.toDataUrl('image/jpeg', quality);
+		}
+		img.src = image;
+		return img;
+}
+
+cryptagram.encoder.prototype.reduceSize = function(image, fraction) {
+}
 
 /**
  * @param{Array} files
  * @private
  */
-cryptagram.demo.prototype.handleFiles = function(files) {
+cryptagram.encoder.prototype.handleFiles = function(files) {
 
   // Files is a FileList of File objects. List some properties.
   var output = [];
@@ -174,23 +139,27 @@ cryptagram.demo.prototype.handleFiles = function(files) {
     var name = escape(f.name);
 
     // TODO(tierney): Resize large images instead of punting.
-    if (f.size > 600000) {
-      console.log('Skipping ' + name);
-      continue;
-    }
+    // if (f.size > 600000) {
+    //   console.log('Skipping ' + name);
+    //   continue;
+    // }
+    console.log('Size: ' + f.size);
+
     var type = f.type || 'n/a';
     var reader = new FileReader();
     var ratio = 1.0;
     reader.onload = function (loadEvent) {
       var originalData = loadEvent.target.result;
+			console.log("Data: " + originalData);
       var originalImage = new Image();
       originalImage.onload = function () {
         goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
         ratio = originalImage.width / originalImage.height;
 
-        var str = originalData;
-
-    		var password = 'cryptagram';
+				// var str = originalData;
+				console.log("Size: " + originalData.split('base64,')[1].length);
+				// Prompt from user.
+        var password = 'cryptagram';
         var encryptedData = cipher.encrypt(originalData, password);
 
         var encodedImage = codec.encode(encryptedData, ratio);
@@ -203,31 +172,36 @@ cryptagram.demo.prototype.handleFiles = function(files) {
           self.numberImages++;
 
           // Decode image to make sure it worked
-          var decodedImage = new Image();
-          goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), decodedImage, 0);
-          var container = new cryptagram.container(decodedImage);
-          var decoder = new cryptagram.decoder(container);
-          //codec.length = encryptedData.length;
-          decoder.decodeData(str, codec, function(result) {
-            var percent = codec.errorCount / codec.lastOctal.length;
-            //this.logger.info("Octal decoding errors: " + codec.errorCount + "\t" + codec.lastOctal.length + "\t" + percent);
-            var decipher = cipher.decrypt(result, password);
-            container.setSrc(decipher);
-          });
+          // var decodedImage = new Image();
+          // goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), decodedImage, 0);
+          // var container = new cryptagram.container(decodedImage);
+          // var decoder = new cryptagram.decoder(container);
+          // //codec.length = encryptedData.length;
+          // decoder.decodeData(str, codec, function(result) {
+          //   var percent = codec.errorCount / codec.lastOctal.length;
+          //   //this.logger.info("Octal decoding errors: " + codec.errorCount + 
+          //     // "\t" + codec.lastOctal.length + "\t" + percent);
+          //   var decipher = cipher.decrypt(result, password);
+          //   container.setSrc(decipher);
+          // });
+
         };
       }
       originalImage.src = originalData;
     };
-    reader.onerror = cryptagram.demo.show_error;
+    reader.onerror = cryptagram.encoder.show_error;
     reader.readAsDataURL(f);
   }
 };
 
-cryptagram.demo.show_error = function(msg, url, linenumber) {
-  console.log('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber)
+cryptagram.encoder.show_error = function(msg, url, linenumber) {
+  console.log('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
   return true;
 };
 
-goog.exportSymbol('cryptagram.demo', cryptagram.demo);
-goog.exportSymbol('cryptagram.demo.prototype.showDecrypt', cryptagram.demo.prototype.showDecrypt);
-goog.exportSymbol('cryptagram.demo.prototype.showEncrypt', cryptagram.demo.prototype.showEncrypt);
+goog.exportSymbol('cryptagram.encoder', cryptagram.encoder);
+goog.exportSymbol('cryptagram.encoder.prototype.showDecrypt', 
+                  cryptagram.encoder.prototype.showDecrypt);
+goog.exportSymbol('cryptagram.encoder.prototype.showEncrypt', 
+                  cryptagram.encoder.prototype.showEncrypt);
+
