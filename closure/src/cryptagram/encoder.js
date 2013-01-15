@@ -59,7 +59,7 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
   var self = this;
   var originalData = loadEvent.target.result;
 
-  console.log("Data: " + originalData);
+  // console.log("Data: " + originalData);
   console.log("Reducing quality.");
   // var reduced = self.reduceQuality(originalData, 0.77);
   // if (reduced) {
@@ -90,8 +90,8 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
       var str = encodedImage.src;
       var idx = str.indexOf(",");
       var dat = str.substring(idx+1);
-      self.images.file(self.numberImages + '.jpg', dat, {base64: true});
-      self.numberImages++;
+      // self.images.file(self.numberImages + '.jpg', dat, {base64: true});
+      // self.numberImages++;
 
       // First create the event
       // var myElement;
