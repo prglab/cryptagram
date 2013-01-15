@@ -58,6 +58,23 @@ cryptagram.encoder.prototype.reduceQuality = function(image, quality) {
 cryptagram.encoder.prototype.reduceSize = function(image, fraction) {
 }
 
+cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
+  var self = this;
+  console.log("Loaded");
+  goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),encodedImage,0);
+  var str = encodedImage.src;
+  var idx = str.indexOf(",");
+  var dat = str.substring(idx+1);
+  // self.images.file(self.numberImages + '.jpg', dat, {base64: true});
+  // self.numberImages++;
+
+  // Trigger it!
+  console.log("Dispatching with this much data: " + dat.length);
+  // var source = new goog.events.EventTarget();
+  self.eventTarget.dispatchEvent({type: "imageDone"});
+  // myelement.dispatchEvent(myEvent);
+}
+
 cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
   var self = this;
   var originalData = loadEvent.target.result;
@@ -87,34 +104,7 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
 
     var encryptedData = cipher.encrypt(originalData, password);
     var encodedImage = codec.encode(encryptedData, ratio);
-    console.log("Encoded!");
-    encodedImage.onload = function () {
-      console.log("Loaded");
-      goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),encodedImage,0);
-      var str = encodedImage.src;
-      var idx = str.indexOf(",");
-      var dat = str.substring(idx+1);
-      // self.images.file(self.numberImages + '.jpg', dat, {base64: true});
-      // self.numberImages++;
-
-      // First create the event
-      // var myElement;
-      // var myEvent = new CustomEvent("imageDone", {
-      //   detail: {
-      //     dat: dat
-      //   }
-      // });
-
-      // Trigger it!
-      console.log("Dispatching with this much data: " + dat.length);
-      // var source = new goog.events.EventTarget();
-      self.eventTarget.dispatchEvent({
-        type: "imageDone",
-        dat: dat
-      });
-      // myelement.dispatchEvent(myEvent);
-    };
-
+    encodedImage.onload = self.encodedOnload;
   }
   originalImage.src = originalData;
 }
