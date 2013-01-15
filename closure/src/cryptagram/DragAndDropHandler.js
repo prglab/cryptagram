@@ -10,6 +10,7 @@ goog.require('goog.debug.Logger');
 goog.require('goog.dom');
 goog.require('goog.events.FileDropHandler');
 goog.require('goog.events.EventType');
+goog.require('goog.events.EventTarget');
 
 goog.require('cryptagram.RemoteLog');
 goog.require('cryptagram.cipher');
@@ -99,16 +100,15 @@ cryptagram.DragAndDropHandler.prototype.handleFiles = function (files) {
   var numFiles = files.length;
   var completed = 0;
 
-  var myElement = document.createElement("div");
+  var source = new goog.events.EventTarget();
   var encoder = new cryptagram.encoder();
-  myElement.addEventListener("imageDone", function (event) {
+  goog.events.listen(source, "imageDone", function (event) {
     completed++;
-
     self.images.file(completed + '.jpg',
                      event.dat,
                      { base64: true });
-    event.preventDefault();
-    event.stopPropagation();
+    // event.preventDefault();
+    // event.stopPropagation();
 
     if (completed < numFiles) {
       console.log("More to go!");
