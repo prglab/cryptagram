@@ -65,7 +65,7 @@ cryptagram.decoder.prototype.getCodec = function(img, imageData) {
   for (var i = 0; i < knownCodecs.length; i++) {
     testCodec = new knownCodecs[i]();
     if (testCodec.test(img, imageData)) {
-      this.logger.info("Found codec: " + testCodec.name());
+      this.logger.shout("Found codec: " + testCodec.name());
       return testCodec;
     }
   }
@@ -95,10 +95,9 @@ cryptagram.decoder.prototype.processImage = function() {
     var timeB = new Date().getTime();
     this.elapsed = timeB - this.timeA;
  
-    this.logger.info("Decoded in: " + this.elapsed + " ms");
+    this.logger.shout("Decoded " + this.data.length + " base64 in " + this.elapsed + " ms.");
 
     this.container.setStatus();
-    this.logger.info("Decoded image. " + this.data.length + " base64 characters.");
 
     this.callback(this.data);
  }  

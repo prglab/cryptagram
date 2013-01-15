@@ -75,7 +75,7 @@ cryptagram.media.googleplus.prototype.onReady = function(callback) {
 cryptagram.media.googleplus.prototype.checkIfReady = function(callback) {
   
   if (this.parseMedia()) {
-    this.logger.info("Google+ media is ready: " + this.state + " mode");
+    this.logger.shout("Google+ media is ready: " + this.state + " mode");
     callback();
     return;
   }

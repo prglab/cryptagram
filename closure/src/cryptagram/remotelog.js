@@ -3,6 +3,7 @@
 goog.provide('cryptagram.RemoteLog');
 
 goog.require('goog.debug.LogManager');
+goog.require('goog.debug.Logger');
 goog.require('goog.debug.Logger.Level');
 goog.require('goog.debug.TextFormatter');
 
@@ -29,6 +30,10 @@ cryptagram.RemoteLog = function() {
   this.filteredLoggers_ = {};
 };
 
+cryptagram.RemoteLog.prototype.logger = 
+    goog.debug.Logger.getLogger('cryptagram.RemoteLog');
+
+
 /**
  * Returns the text formatter used by this remote log
  * @return {!goog.debug.TextFormatter} The text formatter.
@@ -45,6 +50,7 @@ cryptagram.RemoteLog.prototype.setCapturing = function(capturing) {
   if (capturing == this.isCapturing_) {
     return;
   }
+  this.logger.info("Remote Capture: " + capturing);
 
   // attach or detach handler from the root logger
   var rootLogger = goog.debug.LogManager.getRoot();
@@ -71,21 +77,9 @@ cryptagram.RemoteLog.prototype.addLogRecord = function(logRecord) {
   var record = this.formatter_.formatRecord(logRecord);
   var host = cryptagram.RemoteLog.host_;
   if (host) {
-    switch (logRecord.getLevel()) {
-      // TODO(tierney): Here is where we can choose to filter messages by level
-      // if we do not use the per-class logger setting.
-      case goog.debug.Logger.Level.SHOUT:
-        cryptagram.RemoteLog.logToRemoteLog_(host, 'info', record);
-        break;
-      case goog.debug.Logger.Level.SEVERE:
-        cryptagram.RemoteLog.logToRemoteLog_(host, 'error', record);
-        break;
-      case goog.debug.Logger.Level.WARNING:
-        cryptagram.RemoteLog.logToRemoteLog_(host, 'warn', record);
-        break;
-      default:
-        cryptagram.RemoteLog.logToRemoteLog_(host, 'debug', record);
-        break;
+    // Remotely log SEVERE and SHOUT
+    if (logRecord.getLevel() >= goog.debug.Logger.Level.SEVERE) {
+      cryptagram.RemoteLog.logToRemoteLog_(host, 'info', record);
     }
   } else if (window.opera) {
     // window.opera.postError is considered an undefined property reference
