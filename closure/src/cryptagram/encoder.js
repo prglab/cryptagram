@@ -85,7 +85,9 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
     var encryptedData = cipher.encrypt(originalData, password);
     var encodedImage = codec.encode(encryptedData, ratio);
 
+    console.log("Encoded!");
     encodedImage.onload = function () {
+      console.log("Loaded");
       goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),encodedImage,0);
       var str = encodedImage.src;
       var idx = str.indexOf(",");
@@ -102,6 +104,7 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
       // });
 
       // Trigger it!
+      console.log("Dispatching with this much data: " + dat.length);
       var source = new goog.events.EventTarget();
       source.dispatchEvent({
         type: "imageDone",
