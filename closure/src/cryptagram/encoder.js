@@ -115,6 +115,7 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
 }
 
 cryptagram.encoder.prototype.startEncoding = function (fin) {
+  var self = this;
   var name = escape(fin.name);
   console.log("Name: " + name);
   console.log('Size: ' + fin.size);
