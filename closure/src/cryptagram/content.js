@@ -271,6 +271,8 @@ cryptagram.content.prototype.autoDecrypt = function() {
 cryptagram.content.prototype.getPassword = function(URL) {
   var password = this.storage.getPasswordForURL(URL);
   if (password) {
+    this.overrideSavePassword = false;
+    this.overrideAlbumPassword = false;
     this.decryptByURL(URL, password);
     return;
   }
