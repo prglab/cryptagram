@@ -1,0 +1,67 @@
+#demo {
+  font: 12px arial;
+}
+
+#main {
+  margin-top: 20px;
+}
+
+#encoded_image, #decoded_image, #original_image {
+  width: 250px;
+  float: left;
+  margin-right: 20px;
+  overflow: hidden;
+}
+
+#original_image img, #encoded_image img, #decoded_image img {
+}
+
+#downloadify {
+  margin-top: 20px;
+}
+
+#drop_zone {
+  width: 400px; 
+  height: 150px; 
+  border: 3px dashed #666666; 
+  background: #FFFFFF; 
+  text-align: center; 
+  padding-top: 100px;
+  border-radius: 2px;
+  color: #bbbbbb;
+  font-size: 12px;
+}
+
+#drop_zone b {
+  font-size: 18px;
+}
+
+#drop_zone input {
+  margin-left: 10px;
+}
+
+#drop_zone #or {
+  padding-top: 20px;
+  margin-left: 40px;
+}
+
+.status {
+  position: absolute;
+  width: 50px;
+  top: 0px;
+  left: 50%;
+  margin: 5px;
+  margin-left: -25px;
+  padding: 5px;
+  color: black;
+  background: white;
+  opacity: 0.8;
+  font: 10px arial;  
+  text-align: center;
+  border-radius: 3px;
+}
+
+.frame {
+  position: relative;
+  display: inline-block;
+}
