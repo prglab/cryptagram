@@ -81,24 +81,7 @@ cryptagram.encoder.prototype.setStatus = function(message) {
   console.log(message);
 };
 
-cryptagram.encoder.prototype.compareStrings = function(str1, str2) {
-
-  var errorCount = 0;
-
-  for (var i = 0; i < str1.length; i++) {
-    if (str1[i] != str2[i]) {
-      errorCount++;
-    }
-  }
-  if (str1.length != str2.length) {
-    this.logger.info("Base64 strings are different lengths!");
-    this.logger.info(str1.length + "/" + str2.length);
-  }
-
-  var percent = errorCount / str1.length;
-  this.logger.info("Base64 errors: " + errorCount + "\t" + str1.length + "\t" + percent);
-}
-
+// Reduces the quality of the image @image to level @quality.
 cryptagram.encoder.prototype.reduceQuality = function(image, quality) {
 		var img = new Image();
 		img.onload = function () {
@@ -137,7 +120,7 @@ cryptagram.encoder.prototype.handleFiles = function(files) {
   for (var i = 0; i < files.length; i++) {
     f = files[i];
     var name = escape(f.name);
-
+    console.log("Name: " + name);
     // TODO(tierney): Resize large images instead of punting.
     // if (f.size > 600000) {
     //   console.log('Skipping ' + name);
@@ -151,6 +134,13 @@ cryptagram.encoder.prototype.handleFiles = function(files) {
     reader.onload = function (loadEvent) {
       var originalData = loadEvent.target.result;
 			console.log("Data: " + originalData);
+
+      console.log("Reducing quality.");
+      var reduced = self.reduceQuality(originalData, 0.77);
+      console.log("Reduced: " + reduced.src);
+
+      // Insert the reduced here to test the reduceQuality function.
+
       var originalImage = new Image();
       originalImage.onload = function () {
         goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
@@ -179,7 +169,7 @@ cryptagram.encoder.prototype.handleFiles = function(files) {
           // //codec.length = encryptedData.length;
           // decoder.decodeData(str, codec, function(result) {
           //   var percent = codec.errorCount / codec.lastOctal.length;
-          //   //this.logger.info("Octal decoding errors: " + codec.errorCount + 
+          //   //this.logger.info("Octal decoding errors: " + codec.errorCount +
           //     // "\t" + codec.lastOctal.length + "\t" + percent);
           //   var decipher = cipher.decrypt(result, password);
           //   container.setSrc(decipher);
@@ -200,8 +190,8 @@ cryptagram.encoder.show_error = function(msg, url, linenumber) {
 };
 
 goog.exportSymbol('cryptagram.encoder', cryptagram.encoder);
-goog.exportSymbol('cryptagram.encoder.prototype.showDecrypt', 
+goog.exportSymbol('cryptagram.encoder.prototype.showDecrypt',
                   cryptagram.encoder.prototype.showDecrypt);
-goog.exportSymbol('cryptagram.encoder.prototype.showEncrypt', 
+goog.exportSymbol('cryptagram.encoder.prototype.showEncrypt',
                   cryptagram.encoder.prototype.showEncrypt);
 
