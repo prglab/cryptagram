@@ -84,7 +84,6 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
 
     var encryptedData = cipher.encrypt(originalData, password);
     var encodedImage = codec.encode(encryptedData, ratio);
-
     console.log("Encoded!");
     encodedImage.onload = function () {
       console.log("Loaded");
