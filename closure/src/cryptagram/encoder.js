@@ -21,6 +21,7 @@ goog.require('cryptagram.RemoteLog');
  * @constructor
  */
 cryptagram.encoder = function () {
+  console.log("Instantiated.");
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
 
@@ -93,15 +94,20 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
       self.numberImages++;
 
       // First create the event
-      var myElement;
-      var myEvent = new CustomEvent("imageDone", {
-        detail: {
-          dat: dat
-        }
-      });
+      // var myElement;
+      // var myEvent = new CustomEvent("imageDone", {
+      //   detail: {
+      //     dat: dat
+      //   }
+      // });
 
       // Trigger it!
-      myElement.dispatchEvent(myEvent);
+      var source = new goog.events.EventTarget();
+      source.dispatchEvent({
+        type: "imageDone",
+        dat: dat
+      });
+      // myelement.dispatchEvent(myEvent);
     };
 
   }
