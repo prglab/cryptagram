@@ -84,12 +84,12 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
 
   // console.log("Data: " + originalData);
   var threshold_ = 6000000;
-  var new_quality_ = 0.77;
+  var new_quality_ = 0.8;
 
   var requality = new cryptagram.Requality();
   goog.events.listen(requality, "REQUALITY_DONE", function (event) {
-    // console.log("Got it: " + event.image.src);
-    self.encodeImage(event.image.src);
+    console.log("Got it: " + event.image.length);
+    self.encodeImage(event.image);
   },
                      true, this);
   requality.start(originalData, new_quality_);
@@ -122,7 +122,7 @@ cryptagram.encoder.prototype.encodeImage = function (dataToEncode) {
     // TODO(tierney): Prompt from user.
     var password = 'cryptagram';
 
-    var codec = new cryptagram.codec.bacchant();
+    var codec = new cryptagram.codec.aesthete();
     var cipher = new cryptagram.cipher();
 
     var encryptedData = cipher.encrypt(dataToEncode, password);
