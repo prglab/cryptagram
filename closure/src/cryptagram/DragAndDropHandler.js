@@ -29,9 +29,6 @@ cryptagram.DragAndDropHandler = function () {
 
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
-
-  var remoteLog = new cryptagram.RemoteLog();
-  remoteLog.setCapturing(true);
 }
 
 // Logger naming for pretty log message prefixes.
@@ -102,7 +99,7 @@ cryptagram.DragAndDropHandler.prototype.handleFiles = function (files) {
 
   var source = new goog.events.EventTarget();
   var encoder = new cryptagram.encoder(source);
-  goog.events.listen(source, "imageDone", function (event) {
+  goog.events.listen(encoder, "IMAGE_DONE", function (event) {
     console.log ("Got a message back!");
     completed++;
     self.images.file(completed + '.jpg',
