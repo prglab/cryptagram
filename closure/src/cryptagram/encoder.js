@@ -20,13 +20,11 @@ goog.require('cryptagram.RemoteLog');
  * This class demonstrates some of the core functionality of cryptagram.
  * @constructor
  */
-cryptagram.encoder = function() {
+cryptagram.encoder = function (eventTarget) {
+  var self = this;
+  self.eventTarget = eventTarget;
 
-  document.body.innerHTML += cryptagram.templates.demo();
-
-  goog.events.listen(goog.dom.getElement('encrypt_link'),
-                     goog.events.EventType.CLICK, this.showEncrypt, false, this);
-
+  console.log("Instantiated.");
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
 
@@ -36,163 +34,98 @@ cryptagram.encoder = function() {
 
 cryptagram.encoder.prototype.logger = goog.debug.Logger.getLogger('cryptagram.encoder');
 
-
-/**
- * Shows the encryption encoder.
- */
-cryptagram.encoder.prototype.showEncrypt = function() {
-  var self = this;
-  goog.dom.getElement('main').innerHTML = cryptagram.templates.encrypt();
-
-  var selector = goog.dom.getElement('file_selector');
-  goog.events.listen(selector, goog.events.EventType.CHANGE, function(e) {
-      self.handleFiles(e.target.files);
-  }, false, self);
-
-  var dropZone = goog.dom.getElement('drop_zone');
-  var handler = new goog.events.FileDropHandler(dropZone, true);
-
-  goog.events.listen(handler, goog.events.FileDropHandler.EventType.DROP, function(e) {
-    var files = e.getBrowserEvent().dataTransfer.files;
-    self.handleFiles(files);
-  });
-
-  this.downloadify = Downloadify.create('downloadify', {
-    filename: "encrypted.zip",
-    data: function(){
-      return self.zip.generate();
-    },
-    onError: function(){
-      alert('Nothing to save.');
-    },
-    dataType: 'base64',
-    swf: 'media/downloadify.swf',
-    downloadImage: 'images/download.png',
-    width: 100,
-    height: 30,
-    transparent: false,
-    append: false,
-    enabled: true
-  });
-};
-
-
 cryptagram.encoder.prototype.setStatus = function(message) {
   console.log(message);
 };
 
-cryptagram.encoder.prototype.compareStrings = function(str1, str2) {
-
-  var errorCount = 0;
-
-  for (var i = 0; i < str1.length; i++) {
-    if (str1[i] != str2[i]) {
-      errorCount++;
-    }
-  }
-  if (str1.length != str2.length) {
-    this.logger.info("Base64 strings are different lengths!");
-    this.logger.info(str1.length + "/" + str2.length);
-  }
-
-  var percent = errorCount / str1.length;
-  this.logger.info("Base64 errors: " + errorCount + "\t" + str1.length + "\t" + percent);
-}
-
+// Reduces the quality of the image @image to level @quality.
 cryptagram.encoder.prototype.reduceQuality = function(image, quality) {
-		var img = new Image();
-		img.onload = function () {
-				var width = img.width;
-				var height = img.height;
-				context.drawImage(img, 0, 0, width, height);
-				document.images[0].src = canvas.toDataUrl('image/jpeg', quality);
-		}
-		img.src = image;
-		return img;
+  var canvas = document.createElement('canvas');
+  var context = canvas.getContext('2d');
+	var img = new Image();
+	var newImg = img.onload = function () {
+		var width = img.width;
+		var height = img.height;
+		context.drawImage(img, 0, 0, width, height);
+		var outImg = canvas.toDataURL('image/jpeg', quality);
+    console.log("outImg: " + outImg);
+	}();
+	img.src = image;
+	return newImg;
 }
 
+// Stubbed.
 cryptagram.encoder.prototype.reduceSize = function(image, fraction) {
 }
 
-/**
- * @param{Array} files
- * @private
- */
-cryptagram.encoder.prototype.handleFiles = function(files) {
-
-  // Files is a FileList of File objects. List some properties.
-  var output = [];
-  var zip;
-  var images;
+cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   var self = this;
-  var codec = new cryptagram.codec.bacchant();
-  var cipher = new cryptagram.cipher();
+  console.log("Loaded");
+  goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),encodedImage,0);
+  var str = encodedImage.src;
+  var idx = str.indexOf(",");
+  var dat = str.substring(idx+1);
+  // self.images.file(self.numberImages + '.jpg', dat, {base64: true});
+  // self.numberImages++;
 
-  if (this.zip == null) {
-      this.zip = new JSZip();
-      this.images = this.zip.folder('images');
-      this.numberImages = 0;
+  // Trigger it!
+  console.log("Dispatching with this much data: " + dat.length);
+  // var source = new goog.events.EventTarget();
+  self.eventTarget.dispatchEvent({type: "imageDone"});
+  // myelement.dispatchEvent(myEvent);
+}
+
+cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
+  var self = this;
+  var originalData = loadEvent.target.result;
+
+  // console.log("Data: " + originalData);
+  console.log("Reducing quality.");
+  // var reduced = self.reduceQuality(originalData, 0.77);
+  // if (reduced) {
+  //   console.log("Reduced: " + reduced.src);
+  // }
+
+  // Insert the reduced here to test the reduceQuality function.
+
+  var originalImage = new Image();
+  originalImage.onload = function () {
+    goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
+    ratio = originalImage.width / originalImage.height;
+
+    // var str = originalData;
+    console.log("Size: " + originalData.split('base64,')[1].length);
+
+    // TODO(tierney): Prompt from user.
+    var password = 'cryptagram';
+
+    var codec = new cryptagram.codec.bacchant();
+    var cipher = new cryptagram.cipher();
+
+    var encryptedData = cipher.encrypt(originalData, password);
+    var encodedImage = codec.encode(encryptedData, ratio);
+    encodedImage.onload = self.encodedOnload;
   }
+  originalImage.src = originalData;
+}
 
-  for (var i = 0; i < files.length; i++) {
-    f = files[i];
-    var name = escape(f.name);
+cryptagram.encoder.prototype.startEncoding = function (fin) {
+  var self = this;
+  var name = escape(fin.name);
+  console.log("Name: " + name);
+  console.log('Size: ' + fin.size);
 
-    // TODO(tierney): Resize large images instead of punting.
-    // if (f.size > 600000) {
-    //   console.log('Skipping ' + name);
-    //   continue;
-    // }
-    console.log('Size: ' + f.size);
+  var type = fin.type || 'n/a';
+  var reader = new FileReader();
+  var ratio = 1.0;
 
-    var type = f.type || 'n/a';
-    var reader = new FileReader();
-    var ratio = 1.0;
-    reader.onload = function (loadEvent) {
-      var originalData = loadEvent.target.result;
-			console.log("Data: " + originalData);
-      var originalImage = new Image();
-      originalImage.onload = function () {
-        goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
-        ratio = originalImage.width / originalImage.height;
+  reader.onload = self.readerOnload;
 
-				// var str = originalData;
-				console.log("Size: " + originalData.split('base64,')[1].length);
-				// Prompt from user.
-        var password = 'cryptagram';
-        var encryptedData = cipher.encrypt(originalData, password);
-
-        var encodedImage = codec.encode(encryptedData, ratio);
-        encodedImage.onload = function () {
-          goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),encodedImage,0);
-          var str = encodedImage.src;
-          var idx = str.indexOf(",");
-          var dat = str.substring(idx+1);
-          self.images.file(self.numberImages + '.jpg', dat, {base64: true});
-          self.numberImages++;
-
-          // Decode image to make sure it worked
-          // var decodedImage = new Image();
-          // goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), decodedImage, 0);
-          // var container = new cryptagram.container(decodedImage);
-          // var decoder = new cryptagram.decoder(container);
-          // //codec.length = encryptedData.length;
-          // decoder.decodeData(str, codec, function(result) {
-          //   var percent = codec.errorCount / codec.lastOctal.length;
-          //   //this.logger.info("Octal decoding errors: " + codec.errorCount + 
-          //     // "\t" + codec.lastOctal.length + "\t" + percent);
-          //   var decipher = cipher.decrypt(result, password);
-          //   container.setSrc(decipher);
-          // });
-
-        };
-      }
-      originalImage.src = originalData;
-    };
-    reader.onerror = cryptagram.encoder.show_error;
-    reader.readAsDataURL(f);
-  }
-};
+  reader.onerror = cryptagram.encoder.show_error;
+  console.log("Reading image.");
+  reader.readAsDataURL(fin);
+  console.log("Read image.");
+}
 
 cryptagram.encoder.show_error = function(msg, url, linenumber) {
   console.log('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
@@ -200,8 +133,6 @@ cryptagram.encoder.show_error = function(msg, url, linenumber) {
 };
 
 goog.exportSymbol('cryptagram.encoder', cryptagram.encoder);
-goog.exportSymbol('cryptagram.encoder.prototype.showDecrypt', 
-                  cryptagram.encoder.prototype.showDecrypt);
-goog.exportSymbol('cryptagram.encoder.prototype.showEncrypt', 
+goog.exportSymbol('cryptagram.encoder.prototype.showEncrypt',
                   cryptagram.encoder.prototype.showEncrypt);
 
