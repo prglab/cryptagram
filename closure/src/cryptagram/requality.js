@@ -64,19 +64,27 @@ cryptagram.Requality.prototype.imageOnload = function (loadEvent, quality) {
 	var width = img.width;
 	var height = img.height;
 	context.drawImage(img, 0, 0, width, height);
+  console.log("Image quality: " + quality + " " + width + " " + height);
 	var outImg = canvas.toDataURL('image/jpeg', quality);
 
   console.log("outImg callback: " + outImg.length);
-  this.dispatchEvent({type:"REQUALITY_DONE", image:img});
+  this.dispatchEvent({type:"REQUALITY_DONE", image:outImg});
 };
 
 // Reduces the quality of the image @image to level @quality.
 cryptagram.Requality.prototype.start = function (image, quality) {
   var self = this;
-  this.logger.info('Started');
+  this.logger.info('Started with: ' + image.length);
 	var img = new Image();
 	img.onload = function (event) {
     self.imageOnload(event, quality);
   }
-	img.src = image;
+
+  if (image.length > 600) {
+    this.logger.info('Must requality.');
+	  img.src = image;
+  } else {
+    this.logger.info('No need for requality.');
+    this.dispatchEvent({type:"REQUALITY_DONE", image:image});
+  }
 };
