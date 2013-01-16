@@ -29,9 +29,8 @@ cryptagram.content = function() {
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
 
-  //var remoteLog = new cryptagram.RemoteLog();
-  //remoteLog.setCapturing(true);
-
+  this.remoteLog = new cryptagram.RemoteLog();
+  
   this.logger.info('Initializing injected content.');
 
   var URL = new goog.Uri(window.location);
@@ -64,6 +63,7 @@ cryptagram.content = function() {
 cryptagram.content.prototype.logger = 
     goog.debug.Logger.getLogger('cryptagram.content');
 
+
 cryptagram.content.prototype.handleRequest = 
     function(request, sender, callback) {
   
@@ -74,7 +74,11 @@ cryptagram.content.prototype.handleRequest =
   if (request['storage']) {
     this.storage.load(request['storage']);
   }
-
+  
+  // Always check user_study variable in case it has changed
+  var remoteCapture = (self.storage.lookup['user_study'] == 'true');
+  this.remoteLog.setCapturing(remoteCapture);
+  
   if (request['autoDecrypt'] && this.media.supportsAutodecrypt) {
 
     if (request['autoDecrypt'] == this.lastAutoDecrypt) {
@@ -201,7 +205,7 @@ cryptagram.content.prototype.decryptByURL = function(URL, password) {
         if (savePassword) {
           self.logger.info("Saving image password for " + photoName); 
           var obj = {'outcome': 'success', 'id' : photoName, 'password' : password};
-          if (albumPassword) {
+          if (albumPassword && albumName) {
             self.logger.info("Saving album password for " + albumName); 
             obj['album'] = albumName;
           }
@@ -271,6 +275,8 @@ cryptagram.content.prototype.autoDecrypt = function() {
 cryptagram.content.prototype.getPassword = function(URL) {
   var password = this.storage.getPasswordForURL(URL);
   if (password) {
+    this.overrideSavePassword = false;
+    this.overrideAlbumPassword = false;
     this.decryptByURL(URL, password);
     return;
   }
