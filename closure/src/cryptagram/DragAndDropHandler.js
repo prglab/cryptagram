@@ -100,8 +100,7 @@ cryptagram.DragAndDropHandler.prototype.handleFiles = function (files) {
   var numFiles = files.length;
   var completed = 0;
 
-  var source = new goog.events.EventTarget();
-  var encoder = new cryptagram.encoder(source);
+  var encoder = new cryptagram.encoder();
   goog.events.listen(encoder, "IMAGE_DONE", function (event) {
     console.log ("Got a message back with this much dat: " + event.dat.length);
     completed++;
@@ -115,7 +114,7 @@ cryptagram.DragAndDropHandler.prototype.handleFiles = function (files) {
       console.log("More to go!");
       encoder.startEncoding(files[completed]);
     } else {
-      // TODO(tierney): Downloadify.
+      // TODO(tierney): Downloadify kick start?
     }
   },
 										true,

@@ -4,6 +4,7 @@
               "src/cryptagram/DragAndDropHandler.js",
               "src/cryptagram/encoder.js",
               "src/cryptagram/experiment.js",
+              "src/cryptagram/requality.js",
               "src/thirdparty/sjcl.js",
               "src/thirdparty/jszip.js",
               "src/thirdparty/downloadify.js",
@@ -15,6 +16,6 @@
               "externs/downloadify.js",
               "externs/swfobject.js",
               "externs/chrome_extensions.js"],
-  "mode": "ADVANCED",
+  "mode": "SIMPLE",
   "jsdoc-html-output-path": "docs"
 }
