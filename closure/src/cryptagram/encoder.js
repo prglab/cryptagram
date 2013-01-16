@@ -2,12 +2,15 @@
 // provide a portable, drag-and-drop medium for creating cryptagram images.
 
 goog.provide('cryptagram.encoder');
+goog.provide('cryptagram.encoder.EventType');
 
 goog.require('goog.debug.Console');
 goog.require('goog.debug.Logger');
 goog.require('goog.dom');
-goog.require('goog.events.FileDropHandler');
+goog.require('goog.events');
+goog.require('goog.events.EventTarget');
 goog.require('goog.events.EventType');
+goog.require('goog.events.FileDropHandler');
 
 goog.require('cryptagram.container');
 goog.require('cryptagram.decoder');
@@ -22,7 +25,6 @@ goog.require('cryptagram.RemoteLog');
  */
 cryptagram.encoder = function (eventTarget) {
   var self = this;
-  self.eventTarget = eventTarget;
 
   console.log("Instantiated.");
   var logconsole = new goog.debug.Console();
@@ -30,7 +32,10 @@ cryptagram.encoder = function (eventTarget) {
 
   var remoteLog = new cryptagram.RemoteLog();
   remoteLog.setCapturing(true);
+
+  goog.events.EventTarget.call(this);
 };
+goog.inherits(cryptagram.encoder, goog.events.EventTarget);
 
 cryptagram.encoder.prototype.logger = goog.debug.Logger.getLogger('cryptagram.encoder');
 
@@ -73,10 +78,16 @@ cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
 
   // Trigger it!
   console.log("Dispatching with this much data: " + dat.length);
-  // var source = new goog.events.EventTarget();
-  self.eventTarget.dispatchEvent({type: "imageDone"});
+	// var event = new goog.events.Event("imageDone", {dat: dat});
+	this.dispatchEvent(cryptagram.encoder.EventType.IMAGE_DONE);
+														
   // myelement.dispatchEvent(myEvent);
 }
+
+/** @enum {string} */
+cryptagram.encoder.EventType = {
+  IMAGE_DONE: goog.events.getUniqueId('imageDone')
+};
 
 cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
   var self = this;
