@@ -54,17 +54,22 @@ cryptagram.Requality.prototype.setStatus = function (message) {
   console.log(message);
 };
 
-cryptagram.Requality.prototype.imageOnload = function (loadEvent, quality) {
-  var img = loadEvent.target;
+cryptagram.Requality.prototype.imageOnload = function (img, quality) {
+  // Check the size and then pass to either the encoder or to resize.
 
   var canvas = document.createElement('canvas');
-  var context = canvas.getContext('2d');
 
-  // Check the size and then pass to either the encoder or to resize.
 	var width = img.width;
 	var height = img.height;
+
+  canvas.width = width;
+  canvas.height = height;
+
+  var context = canvas.getContext('2d');
 	context.drawImage(img, 0, 0, width, height);
-  console.log("Image quality: " + quality + " " + width + " " + height);
+
+  console.log("Image NEW quality: " + quality + " " + width + " " + height);
+
 	var outImg = canvas.toDataURL('image/jpeg', quality);
 
   console.log("outImg callback: " + outImg.length);
@@ -77,7 +82,7 @@ cryptagram.Requality.prototype.start = function (image, quality) {
   this.logger.info('Started with: ' + image.length);
 	var img = new Image();
 	img.onload = function (event) {
-    self.imageOnload(event, quality);
+    self.imageOnload(img, quality);
   }
 
   if (image.length > 600) {

@@ -5,6 +5,7 @@
               "src/cryptagram/encoder.js",
               "src/cryptagram/experiment.js",
               "src/cryptagram/requality.js",
+              "src/cryptagram/resizing.js",
               "src/thirdparty/sjcl.js",
               "src/thirdparty/jszip.js",
               "src/thirdparty/downloadify.js",
@@ -16,6 +17,6 @@
               "externs/downloadify.js",
               "externs/swfobject.js",
               "externs/chrome_extensions.js"],
-  "mode": "RAW",
+  "mode": "SIMPLE",
   "jsdoc-html-output-path": "docs"
 }

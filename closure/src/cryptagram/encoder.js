@@ -42,23 +42,6 @@ cryptagram.encoder.prototype.setStatus = function(message) {
 cryptagram.encoder.prototype.reduceSize = function(image, fraction) {
 }
 
-cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
-  var self = this;
-  console.log("Loaded");
-
-  var encodedImage = loadEvent.target;
-  // goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),
-	// 											 encodedImage,
-	// 											 0);
-  var str = encodedImage.src;
-  var idx = str.indexOf(",");
-  var dat = str.substring(idx+1);
-
-  // Trigger it!
-  console.log("Dispatching with this much data: " + dat.length);
-  this.dispatchEvent({type:"IMAGE_DONE", dat:dat});
-}
-
 /** @enum {string} */
 cryptagram.encoder.EventType = {
   IMAGE_DONE: goog.events.getUniqueId('imageDone')
@@ -84,11 +67,12 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
 
   // console.log("Data: " + originalData);
   var threshold_ = 6000000;
-  var new_quality_ = 0.8;
+  var new_quality_ = 0.2;
 
   var requality = new cryptagram.Requality();
   goog.events.listen(requality, "REQUALITY_DONE", function (event) {
     console.log("Got it: " + event.image.length);
+    console.log("Image text: " + event.image.substring(0,100));
     self.encodeImage(event.image);
   },
                      true, this);
@@ -132,6 +116,23 @@ cryptagram.encoder.prototype.encodeImage = function (dataToEncode) {
     }
   }
   originalImage.src = dataToEncode;
+};
+
+cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
+  var self = this;
+  console.log("Loaded");
+
+  var encodedImage = loadEvent.target;
+  goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),
+												 encodedImage,
+												 0);
+  var str = encodedImage.src;
+  var idx = str.indexOf(",");
+  var dat = str.substring(idx+1);
+
+  // Trigger it!
+  console.log("Dispatching with this much data: " + dat.length);
+  this.dispatchEvent({type:"IMAGE_DONE", dat:dat});
 };
 
 cryptagram.encoder.prototype.startEncoding = function (fin) {
