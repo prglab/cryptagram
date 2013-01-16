@@ -88,6 +88,7 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
 
   var requality = new cryptagram.Requality();
   goog.events.listen(requality, "requalityDone", function (event) {
+    console.log("Got it!");
     this.encodeImage(event.image);
   },
                      true, this);

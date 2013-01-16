@@ -8,6 +8,7 @@ goog.require('goog.debug.Console');
 goog.require('goog.debug.Logger');
 goog.require('goog.dom');
 goog.require('goog.events.Event');
+goog.require('goog.events.EventType');
 goog.require('goog.events.EventTarget');
 
 goog.require('cryptagram.container');
@@ -53,21 +54,29 @@ cryptagram.Requality.prototype.setStatus = function (message) {
   console.log(message);
 };
 
-// Reduces the quality of the image @image to level @quality.
-cryptagram.Requality.prototype.start = function (image, quality) {
-  this.logger.info('Started');
+cryptagram.Requality.prototype.imageOnload = function (loadEvent, quality) {
+  var img = loadEvent.target;
+
   var canvas = document.createElement('canvas');
   var context = canvas.getContext('2d');
-	var img = new Image();
-	var newImg = img.onload = function () {
-    // Check the size and then pass to either the encoder or to resize.
-		var width = img.width;
-		var height = img.height;
-		context.drawImage(img, 0, 0, width, height);
-		var outImg = canvas.toDataURL('image/jpeg', quality);
 
-    console.log("outImg: " + outImg.length);
-    this.dispatchEvent({type:"REQUALITY_DONE", image:outImg});
-	}
+  // Check the size and then pass to either the encoder or to resize.
+	var width = img.width;
+	var height = img.height;
+	context.drawImage(img, 0, 0, width, height);
+	var outImg = canvas.toDataURL('image/jpeg', quality);
+
+  console.log("outImg callback: " + outImg.length);
+  this.dispatchEvent({type:"REQUALITY_DONE", image:img});
+};
+
+// Reduces the quality of the image @image to level @quality.
+cryptagram.Requality.prototype.start = function (image, quality) {
+  var self = this;
+  this.logger.info('Started');
+	var img = new Image();
+	img.onload = function (event) {
+    self.imageOnload(event, quality);
+  }
 	img.src = image;
 };
