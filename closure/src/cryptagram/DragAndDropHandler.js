@@ -117,7 +117,9 @@ cryptagram.DragAndDropHandler.prototype.handleFiles = function (files) {
     } else {
       // TODO(tierney): Downloadify.
     }
-  });
+  },
+										true,
+										this);
 
   encoder.startEncoding(files[completed]);
   console.log("Going out of scope.");
