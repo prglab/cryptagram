@@ -26,7 +26,6 @@ goog.require('cryptagram.RemoteLog');
 cryptagram.encoder = function () {
   goog.events.EventTarget.call(this);
 };
-
 goog.inherits(cryptagram.encoder, goog.events.EventTarget);
 
 
@@ -61,21 +60,16 @@ cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   console.log("Loaded");
 
   var encodedImage = loadEvent.target;
-  goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),
-												 encodedImage,
-												 0);
+  // goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),
+	// 											 encodedImage,
+	// 											 0);
   var str = encodedImage.src;
   var idx = str.indexOf(",");
   var dat = str.substring(idx+1);
-  // self.images.file(self.numberImages + '.jpg', dat, {base64: true});
-  // self.numberImages++;
 
   // Trigger it!
   console.log("Dispatching with this much data: " + dat.length);
-  // var source = new goog.events.EventTarget();
-
-  this.dispatchEvent({type:"IMAGE_DONE",dat:dat});
-  // myelement.dispatchEvent(myEvent);
+  this.dispatchEvent({type:"IMAGE_DONE", dat:dat});
 }
 
 /** @enum {string} */
@@ -115,7 +109,7 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
 
   var originalImage = new Image();
   originalImage.onload = function () {
-    goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
+    // goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
     ratio = originalImage.width / originalImage.height;
 
     // var str = originalData;
