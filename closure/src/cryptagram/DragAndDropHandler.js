@@ -36,7 +36,7 @@ cryptagram.DragAndDropHandler = function () {
   var remoteLog = new cryptagram.RemoteLog();
   remoteLog.setCapturing(true);
 };
-// goog.inherits(cryptagram.encoder, goog.events.EventTarget);
+goog.inherits(cryptagram.DragAndDropHandler, goog.events.EventTarget);
 
 // Logger naming for pretty log message prefixes.
 cryptagram.DragAndDropHandler.prototype.logger =
@@ -108,7 +108,7 @@ cryptagram.DragAndDropHandler.prototype.handleFiles = function (files) {
   var encoder = new cryptagram.encoder();
   goog.events.listen(
     encoder,
-    cryptagram.encoder.EventType,
+    cryptagram.encoder.EncoderEvent,
     function (event) {
 			console.log ("Got a message back!");
 			completed++;
