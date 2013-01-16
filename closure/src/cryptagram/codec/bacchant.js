@@ -34,14 +34,14 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
 
   var timeA = new Date().getTime();
 
-  width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
+  var width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
 		width_to_height_ratio : 1.0;
-  header_string = typeof header_string !== 'undefined' ? header_string :
+  var header_string = typeof header_string !== 'undefined' ? header_string :
 		this.name();
-  block_width = typeof block_width !== 'undefined' ? block_width : this.blockSize;
-  block_height = typeof block_height !== 'undefined' ? block_height : this.blockSize;
+  var block_width = typeof block_width !== 'undefined' ? block_width : this.blockSize;
+  var block_height = typeof block_height !== 'undefined' ? block_height : this.blockSize;
 
-  n_header_symbols = header_string.length;
+  var n_header_symbols = header_string.length;
   var self = this;
   // grow an array of grayscale values and then convert them to an RGB Image
   // afterward (so we don't have to precompute size or worry about the header
@@ -137,21 +137,22 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
     }
   }
 
-  n_header_row_symbols_wide = (width - header_width) / block_width;
-  n_header_row_symbols = n_header_row_symbols_wide *
+  var n_header_row_symbols_wide = (width - header_width) / block_width;
+  var n_header_row_symbols = n_header_row_symbols_wide *
 		(header_height / block_height)
-  n_symbols_in_full_row = width / block_width;
+  var n_symbols_in_full_row = width / block_width;
   var x_coord, y_coord, x, y, i2;
   
   for (var i = 0; i < n_values; i++) {
-    octal = values[i];
+    var octal = values[i];
     level = this.symbol_thresholds[octal];
+    var x_coord, y_coord, x, y;
     if (i < n_header_row_symbols) {
       y_coord = Math.floor(i / n_header_row_symbols_wide);
       x_coord = (i - (y_coord * n_header_row_symbols_wide));
       x = header_width + (x_coord * block_width);
     } else {
-     i2 = i + n_header_values;
+     var i2 = i + n_header_values;
      y_coord = Math.floor(i2 / n_symbols_in_full_row);
      x_coord = i2 - (y_coord * n_symbols_in_full_row);
      x = x_coord * block_width;
@@ -181,14 +182,14 @@ cryptagram.codec.bacchant.prototype.getHeader = function(img, imageData) {
 
     var newBase64 = "";
     var headerSize = this.blockSize * 4;
-    for (y = 0; y < headerSize; y+= this.blockSize) {
-      for (x = 0; x < headerSize; x+= 2*this.blockSize) {
+    for (var y = 0; y < headerSize; y+= this.blockSize) {
+      for (var x = 0; x < headerSize; x+= 2*this.blockSize) {
         
-        base8_0 = this.getBase8Value(img, imageData, x, y);
-        base8_1 = this.getBase8Value(img, imageData, x + this.blockSize, y);
-        base64Num = base8_0 * 8 + base8_1 ;
+        var base8_0 = this.getBase8Value(img, imageData, x, y);
+        var base8_1 = this.getBase8Value(img, imageData, x + this.blockSize, y);
+        var base64Num = base8_0 * 8 + base8_1 ;
 
-        base64 = this.base64Values.charAt(base64Num);                    
+        var base64 = this.base64Values.charAt(base64Num);                    
         newBase64 += base64;
       }
     }
@@ -210,22 +211,22 @@ cryptagram.codec.bacchant.prototype.getBase8Value = function(img, imgData, x, y)
   var vt = 0.0;
   var avg;
   
-  for (i = 0; i < this.blockSize; i++) {
-    for (j = 0; j < this.blockSize; j++) {
+  for (var i = 0; i < this.blockSize; i++) {
+    for (var j = 0; j < this.blockSize; j++) {
       
-      base = (y + j) * img.width + (x + i);
+      var base = (y + j) * img.width + (x + i);
       
-      r = imgData[4*base];
-      g = imgData[4*base + 1];
-      b = imgData[4*base + 2];
-      lum = 0.299 * r + 0.587 * g + 0.114 * b;
+      var r = imgData[4*base];
+      var g = imgData[4*base + 1];
+      var b = imgData[4*base + 2];
+      var lum = 0.299 * r + 0.587 * g + 0.114 * b;
 
       vt += lum;
       count++;
     }
   }
   
-  v = vt / count;
+  var v = vt / count;
   var bin = Math.floor(v / 32.0);
 
   return bin;   
@@ -275,11 +276,11 @@ cryptagram.codec.bacchant.prototype.getChunk = function() {
           continue;
         }
                         
-        base8_0 = this.getBase8Value(this.img, this.imageData, x, this.y);
-        base8_1 = this.getBase8Value(this.img, this.imageData, x + this.blockSize, this.y);
+        var base8_0 = this.getBase8Value(this.img, this.imageData, x, this.y);
+        var base8_1 = this.getBase8Value(this.img, this.imageData, x + this.blockSize, this.y);
         
-        base64Num = base8_0 * 8 + base8_1 ;
-        base64 = this.base64Values.charAt(base64Num);
+        var base64Num = base8_0 * 8 + base8_1 ;
+        var base64 = this.base64Values.charAt(base64Num);
                                   
         if (this.y == 0 && x < headerSize + 16*this.blockSize) {
           this.lengthString += base64;
