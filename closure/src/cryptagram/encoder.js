@@ -61,7 +61,10 @@ cryptagram.encoder.prototype.reduceSize = function(image, fraction) {
 cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   var self = this;
   console.log("Loaded");
-  goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),encodedImage,0);
+  var encodedImage = loadEvent.target;
+  goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),
+												 encodedImage,
+												 0);
   var str = encodedImage.src;
   var idx = str.indexOf(",");
   var dat = str.substring(idx+1);
@@ -104,7 +107,7 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
 
     var encryptedData = cipher.encrypt(originalData, password);
     var encodedImage = codec.encode(encryptedData, ratio);
-    encodedImage.onload = self.encodedOnload;
+    encodedImage.onload = cryptagram.encoder.prototype.encodedOnload;
   }
   originalImage.src = originalData;
 }
