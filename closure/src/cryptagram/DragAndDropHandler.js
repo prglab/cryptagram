@@ -32,11 +32,7 @@ cryptagram.DragAndDropHandler = function () {
 
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
-
-  var remoteLog = new cryptagram.RemoteLog();
-  remoteLog.setCapturing(true);
-};
-goog.inherits(cryptagram.DragAndDropHandler, goog.events.EventTarget);
+}
 
 // Logger naming for pretty log message prefixes.
 cryptagram.DragAndDropHandler.prototype.logger =
@@ -104,28 +100,26 @@ cryptagram.DragAndDropHandler.prototype.handleFiles = function (files) {
   var numFiles = files.length;
   var completed = 0;
 
-  // var source = new goog.events.EventTarget();
-  var encoder = new cryptagram.encoder();
-  goog.events.listen(
-    encoder,
-    cryptagram.encoder.EncoderEvent,
-    function (event) {
-			console.log ("Got a message back!");
-			completed++;
-			self.images.file(completed + '.jpg',
-											 event.dat,
-											 { base64: true });
-			// event.preventDefault();
-			// event.stopPropagation();
+  var source = new goog.events.EventTarget();
+  var encoder = new cryptagram.encoder(source);
+  goog.events.listen(encoder, "IMAGE_DONE", function (event) {
+    console.log ("Got a message back!");
+    completed++;
+    self.images.file(completed + '.jpg',
+                     event.dat,
+                     { base64: true });
+    // event.preventDefault();
+    // event.stopPropagation();
 
-			if (completed < numFiles) {
-				console.log("More to go!");
-				encode.startEncoding(files[completed]);
-			} else {
-				// TODO(tierney): Downloadify.
-			}
-  }
-	);
+    if (completed < numFiles) {
+      console.log("More to go!");
+      encode.startEncoding(files[completed]);
+    } else {
+      // TODO(tierney): Downloadify.
+    }
+  },
+										true,
+										this);
 
   encoder.startEncoding(files[completed]);
   console.log("Going out of scope.");
