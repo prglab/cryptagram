@@ -8,6 +8,7 @@ goog.provide('cryptagram.encoder.EncoderEvent');
 goog.require('goog.debug.Console');
 goog.require('goog.debug.Logger');
 goog.require('goog.dom');
+goog.require('goog.events');
 goog.require('goog.events.FileDropHandler');
 goog.require('goog.events.Event');
 goog.require('goog.events.EventTarget');
@@ -18,6 +19,9 @@ goog.require('cryptagram.cipher');
 goog.require('cryptagram.codec.bacchant');
 goog.require('cryptagram.loader');
 goog.require('cryptagram.RemoteLog');
+goog.require('cryptagram.Requality');
+goog.require('cryptagram.Requality.Event');
+goog.require('cryptagram.Requality.EventType');
 
 /**
  * This class demonstrates some of the core functionality of cryptagram.
@@ -28,28 +32,11 @@ cryptagram.encoder = function () {
 };
 goog.inherits(cryptagram.encoder, goog.events.EventTarget);
 
-
 cryptagram.encoder.prototype.logger = goog.debug.Logger.getLogger('cryptagram.encoder');
 
 cryptagram.encoder.prototype.setStatus = function(message) {
   console.log(message);
 };
-
-// Reduces the quality of the image @image to level @quality.
-cryptagram.encoder.prototype.reduceQuality = function(image, quality) {
-  var canvas = document.createElement('canvas');
-  var context = canvas.getContext('2d');
-	var img = new Image();
-	var newImg = img.onload = function () {
-		var width = img.width;
-		var height = img.height;
-		context.drawImage(img, 0, 0, width, height);
-		var outImg = canvas.toDataURL('image/jpeg', quality);
-    console.log("outImg: " + outImg);
-	}();
-	img.src = image;
-	return newImg;
-}
 
 // Stubbed.
 cryptagram.encoder.prototype.reduceSize = function(image, fraction) {
@@ -93,27 +80,42 @@ goog.inherits(cryptagram.encoder.EncoderEventTarget, goog.events.EventTarget);
 
 cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
   var self = this;
-
-  console.log(this);
-
   var originalData = loadEvent.target.result;
 
   // console.log("Data: " + originalData);
-  console.log("Reducing quality.");
+  var threshold_ = 6000000;
+  var new_quality_ = 0.77;
+
+  var requality = new cryptagram.Requality();
+  goog.events.listen(requality, "requalityDone", function (event) {
+    this.encodeImage(event.image);
+  },
+                     true, this);
+  requality.start(originalData, new_quality_);
+
+  // if (originalData.length > threshold_) {
+  //   console.log("Reducing quality.");
+  //   this.reduceQuality(originalData, new_quality_);
+  // } else {
+  //   this.encodeImage(originalData);
+  // }
+
   // var reduced = self.reduceQuality(originalData, 0.77);
   // if (reduced) {
   //   console.log("Reduced: " + reduced.src);
   // }
 
   // Insert the reduced here to test the reduceQuality function.
+};
 
+cryptagram.encoder.prototype.encodeImage = function (dataToEncode) {
   var originalImage = new Image();
   originalImage.onload = function () {
     // goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
     ratio = originalImage.width / originalImage.height;
 
-    // var str = originalData;
-    console.log("Size: " + originalData.split('base64,')[1].length);
+    // var str = dataToEncode;
+    console.log("Size: " + dataToEncode.split('base64,')[1].length);
 
     // TODO(tierney): Prompt from user.
     var password = 'cryptagram';
@@ -121,14 +123,14 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
     var codec = new cryptagram.codec.bacchant();
     var cipher = new cryptagram.cipher();
 
-    var encryptedData = cipher.encrypt(originalData, password);
+    var encryptedData = cipher.encrypt(dataToEncode, password);
     var encodedImage = codec.encode(encryptedData, ratio);
     encodedImage.onload = function(e) {
-      self.encodedOnload(e);
+      this.encodedOnload(e);
     }
   }
-  originalImage.src = originalData;
-}
+  originalImage.src = dataToEncode;
+};
 
 cryptagram.encoder.prototype.startEncoding = function (fin) {
   var self = this;
