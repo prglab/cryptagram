@@ -3,11 +3,13 @@
 
 goog.provide('cryptagram.encoder');
 goog.provide('cryptagram.encoder.EventType');
+goog.provide('cryptagram.encoder.EncoderEvent');
 
 goog.require('goog.debug.Console');
 goog.require('goog.debug.Logger');
 goog.require('goog.dom');
 goog.require('goog.events');
+goog.require('goog.events.Event');
 goog.require('goog.events.EventTarget');
 goog.require('goog.events.EventType');
 goog.require('goog.events.FileDropHandler');
@@ -23,7 +25,7 @@ goog.require('cryptagram.RemoteLog');
  * This class demonstrates some of the core functionality of cryptagram.
  * @constructor
  */
-cryptagram.encoder = function (eventTarget) {
+cryptagram.encoder = function () {
   var self = this;
 
   console.log("Instantiated.");
@@ -33,7 +35,7 @@ cryptagram.encoder = function (eventTarget) {
   var remoteLog = new cryptagram.RemoteLog();
   remoteLog.setCapturing(true);
 
-  goog.events.EventTarget.call(this);
+  this.EncoderEvent = new cryptagram.encoder.EncoderEventTarget();
 };
 goog.inherits(cryptagram.encoder, goog.events.EventTarget);
 
@@ -79,8 +81,10 @@ cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   // Trigger it!
   console.log("Dispatching with this much data: " + dat.length);
 	// var event = new goog.events.Event("imageDone", {dat: dat});
-	this.dispatchEvent(cryptagram.encoder.EventType.IMAGE_DONE);
-														
+  var event = new cryptagram.encoder.EncoderEvent(dat);
+  var dispatcher = new cryptagram.encoder.EncoderEventTarget();
+  dispatcher.dispatchEvent(event);
+
   // myelement.dispatchEvent(myEvent);
 }
 
@@ -88,6 +92,20 @@ cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
 cryptagram.encoder.EventType = {
   IMAGE_DONE: goog.events.getUniqueId('imageDone')
 };
+
+
+cryptagram.encoder.EncoderEvent = function (dat) {
+  goog.events.Event.call(this, 'IMAGE_DONE');
+  this.dat = dat;
+};
+goog.inherits(cryptagram.encoder.EncoderEvent, goog.events.Event);
+
+
+cryptagram.encoder.EncoderEventTarget = function () {
+  goog.events.EventTarget.call(this);
+};
+goog.inherits(cryptagram.encoder.EncoderEventTarget, goog.events.EventTarget);
+
 
 cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
   var self = this;
