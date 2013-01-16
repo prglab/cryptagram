@@ -87,9 +87,9 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
   var new_quality_ = 0.77;
 
   var requality = new cryptagram.Requality();
-  goog.events.listen(requality, "requalityDone", function (event) {
-    console.log("Got it!");
-    this.encodeImage(event.image);
+  goog.events.listen(requality, "REQUALITY_DONE", function (event) {
+    // console.log("Got it: " + event.image.src);
+    self.encodeImage(event.image.src);
   },
                      true, this);
   requality.start(originalData, new_quality_);
@@ -110,6 +110,7 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
 };
 
 cryptagram.encoder.prototype.encodeImage = function (dataToEncode) {
+  var self = this;
   var originalImage = new Image();
   originalImage.onload = function () {
     // goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
@@ -127,7 +128,7 @@ cryptagram.encoder.prototype.encodeImage = function (dataToEncode) {
     var encryptedData = cipher.encrypt(dataToEncode, password);
     var encodedImage = codec.encode(encryptedData, ratio);
     encodedImage.onload = function(e) {
-      this.encodedOnload(e);
+      self.encodedOnload(e);
     }
   }
   originalImage.src = dataToEncode;

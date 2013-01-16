@@ -16,6 +16,6 @@
               "externs/downloadify.js",
               "externs/swfobject.js",
               "externs/chrome_extensions.js"],
-  "mode": "SIMPLE",
+  "mode": "RAW",
   "jsdoc-html-output-path": "docs"
 }
