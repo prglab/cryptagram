@@ -74,7 +74,7 @@ cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   console.log("Dispatching with this much data: " + dat.length);
   // var source = new goog.events.EventTarget();
 
-  this.dispatchEvent("IMAGE_DONE");
+  this.dispatchEvent({type:"IMAGE_DONE",dat:dat});
   // myelement.dispatchEvent(myEvent);
 }
 
