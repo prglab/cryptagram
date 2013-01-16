@@ -18,6 +18,7 @@ goog.require('cryptagram.codec.bacchant');
 goog.require('cryptagram.container');
 goog.require('cryptagram.decoder');
 goog.require('cryptagram.encoder');
+goog.require('cryptagram.encoder.EventType');
 goog.require('cryptagram.loader');
 
 // Constructor.
@@ -102,24 +103,25 @@ cryptagram.DragAndDropHandler.prototype.handleFiles = function (files) {
 
   var source = new goog.events.EventTarget();
   var encoder = new cryptagram.encoder(source);
-  goog.events.listen(source, "imageDone", function (event) {
-    console.log ("Got a message back!");
-    completed++;
-    self.images.file(completed + '.jpg',
-                     event.dat,
-                     { base64: true });
-    // event.preventDefault();
-    // event.stopPropagation();
+  encoder.addEventListener(cryptagram.encoder.EventType.IMAGE_DONE,
+	  function (event) {
+			console.log ("Got a message back!");
+			completed++;
+			self.images.file(completed + '.jpg',
+											 event.dat,
+											 { base64: true });
+			// event.preventDefault();
+			// event.stopPropagation();
 
-    if (completed < numFiles) {
-      console.log("More to go!");
-      encode.startEncoding(files[completed]);
-    } else {
-      // TODO(tierney): Downloadify.
-    }
+			if (completed < numFiles) {
+				console.log("More to go!");
+				encode.startEncoding(files[completed]);
+			} else {
+				// TODO(tierney): Downloadify.
+			}
   },
-										true,
-										this);
+													 true
+													 );
 
   encoder.startEncoding(files[completed]);
   console.log("Going out of scope.");
