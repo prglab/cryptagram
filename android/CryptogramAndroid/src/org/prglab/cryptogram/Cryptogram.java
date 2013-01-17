@@ -14,18 +14,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
+import android.provider.MediaStore.MediaColumns;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
@@ -37,8 +38,6 @@ import android.widget.ImageView;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
-
-import android.webkit.MimeTypeMap;
 
 
 public class Cryptogram extends Activity {
@@ -75,7 +74,8 @@ public class Cryptogram extends Activity {
 		        	return;
 		        st.nextToken();
 		        String func = st.nextToken();
-		        String parameter = URLDecoder.decode(st.nextToken());
+		        @SuppressWarnings("deprecation")
+				String parameter = URLDecoder.decode(st.nextToken());
 		        
 		        //Toast.makeText(getApplicationContext(), func + " " + parameter, Toast.LENGTH_SHORT ).show();
 		        if ( func.equalsIgnoreCase("setDataUrl") ) {
@@ -222,6 +222,7 @@ public class Cryptogram extends Activity {
 			// Will thread it later
 			Runnable myRunnable = new Runnable(){
 				
+				@Override
 				public void run(){
 					encodeToImage();
 				}
@@ -313,7 +314,8 @@ public class Cryptogram extends Activity {
 			.setCancelable(false)
 			.setPositiveButton("OK",
 			  new DialogInterface.OnClickListener() {
-			    public void onClick(DialogInterface dialog,int id) {
+			    @Override
+				public void onClick(DialogInterface dialog,int id) {
 			    	String password = userInput.getText().toString();
 			    	if (password.length() >= MIN_PASSWORD_LENGTH)
 			    		//Encrypt the photo using the user-defined password
@@ -326,7 +328,8 @@ public class Cryptogram extends Activity {
 			  })
 			.setNegativeButton("Cancel",
 			  new DialogInterface.OnClickListener() {
-			    public void onClick(DialogInterface dialog,int id) {
+			    @Override
+				public void onClick(DialogInterface dialog,int id) {
 					dialog.cancel();
 			    }
 			  });
@@ -339,7 +342,12 @@ public class Cryptogram extends Activity {
     
     }
     
-    private void encryptPhoto(String password){
+    private void showSettingsView(View v){
+    	return;
+    }
+    
+    @SuppressLint("SetJavaScriptEnabled")
+	private void encryptPhoto(String password){
     	String base64String; 
     	
     	try{
@@ -470,7 +478,7 @@ public class Cryptogram extends Activity {
 		}
     	
     	
-    	Bitmap encodedBitmap = ImageEncoder.encodeBase64(base64String, dataAccessor.getHash(), "aesthete", targetWidth/(double)targetHeight);
+    	Bitmap encodedBitmap = ImageEncoder.encodeBase64(base64String, dataAccessor.getHash(), HEADER, targetWidth/(double)targetHeight);
 
 		imagePreview.setImageBitmap(encodedBitmap);
 		
@@ -478,9 +486,9 @@ public class Cryptogram extends Activity {
 		
 		String filename = String.valueOf(System.currentTimeMillis());
 		ContentValues values = new ContentValues();
-		values.put(Images.Media.TITLE, filename);
-		values.put(Images.Media.DATE_ADDED, System.currentTimeMillis());
-		values.put(Images.Media.MIME_TYPE, "image/jpeg");
+		values.put(MediaColumns.TITLE, filename);
+		values.put(MediaColumns.DATE_ADDED, System.currentTimeMillis());
+		values.put(MediaColumns.MIME_TYPE, "image/jpeg");
 		
 		Uri uri = context.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 		try {
@@ -516,7 +524,19 @@ public class Cryptogram extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
+        getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
+    
+    public boolean onOptionsItemSelected (MenuItem item){
+    	switch (item.getItemId()) {
+        case R.id.main_settings:
+	    	Intent intent = new Intent(this, CryptogramPreferences.class);
+	    	startActivity(intent);
+	    	return true;
+    	}
+	    return super.onOptionsItemSelected(item);
+    }
+    
+    
 }

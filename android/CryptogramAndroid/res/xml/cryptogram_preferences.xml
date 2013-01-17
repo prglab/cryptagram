@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <EditTextPreference android:inputType="number" android:key="@string/max_image_width_key" android:dialogTitle="Maximum image width" android:title="Maximum Image Width"/>
+    <EditTextPreference android:inputType="number" android:dialogTitle="Maximum image height" android:key="@string/max_image_width_key" android:title="Maximum Image Height"/>
+    <EditTextPreference android:onClick="onClickFolderSelectionButton" android:dialogTitle="Encrypt Photo Output Folder" android:key="@string/folder_path_key" android:defaultValue="/sdcard/Cryptogram"/>
+    
+
+</PreferenceScreen>
