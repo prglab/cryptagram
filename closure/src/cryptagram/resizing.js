@@ -18,6 +18,8 @@ goog.require('cryptagram.codec.bacchant');
 goog.require('cryptagram.loader');
 goog.require('cryptagram.RemoteLog');
 goog.require('cryptagram.Thumbnailer');
+goog.require('cryptagram.Thumbnailer.EventType');
+goog.require('cryptagram.Thumbnailer.Event');
 
 // Resizing constructor. Listen for these events as follows:
 // var requal = new cryptagram.Resizing();
@@ -72,6 +74,10 @@ cryptagram.Resizing.prototype.setStatus = function (message) {
 //   this.dispatchEvent({type:"RESIZING_DONE", image:outImg});
 // };
 
+cryptagram.Resizing.prototype.thumbnailDone = function () {
+
+};
+
 // Reduces the quality of the image @image to level @quality.
 cryptagram.Resizing.prototype.start = function (image) {
   var self = this;
@@ -81,14 +87,16 @@ cryptagram.Resizing.prototype.start = function (image) {
 
   // This produces lanczos3 but feel free to raise it up to 8. Your client will
   // appreciate that the program makes full use of his machine.
-  new cryptagram.Thumbnailer(canvas, image, 188, 3);
-  canvas.onload = function () {
-    console.log("Loaded canvas: " + canvas.toDataURL('image/jpeg', 1.0));
-    document.body.appendChild(canvas);
-  };
-
-  document.body.appendChild(canvas);
-  return canvas;
+  var thumbnailer = new cryptagram.Thumbnailer(canvas, image, 188, 3);
+  goog.events.listen(
+    thumbnailer, "THUMBNAILER_DONE",
+    function (event) {
+      console.log("Thumbnailing done.");
+      this.dispatchEvent({type:"RESIZING_DONE", image:event.image});
+    },
+    true,
+    this);
+  thumbnailer.start();
 
 	// var img = new Image();
 	// img.onload = function (event) {
