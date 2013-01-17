@@ -2,6 +2,12 @@
 // Lifted from http://stackoverflow.com/questions/2303690/resizing-an-image-in-an-html5-canvas
 
 goog.provide('cryptagram.Thumbnailer');
+goog.provide('cryptagram.Thumbnailer.EventType');
+goog.provide('cryptagram.Thumbnailer.Event');
+
+goog.require('goog.events.Event');
+goog.require('goog.events.EventType');
+goog.require('goog.events.EventTarget');
 
 // TODO(tierney): Add thumbnailing event and wait for that at the resizer.
 
@@ -26,9 +32,28 @@ cryptagram.Thumbnailer = function (elem, img, sx, lobes) {
   this.cacheLanc = {};
   this.center = {};
   this.icenter = {};
-  setTimeout(this.process1, 0, this, 0);
+  // setTimeout(this.process1, 0, this, 0);
+};
+goog.inherits(cryptagram.Thumbnailer, goog.events.EventTarget);
+
+cryptagram.Thumbnailer.EventType = {
+  THUMBNAILER_DONE: goog.events.getUniqueId('thumbnailerDone')
 };
 
+cryptagram.Thumbnailer.Event = function (image) {
+  goog.events.Event.call(this, 'THUMBNAILER_DONE');
+  this.image = image;
+};
+goog.inherits(cryptagram.Thumbnailer.Event, goog.events.Event);
+
+cryptagram.Thumbnailer.EventTarget = function () {
+  goog.events.EventTarget.call(this);
+};
+goog.inherits(cryptagram.Thumbnailer.EventTarget, goog.events.EventTarget);
+
+cryptagram.Thumbnailer.prototype.start = function () {
+  this.process1(this, 0);
+};
 
 // Returns a function that calculates lanczos weight.
 cryptagram.Thumbnailer.prototype.lanczosCreate = function (lobes) {
@@ -112,4 +137,6 @@ cryptagram.Thumbnailer.prototype.process2 = function (self) {
   }
   self.ctx.putImageData(self.src, 0, 0);
   self.canvas.style.display = "block";
+  self.dispatchEvent({type:'THUMBNAILER_DONE',
+                      image:self.canvas.toDataURL('image/jpeg', 1.0)});
 };
