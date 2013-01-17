@@ -66,24 +66,27 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
   var originalData = loadEvent.target.result;
 
   // console.log("Data: " + originalData);
-  var threshold_ = 6000000;
-  var new_quality_ = 0.2;
+  var threshold_ = 2359296;
+  var new_quality_ = 0.8;
 
   var requality = new cryptagram.Requality();
-  goog.events.listen(requality, "REQUALITY_DONE", function (event) {
-    console.log("Got it: " + event.image.length);
-    console.log("Image text: " + event.image.substring(0,100));
-    self.encodeImage(event.image);
-  },
-                     true, this);
-  requality.start(originalData, new_quality_);
+  goog.events.listen(
+    requality,
+    "REQUALITY_DONE",
+    function (event) {
+      console.log("Got this from the requality: " + event.image.length + " "
+                  + event.image.substring(0,100));
+      self.encodeImage(event.image);
+    },
+    true,
+    this);
 
-  // if (originalData.length > threshold_) {
-  //   console.log("Reducing quality.");
-  //   this.reduceQuality(originalData, new_quality_);
-  // } else {
-  //   this.encodeImage(originalData);
-  // }
+  if (originalData.length < threshold_) {
+    console.log("Reducing quality.");
+    requality.start(originalData, new_quality_);
+  } else {
+    this.encodeImage(originalData);
+  }
 
   // var reduced = self.reduceQuality(originalData, 0.77);
   // if (reduced) {
@@ -97,11 +100,8 @@ cryptagram.encoder.prototype.encodeImage = function (dataToEncode) {
   var self = this;
   var originalImage = new Image();
   originalImage.onload = function () {
-    // goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
+    goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
     ratio = originalImage.width / originalImage.height;
-
-    // var str = dataToEncode;
-    console.log("Size: " + dataToEncode.split('base64,')[1].length);
 
     // TODO(tierney): Prompt from user.
     var password = 'cryptagram';
@@ -120,17 +120,15 @@ cryptagram.encoder.prototype.encodeImage = function (dataToEncode) {
 
 cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   var self = this;
-  console.log("Loaded");
-
   var encodedImage = loadEvent.target;
   goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),
 												 encodedImage,
 												 0);
   var str = encodedImage.src;
+  console.log("String: " + str.substring(0,100));
   var idx = str.indexOf(",");
   var dat = str.substring(idx+1);
 
-  // Trigger it!
   console.log("Dispatching with this much data: " + dat.length);
   this.dispatchEvent({type:"IMAGE_DONE", dat:dat});
 };
