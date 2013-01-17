@@ -81,7 +81,7 @@ cryptagram.demo.prototype.showEncrypt = function() {
       alert('Nothing to save.');
     },
     dataType: 'base64',
-    swf: 'media/out.swf',
+    swf: 'media/downloadify.swf',
     downloadImage: 'images/download.png',
     width: 100,
     height: 30,
