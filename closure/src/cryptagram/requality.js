@@ -17,6 +17,9 @@ goog.require('cryptagram.cipher');
 goog.require('cryptagram.codec.bacchant');
 goog.require('cryptagram.loader');
 goog.require('cryptagram.RemoteLog');
+goog.require('cryptagram.Resizing');
+goog.require('cryptagram.Resizing.EventType');
+goog.require('cryptagram.Resizing.Event');
 
 // Requality constructor. Listen for these events as follows:
 // var requal = new cryptagram.Requality();
@@ -73,7 +76,17 @@ cryptagram.Requality.prototype.imageOnload = function (img, quality) {
 	var outImg = canvas.toDataURL('image/jpeg', quality);
 
   console.log("outImg callback: " + outImg.length);
-  this.dispatchEvent({type:"REQUALITY_DONE", image:outImg});
+  // this.dispatchEvent({type:"REQUALITY_DONE", image:outImg});
+  var resizer = new cryptagram.Resizing();
+  goog.events.listen(
+    resizer, "RESIZING_DONE", 
+    function (event) {
+      console.event("Resizing done.");
+      this.dispatchEvent({type:"REQUALITY_DONE", image:event.image});
+    },
+    true,
+    this);
+  resizer.start(outImg);
 };
 
 // Reduces the quality of the image @image to level @quality.
