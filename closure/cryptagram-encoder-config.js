@@ -4,6 +4,8 @@
               "src/cryptagram/DragAndDropHandler.js",
               "src/cryptagram/encoder.js",
               "src/cryptagram/experiment.js",
+              "src/cryptagram/requality.js",
+              "src/cryptagram/resizing.js",
               "src/thirdparty/sjcl.js",
               "src/thirdparty/jszip.js",
               "src/thirdparty/downloadify.js",
