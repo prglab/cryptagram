@@ -59,7 +59,7 @@ cryptagram.Requality.prototype.setStatus = function (message) {
 
 cryptagram.Requality.prototype.imageOnload = function (img, quality) {
   // Check the size and then pass to either the encoder or to resize.
-
+  var self = this;
   var canvas = document.createElement('canvas');
 
 	var width = img.width;
@@ -73,20 +73,28 @@ cryptagram.Requality.prototype.imageOnload = function (img, quality) {
 
   console.log("Image NEW quality: " + quality + " " + width + " " + height);
 
-	var outImg = canvas.toDataURL('image/jpeg', quality);
+	var outUrl = canvas.toDataURL('image/jpeg', quality);
 
-  console.log("outImg callback: " + outImg.length);
-  // this.dispatchEvent({type:"REQUALITY_DONE", image:outImg});
+  console.log("outUrl callback: " + outUrl.length);
+  // this.dispatchEvent({type:"REQUALITY_DONE", image:outUrl});
   var resizer = new cryptagram.Resizing();
-  goog.events.listen(
-    resizer, "RESIZING_DONE", 
-    function (event) {
-      console.event("Resizing done.");
-      this.dispatchEvent({type:"REQUALITY_DONE", image:event.image});
-    },
-    true,
-    this);
-  resizer.start(outImg);
+  // goog.events.listen(
+  //   resizer, "RESIZING_DONE",
+  //   function (event) {
+  //     console.event("Resizing done.");
+  //     this.dispatchEvent({type:"REQUALITY_DONE", image:event.image});
+  //   },
+  //   true,
+  //   this);
+
+  var newImg = document.createElement("img");
+  newImg.src = outUrl;
+  newImg.onload = function (event) {
+    var resizedImgCanvas = resizer.start(newImg);
+    var resizedImg = resizedImgCanvas.toDataURL('image/jpeg', 1.0);
+    console.log('resizedImg len:' + resizedImg.length);
+    self.dispatchEvent({type:"REQUALITY_DONE", image:resizedImg});
+  };
 };
 
 // Reduces the quality of the image @image to level @quality.
