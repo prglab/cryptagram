@@ -78,7 +78,7 @@ cryptagram.codec.aesthete.dimensions = function (width_to_height_ratio,
   var n_pixels_in_header = header_width * header_height;
 
   // how many octal values do we have from our actual image data?
-  var n_values = n_base64_values * 2;
+  var n_values = 4 + Math.ceil((92 + (1.33 * n_base64_values)) * 2);
   var block_size = block_width * block_height;
   var n_pixels = block_size * n_values + n_pixels_in_header;
   var height = Math.sqrt(n_pixels / width_to_height_ratio);
