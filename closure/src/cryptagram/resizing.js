@@ -57,6 +57,19 @@ cryptagram.Resizing.prototype.setStatus = function (message) {
   console.log(message);
 };
 
+// Returns a bool to indicate that we should resize the image to a smaller size.
+cryptagram.Resizing.prototype.mustResize = function (imageUrl) {
+  var img = new Image();
+  img.src = imageUrl;
+  var widthToHeightRatio = img.width / img.height;
+
+  console.log("widthToHeightRatio: " + widthToHeightRatio);
+  console.log("imageUrl: " + imageUrl.length);
+  var newDims = cryptagram.codec.aesthete.dimensions(widthToHeightRatio,
+                                                     imageUrl.length);
+  return (newDims.width > 2048 || newDims.height > 2048);
+};
+
 // Reduces the quality of the image @image to level @quality.
 cryptagram.Resizing.prototype.start = function (image) {
   var self = this;
@@ -71,6 +84,11 @@ cryptagram.Resizing.prototype.start = function (image) {
     thumbnailer, "THUMBNAILER_DONE",
     function (event) {
       console.log("Thumbnailing done.");
+
+      console.log("resize?: " + self.mustResize(event.image));
+      // Check if the image is small enough or if we necessarily must make the
+      // image smaller.
+
       this.dispatchEvent({type:"RESIZING_DONE", image:event.image});
     },
     true,
@@ -85,4 +103,3 @@ cryptagram.Resizing.prototype.start = function (image) {
   //   this.dispatchEvent({type:"REQUALITY_DONE", image:image});
   // }
 };
-
