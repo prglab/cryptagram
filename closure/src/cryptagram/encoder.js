@@ -32,7 +32,8 @@ cryptagram.encoder = function () {
 };
 goog.inherits(cryptagram.encoder, goog.events.EventTarget);
 
-cryptagram.encoder.prototype.logger = goog.debug.Logger.getLogger('cryptagram.encoder');
+cryptagram.encoder.prototype.logger =
+		goog.debug.Logger.getLogger('cryptagram.encoder');
 
 cryptagram.encoder.prototype.setStatus = function(message) {
   console.log(message);
@@ -81,19 +82,13 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
     true,
     this);
 
+  // Decide whether we should reduce the quality of the image or not.
   if (originalData.length < threshold_) {
     console.log("Reducing quality.");
     requality.start(originalData, new_quality_);
   } else {
     this.encodeImage(originalData);
   }
-
-  // var reduced = self.reduceQuality(originalData, 0.77);
-  // if (reduced) {
-  //   console.log("Reduced: " + reduced.src);
-  // }
-
-  // Insert the reduced here to test the reduceQuality function.
 };
 
 cryptagram.encoder.prototype.encodeImage = function (dataToEncode) {
@@ -129,7 +124,7 @@ cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   var idx = str.indexOf(",");
   var dat = str.substring(idx+1);
 
-  console.log("Dispatching with this much data: " + dat.length);
+  console.log("Encoded data is this long: " + length);
   this.dispatchEvent({type:"IMAGE_DONE", dat:dat});
 };
 
@@ -160,4 +155,3 @@ cryptagram.encoder.show_error = function(msg, url, linenumber) {
 goog.exportSymbol('cryptagram.encoder', cryptagram.encoder);
 goog.exportSymbol('cryptagram.encoder.prototype.showEncrypt',
                   cryptagram.encoder.prototype.showEncrypt);
-

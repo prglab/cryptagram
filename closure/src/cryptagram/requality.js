@@ -78,6 +78,9 @@ cryptagram.Requality.prototype.imageOnload = function (img, quality) {
   console.log("Image NEW quality: " + quality + " " + width + " " + height);
   console.log("outUrl Length: " + outUrl.length);
 
+  // We pass the image to the resizer, regardless of the need. The reason is
+  // that decision to continue resizing the image is necessarily simplified by
+  // putting the logic for that condition in the resizer.
   var resizer = new cryptagram.Resizing();
   goog.events.listen(
     resizer,
