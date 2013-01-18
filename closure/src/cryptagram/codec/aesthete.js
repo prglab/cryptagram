@@ -52,8 +52,13 @@ cryptagram.codec.aesthete.prototype.set_block = function(x_start, y_start, level
  * Static method to return an estimate of the required image dimensions given
  * the aspect ratio and the number of base64 values to be embedded.
  */
-cryptagram.codec.aesthete.dimensions =
-  function (width_to_height_ratio, n_base64_values) {
+cryptagram.codec.aesthete.dimensions = function (width_to_height_ratio,
+                                                 n_base64_values) {
+  if ((typeof width_to_height_ratio !== "number") ||
+      (typeof n_base64_values !== "number")) {
+    return undefined;
+  }
+
   width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
 		width_to_height_ratio : 1.0;
   header_string = typeof header_string !== 'undefined' ? header_string :
@@ -62,7 +67,7 @@ cryptagram.codec.aesthete.dimensions =
   block_height = typeof block_height !== 'undefined' ? block_height : 2;
 
   // how many octal values did we get from the header string?
-  var n_header_values = 2 * ("aesthete".length);
+  var n_header_values = 2 * (header_string.length);
   var n_header_values_in_row = Math.ceil(Math.sqrt(n_header_values));
 
   // always encode an even number of octal values in a row, don't split a base64

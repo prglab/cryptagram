@@ -17,6 +17,11 @@ goog.require('cryptagram.cipher');
 goog.require('cryptagram.codec.bacchant');
 goog.require('cryptagram.loader');
 goog.require('cryptagram.RemoteLog');
+
+goog.require('cryptagram.ResizeValidator');
+goog.require('cryptagram.ResizeValidator.Event');
+goog.require('cryptagram.ResizeValidator.EventType');
+
 goog.require('cryptagram.Thumbnailer');
 goog.require('cryptagram.Thumbnailer.EventType');
 goog.require('cryptagram.Thumbnailer.Event');
@@ -57,39 +62,41 @@ cryptagram.Resizing.prototype.setStatus = function (message) {
   console.log(message);
 };
 
-// Returns a bool to indicate that we should resize the image to a smaller size.
-cryptagram.Resizing.prototype.mustResize = function (imageUrl) {
-  var img = new Image();
-  img.src = imageUrl;
-  var widthToHeightRatio = img.width / img.height;
-
-  console.log("widthToHeightRatio: " + widthToHeightRatio);
-  console.log("imageUrl: " + imageUrl.length);
-  var newDims = cryptagram.codec.aesthete.dimensions(widthToHeightRatio,
-                                                     imageUrl.length);
-  return (newDims.width > 2048 || newDims.height > 2048);
-};
-
-// Reduces the quality of the image @image to level @quality.
+// Reduces the size of the image.
 cryptagram.Resizing.prototype.start = function (image) {
   var self = this;
   var canvas = document.createElement("canvas");
 
+  var scaled_width = Math.round(0.9 * image.width);
+  console.log("scaled_width: " + scaled_width);
+
   // This produces lanczos3 but feel free to raise it up to 8. Your client will
   // appreciate that the program makes full use of his machine.
-  var scaled_width = Math.round(0.5 * image.width);
-  console.log("scaled_width: " + scaled_width);
   var thumbnailer = new cryptagram.Thumbnailer(canvas, image, scaled_width, 3);
   goog.events.listen(
     thumbnailer, "THUMBNAILER_DONE",
     function (event) {
+
+      var resizeValidator = new cryptagram.ResizeValidator();
+      goog.events.listen(
+        resizeValidator,
+        "RESIZE_VALIDATION",
+        function (validationEvent) {
+          if (validationEvent.valid) {
+            console.log("Validated image.");
+            this.dispatchEvent({type:"RESIZING_DONE", image:event.image});
+          } else {
+            console.log("Need to go again");
+            this.start(validationEvent.image);
+          }
+        },
+        true,
+        this);
       console.log("Thumbnailing done.");
 
-      console.log("resize?: " + self.mustResize(event.image));
       // Check if the image is small enough or if we necessarily must make the
       // image smaller.
-
-      this.dispatchEvent({type:"RESIZING_DONE", image:event.image});
+      resizeValidator.validate(2048, 2048, event.image);
     },
     true,
     this);
