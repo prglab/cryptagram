@@ -95,7 +95,9 @@ cryptagram.encoder.prototype.encodeImage = function (dataToEncode) {
   var self = this;
   var originalImage = new Image();
   originalImage.onload = function () {
-    goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
+    goog.dom.insertChildAt(goog.dom.getElement('original_image'),
+                           originalImage,
+                           0);
     ratio = originalImage.width / originalImage.height;
 
     // TODO(tierney): Prompt from user.
