@@ -43,10 +43,10 @@ cryptagram.ResizeValidator.prototype.validate = function (bound_w,
     console.log("widthToHeightRatio: " + widthToHeightRatio);
     console.log("loadedImage.src: " + loadedImage.src.length);
 
-    var newDims = cryptagram.codec.aesthete.dimensions(widthToHeightRatio,
-                                                       loadedImage.src.length);
+    var maxNumValues = cryptagram.codec.aesthete.maxBase64Values(
+      widthToHeightRatio);
+    var valid = maxNumValues > loadedImage.src.length;
 
-    var valid = ((newDims.width < bound_w) && (newDims.height < bound_h));
     self.logger.info("Validation: " + valid);
     self.logger.info(newDims.width + ' ' + bound_w + ' ' +
                      newDims.height + ' ' + bound_h);
