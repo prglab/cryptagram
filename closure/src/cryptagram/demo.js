@@ -6,6 +6,7 @@ goog.require('goog.dom');
 goog.require('goog.events.FileDropHandler');
 goog.require('goog.events.EventType');
 goog.require('goog.ui.ProgressBar');
+goog.require('goog.ui.Dialog');
 
 
 goog.require('cryptagram.container');
@@ -133,25 +134,6 @@ cryptagram.demo.prototype.runDecrypt = function() {
 };
 
 
-cryptagram.demo.prototype.compareStrings = function(str1, str2) {
-
-  var errorCount = 0;
-
-  for (var i = 0; i < str1.length; i++) {
-    if (str1[i] != str2[i]) {
-      errorCount++;
-    }
-  }
-  if (str1.length != str2.length) {
-    this.logger.info("Base64 strings are different lengths!");
-    this.logger.info(str1.length + "/" + str2.length);
-  }
-
-  var percent = errorCount / str1.length;
-  this.logger.info("Base64 errors: " + errorCount + "\t" + str1.length + "\t" + percent);
-}
-
-
 /**
  * @param{Array} files
  * @private
@@ -161,20 +143,17 @@ cryptagram.demo.prototype.handleFiles = function(files) {
   // Files is a FileList of File objects. List some properties.
   var output = [];
   var zip;
-  var images;
-  var self = this;
   var self = this;
   
   if (this.zip == null) {
       this.zip = new JSZip();
-      this.images = this.zip.folder('images');
       this.numberImages = 0;
   }
 
+  this.showEncodeDialog();
+  self.images = [];
+  self.data = [];
   for (var i = 0; i < files.length; i++) {
-  
-    var codec = new cryptagram.codec.bacchant();
-    var cipher = new cryptagram.cipher();
   
     var f = files[i];
     var name = escape(f.name);
@@ -191,23 +170,47 @@ cryptagram.demo.prototype.handleFiles = function(files) {
       var originalData = loadEvent.target.result;
       var originalImage = new Image();
       originalImage.onload = function () {
-        goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
-        ratio = originalImage.width / originalImage.height;
-        
-    		var password = 'cryptagram';
-        var encryptedData = cipher.encrypt(originalData, password);
-        var encodedImage = codec.encode(encryptedData, ratio);
-        encodedImage.onload = function () {
-          goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),encodedImage,0);
-          var str = encodedImage.src;
-          var idx = str.indexOf(",");
-          var dat = str.substring(idx+1);
-          self.images.file(self.numberImages + '.jpg', dat, {base64: true});
-          self.numberImages++;
+        self.images.push(originalImage);
+        self.data.push(originalData);
+        var frame = goog.dom.createDom('div', {'class': 'frame'});
+        frame.appendChild(originalImage);
+        goog.dom.insertChildAt(goog.dom.getElement('thumbs'), frame, 0);
+        goog.dom.getElement('status').innerHTML = "Encode <b>" + self.images.length + "</b> images";
+      };
+      originalImage.src = originalData;
+    };
+    reader.onerror = cryptagram.demo.showError;
+    reader.readAsDataURL(f);
+  }
+};
 
-          // Decode image to make sure it worked
-          var decodedImage = new Image();
-          goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), decodedImage, 0);
+
+cryptagram.demo.prototype.startEncode = function() {
+  this.showProgressDialog();
+  for (var i = 0; i < this.images.length; i++) {
+                      
+    var image = this.images[i];
+    this.dialog.dispatchEvent({type:'NEW_PREVIEW',
+                      image:image});                      
+    var imageData = this.data[i];
+    var codec = new cryptagram.codec.bacchant();
+    var cipher = new cryptagram.cipher();
+    var ratio = image.width / image.height;
+    var encryptedData = cipher.encrypt(imageData, this.password);
+    var encodedImage = codec.encode(encryptedData, ratio);
+    encodedImage.onload = function () {
+      var frame = goog.dom.createDom('div', {'class': 'frame'});
+      frame.appendChild(this);
+      goog.dom.insertChildAt(goog.dom.getElement('thumbs'), frame, 0);     
+    }
+  }
+};
+        // Decode image to make sure it worked
+          /*var decodedImage = new Image();
+          var frame2 = goog.dom.createDom('div', {'class': 'frame'});
+          frame2.appendChild(decodedImage);
+
+          goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), frame2, 0);
           var container = new cryptagram.container(decodedImage);
           var decoder = new cryptagram.decoder(container);
           
@@ -216,20 +219,65 @@ cryptagram.demo.prototype.handleFiles = function(files) {
             var percent = codec.errorCount / codec.lastOctal.length;
             var decipher = cipher.decrypt(result, password);
             container.setSrc(decipher);
-          });
-        };
-      }
-      originalImage.src = originalData;
-    };
-    reader.onerror = cryptagram.demo.show_error;
-    reader.readAsDataURL(f);
-  }
-};
-
-cryptagram.demo.show_error = function(msg, url, linenumber) {
+          });*/
+  
+  
+cryptagram.demo.showError = function(msg, url, linenumber) {
   console.log('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber)
   return true;
 };
+
+
+cryptagram.demo.prototype.showEncodeDialog = function() {
+
+  var self = this;
+  var dialog = new goog.ui.Dialog(null, false);
+    
+  dialog.setContent(cryptagram.templates.encodeDialog());
+  dialog.setTitle('Cryptagram');
+  dialog.setButtonSet(goog.ui.Dialog.ButtonSet.OK_CANCEL);
+  dialog.setDisposeOnHide(true);
+  goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
+    if (e.key == 'ok') {
+      self.password = goog.dom.getElement('password').value;
+      self.quality = goog.dom.getElement('quality').value;
+      self.maxSize = goog.dom.getElement('maxSize').value;
+      self.startEncode();  
+    }
+  });
+  dialog.setVisible(true);
+  goog.dom.getElement('password').focus();
+};
+
+
+cryptagram.demo.prototype.showProgressDialog = function() {
+
+  var self = this;
+  var dialog = new goog.ui.Dialog(null, false);
+  this.dialog = dialog;
+  dialog.setContent(cryptagram.templates.progressDialog());
+  dialog.setTitle('Cryptagram');
+  dialog.setButtonSet(goog.ui.Dialog.ButtonSet.CANCEL);
+  dialog.setDisposeOnHide(true);
+  
+  var previousImage;
+  goog.events.listen(dialog, "NEW_PREVIEW", function (event) {
+    console.log(event);
+    if (previousImage) {
+      goog.dom.getElement('preview').removeChild(previousImage);
+    }
+    previousImage = event.image;
+    goog.dom.getElement('preview').appendChild(event.image);
+    
+  });
+  
+  goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
+    
+  });
+  dialog.setVisible(true);
+};
+
+
 
 goog.exportSymbol('cryptagram.demo', cryptagram.demo);
 goog.exportSymbol('cryptagram.demo.prototype.showDecrypt', cryptagram.demo.prototype.showDecrypt);
