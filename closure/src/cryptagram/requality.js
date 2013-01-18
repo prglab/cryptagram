@@ -17,6 +17,9 @@ goog.require('cryptagram.cipher');
 goog.require('cryptagram.codec.bacchant');
 goog.require('cryptagram.loader');
 goog.require('cryptagram.RemoteLog');
+goog.require('cryptagram.Resizing');
+goog.require('cryptagram.Resizing.EventType');
+goog.require('cryptagram.Resizing.Event');
 
 // Requality constructor. Listen for these events as follows:
 // var requal = new cryptagram.Requality();
@@ -56,24 +59,44 @@ cryptagram.Requality.prototype.setStatus = function (message) {
 
 cryptagram.Requality.prototype.imageOnload = function (img, quality) {
   // Check the size and then pass to either the encoder or to resize.
-
-  var canvas = document.createElement('canvas');
+  var self = this;
 
 	var width = img.width;
 	var height = img.height;
 
+  var canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
 
   var context = canvas.getContext('2d');
 	context.drawImage(img, 0, 0, width, height);
 
+  var origQualityLength = canvas.toDataURL('image/jpeg', 1.0);
+  console.log("Image ORIG quality length: " + origQualityLength.length);
+	var outUrl = canvas.toDataURL('image/jpeg', quality);
+
   console.log("Image NEW quality: " + quality + " " + width + " " + height);
+  console.log("outUrl Length: " + outUrl.length);
 
-	var outImg = canvas.toDataURL('image/jpeg', quality);
+  // We pass the image to the resizer, regardless of the need. The reason is
+  // that decision to continue resizing the image is necessarily simplified by
+  // putting the logic for that condition in the resizer.
+  var resizer = new cryptagram.Resizing();
+  goog.events.listen(
+    resizer,
+    "RESIZING_DONE",
+    function (event) {
+      console.info("Resizing done.");
+      this.dispatchEvent({type:"REQUALITY_DONE", image:event.image});
+    },
+    true,
+    this);
 
-  console.log("outImg callback: " + outImg.length);
-  this.dispatchEvent({type:"REQUALITY_DONE", image:outImg});
+  var newImg = document.createElement("img");
+  newImg.src = outUrl;
+  newImg.onload = function (event) {
+    resizer.start(newImg, 0);
+  };
 };
 
 // Reduces the quality of the image @image to level @quality.
