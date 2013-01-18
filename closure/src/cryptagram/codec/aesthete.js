@@ -48,8 +48,19 @@ cryptagram.codec.aesthete.prototype.set_block = function(x_start, y_start, level
   }
 };
 
+// TODO(tierney): Make more flexible for the adhoc dimension choice.
+cryptagram.codec.aesthete.maxBase64Values = function (width_to_height_ratio) {
+  var largestDim = 2048; // Assumes a square max image dimension.
+  var smallMaxDim = width_to_height_ratio <= 1.0 ?
+    Math.floor(largestDim * width_to_height_ratio) :
+    Math.floor(largestDim / width_to_height_ratio);
+  var n_pixels = smallMaxDim * largestDim;
+
+  return Math.floor((n_pixels - 64 - 736) / 8.0);
+};
+
 /**
- * Static method to return an estimate of the required image dimensions given
+ * static method to return an estimate of the required image dimensions given
  * the aspect ratio and the number of base64 values to be embedded.
  */
 cryptagram.codec.aesthete.dimensions = function (width_to_height_ratio,
