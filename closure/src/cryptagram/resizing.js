@@ -63,11 +63,13 @@ cryptagram.Resizing.prototype.setStatus = function (message) {
 };
 
 // Reduces the size of the image.
-cryptagram.Resizing.prototype.start = function (image) {
+cryptagram.Resizing.prototype.start = function (image, iter_n) {
   var self = this;
   var canvas = document.createElement("canvas");
 
-  var scaled_width = Math.round(0.9 * image.width);
+  // TODO(tierney): We can come up with a more sophisticated model but this is
+  // what we currently do for resizing images.
+  var scaled_width = Math.round((1.0 - ((1 + iter_n) * 0.1)) * image.width);
   console.log("scaled_width: " + scaled_width);
 
   // This produces lanczos3 but feel free to raise it up to 8. Your client will
@@ -87,7 +89,7 @@ cryptagram.Resizing.prototype.start = function (image) {
             this.dispatchEvent({type:"RESIZING_DONE", image:event.image});
           } else {
             console.log("Need to go again");
-            this.start(validationEvent.image);
+            this.start(image, iter_n + 1);
           }
         },
         true,

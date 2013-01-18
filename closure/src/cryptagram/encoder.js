@@ -22,6 +22,9 @@ goog.require('cryptagram.RemoteLog');
 goog.require('cryptagram.Requality');
 goog.require('cryptagram.Requality.Event');
 goog.require('cryptagram.Requality.EventType');
+goog.require('cryptagram.ResizeValidator');
+goog.require('cryptagram.ResizeValidator.Event');
+goog.require('cryptagram.ResizeValidator.EventType');
 
 /**
  * This class demonstrates some of the core functionality of cryptagram.
@@ -66,12 +69,12 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
   var self = this;
   var originalData = loadEvent.target.result;
 
-  // console.log("Data: " + originalData);
-  var threshold_ = 2359296;
-  var new_quality_ = 0.8;
+  // TODO(tierney): Expose this parameter for other programmers.
+  var newQuality = 0.8;
 
+  // Setup the requality engine event though we may not use it.
   var requality = new cryptagram.Requality();
-  goog.events.listen(
+  var requalityListenKey = goog.events.listen(
     requality,
     "REQUALITY_DONE",
     function (event) {
@@ -83,12 +86,22 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
     this);
 
   // Decide whether we should reduce the quality of the image or not.
-  if (originalData.length < threshold_) {
-    console.log("Reducing quality.");
-    requality.start(originalData, new_quality_);
-  } else {
-    this.encodeImage(originalData);
-  }
+  var resizer = new cryptagram.ResizeValidator();
+  goog.events.listen(
+    resizer,
+    "RESIZE_VALIDATION",
+    function (event) {
+      if (event.valid) {
+        console.log("Reducing quality.");
+        requality.start(originalData, newQuality);
+      } else {
+        goog.events.unlistenByKey(requalityListenKey);
+        this.encodeImage(originalData);
+      }
+    },
+    true,
+    this);
+  resizer.validate(2048, 2048, originalData);
 };
 
 cryptagram.encoder.prototype.encodeImage = function (dataToEncode) {
