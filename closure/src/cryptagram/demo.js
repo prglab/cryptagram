@@ -5,6 +5,8 @@ goog.require('goog.debug.Logger');
 goog.require('goog.dom');
 goog.require('goog.events.FileDropHandler');
 goog.require('goog.events.EventType');
+goog.require('goog.ui.ProgressBar');
+
 
 goog.require('cryptagram.container');
 goog.require('cryptagram.decoder');
@@ -30,8 +32,8 @@ cryptagram.demo = function() {
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
 
-  var remoteLog = new cryptagram.RemoteLog();
-  remoteLog.setCapturing(true);
+//  var remoteLog = new cryptagram.RemoteLog();
+//  remoteLog.setCapturing(true);
 };
 
 cryptagram.demo.prototype.logger = goog.debug.Logger.getLogger('cryptagram.demo');
@@ -69,7 +71,7 @@ cryptagram.demo.prototype.showEncrypt = function() {
     var files = e.getBrowserEvent().dataTransfer.files;
     self.handleFiles(files);
   });
-
+  
   this.downloadify = Downloadify.create('downloadify', {
     filename: "encrypted.zip",
     data: function(){
@@ -79,7 +81,7 @@ cryptagram.demo.prototype.showEncrypt = function() {
       alert('Nothing to save.');
     },
     dataType: 'base64',
-    swf: 'media/downloadify.swf',
+    swf: 'media/out.swf',
     downloadImage: 'images/download.png',
     width: 100,
     height: 30,
@@ -87,6 +89,9 @@ cryptagram.demo.prototype.showEncrypt = function() {
     append: false,
     enabled: true
   });
+  
+  window['downloadify'] = this.downloadify;
+  
 };
 
 
@@ -112,7 +117,6 @@ cryptagram.demo.prototype.runDecrypt = function() {
     var password = 'cryptagram';
     var loader = new cryptagram.loader(self.container);
     var decoder = new cryptagram.decoder(self.container);
-    //decoder.decodeData(str, codec, function(result) {
 
     loader.getImageData(self.container.getSrc(), function(data) {
       decoder.decodeData(data, null, function(result) {
@@ -122,7 +126,6 @@ cryptagram.demo.prototype.runDecrypt = function() {
       });
 
       });
-
 
     this.decrypted = true;
     this.button.value = 'Reset';
@@ -160,9 +163,8 @@ cryptagram.demo.prototype.handleFiles = function(files) {
   var zip;
   var images;
   var self = this;
-  var codec = new cryptagram.codec.bacchant();
-  var cipher = new cryptagram.cipher();
-
+  var self = this;
+  
   if (this.zip == null) {
       this.zip = new JSZip();
       this.images = this.zip.folder('images');
@@ -170,7 +172,11 @@ cryptagram.demo.prototype.handleFiles = function(files) {
   }
 
   for (var i = 0; i < files.length; i++) {
-    f = files[i];
+  
+    var codec = new cryptagram.codec.bacchant();
+    var cipher = new cryptagram.cipher();
+  
+    var f = files[i];
     var name = escape(f.name);
 
     // TODO(tierney): Resize large images instead of punting.
@@ -187,12 +193,9 @@ cryptagram.demo.prototype.handleFiles = function(files) {
       originalImage.onload = function () {
         goog.dom.insertChildAt(goog.dom.getElement('original_image'), originalImage, 0);
         ratio = originalImage.width / originalImage.height;
-
-        var str = originalData;
-
+        
     		var password = 'cryptagram';
         var encryptedData = cipher.encrypt(originalData, password);
-
         var encodedImage = codec.encode(encryptedData, ratio);
         encodedImage.onload = function () {
           goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),encodedImage,0);
@@ -207,10 +210,10 @@ cryptagram.demo.prototype.handleFiles = function(files) {
           goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), decodedImage, 0);
           var container = new cryptagram.container(decodedImage);
           var decoder = new cryptagram.decoder(container);
-          //codec.length = encryptedData.length;
+          
+          var codec = new cryptagram.codec.bacchant();
           decoder.decodeData(str, codec, function(result) {
             var percent = codec.errorCount / codec.lastOctal.length;
-            //this.logger.info("Octal decoding errors: " + codec.errorCount + "\t" + codec.lastOctal.length + "\t" + percent);
             var decipher = cipher.decrypt(result, password);
             container.setSrc(decipher);
           });
