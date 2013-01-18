@@ -8,6 +8,7 @@ goog.provide('cryptagram.DragAndDropHandler');
 goog.require('goog.debug.Console');
 goog.require('goog.debug.Logger');
 goog.require('goog.dom');
+goog.require('goog.events');
 goog.require('goog.events.FileDropHandler');
 goog.require('goog.events.EventType');
 goog.require('goog.events.EventTarget');
@@ -18,6 +19,8 @@ goog.require('cryptagram.codec.bacchant');
 goog.require('cryptagram.container');
 goog.require('cryptagram.decoder');
 goog.require('cryptagram.encoder');
+goog.require('cryptagram.encoder.EventType');
+goog.require('cryptagram.encoder.EncoderEvent');
 goog.require('cryptagram.loader');
 
 // Constructor.
@@ -97,22 +100,21 @@ cryptagram.DragAndDropHandler.prototype.handleFiles = function (files) {
   var numFiles = files.length;
   var completed = 0;
 
-  var source = new goog.events.EventTarget();
-  var encoder = new cryptagram.encoder(source);
+  var encoder = new cryptagram.encoder();
   goog.events.listen(encoder, "IMAGE_DONE", function (event) {
-    console.log ("Got a message back!");
+    console.log ("Got a message back with this much dat: " + event.dat.length);
     completed++;
     self.images.file(completed + '.jpg',
                      event.dat,
                      { base64: true });
-    // event.preventDefault();
-    // event.stopPropagation();
+    event.preventDefault();
+    event.stopPropagation();
 
     if (completed < numFiles) {
       console.log("More to go!");
-      encode.startEncoding(files[completed]);
+      encoder.startEncoding(files[completed]);
     } else {
-      // TODO(tierney): Downloadify.
+      // TODO(tierney): Downloadify kick start?
     }
   },
 										true,
