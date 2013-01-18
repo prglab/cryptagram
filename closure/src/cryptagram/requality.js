@@ -95,7 +95,7 @@ cryptagram.Requality.prototype.imageOnload = function (img, quality) {
   var newImg = document.createElement("img");
   newImg.src = outUrl;
   newImg.onload = function (event) {
-    resizer.start(newImg);
+    resizer.start(newImg, 0);
   };
 };
 

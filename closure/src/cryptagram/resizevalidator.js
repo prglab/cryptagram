@@ -1,3 +1,7 @@
+// Class that enables checking if an imageUrl produces an image within the
+// provided dimension constraints. The results are event driven so any listener
+// must be configured for the RESIZE_VALIDATION event type.
+
 goog.provide('cryptagram.ResizeValidator');
 goog.provide('cryptagram.ResizeValidator.Event');
 goog.provide('cryptagram.ResizeValidator.EventType');
