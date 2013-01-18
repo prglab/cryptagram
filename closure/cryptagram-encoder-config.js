@@ -6,6 +6,7 @@
               "src/cryptagram/experiment.js",
               "src/cryptagram/requality.js",
               "src/cryptagram/resizing.js",
+              "src/cryptagram/resizevalidator.js",
               "src/thirdparty/sjcl.js",
               "src/thirdparty/jszip.js",
               "src/thirdparty/downloadify.js",

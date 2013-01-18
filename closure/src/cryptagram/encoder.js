@@ -124,7 +124,7 @@ cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   var idx = str.indexOf(",");
   var dat = str.substring(idx+1);
 
-  console.log("Encoded data is this long: " + length);
+  console.log("Encoded data is this long: " + str.length);
   this.dispatchEvent({type:"IMAGE_DONE", dat:dat});
 };
 
