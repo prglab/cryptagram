@@ -4,9 +4,8 @@
               "src/cryptagram/DragAndDropHandler.js",
               "src/cryptagram/encoder.js",
               "src/cryptagram/experiment.js",
-              "src/cryptagram/requality.js",
-              "src/cryptagram/resizing.js",
-              "src/cryptagram/resizevalidator.js",
+              "src/cryptagram/reductionestimator.js",
+              "src/cryptagram/sizereducer.js",
               "src/thirdparty/sjcl.js",
               "src/thirdparty/jszip.js",
               "src/thirdparty/downloadify.js",
@@ -18,6 +17,6 @@
               "externs/downloadify.js",
               "externs/swfobject.js",
               "externs/chrome_extensions.js"],
-  "mode": "RAW",                // RAW, WHITESPACE, SIMPLE, ADVANCED.
+  "mode": "SIMPLE",                // RAW, WHITESPACE, SIMPLE, ADVANCED.
   "jsdoc-html-output-path": "docs"
 }
