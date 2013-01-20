@@ -1,5 +1,4 @@
 <resources>
-
     <string name="app_name">Cryptogram</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
@@ -14,5 +13,10 @@
     <string name="max_image_width_key">max_image_width_key</string>
     <string name="max_image_height_key">max_image_height_key</string>
     <string name="folder_path_key">cryptogram.EXPORT_FOLDER_PATH</string>
+    <string name="max_image_width_explanation">The maximum width of the image encoded into a Cryptogram image. Affects performance.</string>
+    <string name="max_image_height_explanation">The maximum height of the image encoded into a Cryptogram image. Affects performance.</string>
+    <string name="image_folder_explanation">Select a folder to put encrypted Cryptogram images into</string>
+    <string name="max_image_width">Maximum Image Width</string>
+    <string name="max_image_height">Maximum Image Height</string>
 
 </resources>

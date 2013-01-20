@@ -342,10 +342,6 @@ public class Cryptogram extends Activity {
     
     }
     
-    private void showSettingsView(View v){
-    	return;
-    }
-    
     @SuppressLint("SetJavaScriptEnabled")
 	private void encryptPhoto(String password){
     	String base64String; 
