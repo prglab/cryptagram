@@ -6,7 +6,6 @@ import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
-import android.view.View;
 import com.davidiserovich.android.filedialog.FileSelectActivity;;
 
 public class CryptogramPreferences extends PreferenceActivity {

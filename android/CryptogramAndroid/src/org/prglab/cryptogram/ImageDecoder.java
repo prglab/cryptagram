@@ -1,10 +1,5 @@
 package org.prglab.cryptogram;
 
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
@@ -27,6 +22,7 @@ public class ImageDecoder {
 	private final static String PROTOCOL_NAME = "aesthete";
 
 	/**RL Grayscale bins */
+	/*
 	private final static int[] THRESHOLDS = {	
 	238,
     210,
@@ -37,7 +33,7 @@ public class ImageDecoder {
     70,
     42,
     14
-	};
+	};*/
 	
 	public static final String base64Symbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	
@@ -116,7 +112,10 @@ public class ImageDecoder {
 				
 				int base64num = 8*upperBase8 +lowerBase8;
 				
-				return imageData.toString();
+				if (base64num > 0){
+					char base64char = base64Symbols.charAt(base64num);
+					imageData.append(base64char);
+				}
 				
 			}
 		}
