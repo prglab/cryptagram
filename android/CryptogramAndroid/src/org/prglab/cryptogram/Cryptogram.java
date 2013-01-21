@@ -388,7 +388,6 @@ public class Cryptogram extends Activity {
 		
 		
 		dataAccessor.setData(base64String);
-		//TODO:Implement password prompt
 		dataAccessor.setPassword(password);
 		
 		// Send the string to the WebView here using DataAccessor

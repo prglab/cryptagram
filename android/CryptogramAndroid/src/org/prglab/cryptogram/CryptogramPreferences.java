@@ -6,7 +6,7 @@ import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
-import com.davidiserovich.android.filedialog.FileSelectActivity;;
+import com.davidiserovich.android.filedialog.FolderSelectActivity;;
 
 public class CryptogramPreferences extends PreferenceActivity {
 	
@@ -20,7 +20,7 @@ public class CryptogramPreferences extends PreferenceActivity {
         myPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 	         public boolean onPreferenceClick(Preference preference) {
 	        	 
-	        	 Intent intent = new Intent(CryptogramPreferences.this, FileSelectActivity.class);
+	        	 Intent intent = new Intent(CryptogramPreferences.this, FolderSelectActivity.class);
 
 	        	 startActivityForResult(intent, FOLDER_SELECT_REQUEST_CODE);
 	        	 
@@ -38,7 +38,7 @@ public class CryptogramPreferences extends PreferenceActivity {
 				// We're targeting 2.3 as baseline, this is the proper way to do things
 				@SuppressWarnings("deprecation")
 				EditTextPreference t = (EditTextPreference)(findPreference(getString(R.string.folder_path_key)));
-				t.getEditText().setText(data.getStringExtra(FileSelectActivity.SELECTED_PATH)); 
+				t.getEditText().setText(data.getStringExtra(FolderSelectActivity.SELECTED_PATH)); 
 			}
 			
 		}
