@@ -63,9 +63,38 @@ cryptagram.encoder.EncoderEventTarget = function () {
 goog.inherits(cryptagram.encoder.EncoderEventTarget, goog.events.EventTarget);
 
 
+cryptagram.encoder.prototype.queueFiles = function(files) {
+ 
+  var self = this;
+  self.data = [];
+  self.files = files;
+  
+  for (var i = 0; i < files.length; i++) {
+  
+    var f = files[i];
+    var name = escape(f.name);
+    var type = f.type || 'n/a';
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+      self.readerOnload(e);
+    }    
+    reader.onerror = cryptagram.demo.showError;
+    reader.readAsDataURL(f);
+  }
+};
+
+
+
+
+
+
 cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
   var self = this;
   var originalImgDataUrl = loadEvent.target.result;
+  var image = new Image();
+  image.src = loadEvent.target.result;
+  this.dispatchEvent({type: 'IMAGE_LOADED', image: image});
 
   // TODO(tierney): Expose this parameter for other programmers.
   var newQuality = 0.8;
@@ -104,9 +133,9 @@ cryptagram.encoder.prototype.encodeImage = function (dataToEncode) {
   var self = this;
   var originalImage = new Image();
   originalImage.onload = function () {
-    goog.dom.insertChildAt(goog.dom.getElement('original_image'),
-                           originalImage,
-                           0);
+    //goog.dom.insertChildAt(goog.dom.getElement('original_image'),
+    //                       originalImage,
+    //                       0);
     ratio = originalImage.width / originalImage.height;
 
     // TODO(tierney): Prompt from user.
@@ -127,14 +156,10 @@ cryptagram.encoder.prototype.encodeImage = function (dataToEncode) {
 cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   var self = this;
   var encodedImage = loadEvent.target;
-  goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),
-												 encodedImage,
-												 0);
   var str = encodedImage.src;
   console.log("String: " + str.substring(0,100));
   var idx = str.indexOf(",");
   var dat = str.substring(idx+1);
-
   console.log("Encoded data is this long: " + str.length);
   this.dispatchEvent({type:"IMAGE_DONE", dat:dat});
 };

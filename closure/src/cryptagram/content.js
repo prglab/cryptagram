@@ -26,6 +26,8 @@ var content_;
  */
 cryptagram.content = function() {
 
+  localStorage['cryptagram_user_study_consent'] = true;
+  
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
 
@@ -282,13 +284,13 @@ cryptagram.content.prototype.getPassword = function(URL) {
   }
   
   var self = this;
-  var dialog = new goog.ui.Dialog(null, true);
+  var dialog = new goog.ui.Dialog(null, false);
     
   dialog.setContent(cryptagram.templates.passwordDialog({'URL':URL}));
   dialog.setTitle('Cryptagram');
   dialog.setButtonSet(goog.ui.Dialog.ButtonSet.OK_CANCEL);
   dialog.setDisposeOnHide(true);
-
+  dialog.setModal(true);
   goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
     if (e.key == "ok") {
       var password = document.getElementById('password').value;
