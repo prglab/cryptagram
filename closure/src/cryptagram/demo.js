@@ -15,6 +15,7 @@ goog.require('cryptagram.cipher');
 goog.require('cryptagram.codec.bacchant');
 goog.require('cryptagram.loader');
 goog.require('cryptagram.RemoteLog');
+goog.require('cryptagram.encoder');
 
 /**
  * This class demonstrates some of the core functionality of cryptagram.
@@ -73,7 +74,8 @@ cryptagram.demo.prototype.showEncrypt = function() {
     self.handleFiles(files);
   });
   
-  this.downloadify = Downloadify.create('downloadify', {
+ /*
+ this.downloadify = Downloadify.create('downloadify', {
     filename: "encrypted.zip",
     data: function(){
       return self.zip.generate();
@@ -92,6 +94,7 @@ cryptagram.demo.prototype.showEncrypt = function() {
   });
   
   window['downloadify'] = this.downloadify;
+*/
   
 };
 
@@ -139,71 +142,75 @@ cryptagram.demo.prototype.runDecrypt = function() {
  * @private
  */
 cryptagram.demo.prototype.handleFiles = function(files) {
-
+  this.encoder = new cryptagram.encoder();
+  this.showEncodeDialog();
+  this.encoder.queueFiles(files);
+  //this.encoder.loadFiles();
+ };
+/*
+cryptagram.DragAndDropHandler.prototype.handleFiles = function (files) {
   // Files is a FileList of File objects. List some properties.
   var output = [];
   var zip;
   var self = this;
-  
+
   if (this.zip == null) {
-      this.zip = new JSZip();
-      this.numberImages = 0;
+    this.zip = new JSZip();
+    this.images = this.zip.folder('images');
+    this.numberImages = 0;
   }
 
-  this.showEncodeDialog();
-  self.images = [];
-  self.data = [];
-  for (var i = 0; i < files.length; i++) {
-  
-    var f = files[i];
-    var name = escape(f.name);
+  var numFiles = files.length;
+  var completed = 0;
 
-    // TODO(tierney): Resize large images instead of punting.
-    if (f.size > 600000) {
-      console.log('Skipping ' + name);
-      continue;
+  var encoder = new cryptagram.encoder();
+  goog.events.listen(encoder, "IMAGE_DONE", function (event) {
+    console.log ("Got a message back with this much dat: " + event.dat.length);
+    completed++;
+    self.images.file(completed + '.jpg',
+                     event.dat,
+                     { base64: true });
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (completed < numFiles) {
+      console.log("More to go!");
+      encoder.startEncoding(files[completed]);
+    } else {
+      // TODO(tierney): Downloadify kick start?
     }
-    var type = f.type || 'n/a';
-    var reader = new FileReader();
-    var ratio = 1.0;
-    reader.onload = function (loadEvent) {
-      var originalData = loadEvent.target.result;
-      var originalImage = new Image();
-      originalImage.onload = function () {
-        self.images.push(originalImage);
-        self.data.push(originalData);
-        var frame = goog.dom.createDom('div', {'class': 'frame'});
-        frame.appendChild(originalImage);
-        goog.dom.insertChildAt(goog.dom.getElement('thumbs'), frame, 0);
-        goog.dom.getElement('status').innerHTML = "Encode <b>" + self.images.length + "</b> images";
-      };
-      originalImage.src = originalData;
-    };
-    reader.onerror = cryptagram.demo.showError;
-    reader.readAsDataURL(f);
-  }
+  },
+										true,
+										this);
+
+  encoder.startEncoding(files[completed]);
+  console.log("Going out of scope.");
 };
 
 
+*/
+
+
 cryptagram.demo.prototype.startEncode = function() {
+  
+  var completed = 0;
+  this.encoder = new cryptagram.encoder();
   this.showProgressDialog();
-  for (var i = 0; i < this.images.length; i++) {
-                      
-    var image = this.images[i];
-    this.dialog.dispatchEvent({type:'NEW_PREVIEW',
-                      image:image});                      
-    var imageData = this.data[i];
-    var codec = new cryptagram.codec.bacchant();
-    var cipher = new cryptagram.cipher();
-    var ratio = image.width / image.height;
-    var encryptedData = cipher.encrypt(imageData, this.password);
-    var encodedImage = codec.encode(encryptedData, ratio);
-    encodedImage.onload = function () {
-      var frame = goog.dom.createDom('div', {'class': 'frame'});
-      frame.appendChild(this);
-      goog.dom.insertChildAt(goog.dom.getElement('thumbs'), frame, 0);     
+  
+    
+  goog.events.listen(this.encoder, "IMAGE_DONE", function (event) {
+    completed++;
+
+    if (completed < files.length) {
+      console.log("More to go!");
+      self.encoder.startEncoding(this.files[completed]);
+    } else {
+      // TODO(tierney): Downloadify kick start?
     }
-  }
+  }, true, this);
+
+  this.encoder.startEncoding(this.files[completed]);
+  
 };
         // Decode image to make sure it worked
           /*var decodedImage = new Image();
@@ -232,11 +239,18 @@ cryptagram.demo.prototype.showEncodeDialog = function() {
 
   var self = this;
   var dialog = new goog.ui.Dialog(null, false);
-    
+
   dialog.setContent(cryptagram.templates.encodeDialog());
   dialog.setTitle('Cryptagram');
   dialog.setButtonSet(goog.ui.Dialog.ButtonSet.OK_CANCEL);
   dialog.setDisposeOnHide(true);
+  
+  goog.events.listen(this.encoder, 'IMAGE_LOADED', function (event) {
+      var frame = goog.dom.createDom('div', {'class': 'frame'});
+      frame.appendChild(event.image);
+      goog.dom.getElement('thumbs').appendChild(frame);  
+  });
+  
   goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
     if (e.key == 'ok') {
       self.password = goog.dom.getElement('password').value;
@@ -255,25 +269,23 @@ cryptagram.demo.prototype.showProgressDialog = function() {
   var self = this;
   var dialog = new goog.ui.Dialog(null, false);
   this.dialog = dialog;
+
   dialog.setContent(cryptagram.templates.progressDialog());
   dialog.setTitle('Cryptagram');
   dialog.setButtonSet(goog.ui.Dialog.ButtonSet.CANCEL);
   dialog.setDisposeOnHide(true);
   
   var previousImage;
-  goog.events.listen(dialog, "NEW_PREVIEW", function (event) {
-    console.log(event);
+  goog.events.listen(this.encoder, "NEW_PREVIEW", function (event) {
     if (previousImage) {
       goog.dom.getElement('preview').removeChild(previousImage);
     }
     previousImage = event.image;
-    goog.dom.getElement('preview').appendChild(event.image);
-    
+    goog.dom.getElement('preview').appendChild(event.image);  
   });
   
-  goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
-    
-  });
+  //goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {});
+  
   dialog.setVisible(true);
 };
 
