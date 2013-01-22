@@ -1,6 +1,7 @@
 goog.provide('cryptagram.codec.aesthete');
 
 goog.require('cryptagram.codec');
+goog.require('cryptagram.cipher.aesthete');
 goog.require('goog.debug.Logger');
 
 
@@ -11,6 +12,7 @@ goog.require('goog.debug.Logger');
 cryptagram.codec.aesthete = function() {
   this.blockSize = 2;
   this.symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14];
+  this.cipher = new cryptagram.cipher.aesthete();
 };
 
 //cryptagram.codec.aesthete.base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -293,6 +295,7 @@ cryptagram.codec.aesthete.prototype.decode = function(img, imageData) {
   this.y = 0;
   this.img = img;
   this.imageData = imageData;
+  this.decodeData = '';
 
 };
 
@@ -320,7 +323,8 @@ cryptagram.codec.aesthete.prototype.getChunk = function() {
         // Found black, stop
         if (base8_0 == -1 || base8_1 == -1) {
           this.y = this.img.height;
-          return newBase64;
+          this.decodeData += newBase64;
+          return true;
         };
 
         base64Num = base8_0 * 8 + base8_1 ;
@@ -334,5 +338,6 @@ cryptagram.codec.aesthete.prototype.getChunk = function() {
       break;
     }
   }
-  return newBase64;
+  this.decodeData += newBase64;
+  return true;
 }

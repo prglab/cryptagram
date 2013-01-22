@@ -118,13 +118,11 @@ cryptagram.demo.prototype.runDecrypt = function() {
     var self = this;
     var password = 'cryptagram';
     var loader = new cryptagram.loader(self.container);
-    var decoder = new cryptagram.decoder(self.container);
+    var decoder = new cryptagram.decoder(self.container, {password: password});
 
     loader.getImageData(self.container.getSrc(), function(data) {
       decoder.decodeData(data, null, function(result) {
-        var cipher = new cryptagram.cipher();
-        var decryptedData = cipher.decrypt(result, password);
-        self.container.setSrc(decryptedData);
+        self.container.setSrc(result);
       });
 
       });
