@@ -21,4 +21,6 @@ var Downloadify = {
         "append": {},
         "dataType": {}
     }
-}
+};
+
+var JSZip = function() {};

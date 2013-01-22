@@ -33,6 +33,8 @@ goog.require('cryptagram.ReductionEstimator.EventType');
  * @constructor
  */
 cryptagram.encoder = function () {
+  // this.codec is the codec type, not an instance.
+  this.codec = cryptagram.codec.bacchant;
   goog.events.EventTarget.call(this);
 };
 goog.inherits(cryptagram.encoder, goog.events.EventTarget);
@@ -63,9 +65,100 @@ cryptagram.encoder.EncoderEventTarget = function () {
 goog.inherits(cryptagram.encoder.EncoderEventTarget, goog.events.EventTarget);
 
 
+cryptagram.encoder.prototype.loadFile = function(file) {
+  var self = this;
+  var reader = new FileReader();
+  reader.onerror = cryptagram.encoder.show_error;
+  reader.onload = function(e) {
+
+    var image = new Image();
+    image.src = e.target.result;
+    image.file = self.files[0].name;
+    self.images.push(image);
+    self.files.splice(0,1);
+    self.dispatchEvent({type: 'IMAGE_LOADED', image: image, remaining: self.files.length});
+  }
+  reader.readAsDataURL(file);
+}
+
+cryptagram.encoder.prototype.queueFiles = function(files) {
+
+  var self = this;
+  self.files = [];
+  self.images = [];
+  for (var f in files) {
+    var type = "" + files[f].type;
+    if (type.indexOf('image/') == 0) {
+      self.files.push(files[f]);
+    }
+  }
+
+  goog.events.listen(this, 'IMAGE_LOADED', function (event) {
+    if (self.files.length > 0) {
+      self.loadFile(self.files[0]);
+    }
+  }, true, this);
+
+  if (self.files.length > 0) {
+    this.loadFile(self.files[0]);
+  }
+};
+
+
+
+
+cryptagram.encoder.prototype.startEncoding = function(options) {
+  var self = this;
+  self.numImages = self.images.length;
+  this.password = options.password;
+  goog.events.listen(this, 'IMAGE_DONE', function (event) {
+    if (self.images.length > 0) {
+      self.encodeImage(self.images[0]);
+    }
+  }, true, this);
+  this.encodeImage(self.images[0]);
+};
+
+cryptagram.encoder.prototype.encodeImage = function (image) {
+
+  this.dispatchEvent({type:'DECODE_START', image:image});
+
+  var self = this;
+  var ratio = image.width / image.height;
+  var dataToEncode = image.src;
+
+  var codec = new cryptagram.codec.aesthete();
+  var cipher = new cryptagram.cipher();
+
+  var encryptedData = cipher.encrypt(dataToEncode, this.password);
+  var encodedImage = codec.encode(encryptedData, ratio);
+  encodedImage.file = image.file;
+  encodedImage.onload = function(e) {
+    self.encodedOnload(e);
+  }
+};
+
+cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
+  var self = this;
+  self.images.splice(0,1);
+  var encodedImage = loadEvent.target;
+  var str = encodedImage.src;
+  console.log('String: ' + str.substring(0,100));
+  var idx = str.indexOf(',');
+  var dat = str.substring(idx+1);
+  console.log('Encoded data is this long: ' + str.length);
+  this.dispatchEvent({type:'IMAGE_DONE', image:encodedImage, remaining: self.images.length});
+};
+
+
+
+
 cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
   var self = this;
   var originalImgDataUrl = loadEvent.target.result;
+  var image = new Image();
+  image.src = loadEvent.target.result;
+  this.dispatchEvent({type: 'IMAGE_LOADED', image: image});
 
   // TODO(tierney): Expose this parameter for other programmers.
   var newQuality = 0.8;
@@ -74,9 +167,9 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
   var sizeReducer = new cryptagram.SizeReducer();
   var sizeReducerListenKey = goog.events.listen(
     sizeReducer,
-    "SIZE_REDUCER_DONE",
+    'SIZE_REDUCER_DONE',
     function (event) {
-      console.log("Got this from the sizeReducer: " + event.image.length + " "
+      console.log('Got this from the sizeReducer: ' + event.image.length + ' '
                   + event.image.substring(0,100));
       self.encodeImage(event.image);
     },
@@ -86,63 +179,6 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
   sizeReducer.start(loadEvent.image, newQuality);
 };
 
-cryptagram.encoder.prototype.encodeImage = function (dataToEncode) {
-  var self = this;
-  var originalImage = new Image();
-  originalImage.onload = function () {
-    goog.dom.insertChildAt(goog.dom.getElement('original_image'),
-                           originalImage,
-                           0);
-    ratio = originalImage.width / originalImage.height;
-
-    // TODO(tierney): Prompt from user.
-    var password = 'cryptagram';
-
-    var codec = new cryptagram.codec.aesthete();
-    var cipher = new cryptagram.cipher();
-
-    var encryptedData = cipher.encrypt(dataToEncode, password);
-    var encodedImage = codec.encode(encryptedData, ratio);
-    encodedImage.onload = function(e) {
-      self.encodedOnload(e);
-    }
-  }
-  originalImage.src = dataToEncode;
-};
-
-cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
-  var self = this;
-  var encodedImage = loadEvent.target;
-  goog.dom.insertChildAt(goog.dom.getElement('encoded_image'),
-												 encodedImage,
-												 0);
-  var str = encodedImage.src;
-  console.log("String: " + str.substring(0,100));
-  var idx = str.indexOf(",");
-  var dat = str.substring(idx+1);
-
-  console.log("Encoded data is this long: " + str.length);
-  this.dispatchEvent({type:"IMAGE_DONE", dat:dat});
-};
-
-cryptagram.encoder.prototype.startEncoding = function (fin) {
-  var self = this;
-  var name = escape(fin.name);
-  console.log("Name: " + name);
-  console.log('Size: ' + fin.size);
-
-  var type = fin.type || 'n/a';
-  var reader = new FileReader();
-  var ratio = 1.0;
-
-  reader.onload = function(e) {
-    self.readerOnload(e);
-  }
-  reader.onerror = cryptagram.encoder.show_error;
-  console.log("Reading image.");
-  reader.readAsDataURL(fin);
-  console.log("Read image.");
-}
 
 cryptagram.encoder.show_error = function(msg, url, linenumber) {
   console.log('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
