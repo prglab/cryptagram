@@ -31,10 +31,30 @@ cryptagram.SizeReducer.EventTarget = function () {
 };
 goog.inherits(cryptagram.SizeReducer.EventTarget, goog.events.EventTarget);
 
+// Assumes that @image is an Image () object that has .src set to a DataURL.
+cryptagram.SizeReducer.prototype.startWithImage = function (image, quality) {
+  var self = this;
 
-cryptagram.SizeReducer.prototype.start = function (imageDataUrl,
-                                                   fraction,
-                                                   quality) {
+  // Will use the maximum number of base64 values to estimate the amount of data
+  // that we will be able to pack into the image.
+  var width_to_height_ratio = image.width / image.height;
+  var limit = cryptagram.codec.aesthete.maxBase64Values(width_to_height_ratio);
+
+  var fraction = 1.0;
+  if (limit < image.src.length) {
+    var fraction = limit / image.src.length;
+    this.startWithDataURLFractionQuality(image.src, fraction, quality);
+  } else {
+    this.dispatchEvent({type:"SIZE_REDUCER_DONE", image:image.src});
+  }
+};
+
+// Takes an image dataURL, fraction by which to reduce the image size and the
+// output quality.
+cryptagram.SizeReducer.prototype.startWithDataURLFractionQuality =
+  function (imageDataUrl,
+            fraction,
+            quality) {
   var self = this;
 
   var image = new Image();
@@ -57,3 +77,4 @@ cryptagram.SizeReducer.prototype.start = function (imageDataUrl,
   };
   image.src = imageDataUrl;
 };
+
