@@ -14,9 +14,7 @@ goog.require('goog.events.Event');
 goog.require('goog.events.EventTarget');
 
 goog.require('cryptagram.container');
-goog.require('cryptagram.decoder');
-goog.require('cryptagram.cipher');
-goog.require('cryptagram.codec.bacchant');
+goog.require('cryptagram.codec.aesthete');
 goog.require('cryptagram.loader');
 goog.require('cryptagram.RemoteLog');
 
@@ -128,9 +126,8 @@ cryptagram.encoder.prototype.encodeImage = function (image) {
   var dataToEncode = image.src;
   
   var codec = new cryptagram.codec.aesthete();
-  var cipher = new cryptagram.cipher();
-
-  var encryptedData = cipher.encrypt(dataToEncode, this.password);
+  
+  var encryptedData = codec.encrypt(dataToEncode, this.password);
   var encodedImage = codec.encode(encryptedData, ratio);
   encodedImage.file = image.file;
   encodedImage.onload = function(e) {
