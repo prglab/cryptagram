@@ -9,6 +9,7 @@
               "src/thirdparty/swfobject.js",
               "soy/demo.soy",
               "soy/experiment.soy"],
+  "css-inputs": ["gss/demo.gss"],
   "paths": ["src"],
   "externs": ["externs/sjcl.js", 
               "externs/downloadify.js", 

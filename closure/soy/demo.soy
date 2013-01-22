@@ -37,3 +37,43 @@
 <div id="encoded_image"></div>
 <div id="decoded_image"></div>
 {/template}
+
+
+/**
+ */
+{template .encodeDialog}
+<div id="status">Encode images</div>
+<div id="thumbs"></div>
+<br><table><tr>
+<td>Max Output Size:</td>
+<td>
+<select id="maxSize">
+  <option value="2048">2048x2048</option>
+  <option value="720">720x720</option>
+</select>
+</td>
+</tr>
+<tr>
+<td>Min Quality:</td>
+<td>
+<select id="quality">
+  <option value="low">Low</option>
+  <option value="medium" selected>Medium</option>
+  <option value="high">High</option>
+</select>
+</td>
+</tr>
+<tr><td>Password:</td>
+<td><input type=text id=password size=35></td>
+</tr></table>
+{/template}
+
+
+
+/**
+ */
+{template .progressDialog}
+<div id="status">Encoding image</div>
+<div id="preview"></div>
+<div id="thumbs"></div>
+{/template}
