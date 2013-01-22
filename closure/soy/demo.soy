@@ -6,8 +6,10 @@
  */
 {template .demo}
 <div id="demo">
- Demo: <a href="#encrypt" id="encrypt_link">Encrypt</a> | <a href="#decrypt"  id="decrypt_link">Decrypt</a>
-  <div id="main"></div>
+<div id="menu">
+  Demo: <a href="#encrypt" id="encrypt_link">Encrypt</a> | <a href="#decrypt"  id="decrypt_link">Decrypt</a>
+</div>
+<div id="main"></div>
 </div>
 {/template}
 
@@ -27,15 +29,14 @@
  * a container for drag & drop interactions.
  */
 {template .encrypt}
-<div id="drop_zone"><b>Drop Files Here</b><br>
+<div id="drop_zone">
+<div id="floater">
+<b>Drop Files Here</b><br>
 <br><span id="or">or 
 <input type="file" id="file_selector" name="file_selector" multiple/></span>
-</div>
 <div id="downloadify"></div>
-<hr>
-<div id="original_image"></div>
-<div id="encoded_image"></div>
-<div id="decoded_image"></div>
+</div>
+</div>
 {/template}
 
 
@@ -54,7 +55,7 @@
 </td>
 </tr>
 <tr>
-<td>Min Quality:</td>
+<td>Image Quality:</td>
 <td>
 <select id="quality">
   <option value="low">Low</option>
@@ -75,5 +76,6 @@
 {template .progressDialog}
 <div id="status">Encoding image</div>
 <div id="preview"></div>
+<div id="progress"></div>
 <div id="thumbs"></div>
 {/template}
