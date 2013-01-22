@@ -58,7 +58,7 @@ body {
 #preview {
   width: 100px;
   height: 100px;
-  right: 10px;
+  left: 100px;
   top: 10px;
   border: 1px solid gray;
   padding: 2px;
@@ -127,12 +127,25 @@ body {
   border-radius: 3px;
 }
 
+#status {
+  margin-bottom: 5px;
+}
+
+#status b {
+  font-weight: normal;
+  color: #4444FF;
+}
+
 .frame {
   position: relative;
   display: inline-block;
 }
 
-
+#progress {
+  position: absolute;
+  left: 150px;
+  width: 100px;
+}
 
 /*
  * Copyright 2009 The Closure Library Authors. All Rights Reserved.
