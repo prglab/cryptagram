@@ -76,6 +76,7 @@ cryptagram.cipher.prototype.encrypt = function(data, password) {
 	var bits = sjcl.hash.sha256.hash(to_hash);
 	this.logger.info("fromBits");
   var integrity_check_value = sjcl.codec.hex.fromBits(bits);
+  //var integrity_check_value = CryptoJS.MD5(to_hash);
   this.logger.shout("Encrypting Image. Hash:" + integrity_check_value);
   
   return integrity_check_value + to_hash;

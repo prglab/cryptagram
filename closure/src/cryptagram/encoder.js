@@ -33,6 +33,8 @@ goog.require('cryptagram.ReductionEstimator.EventType');
  * @constructor
  */
 cryptagram.encoder = function () {
+  // this.codec is the codec type, not an instance.
+  this.codec = cryptagram.codec.bacchant;
   goog.events.EventTarget.call(this);
 };
 goog.inherits(cryptagram.encoder, goog.events.EventTarget);
@@ -71,6 +73,7 @@ cryptagram.encoder.prototype.loadFile = function(file) {
     
     var image = new Image();
     image.src = e.target.result;
+    image.file = self.files[0].name; 
     self.images.push(image);
     self.files.splice(0,1);
     self.dispatchEvent({type: 'IMAGE_LOADED', image: image, remaining: self.files.length});
@@ -84,7 +87,8 @@ cryptagram.encoder.prototype.queueFiles = function(files) {
   self.files = [];
   self.images = [];
   for (var f in files) {
-    if (files[f].type == 'image/jpeg') {
+    var type = "" + files[f].type;
+    if (type.indexOf('image/') == 0) {
       self.files.push(files[f]);
     }
   }
@@ -93,7 +97,6 @@ cryptagram.encoder.prototype.queueFiles = function(files) {
     if (self.files.length > 0) {
       self.loadFile(self.files[0]);
     }
-    
   }, true, this);
 
   if (self.files.length > 0) {
@@ -106,6 +109,7 @@ cryptagram.encoder.prototype.queueFiles = function(files) {
 
 cryptagram.encoder.prototype.startEncoding = function(options) {
   var self = this;
+  self.numImages = self.images.length;
   this.password = options.password;
   goog.events.listen(this, 'IMAGE_DONE', function (event) {
     if (self.images.length > 0) {
@@ -117,17 +121,18 @@ cryptagram.encoder.prototype.startEncoding = function(options) {
 
 cryptagram.encoder.prototype.encodeImage = function (image) {
 
-  this.dispatchEvent({type:"DECODE_START", image:image});
+  this.dispatchEvent({type:'DECODE_START', image:image});
 
   var self = this;
   var ratio = image.width / image.height;
   var dataToEncode = image.src;
   
-  var codec = new cryptagram.codec.bacchant();
+  var codec = new cryptagram.codec.aesthete();
   var cipher = new cryptagram.cipher();
 
   var encryptedData = cipher.encrypt(dataToEncode, this.password);
   var encodedImage = codec.encode(encryptedData, ratio);
+  encodedImage.file = image.file;
   encodedImage.onload = function(e) {
     self.encodedOnload(e);
   }
@@ -138,11 +143,11 @@ cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   self.images.splice(0,1);
   var encodedImage = loadEvent.target;
   var str = encodedImage.src;
-  console.log("String: " + str.substring(0,100));
-  var idx = str.indexOf(",");
+  console.log('String: ' + str.substring(0,100));
+  var idx = str.indexOf(',');
   var dat = str.substring(idx+1);
-  console.log("Encoded data is this long: " + str.length);
-  this.dispatchEvent({type:"IMAGE_DONE", image:encodedImage});
+  console.log('Encoded data is this long: ' + str.length);
+  this.dispatchEvent({type:'IMAGE_DONE', image:encodedImage, remaining: self.images.length});
 };
 
 
@@ -162,9 +167,9 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
   var sizeReducer = new cryptagram.SizeReducer();
   var sizeReducerListenKey = goog.events.listen(
     sizeReducer,
-    "SIZE_REDUCER_DONE",
+    'SIZE_REDUCER_DONE',
     function (event) {
-      console.log("Got this from the sizeReducer: " + event.image.length + " "
+      console.log('Got this from the sizeReducer: ' + event.image.length + ' '
                   + event.image.substring(0,100));
       self.encodeImage(event.image);
     },
@@ -175,7 +180,7 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
   var reductionEstimator = new cryptagram.ReductionEstimator();
   goog.events.listen(
     reductionEstimator,
-    "REDUCTION_ESTIMATOR_DONE",
+    'REDUCTION_ESTIMATOR_DONE',
     function (event) {
       if (event.fraction < 1.0) {
         sizeReducer.start(originalImgDataUrl, event.fraction, newQuality);

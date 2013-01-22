@@ -8,7 +8,6 @@ goog.require('goog.events.EventType');
 goog.require('goog.ui.ProgressBar');
 goog.require('goog.ui.Dialog');
 
-
 goog.require('cryptagram.container');
 goog.require('cryptagram.decoder');
 goog.require('cryptagram.cipher');
@@ -74,11 +73,12 @@ cryptagram.demo.prototype.showEncrypt = function() {
     self.handleFiles(files);
   });
   
- /*
  this.downloadify = Downloadify.create('downloadify', {
     filename: "encrypted.zip",
     data: function(){
-      return self.zip.generate();
+      var zip = self.zip.generate();
+      self.zip = null;
+      return zip;
     },
     onError: function(){
       alert('Nothing to save.');
@@ -94,8 +94,6 @@ cryptagram.demo.prototype.showEncrypt = function() {
   });
   
   window['downloadify'] = this.downloadify;
-*/
-  
 };
 
 
@@ -142,11 +140,11 @@ cryptagram.demo.prototype.runDecrypt = function() {
  * @private
  */
 cryptagram.demo.prototype.handleFiles = function(files) {
+
   this.encoder = new cryptagram.encoder();
   this.showEncodeDialog();
   this.encoder.queueFiles(files);
-  //this.encoder.loadFiles();
- };
+};
 /*
 cryptagram.DragAndDropHandler.prototype.handleFiles = function (files) {
   // Files is a FileList of File objects. List some properties.
@@ -202,12 +200,11 @@ cryptagram.demo.prototype.showEncodeDialog = function() {
   dialog.setDisposeOnHide(true);
   
   goog.events.listen(this.encoder, 'IMAGE_LOADED', function (event) {
-      
       var frame = goog.dom.createDom('div', {'class': 'frame'});
       frame.appendChild(event.image);
       goog.dom.getElement('thumbs').appendChild(frame);
       
-      if (event.remaining == 0) {
+      if (event.remaining <= 0) {
         dialog.getButtonSet().setAllButtonsEnabled(true);
       }
   });
@@ -215,7 +212,7 @@ cryptagram.demo.prototype.showEncodeDialog = function() {
   goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
     if (e.key == 'ok') {
       var password = goog.dom.getElement('password').value;
-      if (password == "") {
+      if (password == '') {
         return;
       }
       var quality = goog.dom.getElement('quality').value;
@@ -235,25 +232,45 @@ cryptagram.demo.prototype.showEncodeDialog = function() {
 
 cryptagram.demo.prototype.showProgressDialog = function() {
 
-  var self = this;
-  var dialog = new goog.ui.Dialog(null, false);
-  this.dialog = dialog;
 
+  var self = this;
+
+
+  self.zip = new JSZip();
+  self.images = self.zip.folder('images');
+  self.numberImages = 0;
+    
+  var dialog = new goog.ui.Dialog(null, false);
+   
   dialog.setContent(cryptagram.templates.progressDialog());
   dialog.setTitle('Cryptagram');
   dialog.setButtonSet(goog.ui.Dialog.ButtonSet.CANCEL);
   dialog.setDisposeOnHide(true);
-  
+   
   var previousImage;
-  goog.events.listen(this.encoder, "DECODE_START", function (event) {
+  goog.events.listen(this.encoder, 'DECODE_START', function (event) {
     if (previousImage) {
       goog.dom.getElement('preview').removeChild(previousImage);
     }
     previousImage = event.image;
     goog.dom.getElement('preview').appendChild(event.image);  
+    goog.dom.getElement('status').innerHTML = 'Encoding <b>' + event.image.file + '</b>';  
   });
   
-  goog.events.listen(this.encoder, "IMAGE_DONE", function (event) {
+  goog.events.listen(this.encoder, 'IMAGE_DONE', function (event) {
+    
+    var idx = event.image.src.indexOf(',');
+    var dat = event.image.src.substring(idx + 1);
+  
+    self.images.file(event.image.file,
+                     dat,
+                     { base64: true });
+  
+    if (event.remaining == 0) {
+      dialog.exitDocument();
+      return;
+    }
+    
     var frame = goog.dom.createDom('div', {'class': 'frame'});
     frame.appendChild(event.image);
     goog.dom.getElement('thumbs').appendChild(frame);
