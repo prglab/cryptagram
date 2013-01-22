@@ -83,21 +83,7 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
     true,
     this);
 
-  // Get from model the size reduction that we need.
-  var reductionEstimator = new cryptagram.ReductionEstimator();
-  goog.events.listen(
-    reductionEstimator,
-    "REDUCTION_ESTIMATOR_DONE",
-    function (event) {
-      if (event.fraction < 1.0) {
-        sizeReducer.start(originalImgDataUrl, event.fraction, newQuality);
-      } else {
-        self.encodeImage(originalImgDataUrl);
-      }
-    },
-    true,
-    this);
-  reductionEstimator.getEstimate(originalImgDataUrl, newQuality);
+  sizeReducer.start(loadEvent.image, newQuality);
 };
 
 cryptagram.encoder.prototype.encodeImage = function (dataToEncode) {
