@@ -191,50 +191,6 @@ cryptagram.DragAndDropHandler.prototype.handleFiles = function (files) {
 */
 
 
-cryptagram.demo.prototype.startEncode = function() {
-  
-  var completed = 0;
-  this.encoder = new cryptagram.encoder();
-  this.showProgressDialog();
-  
-    
-  goog.events.listen(this.encoder, "IMAGE_DONE", function (event) {
-    completed++;
-
-    if (completed < files.length) {
-      console.log("More to go!");
-      self.encoder.startEncoding(this.files[completed]);
-    } else {
-      // TODO(tierney): Downloadify kick start?
-    }
-  }, true, this);
-
-  this.encoder.startEncoding(this.files[completed]);
-  
-};
-        // Decode image to make sure it worked
-          /*var decodedImage = new Image();
-          var frame2 = goog.dom.createDom('div', {'class': 'frame'});
-          frame2.appendChild(decodedImage);
-
-          goog.dom.insertChildAt(goog.dom.getElement('decoded_image'), frame2, 0);
-          var container = new cryptagram.container(decodedImage);
-          var decoder = new cryptagram.decoder(container);
-          
-          var codec = new cryptagram.codec.bacchant();
-          decoder.decodeData(str, codec, function(result) {
-            var percent = codec.errorCount / codec.lastOctal.length;
-            var decipher = cipher.decrypt(result, password);
-            container.setSrc(decipher);
-          });*/
-  
-  
-cryptagram.demo.showError = function(msg, url, linenumber) {
-  console.log('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber)
-  return true;
-};
-
-
 cryptagram.demo.prototype.showEncodeDialog = function() {
 
   var self = this;
@@ -246,22 +202,35 @@ cryptagram.demo.prototype.showEncodeDialog = function() {
   dialog.setDisposeOnHide(true);
   
   goog.events.listen(this.encoder, 'IMAGE_LOADED', function (event) {
+      
       var frame = goog.dom.createDom('div', {'class': 'frame'});
       frame.appendChild(event.image);
-      goog.dom.getElement('thumbs').appendChild(frame);  
+      goog.dom.getElement('thumbs').appendChild(frame);
+      
+      if (event.remaining == 0) {
+        dialog.getButtonSet().setAllButtonsEnabled(true);
+      }
   });
   
   goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
     if (e.key == 'ok') {
-      self.password = goog.dom.getElement('password').value;
-      self.quality = goog.dom.getElement('quality').value;
-      self.maxSize = goog.dom.getElement('maxSize').value;
-      self.startEncode();  
+      var password = goog.dom.getElement('password').value;
+      if (password == "") {
+        return;
+      }
+      var quality = goog.dom.getElement('quality').value;
+      var maxSize = goog.dom.getElement('maxSize').value;
+      self.showProgressDialog();
+      self.encoder.startEncoding({password: password, quality: quality, maxSize: maxSize});
     }
   });
+  
   dialog.setVisible(true);
+  dialog.getButtonSet().setAllButtonsEnabled(false);
   goog.dom.getElement('password').focus();
 };
+
+
 
 
 cryptagram.demo.prototype.showProgressDialog = function() {
@@ -276,12 +245,18 @@ cryptagram.demo.prototype.showProgressDialog = function() {
   dialog.setDisposeOnHide(true);
   
   var previousImage;
-  goog.events.listen(this.encoder, "NEW_PREVIEW", function (event) {
+  goog.events.listen(this.encoder, "DECODE_START", function (event) {
     if (previousImage) {
       goog.dom.getElement('preview').removeChild(previousImage);
     }
     previousImage = event.image;
     goog.dom.getElement('preview').appendChild(event.image);  
+  });
+  
+  goog.events.listen(this.encoder, "IMAGE_DONE", function (event) {
+    var frame = goog.dom.createDom('div', {'class': 'frame'});
+    frame.appendChild(event.image);
+    goog.dom.getElement('thumbs').appendChild(frame);
   });
   
   //goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {});
