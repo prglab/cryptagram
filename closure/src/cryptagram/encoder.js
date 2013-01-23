@@ -133,8 +133,6 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
     sizeReducer,
     'SIZE_REDUCER_DONE',
     function (event) {
-      console.log('Got this from the sizeReducer: ' + event.image.length + ' '
-                  + event.image.substring(0,100));
       self.encodeImage(event.image);
     },
     true,
@@ -145,7 +143,7 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
 // Expects an image (where .src is a data URL) and will embed without any
 // modifications.
 cryptagram.encoder.prototype.encodeImage = function (image) {
-  this.dispatchEvent({type:'DECODE_START', image:image});
+  this.dispatchEvent({type:'ENCODE_START', image:image});
 
   var self = this;
   var ratio = image.width / image.height;
