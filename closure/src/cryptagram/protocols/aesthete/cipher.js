@@ -51,7 +51,7 @@ cryptagram.cipher.aesthete.prototype.decrypt = function(newBase64, password) {
 
   this.logger.shout("Decrypted " + decrypted.length + " base64 characters.");
 
-  var payload = cryptagram.cipher.URIHeader + decrypted;
+  var payload = this.URIHeader + decrypted;
   return payload;
 };
 
