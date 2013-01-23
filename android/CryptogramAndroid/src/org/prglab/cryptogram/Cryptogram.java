@@ -10,6 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import android.net.Uri;
@@ -26,7 +27,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -47,8 +51,10 @@ import android.widget.Toast;
 public class Cryptogram extends Activity {
 	
 	public final String DEBUG_TAG = "Cryptogram Main Activity";
-	private final int GALLERY_IMAGE_CODE = 1;
-	private final int CAMERA_IMAGE_CODE = 2;
+	/** Activity call code for a gallery image selection */
+	private final int GALLERY_IMAGE_CODE = 101;
+	/** Activity call code for taking a photo with the camera */
+	private final int CAMERA_IMAGE_CODE = 102;
 	
 	AlertDialog a;
 	
@@ -64,6 +70,10 @@ public class Cryptogram extends Activity {
 	public final int MIN_PASSWORD_LENGTH = 8;
 	
 	private final String HEADER = "aesthete";
+	
+	private final String TEMP_PHOTO_PATH_KEY = "tmp_file_path";
+	
+	private ArrayList<String> dataUris;
 	
 
 	
@@ -298,6 +308,22 @@ public class Cryptogram extends Activity {
     	
     }
     
+    /** 
+     * Utility method for checking if an app to fulfill an Intent is available. 
+     * Thanks https://developer.android.com/training/camera/photobasics.html
+     * 
+     * @param context
+     * @param action
+     * @return
+     */
+    public static boolean isIntentAvailable(Context context, String action) {
+        final PackageManager packageManager = context.getPackageManager();
+        final Intent intent = new Intent(action);
+        List<ResolveInfo> list =
+                packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        return list.size() > 0;
+    }
+    
     /**
      * Click handler of buttonSelectPhoto
      * @param v Clicked view
@@ -310,12 +336,35 @@ public class Cryptogram extends Activity {
     
     /**
      * Click handler of buttonSnapPhoto
-     * @param v
+     * @param v the button
      */
     public void takePhoto(View v){
+    	Intent intent;
+    	if (isIntentAvailable(this, MediaStore.ACTION_IMAGE_CAPTURE))
+    		intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    	//TODO: Hide the photo button if we can't take pictures
+    	else{
+    		Toast.makeText(this, getString(R.string.no_camera_app), Toast.LENGTH_SHORT).show();
+    		return;
+    	}
+    	if (checkDirectory(Environment.getExternalStorageDirectory()+"/Cryptogram/tmp")){
+	    	String outFilename = new SimpleDateFormat("EEE_MMM_dd_HH_mm_ss_zzz_yyyy", Locale.US).format(new Date()) + ".jpg";
+	    	File tmpOutfile = new File(Environment.getExternalStorageDirectory()+"/Cryptogram/tmp/" + outFilename);
+	    	while (!getPreferences(MODE_PRIVATE).edit().putString(TEMP_PHOTO_PATH_KEY, tmpOutfile.getAbsolutePath()).commit());
+	    	
+	    	
+	    	intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tmpOutfile));
+
+	    	startActivityForResult(intent, CAMERA_IMAGE_CODE);
+    	}
+    	else
+    		Toast.makeText(this, getString(R.string.file_creation_failed), Toast.LENGTH_SHORT).show();
     	return;
     }
     
+    /**
+     * Show a dialog box for the user to enter a password for his photo/album
+     */
     private void showPasswordPrompt(){
     	
     	// get prompts.xml view
@@ -451,10 +500,10 @@ public class Cryptogram extends Activity {
      * Set the image to a result from the gallery
      * @param data
      */
-    void useImageFromGallery(Intent data){
+    private void useImageFromGallery(Intent data){
     	Uri targetUri = data.getData();
 	   	// Just show the uri in a Toast for now, we'll do something with it later
-	   	Toast.makeText(this, targetUri.toString(), Toast.LENGTH_SHORT).show();
+	   	//Toast.makeText(this, targetUri.toString(), Toast.LENGTH_SHORT).show();
 	
 	   		
 	   	try{
@@ -462,12 +511,29 @@ public class Cryptogram extends Activity {
 		   	imagePreview.setImageBitmap(imageBitmap);
 	   	}
 	   	catch(Exception e){
-	   		Toast.makeText(this, "could not find file", Toast.LENGTH_SHORT).show();
+	   		Toast.makeText(this, getString(R.string.file_location_failed), Toast.LENGTH_SHORT).show();
 	   	}
 	   	//imagePreview.setImageURI(targetUri);
 	   	
 	   	
 	   	imageUri = targetUri;
+    }
+    
+    /**
+     * Set the image to an image captured from the camera
+     */
+    private void useImageFromCamera(){
+    	try{
+    		String path = getPreferences(MODE_PRIVATE).getString(TEMP_PHOTO_PATH_KEY, null);
+		   	imageBitmap = BitmapFactory.decodeFile(path);
+		   	if (imageBitmap == null){
+		   		throw new RuntimeException("File not found!");
+		   	}
+		   	imagePreview.setImageBitmap(imageBitmap);
+	   	}
+	   	catch(Exception e){
+	   		Toast.makeText(this, getString(R.string.file_location_failed) + " " + e.getMessage(), Toast.LENGTH_LONG).show();
+	   	}
     }
     
     private void encodeToImage(){
@@ -561,7 +627,6 @@ public class Cryptogram extends Activity {
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-	     // TODO Auto-generated method stub
 	     super.onActivityResult(requestCode, resultCode, data);
 	
 	     if (resultCode == RESULT_OK){
@@ -571,10 +636,12 @@ public class Cryptogram extends Activity {
 	    	 		break;
 	    		
 	    	 	case CAMERA_IMAGE_CODE:
+	    	 		useImageFromCamera();
 	    	 		break;
 	    	 }
 	    	 	      
 	     }
+	     
     }
 
     @Override
