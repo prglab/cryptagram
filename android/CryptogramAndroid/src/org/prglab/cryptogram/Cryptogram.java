@@ -434,6 +434,8 @@ public class Cryptogram extends Activity {
 		jsExecutionView.loadUrl("file:///android_asset/run_sjcl.html?password="+"password"+"&data="+base64String);
     }
     
+    
+    
     /**
      * Click handler of buttonUploadPhoto
      * @param v
