@@ -1,7 +1,7 @@
 {
   "id": "cryptagram",
   "inputs": [ "src/closure/renaming_map.js",
-              "src/cryptagram/DragAndDropHandler.js",
+              "src/cryptagram/draganddrophandler.js",
               "src/cryptagram/encoder.js",
               "src/cryptagram/experiment.js",
               "src/cryptagram/reductionestimator.js",
