@@ -51,8 +51,8 @@ cryptagram.codec.aesthete.prototype.set_block = function(x_start, y_start, level
 };
 
 // TODO(tierney): Make more flexible for the adhoc dimension choice.
-cryptagram.codec.aesthete.maxBase64Values = function (width_to_height_ratio) {
-  var largestDim = 2048; // Assumes a square max image dimension.
+cryptagram.codec.aesthete.maxBase64Values = function (width_to_height_ratio,
+                                                      largestDim) {
   var smallMaxDim = width_to_height_ratio <= 1.0 ?
     Math.floor(largestDim * width_to_height_ratio) :
     Math.floor(largestDim / width_to_height_ratio);

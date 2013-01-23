@@ -62,7 +62,8 @@ cryptagram.encoder.EncoderEventTarget = function () {
 };
 goog.inherits(cryptagram.encoder.EncoderEventTarget, goog.events.EventTarget);
 
-// Changes the state of self.files by splicing.
+// Changes the state of self.files by splicing. Loads the self.images array with
+// Image objects.
 cryptagram.encoder.prototype.loadFile = function (file) {
   var self = this;
   var reader = new FileReader();
@@ -108,11 +109,13 @@ cryptagram.encoder.prototype.queueFiles = function (files) {
 // self.images array at every iteration. This is how the self.images.length is
 // reduced.
 // TODO(tierney): Make the callbacks less prone to altering state / causing
-// side-effects implictly.
+// side-effects implicitly.
 cryptagram.encoder.prototype.startEncoding = function (options) {
   var self = this;
   self.numImages = self.images.length;
   this.password = options.password;
+  this.quality = options.quality;
+  this.maxSize = options.maxSize;
 
   goog.events.listen(this, 'IMAGE_DONE', function (event) {
     if (self.images.length > 0) {
@@ -125,9 +128,6 @@ cryptagram.encoder.prototype.startEncoding = function (options) {
 cryptagram.encoder.prototype.createValidImage = function (image) {
   var self = this;
 
-  // TODO(tierney): Expose this parameter for other programmers.
-  var newQuality = 0.9;
-
   var sizeReducer = new cryptagram.SizeReducer();
   var sizeReducerListenKey = goog.events.listen(
     sizeReducer,
@@ -137,7 +137,15 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
     },
     true,
     this);
-  sizeReducer.startWithImage(image, newQuality);
+
+  var reducerOptions = {
+    image: image,
+    quality: this.quality,
+    maxSize :this.maxSize,
+    codec: this.codec
+  };
+
+  sizeReducer.startWithImage(reducerOptions);
 };
 
 // Expects an image (where .src is a data URL) and will embed without any

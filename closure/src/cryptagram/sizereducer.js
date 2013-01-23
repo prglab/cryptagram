@@ -31,20 +31,31 @@ cryptagram.SizeReducer.EventTarget = function () {
 };
 goog.inherits(cryptagram.SizeReducer.EventTarget, goog.events.EventTarget);
 
-// Assumes that @image is an Image () object that has .src set to a DataURL.
-cryptagram.SizeReducer.prototype.startWithImage = function (image, quality) {
+// Assumes that options.image is an Image () object that has .src set to a
+// DataURL.
+cryptagram.SizeReducer.prototype.startWithImage = function (options) {
   var self = this;
+  var image = options.image;
 
   // Will use the maximum number of base64 values to estimate the amount of data
   // that we will be able to pack into the image.
   var width_to_height_ratio = image.width / image.height;
-  var limit = cryptagram.codec.aesthete.maxBase64Values(width_to_height_ratio);
+
+  var limit = options.codec.maxBase64Values(width_to_height_ratio,
+                                            options.maxSize);
 
   if (limit < image.src.length) {
     // TODO(tierney): Develop better model for what fraction to reduce the
     // quality of the image.
-    var fraction = limit / image.src.length;
-    this.startWithImageFracQual(image, fraction, quality);
+    var reduction = limit / image.src.length;
+    console.log("Reduction: " + reduction);
+    var fraction = 0.9;
+    var fudgeFactor = 0.1;
+    if (reduction <= 0.65) {
+      fraction = .01 * (5 * (-4059+Math.sqrt(345753561+
+                                             28608000000*reduction)))/7152;
+    }
+    this.startWithImageFracQual(image, fraction, options.quality);
   } else {
     this.dispatchEvent({type:"SIZE_REDUCER_DONE", image:image});
   }
