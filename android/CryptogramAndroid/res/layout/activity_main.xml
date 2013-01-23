@@ -23,7 +23,7 @@
         android:id="@+id/selected_images_list"
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/button_snap_photo"
+        android:layout_above="@+id/button_select_photo"
         android:layout_below="@id/image_preview"
         android:layout_marginBottom="5dp" />
         
@@ -32,6 +32,7 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="@string/button_snap_photo"
+	        android:onClick="takePhoto"
 	        android:layout_alignTop="@+id/button_select_photo"
 	        android:layout_alignParentBottom="true" />
 	
