@@ -41,6 +41,8 @@ cryptagram.SizeReducer.prototype.startWithImage = function (image, quality) {
   var limit = cryptagram.codec.aesthete.maxBase64Values(width_to_height_ratio);
 
   if (limit < image.src.length) {
+    // TODO(tierney): Develop better model for what fraction to reduce the
+    // quality of the image.
     var fraction = limit / image.src.length;
     this.startWithImageFracQual(image, fraction, quality);
   } else {
