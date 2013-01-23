@@ -15,14 +15,15 @@
         android:onClick="selectPhoto"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_select_photo" />
+        android:text="@string/button_select_photo"/>
 
     <Button
         android:id="@+id/button_upload_photo"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:onClick="encryptPhoto"
-        android:text="@string/button_upload_photo" />
+        android:text="@string/button_upload_photo"/>
+    
 
     <WebView 
         android:id="@+id/js_encryption_webview"
@@ -37,6 +38,7 @@
         android:layout_gravity="center_horizontal"
         android:src="@drawable/no_image_selected"
         android:contentDescription="@string/preview_content_description" />
+    
     
     
 
