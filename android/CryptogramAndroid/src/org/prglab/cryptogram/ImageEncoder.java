@@ -6,10 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.widget.Toast;
 
 /**
  * Encodes a data stream to a Cryptogram-compliant bitmap
