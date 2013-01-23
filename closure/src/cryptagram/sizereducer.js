@@ -34,7 +34,7 @@ goog.inherits(cryptagram.SizeReducer.EventTarget, goog.events.EventTarget);
 // Assumes that @image is an Image () object that has .src set to a DataURL.
 cryptagram.SizeReducer.prototype.startWithImage = function (image, quality) {
   var self = this;
-
+  console.log("NAME: " + image.file);
   // Will use the maximum number of base64 values to estimate the amount of data
   // that we will be able to pack into the image.
   var width_to_height_ratio = image.width / image.height;
@@ -43,7 +43,7 @@ cryptagram.SizeReducer.prototype.startWithImage = function (image, quality) {
   var fraction = 1.0;
   if (limit < image.src.length) {
     var fraction = limit / image.src.length;
-    this.startWithDataURLFractionQuality(image.src, fraction, quality);
+    this.startWithImageFracQual(image, fraction, quality);
   } else {
     this.dispatchEvent({type:"SIZE_REDUCER_DONE", image:image});
   }
@@ -51,12 +51,12 @@ cryptagram.SizeReducer.prototype.startWithImage = function (image, quality) {
 
 // Takes an image dataURL, fraction by which to reduce the image size and the
 // output quality.
-cryptagram.SizeReducer.prototype.startWithDataURLFractionQuality =
-  function (imageDataUrl,
-            fraction,
-            quality) {
+cryptagram.SizeReducer.prototype.startWithImageFracQual = function (image,
+                                                                    fraction,
+                                                                    quality) {
   var self = this;
-
+  var imageDataUrl = image.src;
+  var imageName = image.file;
   var image = new Image();
   image.onload = function (event) {
     var img = this;
@@ -74,8 +74,11 @@ cryptagram.SizeReducer.prototype.startWithDataURLFractionQuality =
 
     // Convert the image data URL to an image and pass that up once it's loaded.
     var newImage = new Image ();
+
     newImage.onload = function (event) {
       // Send the event.
+      console.log("NAME: " + imageName);
+      newImage.file = imageName;
       self.dispatchEvent({type:"SIZE_REDUCER_DONE", image:newImage});
     };
     newImage.src = newImageDataUrl;
