@@ -24,7 +24,15 @@ cryptagram.codec.prototype.test = function(img, imageData) {
 
 cryptagram.codec.prototype.decodeProgress = function() {
   return "Unknown";
-}
+};
+
+cryptagram.codec.prototype.decrypt = function(password) {
+  return this.cipher.decrypt(this.decodeData, password);
+};
+
+cryptagram.codec.prototype.encrypt = function(data, password) {
+  return this.cipher.encrypt(data, password);
+};
 
 cryptagram.codec.prototype.set_pixel = function(x, y, r, g, b) {
   var idx = 4 * (x + y * this.width);

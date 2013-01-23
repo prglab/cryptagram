@@ -9,8 +9,11 @@ goog.require('goog.debug.Logger');
 /**
  * @constructor
  */
-cryptagram.decoder = function(container) {
+cryptagram.decoder = function(container, options) {
   this.container = container;
+  if (options && options.password) {
+    this.password = options.password;
+  }
 };
 
 cryptagram.decoder.prototype.logger = goog.debug.Logger.getLogger('cryptagram.decoder');
@@ -79,11 +82,9 @@ cryptagram.decoder.prototype.getCodec = function(img, imageData) {
  */
 cryptagram.decoder.prototype.processImage = function() {
     
-  var done = false;
-  var chunk = this.codec.getChunk();
+  var more = this.codec.getChunk();
 
-  if (chunk) {
-    this.data += chunk;
+  if (more) {
     var percent = Math.round(100 * this.codec.decodeProgress(), 2);
     this.container.setStatus("Decode<br>" + percent + "%");
     var self = this;
@@ -94,11 +95,9 @@ cryptagram.decoder.prototype.processImage = function() {
 
     var timeB = new Date().getTime();
     this.elapsed = timeB - this.timeA;
- 
     this.logger.shout("Decoded " + this.data.length + " base64 in " + this.elapsed + " ms.");
-
     this.container.setStatus();
-
-    this.callback(this.data);
+    var decrypted = this.codec.decrypt(this.password);
+    this.callback(decrypted);
  }  
 }
