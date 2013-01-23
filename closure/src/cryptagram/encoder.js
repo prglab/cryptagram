@@ -126,7 +126,7 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
   var self = this;
 
   // TODO(tierney): Expose this parameter for other programmers.
-  var newQuality = 0.8;
+  var newQuality = 0.9;
 
   var sizeReducer = new cryptagram.SizeReducer();
   var sizeReducerListenKey = goog.events.listen(
