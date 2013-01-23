@@ -18,7 +18,8 @@ cryptagram.codec.bacchant = function() {
 
 goog.inherits(cryptagram.codec.bacchant, cryptagram.codec);
 
-cryptagram.codec.bacchant.prototype.logger = goog.debug.Logger.getLogger('cryptagram.codec.bacchant');
+cryptagram.codec.bacchant.prototype.logger =
+  goog.debug.Logger.getLogger('cryptagram.codec.bacchant');
 
 
 /** @inheritDoc */
@@ -27,7 +28,7 @@ cryptagram.codec.bacchant.prototype.name = function() {
 };
 
 
-cryptagram.codec.bacchant.prototype.encode = function(data, 
+cryptagram.codec.bacchant.prototype.encode = function(data,
     width_to_height_ratio, header_string, block_width, block_height) {
 
   var timeA = new Date().getTime();
@@ -36,15 +37,17 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
 		width_to_height_ratio : 1.0;
   var header_string = typeof header_string !== 'undefined' ? header_string :
 		this.name();
-  var block_width = typeof block_width !== 'undefined' ? block_width : this.blockSize;
-  var block_height = typeof block_height !== 'undefined' ? block_height : this.blockSize;
+  var block_width = typeof block_width !== 'undefined' ?
+    block_width : this.blockSize;
+  var block_height = typeof block_height !== 'undefined' ?
+    block_height : this.blockSize;
 
   var n_header_symbols = header_string.length;
   var self = this;
   // grow an array of grayscale values and then convert them to an RGB Image
   // afterward (so we don't have to precompute size or worry about the header
   // yet
-  
+
   var self = this;
   function add_char(ch,values) {
     var value = self.base64Values.indexOf(ch);
@@ -71,13 +74,13 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
 
   var payloadLength = data.length;
   var lengthString = "" + payloadLength;
-  
+
   while (lengthString.length < 8) {
     lengthString = "0" + lengthString;
   }
-  
+
   data = lengthString + data;
-  
+
   // next translate the image data
   var values = new Array();
   for (var i = 0; i < data.length; i++) {
@@ -113,7 +116,7 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
   c.height = height;
   var cxt = c.getContext('2d');
   var imageData = cxt.createImageData(width, height);
-  
+
   this.data = imageData.data;
   this.width = width;
   this.height = height;
@@ -140,7 +143,7 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
 		(header_height / block_height)
   var n_symbols_in_full_row = width / block_width;
   var x_coord, y_coord, x, y, i2;
-  
+
   for (var i = 0; i < n_values; i++) {
     var octal = values[i];
     level = this.symbol_thresholds[octal];
@@ -158,30 +161,31 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
     y = y_coord * block_height;
     this.set_block(x,y,level);
   }
-    
+
   cxt.putImageData(imageData, 0, 0);
   var img = new Image();
-  
+
   this.logger.info("JPEG quality " + this.quality);
-  
+
   img.src = c.toDataURL('image/jpeg', this.quality);
-  
+
   var timeB = new Date().getTime();
   var elapsed = timeB - timeA;
-  this.logger.info("Encoded in: " + elapsed + " ms");  
+  this.logger.info("Encoded in: " + elapsed + " ms");
   return img;
 };
 
 
 // TODO(tierney): Make more flexible for the adhoc dimension choice.
-cryptagram.codec.bacchant.maxBase64Values = function (width_to_height_ratio) {
-  var largestDim = 2048; // Assumes a square max image dimension.
+cryptagram.codec.bacchant.maxBase64Values = function (width_to_height_ratio,
+                                                      largestDim) {
   var smallMaxDim = width_to_height_ratio <= 1.0 ?
     Math.floor(largestDim * width_to_height_ratio) :
     Math.floor(largestDim / width_to_height_ratio);
+  console.log("smallMaxDim: " + smallMaxDim);
   var n_pixels = smallMaxDim * largestDim;
 
-  return Math.floor((n_pixels - 64 - 736) / 8.0);
+  return Math.floor(0.75 * ((n_pixels - 64 - 256 - 736 - 32) / 8.0));
 };
 
 /**
@@ -216,7 +220,7 @@ cryptagram.codec.bacchant.dimensions = function (width_to_height_ratio,
   // how many octal values do we have from our actual image data?
   // TODO(tierney): This needs to be checked for correctness. It appears to be
   // slightly too small of as estimate.
-  var n_values = 4 + Math.ceil((92 + (1.33 * n_base64_values)) * 2);
+  var n_values = Math.ceil((112 + (1.33 * n_base64_values)) * 2);
   var block_size = block_width * block_height;
   var n_pixels = block_size * n_values + n_pixels_in_header;
   var height = Math.sqrt(n_pixels / width_to_height_ratio);
@@ -236,7 +240,7 @@ cryptagram.codec.bacchant.dimensions = function (width_to_height_ratio,
 
 
 
-/** 
+/**
  */
 cryptagram.codec.bacchant.prototype.getHeader = function(img, imageData) {
 
@@ -244,12 +248,12 @@ cryptagram.codec.bacchant.prototype.getHeader = function(img, imageData) {
     var headerSize = this.blockSize * 4;
     for (var y = 0; y < headerSize; y+= this.blockSize) {
       for (var x = 0; x < headerSize; x+= 2*this.blockSize) {
-        
+
         var base8_0 = this.getBase8Value(img, imageData, x, y);
         var base8_1 = this.getBase8Value(img, imageData, x + this.blockSize, y);
         var base64Num = base8_0 * 8 + base8_1 ;
 
-        var base64 = this.base64Values.charAt(base64Num);                    
+        var base64 = this.base64Values.charAt(base64Num);
         newBase64 += base64;
       }
     }
@@ -262,7 +266,7 @@ cryptagram.codec.bacchant.prototype.getHeader = function(img, imageData) {
 //  -1 is black
 //  0-7 are decoded base8 values. 0 is white, 7 dark gray, etc
 
-/** 
+/**
  * @private
  */
 cryptagram.codec.bacchant.prototype.getBase8Value = function(img, imgData, x, y) {
@@ -270,12 +274,12 @@ cryptagram.codec.bacchant.prototype.getBase8Value = function(img, imgData, x, y)
   var count = 0.0;
   var vt = 0.0;
   var avg;
-  
+
   for (var i = 0; i < this.blockSize; i++) {
     for (var j = 0; j < this.blockSize; j++) {
-      
+
       var base = (y + j) * img.width + (x + i);
-      
+
       var r = imgData[4*base];
       var g = imgData[4*base + 1];
       var b = imgData[4*base + 2];
@@ -285,17 +289,17 @@ cryptagram.codec.bacchant.prototype.getBase8Value = function(img, imgData, x, y)
       count++;
     }
   }
-  
+
   var v = vt / count;
   var bin = Math.floor(v / 32.0);
 
-  return bin;   
+  return bin;
 }
 
 /** @inheritDoc */
 cryptagram.codec.bacchant.prototype.decodeProgress = function() {
   return this.y / this.img.height;
-  
+
 }
 
 cryptagram.codec.bacchant.prototype.decode = function(img, imageData) {
@@ -312,55 +316,55 @@ cryptagram.codec.bacchant.prototype.decode = function(img, imageData) {
 cryptagram.codec.bacchant.prototype.getChunk = function() {
 
   var newBase64 = "";
-  
+
   if (this.count >= this.length) {
     return false;
   }
-  
+
   if (this.y >= this.img.height) {
     return false;
   }
-  
+
   var count = 0;
   var headerSize = this.blockSize * 4;
-  
+
   while (count < this.chunkSize) {
-      
+
     for (var x = 0; x < this.img.width; x+= (this.blockSize * 2)) {
-        
+
         if (this.count >= this.length) {
-          break;   
+          break;
         }
 
         // Skip over header super-block
         if (this.y < headerSize && x < headerSize) {
           continue;
         }
-                        
+
         var base8_0 = this.getBase8Value(this.img, this.imageData, x, this.y);
         var base8_1 = this.getBase8Value(this.img, this.imageData, x + this.blockSize, this.y);
-        
+
         var base64Num = base8_0 * 8 + base8_1 ;
         var base64 = this.base64Values.charAt(base64Num);
-                                  
+
         if (this.y == 0 && x < headerSize + 16*this.blockSize) {
           this.lengthString += base64;
         } else {
-                                            
+
           newBase64 += base64;
           this.count++;
-          
+
           if (this.length == null) {
             this.length = parseInt(this.lengthString);
           }
         }
-    
-    
+
+
     }
     if (this.y >= this.img.height) {
       break;
     }
-    
+
     this.y+= this.blockSize;
     count++;
   }
