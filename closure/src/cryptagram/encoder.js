@@ -137,7 +137,7 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
     },
     true,
     this);
-  sizeReducer.start(loadEvent.image, newQuality);
+  sizeReducer.startWithImage(image, newQuality);
 };
 
 // Expects an image (where .src is a data URL) and will embed without any
