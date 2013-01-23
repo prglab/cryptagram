@@ -65,8 +65,10 @@ cryptagram.SizeReducer.prototype.startWithImageFracQual = function (image,
     var canvas = document.createElement('canvas');
     var context = canvas.getContext("2d");
 
-    var newWidth = Math.floor(img.width);
-    var newHeight = Math.floor(img.height);
+    var newWidth = Math.floor(fraction * img.width);
+    var newHeight = Math.floor(fraction * img.height);
+    canvas.width = newWidth;
+    canvas.height = newHeight;
     context.drawImage(img, 0, 0, newWidth, newHeight);
 
     // Convert to data URL and save at given quality.
