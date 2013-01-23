@@ -173,6 +173,68 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
 };
 
 
+// TODO(tierney): Make more flexible for the adhoc dimension choice.
+cryptagram.codec.bacchant.maxBase64Values = function (width_to_height_ratio) {
+  var largestDim = 2048; // Assumes a square max image dimension.
+  var smallMaxDim = width_to_height_ratio <= 1.0 ?
+    Math.floor(largestDim * width_to_height_ratio) :
+    Math.floor(largestDim / width_to_height_ratio);
+  var n_pixels = smallMaxDim * largestDim;
+
+  return Math.floor((n_pixels - 64 - 736) / 8.0);
+};
+
+/**
+ * static method to return an estimate of the required image dimensions given
+ * the aspect ratio and the number of base64 values to be embedded.
+ */
+cryptagram.codec.bacchant.dimensions = function (width_to_height_ratio,
+                                                 n_base64_values) {
+  if ((typeof width_to_height_ratio !== "number") ||
+      (typeof n_base64_values !== "number")) {
+    return undefined;
+  }
+
+  width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
+		width_to_height_ratio : 1.0;
+  header_string = typeof header_string !== 'undefined' ? header_string :
+		'aesthete';
+  block_width = typeof block_width !== 'undefined' ? block_width : 2;
+  block_height = typeof block_height !== 'undefined' ? block_height : 2;
+
+  // how many octal values did we get from the header string?
+  var n_header_values = 2 * (header_string.length);
+  var n_header_values_in_row = Math.ceil(Math.sqrt(n_header_values));
+
+  // always encode an even number of octal values in a row, don't split a base64
+  // character over two rows
+  if (n_header_values_in_row % 2 != 0) { n_header_values_in_row++; }
+  var header_width = n_header_values_in_row * block_width;
+  var header_height = n_header_values_in_row * block_height;
+  var n_pixels_in_header = header_width * header_height;
+
+  // how many octal values do we have from our actual image data?
+  // TODO(tierney): This needs to be checked for correctness. It appears to be
+  // slightly too small of as estimate.
+  var n_values = 4 + Math.ceil((92 + (1.33 * n_base64_values)) * 2);
+  var block_size = block_width * block_height;
+  var n_pixels = block_size * n_values + n_pixels_in_header;
+  var height = Math.sqrt(n_pixels / width_to_height_ratio);
+  var width = Math.ceil(width_to_height_ratio * height);
+
+  // make output height a multiple of block height
+  height = Math.ceil(Math.ceil(height) / block_height) * block_height;
+
+  // make output width a multiple of twice block width, so that two octal values
+  // always encoded on same line
+  width = Math.ceil(width / (2* block_width)) * 2 *  block_width;
+
+  return {width:width, height:height};
+};
+
+
+
+
 
 /** 
  */
