@@ -1,4 +1,4 @@
-{namespace cryptogram.templates}
+{namespace cryptagram.templates}
 
 
 /**
@@ -6,8 +6,10 @@
  */
 {template .demo}
 <div id="demo">
- Demo: <a href="#encrypt" id="encrypt_link">Encrypt</a> | <a href="#decrypt"  id="decrypt_link">Decrypt</a>
-  <div id="main"></div>
+<div id="menu">
+  Demo: <a href="#encrypt" id="encrypt_link">Encrypt</a> | <a href="#decrypt"  id="decrypt_link">Decrypt</a>
+</div>
+<div id="main"></div>
 </div>
 {/template}
 
@@ -15,10 +17,12 @@
 /**
  * Displays HTML for the decryption demo
  * @param image
+ * @param id
  */
 {template .decrypt}
-<input type="button" value="Decrypt" id="decrypt_button">
-<br><div class="frame"><img src="{$image}" id="image"></div>
+<div class="{css frame}">
+<input type="button" value="Decrypt" id="button{$id}">
+<br><img src="{$image}" id="image{$id}"></div>
 {/template}
 
 
@@ -27,14 +31,53 @@
  * a container for drag & drop interactions.
  */
 {template .encrypt}
-<div id="drop_zone"><b>Drop Files Here</b><br>
+<div id="drop_zone">
+<div id="floater">
+<b>Drop Files Here</b><br>
 <br><span id="or">or 
 <input type="file" id="file_selector" name="file_selector" multiple/></span>
-</div>
 <div id="downloadify"></div>
-<hr>
-<div id="original_image"></div>
-<div id="encoded_image"></div>
-<div id="decoded_image"></div>
-<div id="alerts"></div>
+</div>
+</div>
+{/template}
+
+
+/**
+ */
+{template .encodeDialog}
+<div id="status">Encode images</div>
+<div id="thumbs"></div>
+<br><table><tr>
+<td>Max Output Size:</td>
+<td>
+<select id="maxSize">
+  <option value="2048">2048x2048</option>
+  <option value="720">720x720</option>
+</select>
+</td>
+</tr>
+<tr>
+<td>Image Quality:</td>
+<td>
+<select id="quality">
+  <option value="low">Low</option>
+  <option value="medium" selected>Medium</option>
+  <option value="high">High</option>
+</select>
+</td>
+</tr>
+<tr><td>Password:</td>
+<td><input type=text id=password size=35></td>
+</tr></table>
+{/template}
+
+
+
+/**
+ */
+{template .progressDialog}
+<div id="status">Starting Encoder</div>
+<div id="preview"></div>
+<div id="progress"></div>
+<div id="thumbs"></div>
 {/template}

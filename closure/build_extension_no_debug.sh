@@ -17,5 +17,5 @@ mkdir -p ${EXTENSION_BUILD_DIR}
 cp -r ${EXTENSION_STATIC_DIR}/* ${EXTENSION_BUILD_DIR}/
 
 # Compile with plovr
-java -jar ../../plovr/build/plovr.jar build cryptogram-background-config.js > ${EXTENSION_BUILD_DIR}/cryptogram-background.js
-java -jar ../../plovr/build/plovr.jar build cryptogram-content-no-debug-config.js > ${EXTENSION_BUILD_DIR}/cryptogram-content.js
+java -jar ../../plovr/build/plovr.jar build cryptagram-background-config.js > ${EXTENSION_BUILD_DIR}/cryptagram-background.js
+java -jar ../../plovr/build/plovr.jar build cryptagram-content-no-debug-config.js > ${EXTENSION_BUILD_DIR}/cryptagram-content.js
