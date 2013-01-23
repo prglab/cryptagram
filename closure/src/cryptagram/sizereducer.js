@@ -45,7 +45,7 @@ cryptagram.SizeReducer.prototype.startWithImage = function (image, quality) {
     var fraction = limit / image.src.length;
     this.startWithDataURLFractionQuality(image.src, fraction, quality);
   } else {
-    this.dispatchEvent({type:"SIZE_REDUCER_DONE", image:image.src});
+    this.dispatchEvent({type:"SIZE_REDUCER_DONE", image:image});
   }
 };
 
@@ -72,8 +72,13 @@ cryptagram.SizeReducer.prototype.startWithDataURLFractionQuality =
     // Convert to data URL and save at given quality.
     var newImageDataUrl = canvas.toDataURL('image/jpeg', quality);
 
-    // Send the event.
-    self.dispatchEvent({type:"SIZE_REDUCER_DONE", image:newImageDataUrl});
+    // Convert the image data URL to an image and pass that up once it's loaded.
+    var newImage = new Image ();
+    newImage.onload = function (event) {
+      // Send the event.
+      self.dispatchEvent({type:"SIZE_REDUCER_DONE", image:newImage});
+    };
+    newImage.src = newImageDataUrl;
   };
   image.src = imageDataUrl;
 };

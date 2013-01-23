@@ -16,6 +16,6 @@
               "externs/MD5.js",
               "externs/swfobject.js",
               "externs/chrome_extensions.js"],
-  "mode": "simple",
+  "mode": "SIMPLE",
   "jsdoc-html-output-path": "docs"
 }
