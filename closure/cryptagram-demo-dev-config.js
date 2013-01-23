@@ -1,7 +1,6 @@
 {
   "id": "cryptagram",
-  "inputs": [ "src/closure/renaming_map.js",
-              "src/cryptagram/demo.js",
+  "inputs": [ "src/cryptagram/demo.js",
               "src/cryptagram/experiment.js",
               "src/thirdparty/sjcl.js",
               "src/thirdparty/MD5.js",
@@ -10,12 +9,13 @@
               "src/thirdparty/swfobject.js",
               "soy/demo.soy",
               "soy/experiment.soy"],
+  "css-inputs": ["gss/demo.gss"],
   "paths": ["src"],
   "externs": ["externs/sjcl.js",
               "externs/downloadify.js",
               "externs/MD5.js",
               "externs/swfobject.js",
               "externs/chrome_extensions.js"],
-  "mode": "simple",
+  "mode": "RAW",
   "jsdoc-html-output-path": "docs"
 }
