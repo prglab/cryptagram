@@ -95,7 +95,7 @@ cryptagram.decoder.prototype.processImage = function() {
 
     var timeB = new Date().getTime();
     this.elapsed = timeB - this.timeA;
-    this.logger.shout("Decoded " + this.data.length + " base64 in " + this.elapsed + " ms.");
+    this.logger.shout("Decoded " + this.codec.decodeData.length + " base64 in " + this.elapsed + " ms.");
     this.container.setStatus();
     var decrypted = this.codec.decrypt(this.password);
     this.callback(decrypted);

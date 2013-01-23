@@ -1,6 +1,7 @@
 goog.provide('cryptagram.codec.bacchant');
 
 goog.require('cryptagram.codec');
+goog.require('cryptagram.cipher.bacchant');
 goog.require('goog.debug.Logger');
 
 

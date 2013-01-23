@@ -148,7 +148,6 @@ cryptagram.encoder.prototype.encodeImage = function (image) {
   var self = this;
   var ratio = image.width / image.height;
   var dataToEncode = image.src;
-
   var codec = new this.codec();
 
   var encryptedData = codec.encrypt(dataToEncode, this.password);
