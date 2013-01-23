@@ -133,6 +133,10 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
     sizeReducer,
     'SIZE_REDUCER_DONE',
     function (event) {
+      this.logger.info("Image len:" + event.image.src.length);
+      var est = self.codec.dimensions(image.width / image.height,
+                                      event.image.src.length);
+      this.logger.info("Image est:" + est.width + " " + est.height);
       self.encodeImage(event.image);
     },
     true,
@@ -156,9 +160,11 @@ cryptagram.encoder.prototype.encodeImage = function (image) {
   var self = this;
   var ratio = image.width / image.height;
   var dataToEncode = image.src;
+  this.logger.info("Encoding this size: " + dataToEncode.length);
   var codec = new this.codec();
 
   var encryptedData = codec.encrypt(dataToEncode, this.password);
+  this.logger.info("Encoding this: " + encryptedData.length);
   var encodedImage = codec.encode(encryptedData, ratio);
   encodedImage.file = image.file;
   encodedImage.onload = function (e) {
