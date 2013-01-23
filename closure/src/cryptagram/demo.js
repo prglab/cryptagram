@@ -44,13 +44,28 @@ cryptagram.demo.prototype.logger = goog.debug.Logger.getLogger('cryptagram.demo'
  * Shows the decryption demo.
  */
 cryptagram.demo.prototype.showDecrypt = function () {
-  this.settings = {image: 'images/secret.jpg'};
-  goog.dom.getElement('main').innerHTML = cryptagram.templates.decrypt(this.settings);
-  this.decrypted = false;
-  this.button = goog.dom.getElement('decrypt_button');
-  this.container = new cryptagram.container(goog.dom.getElement('image'));
-  goog.events.listen(this.button, goog.events.EventType.CLICK, this.runDecrypt,
-                     false, this);
+  
+  var self = this;
+
+  goog.dom.getElement('main').innerHTML = 
+      cryptagram.templates.decrypt({image: 'images/secret.jpg', id: '1'});
+
+  goog.dom.getElement('main').innerHTML += 
+      cryptagram.templates.decrypt({image: 'images/secret2.jpg', id: '2'});
+
+  var button1 = goog.dom.getElement('button1');
+    
+  var container1 = new cryptagram.container(goog.dom.getElement('image1'));
+  goog.events.listen(button1, goog.events.EventType.CLICK, function() {
+    self.runDecrypt(container1, button1);
+  }, false, this);
+  
+  var button2 = goog.dom.getElement('button2');
+  var container2 = new cryptagram.container(goog.dom.getElement('image2'));
+  goog.events.listen(button2, goog.events.EventType.CLICK, function() {
+    self.runDecrypt(container2, button2);
+  }, false, this);
+  
 };
 
 
@@ -109,27 +124,27 @@ cryptagram.demo.prototype.setStatus = function (message) {
  * decrypted image. If the image is already decrypted, it reverts
  * to the original.
  */
-cryptagram.demo.prototype.runDecrypt = function () {
-
-  if (this.decrypted) {
-    this.decrypted = false;
-    this.button.value = 'Decrypt';
-    this.container.revertSrc();
+cryptagram.demo.prototype.runDecrypt = function (container, button) {
+  
+  if (container.decrypted) {
+    container.decrypted = false;
+    button.value = 'Decrypt';
+    container.revertSrc();
   } else {
     var self = this;
     var password = 'cryptagram';
-    var loader = new cryptagram.loader(self.container);
-    var decoder = new cryptagram.decoder(self.container, {password: password});
+    var loader = new cryptagram.loader(container);
+    var decoder = new cryptagram.decoder(container, {password: password});
 
-    loader.getImageData(self.container.getSrc(), function (data) {
+    loader.getImageData(container.getSrc(), function (data) {
       decoder.decodeData(data, null, function (result) {
-        self.container.setSrc(result);
+        container.setSrc(result);
       });
 
       });
 
-    this.decrypted = true;
-    this.button.value = 'Reset';
+    container.decrypted = true;
+    button.value = 'Reset';
   }
 };
 
@@ -200,7 +215,7 @@ cryptagram.demo.prototype.showProgressDialog = function () {
   dialog.setDisposeOnHide(true);
 
   var previousImage;
-  goog.events.listen(this.encoder, 'DECODE_START', function (event) {
+  goog.events.listen(this.encoder, 'ENCODE_START', function (event) {
     if (previousImage) {
       goog.dom.getElement('preview').removeChild(previousImage);
     }

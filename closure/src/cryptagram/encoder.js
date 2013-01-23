@@ -148,10 +148,7 @@ cryptagram.encoder.prototype.encodeImage = function (image) {
   var self = this;
   var ratio = image.width / image.height;
   var dataToEncode = image.src;
-
-  // TODO(tierney): Remove hard coding (I think the suggestion was putting this
-  // into the constructor).
-  var codec = new cryptagram.codec.aesthete();
+  var codec = new this.codec();
 
   var encryptedData = codec.encrypt(dataToEncode, this.password);
   var encodedImage = codec.encode(encryptedData, ratio);
