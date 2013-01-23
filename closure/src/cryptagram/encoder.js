@@ -113,14 +113,35 @@ cryptagram.encoder.prototype.startEncoding = function (options) {
   var self = this;
   self.numImages = self.images.length;
   this.password = options.password;
+
   goog.events.listen(this, 'IMAGE_DONE', function (event) {
     if (self.images.length > 0) {
-      self.encodeImage(self.images[0]);
+      self.createValidImage(self.images[0]);
     }
   }, true, this);
-  this.encodeImage(self.images[0]);
+  this.createValidImage(self.images[0]);
 };
 
+cryptagram.encoder.prototype.createValidImage = function (image) {
+  // TODO(tierney): Expose this parameter for other programmers.
+  var newQuality = 0.8;
+
+  var sizeReducer = new cryptagram.SizeReducer();
+  var sizeReducerListenKey = goog.events.listen(
+    sizeReducer,
+    'SIZE_REDUCER_DONE',
+    function (event) {
+      console.log('Got this from the sizeReducer: ' + event.image.length + ' '
+                  + event.image.substring(0,100));
+      self.encodeImage(event.image);
+    },
+    true,
+    this);
+  sizeReducer.start(loadEvent.image, newQuality);
+};
+
+// Expects an image (where .src is a data URL) and will embed without any
+// modifications.
 cryptagram.encoder.prototype.encodeImage = function (image) {
   this.dispatchEvent({type:'DECODE_START', image:image});
 
@@ -128,6 +149,8 @@ cryptagram.encoder.prototype.encodeImage = function (image) {
   var ratio = image.width / image.height;
   var dataToEncode = image.src;
 
+  // TODO(tierney): Remove hard coding (I think the suggestion was putting this
+  // into the constructor).
   var codec = new cryptagram.codec.aesthete();
 
   var encryptedData = codec.encrypt(dataToEncode, this.password);
@@ -151,33 +174,6 @@ cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   this.dispatchEvent({type:'IMAGE_DONE',
                       image:encodedImage,
                       remaining: self.images.length});
-};
-
-
-cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
-  var self = this;
-  var originalImgDataUrl = loadEvent.target.result;
-  var image = new Image();
-  image.src = loadEvent.target.result;
-  this.dispatchEvent({type: 'IMAGE_LOADED', image: image});
-
-  // TODO(tierney): Expose this parameter for other programmers.
-  var newQuality = 0.8;
-
-  // Setup the requality engine event though we may not use it.
-  var sizeReducer = new cryptagram.SizeReducer();
-  var sizeReducerListenKey = goog.events.listen(
-    sizeReducer,
-    'SIZE_REDUCER_DONE',
-    function (event) {
-      console.log('Got this from the sizeReducer: ' + event.image.length + ' '
-                  + event.image.substring(0,100));
-      self.encodeImage(event.image);
-    },
-    true,
-    this);
-
-  sizeReducer.start(loadEvent.image, newQuality);
 };
 
 
