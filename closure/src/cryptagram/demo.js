@@ -155,7 +155,7 @@ cryptagram.demo.prototype.showEncodeDialog = function () {
   dialog.setDisposeOnHide(true);
 
   goog.events.listen(this.encoder, 'IMAGE_LOADED', function (event) {
-    var frame = goog.dom.createDom('div', {'class': 'frame'});
+    var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
     frame.appendChild(event.image);
     goog.dom.getElement('thumbs').appendChild(frame);
 
@@ -222,8 +222,7 @@ cryptagram.demo.prototype.showProgressDialog = function () {
       dialog.exitDocument();
       return;
     }
-
-    var frame = goog.dom.createDom('div', {'class': 'frame'});
+    var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
     frame.appendChild(event.image);
     goog.dom.getElement('thumbs').appendChild(frame);
   }, false, this);
