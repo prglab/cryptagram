@@ -1,19 +1,22 @@
 package org.prglab.cryptogram;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.StringTokenizer;
-
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.provider.MediaStore.Images;
 import android.provider.MediaStore.MediaColumns;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -22,6 +25,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.view.LayoutInflater;
@@ -50,14 +54,18 @@ public class Cryptogram extends Activity {
 	
 	//TODO: Make this a user setting
 	/** The largest width for an image so that the app doesn't crash.*/
-	public final int MAX_IMAGE_WIDTH = 800;
+	public int MAX_IMAGE_WIDTH = 800;
 	/** The largest height for an image so that the app doesn't crash.*/
-	public final int MAX_IMAGE_HEIGHT = 600;
+	public int MAX_IMAGE_HEIGHT = 600;
+	/** The folder into which to export the generated images */
+	private String EXPORT_FOLDER_PATH = Environment.getExternalStorageDirectory().getPath()+"/Cryptogram";
 	
 	/** The fewest number of characters acceptable in the password */
 	public final int MIN_PASSWORD_LENGTH = 8;
 	
 	private final String HEADER = "aesthete";
+	
+
 	
 	/**
 	 * Workaround for broken addJavascriptInterface
@@ -271,7 +279,23 @@ public class Cryptogram extends Activity {
         
         dataAccessor = new DataAccessor();
         
+        initializePreferences();
+        
         context = this;
+    }
+    
+    void initializePreferences(){
+    	SharedPreferences s = getPreferences(MODE_PRIVATE);
+    	EXPORT_FOLDER_PATH  = s.getString(getString(R.string.folder_path_key), EXPORT_FOLDER_PATH);
+    	try {
+    		MAX_IMAGE_HEIGHT = Integer.parseInt(s.getString(getString(R.string.max_image_height_key), String.valueOf(MAX_IMAGE_HEIGHT)));
+    		MAX_IMAGE_WIDTH  = Integer.parseInt(s.getString(getString(R.string.max_image_width_key), String.valueOf(MAX_IMAGE_WIDTH)));
+    	}
+    	// This should hopefully never happen
+    	catch (NumberFormatException e){
+    		Toast.makeText(this, "Invalid user-specified height/width value", Toast.LENGTH_SHORT).show();
+    	}
+    	
     }
     
     /**
@@ -485,18 +509,52 @@ public class Cryptogram extends Activity {
 		values.put(MediaColumns.DATE_ADDED, System.currentTimeMillis());
 		values.put(MediaColumns.MIME_TYPE, "image/jpeg");
 		
-		Uri uri = context.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+		//Uri uri = context.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+		// We'll write to files now
+		
+		String outputDate = new SimpleDateFormat("EEE_MMM_dd_HH_mm_ss_zzz_yyyy", Locale.US).format(new Date());
+		
+		// Make sure the export directory exists, or try to make it if doesn't
+		checkDirectory(EXPORT_FOLDER_PATH);
+		File exportFile = new File(EXPORT_FOLDER_PATH + "/" + outputDate + ".jpg");
+		
 		try {
-			OutputStream outStream = context.getContentResolver().openOutputStream(uri);
+			FileOutputStream outStream = new FileOutputStream(exportFile);
+			//OutputStream outStream = context.getContentResolver().openOutputStream(uri);
 			encodedBitmap.compress(Bitmap.CompressFormat.JPEG, 98, outStream);
 			outStream.flush();
 			outStream.close();			
 		} catch (FileNotFoundException e){
-			
-			e.printStackTrace();
+			Toast.makeText(this, getString(R.string.file_creation_failed), Toast.LENGTH_SHORT).show();
+			//e.printStackTrace();
 		} catch (IOException e){
-			e.printStackTrace();
+			Toast.makeText(this, getString(R.string.file_creation_failed), Toast.LENGTH_SHORT).show();
+			//e.printStackTrace();
 		}
+    }
+    
+    /**
+     * Sees if a directory exists  and is writable, and tries to create it if it isn't
+     * 
+     * @param path The path to the desired directory
+     * @return true if the directory exists and is ready to be written to, false otherwise
+     */
+    public boolean checkDirectory(String path){
+    	File f = new File(path);
+    	if (!f.exists()){
+    		if (!f.mkdirs()){
+    			// This directory is no good
+    			return false;
+    		}
+    	}
+    	else if (!f.isDirectory()){
+    		// We don't want to get rid of the existing file either
+    		return false;
+    	}
+    	else if (!f.canWrite()){
+    		return false;
+    	}
+		return true;	
     }
     
     @Override

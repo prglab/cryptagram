@@ -18,5 +18,6 @@
     <string name="image_folder_explanation">Select a folder to put encrypted Cryptogram images into</string>
     <string name="max_image_width">Maximum Image Width</string>
     <string name="max_image_height">Maximum Image Height</string>
+    <string name="file_creation_failed">Failed to create file!</string>
 
 </resources>
