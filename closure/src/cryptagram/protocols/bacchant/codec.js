@@ -11,11 +11,8 @@ goog.require('goog.debug.Logger');
 cryptagram.codec.bacchant = function() {
   this.blockSize = 2;
   this.quality = .95;
-  this.symbol_thresholds = [0, 48, 80, 112, 144, 176, 208, 255];
   this.symbol_thresholds = [0, 36, 72, 109, 145, 182, 218, 255];
-  
-  //[0, 37, 73, 110, 146, 183, 219, 255]
-  
+  this.cipher = new cryptagram.cipher.bacchant();
 };
 
 goog.inherits(cryptagram.codec.bacchant, cryptagram.codec);
@@ -246,6 +243,7 @@ cryptagram.codec.bacchant.prototype.decode = function(img, imageData) {
   this.imageData = imageData;
   this.lengthString = "";
   this.errorCount = 0;
+  this.decodeData = '';
 };
 
 cryptagram.codec.bacchant.prototype.getChunk = function() {
@@ -303,5 +301,6 @@ cryptagram.codec.bacchant.prototype.getChunk = function() {
     this.y+= this.blockSize;
     count++;
   }
-  return newBase64;
+  this.decodeData += newBase64;
+  return true;
 }
