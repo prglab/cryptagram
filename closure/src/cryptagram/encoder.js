@@ -40,7 +40,7 @@ goog.inherits(cryptagram.encoder, goog.events.EventTarget);
 cryptagram.encoder.prototype.logger =
 		goog.debug.Logger.getLogger('cryptagram.encoder');
 
-cryptagram.encoder.prototype.setStatus = function(message) {
+cryptagram.encoder.prototype.setStatus = function (message) {
   console.log(message);
 };
 
@@ -62,25 +62,25 @@ cryptagram.encoder.EncoderEventTarget = function () {
 };
 goog.inherits(cryptagram.encoder.EncoderEventTarget, goog.events.EventTarget);
 
-
-cryptagram.encoder.prototype.loadFile = function(file) {
+// Changes the state of self.files by splicing.
+cryptagram.encoder.prototype.loadFile = function (file) {
   var self = this;
   var reader = new FileReader();
   reader.onerror = cryptagram.encoder.show_error;
-  reader.onload = function(e) {
-
+  reader.onload = function (e) {
     var image = new Image();
     image.src = e.target.result;
     image.file = self.files[0].name;
     self.images.push(image);
     self.files.splice(0,1);
-    self.dispatchEvent({type: 'IMAGE_LOADED', image: image, remaining: self.files.length});
+    self.dispatchEvent({type: 'IMAGE_LOADED',
+                        image: image,
+                        remaining: self.files.length});
   }
   reader.readAsDataURL(file);
 }
 
-cryptagram.encoder.prototype.queueFiles = function(files) {
-
+cryptagram.encoder.prototype.queueFiles = function (files) {
   var self = this;
   self.files = [];
   self.images = [];
@@ -102,10 +102,14 @@ cryptagram.encoder.prototype.queueFiles = function(files) {
   }
 };
 
-
-
-
-cryptagram.encoder.prototype.startEncoding = function(options) {
+// Main driver for the encoding of images.
+//
+// Note: The call the encodeImage() callos encodedOnload() which splices the
+// self.images array at every iteration. This is how the self.images.length is
+// reduced.
+// TODO(tierney): Make the callbacks less prone to altering state / causing
+// side-effects implictly.
+cryptagram.encoder.prototype.startEncoding = function (options) {
   var self = this;
   self.numImages = self.images.length;
   this.password = options.password;
@@ -118,7 +122,6 @@ cryptagram.encoder.prototype.startEncoding = function(options) {
 };
 
 cryptagram.encoder.prototype.encodeImage = function (image) {
-
   this.dispatchEvent({type:'DECODE_START', image:image});
 
   var self = this;
@@ -126,15 +129,16 @@ cryptagram.encoder.prototype.encodeImage = function (image) {
   var dataToEncode = image.src;
 
   var codec = new cryptagram.codec.aesthete();
-  
+
   var encryptedData = codec.encrypt(dataToEncode, this.password);
   var encodedImage = codec.encode(encryptedData, ratio);
   encodedImage.file = image.file;
-  encodedImage.onload = function(e) {
+  encodedImage.onload = function (e) {
     self.encodedOnload(e);
   }
 };
 
+// Splices images.
 cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   var self = this;
   self.images.splice(0,1);
@@ -144,10 +148,10 @@ cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   var idx = str.indexOf(',');
   var dat = str.substring(idx+1);
   console.log('Encoded data is this long: ' + str.length);
-  this.dispatchEvent({type:'IMAGE_DONE', image:encodedImage, remaining: self.images.length});
+  this.dispatchEvent({type:'IMAGE_DONE',
+                      image:encodedImage,
+                      remaining: self.images.length});
 };
-
-
 
 
 cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
@@ -177,7 +181,7 @@ cryptagram.encoder.prototype.readerOnload = function (loadEvent) {
 };
 
 
-cryptagram.encoder.show_error = function(msg, url, linenumber) {
+cryptagram.encoder.show_error = function (msg, url, linenumber) {
   console.log('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
   return true;
 };
