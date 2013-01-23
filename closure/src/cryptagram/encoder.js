@@ -123,6 +123,8 @@ cryptagram.encoder.prototype.startEncoding = function (options) {
 };
 
 cryptagram.encoder.prototype.createValidImage = function (image) {
+  var self = this;
+
   // TODO(tierney): Expose this parameter for other programmers.
   var newQuality = 0.8;
 
