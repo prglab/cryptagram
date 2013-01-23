@@ -1,5 +1,4 @@
 package org.prglab.cryptogram;
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
