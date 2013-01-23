@@ -17,18 +17,17 @@ cryptagram.cipher.bacchant.prototype.logger = goog.debug.Logger.getLogger('crypt
  */
 cryptagram.cipher.bacchant.prototype.decrypt = function(newBase64, password) {
 
-  var check = newBase64.substring(0,64);
-  var iv = newBase64.substring(64,86);
-  var salt = newBase64.substring(86,97);
-  var ct = newBase64.substring(97,newBase64.length);
-  var full = newBase64.substring(64,newBase64.length);
+  var check = newBase64.substring(0,32);
+  var iv = newBase64.substring(32,54);
+  var salt = newBase64.substring(54,65);
+  var ct = newBase64.substring(65,newBase64.length);
+  var full = iv + salt + ct;
 
-  var bits = sjcl.hash.sha256.hash(full);
-  var hexHash = sjcl.codec.hex.fromBits(bits);
+  var hash = CryptoJS.MD5(full);
 
   this.logger.info("Decrypting Image");
   
-  if (hexHash != check) {
+  if (hash != check) {
     this.logger.severe("Checksum failed. Image is corrupted.");
     return;
   } else {
@@ -59,25 +58,22 @@ cryptagram.cipher.bacchant.prototype.encrypt = function(data, password) {
   // Get rid of data type information (for now assuming always JPEG.
   var withoutMimeHeader = data.split('base64,')[1];
 	this.logger.info("Start");
-	var unparsed_encrypted = sjcl.encrypt(password, withoutMimeHeader);
-  var encrypted_data = JSON.parse(unparsed_encrypted);
+	var unparsed = sjcl.encrypt(password, withoutMimeHeader);
+  var encrypted = JSON.parse(unparsed);
 	this.logger.info("Stop");
 
 	this.logger.info("iv");
-  var iv = encrypted_data['iv'];
+  var iv = encrypted['iv'];
 	this.logger.info("salt");
-  var salt = encrypted_data['salt'];
+  var salt = encrypted['salt'];
 	this.logger.info("ct");
-  var ct = encrypted_data['ct'];
+  var ct = encrypted['ct'];
 	this.logger.info("to_hash");
-  var to_hash = iv + salt + ct;
+  var full = iv + salt + ct;
   
 	this.logger.info("Hashing");
-	var bits = sjcl.hash.sha256.hash(to_hash);
-	this.logger.info("fromBits");
-  var integrity_check_value = sjcl.codec.hex.fromBits(bits);
-  //var integrity_check_value = CryptoJS.MD5(to_hash);
-  this.logger.shout("Encrypting Image. Hash:" + integrity_check_value);
+  var hash = CryptoJS.MD5(full);
+  this.logger.shout("Encrypting Image. Hash:" + hash);
   
-  return integrity_check_value + to_hash;
+  return hash + full;
 };

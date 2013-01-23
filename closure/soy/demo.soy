@@ -17,10 +17,12 @@
 /**
  * Displays HTML for the decryption demo
  * @param image
+ * @param id
  */
 {template .decrypt}
-<input type="button" value="Decrypt" id="decrypt_button">
-<br><div class="{css frame}"><img src="{$image}" id="image"></div>
+<div class="{css frame}">
+<input type="button" value="Decrypt" id="button{$id}">
+<br><img src="{$image}" id="image{$id}"></div>
 {/template}
 
 
@@ -74,7 +76,7 @@
 /**
  */
 {template .progressDialog}
-<div id="status">Encoding image</div>
+<div id="status">Starting Encoder</div>
 <div id="preview"></div>
 <div id="progress"></div>
 <div id="thumbs"></div>
