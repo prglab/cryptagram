@@ -171,7 +171,7 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
 
   var timeB = new Date().getTime();
   var elapsed = timeB - timeA;
-  this.logger.info("Encoded in: " + elapsed + " ms");
+  this.logger.info("Encoded in (): " + elapsed + " ms");
   return img;
 };
 
@@ -199,12 +199,12 @@ cryptagram.codec.bacchant.dimensions = function (width_to_height_ratio,
     return undefined;
   }
 
-  width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
+  var width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
 		width_to_height_ratio : 1.0;
-  header_string = typeof header_string !== 'undefined' ? header_string :
-		'aesthete';
-  block_width = typeof block_width !== 'undefined' ? block_width : 2;
-  block_height = typeof block_height !== 'undefined' ? block_height : 2;
+  var header_string = typeof header_string !== 'undefined' ? header_string :
+		"bacchant";
+  var block_width = typeof block_width !== 'undefined' ? block_width : 2;
+  var block_height = typeof block_height !== 'undefined' ? block_height : 2;
 
   // how many octal values did we get from the header string?
   var n_header_values = 2 * (header_string.length);
@@ -221,18 +221,23 @@ cryptagram.codec.bacchant.dimensions = function (width_to_height_ratio,
 
   // TODO(tierney): This needs to be checked for correctness. It appears to be
   // overestimating the expected values.
-  var n_values = Math.ceil((112 + (1.33 * 1.33 * n_base64_values)) * 2);
+  // var n_values = Math.ceil((112 + (1.33 * (8 + n_base64_values))) * 2);
+  var n_values = Math.ceil(2 * (8 + 65 + 1.33 * n_base64_values));
+
   var block_size = block_width * block_height;
   var n_pixels = block_size * n_values + n_pixels_in_header;
   var height = Math.sqrt(n_pixels / width_to_height_ratio);
   var width = Math.ceil(width_to_height_ratio * height);
 
   // make output height a multiple of block height
+  // TODO(tierney): Hack to be conservative...
   height = Math.ceil(Math.ceil(height) / block_height) * block_height;
 
   // make output width a multiple of twice block width, so that two octal values
   // always encoded on same line
-  width = Math.ceil(width / (2* block_width)) * 2 *  block_width;
+  width = 4 + Math.ceil(width / (2* block_width)) * 2 *  block_width;
+
+  console.log("DIMS: " + height + " " + width);
 
   return {width:width, height:height};
 };
