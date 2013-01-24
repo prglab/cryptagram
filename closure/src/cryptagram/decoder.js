@@ -4,6 +4,7 @@ goog.require('cryptagram.codec.aesthete');
 goog.require('cryptagram.codec.bacchant');
 goog.require('cryptagram.storage');
 goog.require('goog.debug.Logger');
+goog.require('goog.events.EventTarget');
 
 
 /**
@@ -14,7 +15,9 @@ cryptagram.decoder = function(container, options) {
   if (options && options.password) {
     this.password = options.password;
   }
+  goog.events.EventTarget.call(this);
 };
+goog.inherits(cryptagram.decoder, goog.events.EventTarget);
 
 cryptagram.decoder.prototype.logger = goog.debug.Logger.getLogger('cryptagram.decoder');
 
@@ -101,3 +104,49 @@ cryptagram.decoder.prototype.processImage = function() {
     this.callback(decrypted);
  }  
 }
+
+
+
+// Changes the state of self.files by splicing. Loads the self.images array with
+// Image objects.
+cryptagram.decoder.prototype.loadFile = function (file) {
+  var self = this;
+  var reader = new FileReader();
+  reader.onerror = cryptagram.encoder.show_error;
+  reader.onload = function (e) {
+    var image = new Image();
+    image.src = e.target.result;
+    image.file = self.files[0].name;
+    self.images.push(image);
+    self.files.splice(0,1);
+    self.dispatchEvent({type: 'IMAGE_LOADED',
+                        image: image,
+                        remaining: self.files.length});
+  }
+  reader.readAsDataURL(file);
+}
+
+cryptagram.decoder.prototype.queueFiles = function (files) {
+  var self = this;
+  self.files = [];
+  self.images = [];
+  for (var f in files) {
+    var type = "" + files[f].type;
+    if (type.indexOf('image/') == 0) {
+      self.files.push(files[f]);
+    }
+  }
+
+  goog.events.listen(this, 'IMAGE_LOADED', function (event) {
+    if (self.files.length > 0) {
+      self.loadFile(self.files[0]);
+    }
+  }, true, this);
+
+  if (self.files.length > 0) {
+    this.loadFile(self.files[0]);
+  }
+};
+
+
+
