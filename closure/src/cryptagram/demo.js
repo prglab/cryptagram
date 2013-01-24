@@ -46,7 +46,6 @@ cryptagram.demo.prototype.logger = goog.debug.Logger.getLogger('cryptagram.demo'
 cryptagram.demo.prototype.showDecrypt = function () {
 
   var self = this;
-
   goog.dom.getElement('main').innerHTML =
       cryptagram.templates.decrypt({image: 'images/secret.jpg', id: '1'});
 
@@ -74,6 +73,7 @@ cryptagram.demo.prototype.showDecrypt = function () {
  */
 cryptagram.demo.prototype.showEncrypt = function () {
   var self = this;
+  self.downloadifyId = 0;
   goog.dom.getElement('main').innerHTML = cryptagram.templates.encrypt();
 
   var selector = goog.dom.getElement('file_selector');
@@ -90,34 +90,6 @@ cryptagram.demo.prototype.showEncrypt = function () {
       var files = e.getBrowserEvent().dataTransfer.files;
       self.handleFiles(files);
     });
-
- this.downloadify = Downloadify.create('downloadify', {
-    filename: "encrypted.zip",
-    data: function (){
-    
-      console.profile("Profile");
-      var timeA = new Date().getTime();
-      var zip = self.zip.generate();
-      var timeB = new Date().getTime();
-      console.log("Zip Elapsed: " + (timeB - timeA));
-      console.profileEnd();
-      self.zip = null;
-      return zip;
-    },
-    onError: function (){
-      alert('Nothing to save.');
-    },
-    dataType: 'base64',
-    swf: 'media/downloadify.swf',
-    downloadImage: 'images/download.png',
-    width: 100,
-    height: 30,
-    transparent: false,
-    append: false,
-    enabled: true
-  });
-
-  window['downloadify'] = this.downloadify;
 };
 
 
@@ -170,18 +142,19 @@ cryptagram.demo.prototype.handleFiles = function (files) {
 
 cryptagram.demo.prototype.showEncodeDialog = function () {
   var self = this;
+  self.frames = {};
   var dialog = new goog.ui.Dialog(null, false);
 
   dialog.setContent(cryptagram.templates.encodeDialog());
   dialog.setTitle('Cryptagram');
   dialog.setButtonSet(goog.ui.Dialog.ButtonSet.OK_CANCEL);
   dialog.setDisposeOnHide(true);
-
+  self.dialog = dialog;
   goog.events.listen(this.encoder, 'IMAGE_LOADED', function (event) {
     var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
     frame.appendChild(event.image);
     goog.dom.getElement('thumbs').appendChild(frame);
-
+    self.frames[event.image.file] = frame;
     if (event.remaining <= 0) {
       dialog.getButtonSet().setAllButtonsEnabled(true);
     }
@@ -189,13 +162,17 @@ cryptagram.demo.prototype.showEncodeDialog = function () {
 
   goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function (e) {
     if (e.key == 'ok') {
+      
       var password = goog.dom.getElement('password').value;
       if (password == '') {
         return;
       }
+      e.stopPropagation();
+      e.preventDefault();
       var quality = goog.dom.getElement('quality').value;
       var maxSize = goog.dom.getElement('maxSize').value;
-      self.showProgressDialog();
+      dialog.getButtonSet().setAllButtonsEnabled(false);
+      self.showProgress();
       self.encoder.startEncoding({password: password,
                                   quality: quality,
                                   maxSize: maxSize});
@@ -208,53 +185,82 @@ cryptagram.demo.prototype.showEncodeDialog = function () {
 };
 
 
-cryptagram.demo.prototype.showProgressDialog = function () {
+
+cryptagram.demo.prototype.showProgress = function () {
   var self = this;
 
   self.zip = new JSZip();
   self.images = self.zip.folder('images');
-  self.numberImages = 0;
+  self.imageCount = 0;
 
-  var dialog = new goog.ui.Dialog(null, false);
-
-  dialog.setContent(cryptagram.templates.progressDialog());
-  dialog.setTitle('Cryptagram');
-  dialog.setButtonSet(goog.ui.Dialog.ButtonSet.CANCEL);
-  dialog.setDisposeOnHide(true);
-
+  goog.dom.getElement('left').innerHTML = cryptagram.templates.progress();
+ 
   var previousImage;
   goog.events.listen(this.encoder, 'ENCODE_START', function (event) {
     if (previousImage) {
       goog.dom.getElement('preview').removeChild(previousImage);
     }
     previousImage = event.image;
-    goog.dom.getElement('preview').appendChild(event.image);
     goog.dom.getElement('status').innerHTML = 'Encoding <b>' +
       event.image.file + '</b>';
+    goog.dom.getElement('preview').appendChild(event.image);
+   
   }, false, this);
-
+  
   goog.events.listen(this.encoder, 'IMAGE_DONE', function (event) {
+    self.imageCount++;
+    var frame = self.frames[event.image.file];
+    if (frame.firstChild) {
+      frame.removeChild(frame.firstChild);
+    }
+    frame.appendChild(event.image);
+  
     var idx = event.image.src.indexOf(',');
     var dat = event.image.src.substring(idx + 1);
-
+    var bin = window.atob(dat);
     self.images.file(event.image.file,
-                     dat,
-                     { base64: true });
+                     bin,
+                     { base64: false, binary: true });
 
     if (event.remaining == 0) {
-      dialog.exitDocument();
+      goog.events.removeAll(self.encoder);
+      self.showDownloadDialog();
+      self.dialog.exitDocument();
       return;
     }
-    var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
-    frame.appendChild(event.image);
-    goog.dom.getElement('thumbs').appendChild(frame);
   }, false, this);
-
-  //goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function (e) {});
-
-  dialog.setVisible(true);
 };
 
+cryptagram.demo.prototype.showDownloadDialog = function () {
+
+  var self = this;
+  var dialog = new goog.ui.Dialog(null, false);
+  dialog.setContent(cryptagram.templates.downloadDialog({imageCount:self.imageCount, id:self.downloadifyId}));
+  dialog.setTitle('Cryptagram');
+  dialog.setModal(false);
+  dialog.setDisposeOnHide(true);
+  dialog.setButtonSet(null);
+  dialog.setVisible(true);
+
+  var zip = self.zip.generate();
+
+  this.downloadify = Downloadify.create('downloadify' + self.downloadifyId, {
+    filename: "encrypted.zip",
+    data: zip,
+    onError: function (){
+      alert('Nothing to save.');
+    },
+    dataType: 'base64',
+    swf: 'media/downloadify.swf',
+    downloadImage: 'images/download.png',
+    width: 100,
+    height: 30,
+    transparent: false,
+    append: false,
+    enabled: true
+  });
+  self.downloadifyId++;
+};
 
 goog.exportSymbol('cryptagram.demo', cryptagram.demo);
 goog.exportSymbol('cryptagram.demo.prototype.showDecrypt', cryptagram.demo.prototype.showDecrypt);
