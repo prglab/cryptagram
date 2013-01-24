@@ -31,8 +31,22 @@ body {
   width: 100%;
   overflow: hidden;
 }
+#right {
+  width: 170px;
+  position: absolute;
+  left: 180px;
+  top: 44px;
+}
+#left {
+  width: 150px;
+  height: 150px;
+}
+#left p {
+  margin-bottom: 5px;
+}
 #thumbs {
   min-height: 50px;
+  width: 170px;
 }
 #thumbs .a {
   width: 30px;
@@ -42,6 +56,8 @@ body {
   margin: 3px;
   line-height: 30px;
   text-align: center;
+  background: #eee;
+  float: left;
 }
 #thumbs img {
   max-width: 30px;
@@ -62,9 +78,6 @@ body {
   max-width: 100px;
   max-height: 100px;
   vertical-align: middle;
-}
-#downloadify {
-  margin-top: 20px;
 }
 #drop_zone {
   width: 100%;
@@ -120,7 +133,6 @@ body {
 }
 .a {
   position: relative;
-  display: inline-block;
 }
 #progress {
   position: absolute;
