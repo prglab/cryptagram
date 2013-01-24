@@ -130,7 +130,7 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
   var self = this;
 
   var sizeReducer = new cryptagram.SizeReducer();
-  var sizeReducerListenKey = goog.events.listen(
+  var sizeReducerListenKey = goog.events.listenOnce(
     sizeReducer,
     'SIZE_REDUCER_DONE',
     function (event) {
