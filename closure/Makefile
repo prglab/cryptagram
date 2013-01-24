@@ -6,11 +6,12 @@ release-encoder:
 	rm -rf ../site-encoder
 	cp -r build/demo ../site-encoder
 	mv ../site-encoder/index-compiled.html ../site-encoder/index.html
-	git add ../site-encoder
+	git add -f ../site-encoder/*
 	git commit ../site-encoder/* -m "Site Encoder Update"
 	@echo
-	@echo 'Now push to prglab master'
-	@echo '   git push prglab'
+	@echo 'Now push to the main fork:'
+	@echo
+	@echo '   git push prglab master'
 
 extension:
 	rm -rf build/chrome-extension
