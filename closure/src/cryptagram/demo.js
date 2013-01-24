@@ -92,7 +92,13 @@ cryptagram.demo.prototype.showEncrypt = function () {
  this.downloadify = Downloadify.create('downloadify', {
     filename: "encrypted.zip",
     data: function (){
+    
+      console.profile("Profile");
+      var timeA = new Date().getTime();
       var zip = self.zip.generate();
+      var timeB = new Date().getTime();
+      console.log("Zip Elapsed: " + (timeB - timeA));
+      console.profileEnd();
       self.zip = null;
       return zip;
     },
