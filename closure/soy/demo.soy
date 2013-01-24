@@ -36,7 +36,6 @@
 <b>Drop Files Here</b><br>
 <br><span id="or">or 
 <input type="file" id="file_selector" name="file_selector" multiple/></span>
-<div id="downloadify"></div>
 </div>
 </div>
 {/template}
@@ -45,39 +44,48 @@
 /**
  */
 {template .encodeDialog}
-<div id="status">Encode images</div>
-<div id="thumbs"></div>
-<br><table><tr>
-<td>Max Output Size:</td>
-<td>
+<div id="left">
+Settings<br>
+<p>Max Output Size<br>
 <select id="maxSize">
   <option value="2048">2048x2048</option>
   <option value="720">720x720</option>
 </select>
-</td>
-</tr>
-<tr>
-<td>Image Quality:</td>
-<td>
+</p>
+
+<p>Image Quality<br>
 <select id="quality">
   <option value="low">Low</option>
   <option value="medium" selected>Medium</option>
   <option value="high">High</option>
 </select>
-</td>
-</tr>
-<tr><td>Password:</td>
-<td><input type=text id=password size=35></td>
-</tr></table>
-{/template}
+</p>
 
+<p>Password<br>
+<input type=text id=password size=20>
+</p>
+</div>
+
+<div id="right">
+<div id="status">Images</div>
+<div id="thumbs"></div>
+</div>
+
+{/template}
 
 
 /**
  */
-{template .progressDialog}
+{template .progress}
 <div id="status">Starting Encoder</div>
 <div id="preview"></div>
-<div id="progress"></div>
-<div id="thumbs"></div>
+{/template}
+
+/**
+ * @param imageCount
+ * @param id
+ */
+{template .downloadDialog}
+<div id="info"><b>{$imageCount}</b> images stored in ZIP file</div>
+<br><div id="downloadify{$id}"></div>
 {/template}
