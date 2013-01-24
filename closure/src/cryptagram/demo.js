@@ -44,28 +44,28 @@ cryptagram.demo.prototype.logger = goog.debug.Logger.getLogger('cryptagram.demo'
  * Shows the decryption demo.
  */
 cryptagram.demo.prototype.showDecrypt = function () {
-  
+
   var self = this;
 
-  goog.dom.getElement('main').innerHTML = 
+  goog.dom.getElement('main').innerHTML =
       cryptagram.templates.decrypt({image: 'images/secret.jpg', id: '1'});
 
-  goog.dom.getElement('main').innerHTML += 
+  goog.dom.getElement('main').innerHTML +=
       cryptagram.templates.decrypt({image: 'images/secret2.jpg', id: '2'});
 
   var button1 = goog.dom.getElement('button1');
-    
+
   var container1 = new cryptagram.container(goog.dom.getElement('image1'));
   goog.events.listen(button1, goog.events.EventType.CLICK, function() {
     self.runDecrypt(container1, button1);
   }, false, this);
-  
+
   var button2 = goog.dom.getElement('button2');
   var container2 = new cryptagram.container(goog.dom.getElement('image2'));
   goog.events.listen(button2, goog.events.EventType.CLICK, function() {
     self.runDecrypt(container2, button2);
   }, false, this);
-  
+
 };
 
 
@@ -84,10 +84,12 @@ cryptagram.demo.prototype.showEncrypt = function () {
   var dropZone = goog.dom.getElement('drop_zone');
   var handler = new goog.events.FileDropHandler(dropZone, true);
 
-  goog.events.listen(handler, goog.events.FileDropHandler.EventType.DROP, function (e) {
-    var files = e.getBrowserEvent().dataTransfer.files;
-    self.handleFiles(files);
-  });
+  goog.events.listen(
+    handler, goog.events.FileDropHandler.EventType.DROP,
+    function (e) {
+      var files = e.getBrowserEvent().dataTransfer.files;
+      self.handleFiles(files);
+    });
 
  this.downloadify = Downloadify.create('downloadify', {
     filename: "encrypted.zip",
@@ -131,7 +133,7 @@ cryptagram.demo.prototype.setStatus = function (message) {
  * to the original.
  */
 cryptagram.demo.prototype.runDecrypt = function (container, button) {
-  
+
   if (container.decrypted) {
     container.decrypted = false;
     button.value = 'Decrypt';

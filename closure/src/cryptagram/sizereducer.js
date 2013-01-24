@@ -31,18 +31,31 @@ cryptagram.SizeReducer.EventTarget = function () {
 };
 goog.inherits(cryptagram.SizeReducer.EventTarget, goog.events.EventTarget);
 
-// Assumes that @image is an Image () object that has .src set to a DataURL.
-cryptagram.SizeReducer.prototype.startWithImage = function (image, quality) {
+// Assumes that options.image is an Image () object that has .src set to a
+// DataURL.
+cryptagram.SizeReducer.prototype.startWithImage = function (options) {
   var self = this;
+  var image = options.image;
 
   // Will use the maximum number of base64 values to estimate the amount of data
   // that we will be able to pack into the image.
   var width_to_height_ratio = image.width / image.height;
-  var limit = cryptagram.codec.aesthete.maxBase64Values(width_to_height_ratio);
+
+  var limit = options.codec.maxBase64Values(width_to_height_ratio,
+                                            options.maxSize);
 
   if (limit < image.src.length) {
-    var fraction = limit / image.src.length;
-    this.startWithImageFracQual(image, fraction, quality);
+    // TODO(tierney): Develop better model for what fraction to reduce the
+    // quality of the image.
+    var reduction = limit / image.src.length;
+    console.log("Reduction: " + reduction);
+    var fraction = 0.9;
+    var fudgeFactor = 0.1;
+    if (reduction <= 0.65) {
+      fraction = .01 * (5 * (-4059+Math.sqrt(345753561+
+                                             28608000000*reduction)))/7152;
+    }
+    this.startWithImageFracQual(options, fraction, limit);
   } else {
     this.dispatchEvent({type:"SIZE_REDUCER_DONE", image:image});
   }
@@ -50,15 +63,18 @@ cryptagram.SizeReducer.prototype.startWithImage = function (image, quality) {
 
 // Takes an image dataURL, fraction by which to reduce the image size and the
 // output quality.
-cryptagram.SizeReducer.prototype.startWithImageFracQual = function (image,
+cryptagram.SizeReducer.prototype.startWithImageFracQual = function (options,
                                                                     fraction,
-                                                                    quality) {
+                                                                    limit) {
   console.log("Fraction: " + fraction);
-  self = this;
+  var self = this;
+  var image = options.image;
+  var quality = options.quality;
   var imageDataUrl = image.src;
   var imageName = image.file;
-  var image = new Image();
-  image.onload = function (event) {
+
+  var resizedImage = new Image();
+  resizedImage.onload = function (event) {
     var img = this;
 
     // Load image into canvas for resize.
@@ -74,16 +90,31 @@ cryptagram.SizeReducer.prototype.startWithImageFracQual = function (image,
     // Convert to data URL and save at given quality.
     var newImageDataUrl = canvas.toDataURL('image/jpeg', quality);
 
-    // Convert the image data URL to an image and pass that up once it's loaded.
-    var newImage = new Image ();
+    // Check that the image is small enough. If not, go around with 10% less in
+    // the fraction allowed.
+    self.logger.info("New Data len: " + newImageDataUrl.length);
+    self.logger.info("Limit: " + limit);
 
-    newImage.onload = function (event) {
-      // Send the event.
-      newImage.file = imageName;
-      self.dispatchEvent({type:"SIZE_REDUCER_DONE", image:newImage});
-    };
-    newImage.src = newImageDataUrl;
+    var est = options.codec.dimensions(newWidth / newHeight,
+                                       newImageDataUrl.length);
+    self.logger.info("Est: " + est.width);
+    self.logger.info("Est: " + est.height);
+    if (newImageDataUrl.length >= limit || est.width > options.maxSize ||
+        est.height > options.maxSize) {
+      self.logger.info("Going around.");
+      self.startWithImageFracQual(options, fraction - 0.1, limit);
+    } else {
+      // Convert the image data URL to an image and pass that up once it's loaded.
+      var newImage = new Image ();
+      newImage.onload = function (event) {
+        // Send the event.
+        newImage.file = imageName;
+        self.logger.info("New Data len: " + newImage.src.length);
+        self.dispatchEvent({type:"SIZE_REDUCER_DONE", image:newImage});
+      };
+      newImage.src = newImageDataUrl;
+    }
   };
-  image.src = imageDataUrl;
+  resizedImage.src = imageDataUrl;
 };
 

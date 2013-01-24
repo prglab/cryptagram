@@ -19,5 +19,7 @@
     <string name="max_image_width">Maximum Image Width</string>
     <string name="max_image_height">Maximum Image Height</string>
     <string name="file_creation_failed">Failed to create file!</string>
+    <string name="no_camera_app">There is no camera application available!!</string>
+    <string name="file_location_failed">Could not find image file!</string>
 
 </resources>
