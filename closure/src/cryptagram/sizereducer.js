@@ -88,7 +88,7 @@ cryptagram.SizeReducer.prototype.startWithImageFracQual = function (options,
     context.drawImage(img, 0, 0, newWidth, newHeight);
 
     // Convert to data URL and save at given quality.
-    var newImageDataUrl = canvas.toDataURL('image/jpeg', quality);
+    var newImageDataUrl = canvas.toDataURL('image/jpeg', 1.0 * quality);
 
     // Check that the image is small enough. If not, go around with 10% less in
     // the fraction allowed.
@@ -97,12 +97,13 @@ cryptagram.SizeReducer.prototype.startWithImageFracQual = function (options,
 
     var est = options.codec.dimensions(newWidth / newHeight,
                                        newImageDataUrl.length);
-    self.logger.info("Est: " + est.width);
-    self.logger.info("Est: " + est.height);
-    if (newImageDataUrl.length >= limit || est.width > options.maxSize ||
+    self.logger.info("Est Width: " + est.width);
+    self.logger.info("Est Height: " + est.height);
+    if (newImageDataUrl.length >= limit ||
+        est.width > options.maxSize ||
         est.height > options.maxSize) {
       self.logger.info("Going around.");
-      self.startWithImageFracQual(options, fraction - 0.1, limit);
+      self.startWithImageFracQual(options, fraction - 0.05, limit);
     } else {
       // Convert the image data URL to an image and pass that up once it's loaded.
       var newImage = new Image ();
