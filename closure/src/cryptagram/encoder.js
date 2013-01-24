@@ -62,6 +62,7 @@ cryptagram.encoder.EncoderEventTarget = function () {
 };
 goog.inherits(cryptagram.encoder.EncoderEventTarget, goog.events.EventTarget);
 
+
 // Changes the state of self.files by splicing. Loads the self.images array with
 // Image objects.
 cryptagram.encoder.prototype.loadFile = function (file) {
