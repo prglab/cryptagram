@@ -1,62 +1,14 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html>
-
-
 <head>
-<title>Canvas Experiments</title>
-<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
-<script src="sjcl.js"></script>
-<script src="encoder.js"></script>
-<style type="text/css">
-  .slider { margin: 10px; background-color: green; }
-  body { 
-    padding: 0em; 
-    background-color: #ddd;  
-  }
-  #main {
-    margin-left: auto; margin-right: auto;  
-    background-color: white; 
-    text-align: center; 
-    padding: 2em; 
-    width:60em; 
-    min-height: 40em; 
-    border: 1px solid black; 
-  } 
-  canvas { 
-    padding: 0em; 
-    border: 0px solid black; 
-  } 
-</style>
-
-<script>
-  function init_ui() { return; } 
-</script>
-
+<title>Cryptagram Demo</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
 </head>
-
-<body onload="init_ui();">
-
-<div id="main">
-<div id="original_image"></div>
-
-<canvas width="1" height="1" id="cancan">
-</canvas>
-<br />
-<br /> 
-Pick an image: <input type="file" id="file_selector" name="file_selector" />
-<script>
-  document.getElementById('file_selector').addEventListener('change', handleFileSelect, false);
-</script>
-
-<output id="file_info"></output>
-
-<div id="encoded_image"></div>
-
-<div id="alerts" style="color:red;"></div>
-
-</div>
+<body>
+  <script src="cryptagram-compiled.js"></script>
+  <script>
+    var demo = new cryptagram.demo();
+    demo.showEncrypt();
+  </script>
 </body>
-
 </html>

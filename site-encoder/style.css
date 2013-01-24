@@ -1,0 +1,189 @@
+html {
+  height: 100%;
+  background: url('images/bar.gif');
+}
+body {
+  height: 100%;
+  background: url('images/bar.gif');
+  padding: 0;
+  margin: 0;
+  min-height: 200px;
+}
+#demo {
+  position: relative;
+  height: 100%;
+  font: 12px arial;
+}
+#menu {
+  position: absolute;
+  z-index: 100;
+}
+#main {
+  position: absolute;
+  height: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+}
+#encoded_image, #decoded_image, #original_image {
+  width: 100%;
+  overflow: hidden;
+}
+#thumbs {
+  min-height: 50px;
+}
+#thumbs .a {
+  width: 30px;
+  height: 30px;
+  border: 1px solid gray;
+  padding: 2px;
+  margin: 3px;
+  line-height: 30px;
+  text-align: center;
+}
+#thumbs img {
+  max-width: 30px;
+  max-height: 30px;
+  vertical-align: middle;
+}
+#preview {
+  width: 100px;
+  height: 100px;
+  left: 100px;
+  top: 10px;
+  border: 1px solid gray;
+  padding: 2px;
+  line-height: 100px;
+  text-align: center;
+}
+#preview img {
+  max-width: 100px;
+  max-height: 100px;
+  vertical-align: middle;
+}
+#downloadify {
+  margin-top: 20px;
+}
+#drop_zone {
+  width: 100%;
+  height: 100%;
+  border: 3px dashed #666;
+  background: #fff;
+  text-align: center;
+  border-radius: 2px;
+  color: #bbb;
+  font-size: 12px;
+}
+#drop_zone #floater {
+  position: absolute;
+  height: 80px;
+  width: 400px;
+  top: 50%;
+  left: 50%;
+  margin-top: -40px;
+  margin-left: -200px;
+}
+#drop_zone b {
+  font-size: 18px;
+  height: 100%;
+}
+#drop_zone input {
+  margin-left: 10px;
+}
+#drop_zone #or {
+  padding-top: 20px;
+  margin-left: 40px;
+}
+.b {
+  position: absolute;
+  width: 50px;
+  top: 0;
+  left: 50%;
+  margin: 5px;
+  margin-left: -25px;
+  padding: 5px;
+  color: black;
+  background: white;
+  opacity: .8;
+  font: 10px arial;
+  text-align: center;
+  border-radius: 3px;
+}
+#status {
+  margin-bottom: 5px;
+}
+#status b {
+  font-weight: normal;
+  color: #44f;
+}
+.a {
+  position: relative;
+  display: inline-block;
+}
+#progress {
+  position: absolute;
+  left: 150px;
+  width: 100px;
+}
+.c-d-e {
+  position: relative;
+  display: -moz-inline-box;
+  display: inline-block;
+}
+* html .c-d-e, *:first-child+html .c-d-e {
+  display: inline;
+}
+.f-g {
+  background: #c1d9ff;
+  border: 1px solid #3a5774;
+  color: #000;
+  padding: 4px;
+  position: absolute;
+  width: 350px;
+  z-index: 100001;
+  font-size: 12px;
+  font-family: helvetica;
+}
+.f-g a, .f-g a:link, .f-g a:visited {
+  color: #06c;
+  cursor: pointer;
+}
+.f-g b {
+  font-weight: 600;
+}
+.f-g-h {
+  background: #666;
+  left: 0;
+  position: absolute;
+  top: 0;
+  z-index: 100000;
+}
+.f-g-i {
+  background: #e0edfe;
+  color: #000;
+  cursor: pointer;
+  font-size: 120%;
+  font-weight: bold;
+  padding: 8px 31px 8px 8px;
+  position: relative;
+  _zoom: 1;
+}
+.f-g-i-j {
+  background: #e0edfe url(//ssl.gstatic.com/editor/editortoolbar.png) no-repeat -528px 0;
+  cursor: default;
+  height: 15px;
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  width: 15px;
+  vertical-align: middle;
+}
+.f-g-k, .f-g-l {
+  background-color: #fff;
+  padding: 8px;
+}
+.c-m-n {
+  font-weight: bold;
+}
