@@ -1,45 +1,58 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/button_snap_photo"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_snap_photo" />
-
-    <Button
-        android:id="@+id/button_select_photo"
-        android:onClick="selectPhoto"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_select_photo"/>
-
-    <Button
-        android:id="@+id/button_upload_photo"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:onClick="encryptPhoto"
-        android:text="@string/button_upload_photo"/>
-    
 
     <WebView 
         android:id="@+id/js_encryption_webview"
         android:layout_width="150dp"
-        android:layout_height="60dp"       
+        android:layout_height="60dp"
+        android:visibility="invisible"       
         />
-    
+
     <ImageView
         android:id="@+id/image_preview"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:src="@drawable/no_image_selected"
-        android:contentDescription="@string/preview_content_description" />
+        android:contentDescription="@string/preview_content_description"
+        android:src="@drawable/no_image_selected" />
     
-    
-    
+    <ListView
+        android:id="@+id/selected_images_list"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/button_select_photo"
+        android:layout_below="@id/image_preview"
+        android:layout_marginBottom="5dp" />
+        
+	    <Button
+	        android:id="@+id/button_snap_photo"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/button_snap_photo"
+	        android:onClick="takePhoto"
+	        android:layout_alignTop="@+id/button_select_photo"
+	        android:layout_alignParentBottom="true" />
+	
+	    <Button
+	        android:id="@+id/button_select_photo"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentBottom="true"
+	        android:layout_alignTop="@+id/button_upload_photo"
+	        android:layout_toRightOf="@id/button_snap_photo"
+	        android:onClick="selectPhoto"
+	        android:text="@string/button_select_photo" />
+	
+	    <Button
+	        android:id="@+id/button_upload_photo"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:onClick="encryptPhoto"
+	        android:text="@string/button_upload_photo"
+	        android:layout_toRightOf="@id/button_select_photo"
+	    	android:layout_alignParentBottom="true"/>
 
-</LinearLayout>
+</RelativeLayout>
