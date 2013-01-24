@@ -11,7 +11,7 @@ goog.require('goog.debug.Logger');
  */
 cryptagram.codec.bacchant = function() {
   this.blockSize = 2;
-  this.quality = .85;
+  this.quality = .95;
   this.symbol_thresholds = [0, 36, 72, 109, 145, 182, 218, 255];
   this.cipher = new cryptagram.cipher.bacchant();
 };

@@ -7,7 +7,7 @@
 {template .demo}
 <div id="demo">
 <div id="menu">
-  Demo: <a href="#encrypt" id="encrypt_link">Encrypt</a> | <a href="#decrypt"  id="decrypt_link">Decrypt</a>
+<a href="#encrypt" id="encrypt_link">Encrypt</a> | <a href="#decrypt"  id="decrypt_link">Decrypt</a> | <a href="#demo"  id="demo_link">Demo</a>
 </div>
 <div id="main"></div>
 </div>
@@ -15,12 +15,12 @@
 
 
 /**
- * Displays HTML for the decryption demo
+ * Displays HTML for simple decryption demo
  * @param image
  * @param id
  */
-{template .decrypt}
-<div class="{css frame}">
+{template .decryptDemo}
+<div class="{css box}">
 <input type="button" value="Decrypt" id="button{$id}">
 <br><img src="{$image}" id="image{$id}"></div>
 {/template}
@@ -31,6 +31,23 @@
  * a container for drag & drop interactions.
  */
 {template .encrypt}
+<h1>Encryptor</h1>
+<div id="drop_zone">
+<div id="floater">
+<b>Drop Files Here</b><br>
+<br><span id="or">or 
+<input type="file" id="file_selector" name="file_selector" multiple/></span>
+</div>
+</div>
+{/template}
+
+
+/**
+ * Displays HTML for the decryption demo including file selection and
+ * a container for drag & drop interactions.
+ */
+{template .decrypt}
+<h1>Decryptor</h1>
 <div id="drop_zone">
 <div id="floater">
 <b>Drop Files Here</b><br>
@@ -52,7 +69,6 @@ Settings<br>
   <option value="720">720x720</option>
 </select>
 </p>
-
 <p>Image Quality<br>
 <select id="quality">
   <option value=".5">Low</option>
@@ -60,7 +76,6 @@ Settings<br>
   <option value=".9">High</option>
 </select>
 </p>
-
 <p>Password<br>
 <input type=text id=password size=20>
 </p>
@@ -70,7 +85,18 @@ Settings<br>
 <div id="status">Images</div>
 <div id="thumbs"></div>
 </div>
+{/template}
 
+
+
+/**
+ */
+{template .decryptDialog}
+<div id="medium"></div>
+<br><br>
+<p>Password<br>
+<input type=text id=password size=20>
+</p>
 {/template}
 
 
