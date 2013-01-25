@@ -18,5 +18,8 @@ extension:
 	./build_extension.sh
 	cd build && zip -r chrome-extension.zip chrome-extension
 
+serve-extension:
+	./serve_dev_extension.sh
+
 clean:
 	rm -rf build

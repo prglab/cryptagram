@@ -1,7 +1,7 @@
 {
 "name" : "Cryptagram",
-"version" : "0.18",
-"description" : "Decrypt Cryptagram photos.",
+"version" : "0.26",
+"description" : "Cryptagram: photos privacy for online social media.",
 "permissions" : [
   "contextMenus",
   "tabs",
