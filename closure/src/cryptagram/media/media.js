@@ -38,14 +38,14 @@ cryptagram.media.prototype.onReady = function(callback) {
 cryptagram.media.prototype.containers = {};
 
 cryptagram.media.prototype.setContainerSrc = function(container, src) {
-  var check = cryptagram.util.SHA1(src);
-  this.containers[check] = container;  
+  var check = CryptoJS.MD5(src);
+  this.containers[check] = container;
   container.setSrc(src);
 };
 
 
 cryptagram.media.prototype.getContainer = function(data) {
-  var check = cryptagram.util.SHA1(data);
+  var check = CryptoJS.MD5(data);
 
   if (this.containers[check]) {
     return this.containers[check];

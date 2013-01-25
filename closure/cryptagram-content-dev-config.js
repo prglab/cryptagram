@@ -7,5 +7,5 @@
   "paths": ["src"],
   "externs": ["externs/sjcl.js",
               "externs/chrome_extensions.js"],
-  "mode": "simple"
+  "mode": "RAW"
 }

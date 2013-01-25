@@ -50,7 +50,6 @@ cryptagram.content = function() {
   }
 
   this.logger.info('Found media: ' + this.media.name());
-  this.containers = {};
   this.loaders = [];
   this.lastAutoDecrypt = '';
   this.storage = new cryptagram.storage(this.media);
@@ -104,7 +103,6 @@ cryptagram.content.prototype.handleRequest =
       if (container) {
         container.revertSrc();
         this.logger.info("Reverted to " + container.img.src);
-        this.containers[URL] = null;
       }
       return;
     }
@@ -144,9 +142,8 @@ cryptagram.content.prototype.decryptImage = function(image, password, queue) {
       loader.state = cryptagram.loader.state.DONE;
 
         if (result) {
-          var decipher = cipher.decrypt(result, password);
           image.previousSrc = image.src;
-          self.media.setContainerSrc(container, decipher);
+          self.media.setContainerSrc(container, result);
         }
       });
     });
@@ -157,10 +154,8 @@ cryptagram.content.prototype.decryptImage = function(image, password, queue) {
     loader.getImageData(fullURL, function(data) {
       decoder.decodeData(data, null, function(result) {
         if (result) {
-          var decipher = cipher.decrypt(result, password);
           image.previousSrc = image.src;
-          self.containers[decipher] = container;
-          self.media.setContainerSrc(container, decipher);
+          self.media.setContainerSrc(container, result);
         }
       });
     });
@@ -184,14 +179,7 @@ cryptagram.content.prototype.decryptByURL = function(URL, password) {
     var decoder = new cryptagram.decoder(container, {password:password});
     decoder.decodeData(data, null, function(result) {
       if (result) {
-
-        var cipher = new cryptagram.cipher();
-        var decryptedData = cipher.decrypt(result, password);
-
-        if (!decryptedData) {
-          return;
-        }
-        self.media.setContainerSrc(container, decryptedData);
+        self.media.setContainerSrc(container, result);
         var photoName = self.media.getPhotoName(URL);
         var albumName = self.media.getAlbumName(URL);
 
