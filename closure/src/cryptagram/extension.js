@@ -9,7 +9,7 @@ cryptagram.extension.settings = [['save_passwords','true'],
                                  ['auto_decrypt','true'],
                                  ['album_passwords','true'],
                                  ['user_study','false']];
-                                 
+
 cryptagram.extension.lastCheck = '';
 
 cryptagram.extension.onInstall =  function() {
@@ -20,9 +20,13 @@ cryptagram.extension.onInstall =  function() {
 }
 
 cryptagram.extension.onUpdate = function() {
-  chrome.tabs.create({
-    url: 'welcome.html'
-  });
+  // If this is an update and the user already agreed to the user study, we do
+  // not ask for consent. Otherwise, we do.
+  if (localStorage['user_study'] == 'false') {
+    chrome.tabs.create({
+      url: 'welcome.html'
+    });
+  }
   console.log("Extension Updated");
 }
 
@@ -41,7 +45,7 @@ cryptagram.extension.getVersion = function() {
 }
 
 cryptagram.extension.init = function() {
-     
+
   // Create a context menu which will only show up for images and link the menu
   // item to getClickHandler.
   cryptagram.extension.contextMenuID = chrome.contextMenus.create({
@@ -50,12 +54,14 @@ cryptagram.extension.init = function() {
     'contexts' : ['image'],
     'onclick' : cryptagram.extension.getClickHandler()
   });
-  
+
   for (var i = 0; i < cryptagram.extension.settings.length; i++) {
     var setting = cryptagram.extension.settings[i][0];
-    if (!localStorage[setting]) localStorage[setting] = cryptagram.extension.settings[i][1];
+    if (!localStorage[setting]) {
+      localStorage[setting] = cryptagram.extension.settings[i][1];
+    }
   }
-    
+
   chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
     if (info['status'] == 'complete') {
       if (localStorage['auto_decrypt'] == 'true') {
@@ -66,7 +72,7 @@ cryptagram.extension.init = function() {
       }
     }
   });
-  
+
   chrome.browserAction.setPopup({'popup':"popup.html"});
 
   // Check if the version has changed (installed or updated extension) and react
@@ -82,7 +88,7 @@ cryptagram.extension.init = function() {
     }
     window.localStorage.setItem('version', currVersion);
   }
-  
+
 //chrome.browserAction.onClicked.addListener(function(tab) {
 //  chrome.tabs.create({url:chrome.extension.getURL("encoder.html")});
 //});
@@ -90,7 +96,7 @@ cryptagram.extension.init = function() {
 
 cryptagram.extension.showEncoder = function() {
 
-  
+
   chrome.tabs.getSelected(null, function(tab) {
       chrome.tabs.sendRequest(tab.id, {'showEncoder':1});
   });
@@ -99,27 +105,27 @@ cryptagram.extension.showEncoder = function() {
 
 // Sends the decodeURL message request to the current tabIndex
 cryptagram.extension.getClickHandler = function() {
-    
+
   return function(info, tab) {
-  
+
     chrome.tabs.getSelected(null, function(tab) {
       chrome.tabs.sendMessage(tab.id, {'decryptURL':info['srcUrl'], 'storage': localStorage}, function(response) {
         if (response['outcome'] == 'success') {
           localStorage[response.id] = response['password'];
           if(response['album'] != null) {
-            localStorage[response['album']] = response['password'];              
+            localStorage[response['album']] = response['password'];
           }
         };
-      });  
-    });    
+      });
+    });
   };
 };
 
 
 cryptagram.extension.sendDebugReport = function() {
-  chrome.tabs.getSelected(null, function(tab) {   
-      chrome.tabs.sendMessage(tab.id, {'sendDebugReport': 1}, null); 
-  }); 
+  chrome.tabs.getSelected(null, function(tab) {
+      chrome.tabs.sendMessage(tab.id, {'sendDebugReport': 1}, null);
+  });
 };
 
 
