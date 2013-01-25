@@ -22,7 +22,7 @@ cryptagram.cipher.bacchant.prototype.decrypt = function(newBase64, password) {
   var salt = newBase64.substring(54,65);
   var ct = newBase64.substring(65,newBase64.length);
   var full = iv + salt + ct;
-  this.logger.info("Full message: " + full);
+  // this.logger.info("Full message: " + full);
 
   var hash = CryptoJS.MD5(full);
 
@@ -43,10 +43,13 @@ cryptagram.cipher.bacchant.prototype.decrypt = function(newBase64, password) {
   var base64Decode = JSON.stringify(obj);
   var decrypted;
 
+  this.logger.info("password: " + password);
+  // this.logger.info("base64Decode: " + base64Decode);
+
   try {
     decrypted = sjcl.decrypt(password, base64Decode);
   } catch(err) {
-    this.logger.severe("Error decrypting: " + err.toString());
+    this.logger.severe("Could not decrypt: " + err.toString());
     return null;
   }
 

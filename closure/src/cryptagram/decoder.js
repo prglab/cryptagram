@@ -36,20 +36,20 @@ cryptagram.decoder.prototype.decodeData = function(data, codec, callback) {
   var ctx = canvas.getContext('2d');
   var img = new Image();
   var blockSize = 2;
-      
+
   img.onload = function(){
 
     canvas.width = img.width;
     canvas.height = img.height;
     ctx.drawImage(img,0,0);
-    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;               
-  
+    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
     if (!codec) {
       self.codec = self.getCodec(img, imageData);
     } else {
       self.codec = codec;
     }
-  
+
     if (!self.codec) {
       self.container.setStatus();
     } else {
@@ -59,7 +59,7 @@ cryptagram.decoder.prototype.decodeData = function(data, codec, callback) {
       self.processImage();
     }
   };
-  
+
   img.src = data;
 }
 
@@ -80,11 +80,11 @@ cryptagram.decoder.prototype.getCodec = function(img, imageData) {
 }
 
 
-/** 
+/**
  * @private
  */
 cryptagram.decoder.prototype.processImage = function() {
-    
+
   var more = this.codec.getChunk();
 
   if (more) {
@@ -92,17 +92,20 @@ cryptagram.decoder.prototype.processImage = function() {
     this.container.setStatus("Decode<br>" + percent + "%");
     var self = this;
     setTimeout(function () { self.processImage() }, 1);
-  
+
   // Done processing
   } else {
 
     var timeB = new Date().getTime();
     this.elapsed = timeB - this.timeA;
-    this.logger.shout("Decoded " + this.codec.decodeData.length + " base64 in " + this.elapsed + " ms.");
+    this.logger.shout("Decoded " + this.codec.decodeData.length +
+                      " base64 in " + this.elapsed + " ms.");
     this.container.setStatus();
+    this.logger.info("Password here: " + this.password);
     var decrypted = this.codec.decrypt(this.password);
+    this.logger.info("Got the decrypted back.");
     this.callback(decrypted);
- }  
+ }
 }
 
 

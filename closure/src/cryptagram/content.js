@@ -27,12 +27,12 @@ var content_;
 cryptagram.content = function() {
 
   localStorage['cryptagram_user_study_consent'] = true;
-  
+
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
 
   this.remoteLog = new cryptagram.RemoteLog();
-  
+
   this.logger.info('Initializing injected content.');
 
   var URL = new goog.Uri(window.location);
@@ -48,27 +48,27 @@ cryptagram.content = function() {
       break;
     }
   }
-  
+
   this.logger.info('Found media: ' + this.media.name());
   this.containers = {};
   this.loaders = [];
   this.lastAutoDecrypt = '';
   this.storage = new cryptagram.storage(this.media);
   var self = this;
-      
+
   chrome.extension.onMessage.addListener(function(request, sender, callback) {
     self.handleRequest(request, sender, callback);
     return true;
   });
 };
 
-cryptagram.content.prototype.logger = 
+cryptagram.content.prototype.logger =
     goog.debug.Logger.getLogger('cryptagram.content');
 
 
-cryptagram.content.prototype.handleRequest = 
+cryptagram.content.prototype.handleRequest =
     function(request, sender, callback) {
-  
+
   var self = this;
   var password = null;
   this.callback = callback;
@@ -76,11 +76,11 @@ cryptagram.content.prototype.handleRequest =
   if (request['storage']) {
     this.storage.load(request['storage']);
   }
-  
+
   // Always check user_study variable in case it has changed
   var remoteCapture = (self.storage.lookup['user_study'] == 'true');
   this.remoteLog.setCapturing(remoteCapture);
-  
+
   if (request['autoDecrypt'] && this.media.supportsAutodecrypt) {
 
     if (request['autoDecrypt'] == this.lastAutoDecrypt) {
@@ -88,7 +88,7 @@ cryptagram.content.prototype.handleRequest =
       return;
     }
     this.logger.info('Autodecrypting.');
-    
+
     this.lastAutoDecrypt = request['autoDecrypt'];
     this.media.onReady(function() {
       self.autoDecrypt(request['autoDecrypt']);
@@ -97,7 +97,7 @@ cryptagram.content.prototype.handleRequest =
 
   if (request['decryptURL']) {
     var URL = request['decryptURL'];
-        
+
     // If already decoded, URL starts with 'data:'
     if (URL.search('data:') == 0) {
       var container = this.media.getContainer(URL);
@@ -108,7 +108,7 @@ cryptagram.content.prototype.handleRequest =
       }
       return;
     }
-    
+
     this.media.onReady(function() {
       self.getPassword(URL);
     });
@@ -132,13 +132,13 @@ cryptagram.content.prototype.decryptImage = function(image, password, queue) {
   var self = this;
   var loader = new cryptagram.loader(container);
   var cipher = new cryptagram.cipher();
-  var decoder = new cryptagram.decoder(container);
+  var decoder = new cryptagram.decoder(container, {password: password});
 
   var fullURL = this.media.fixURL(image.src);
   if (!fullURL) return;
-  
+
   if (queue) {
-  
+
     loader.queue(fullURL, function(data) {
       decoder.decodeData(data, null, function(result) {
       loader.state = cryptagram.loader.state.DONE;
@@ -151,9 +151,9 @@ cryptagram.content.prototype.decryptImage = function(image, password, queue) {
       });
     });
     this.loaders.push(loader);
-    
+
   } else {
-  
+
     loader.getImageData(fullURL, function(data) {
       decoder.decodeData(data, null, function(result) {
         if (result) {
@@ -166,49 +166,50 @@ cryptagram.content.prototype.decryptImage = function(image, password, queue) {
     });
 
   }
-  
+
 };
 
 
 cryptagram.content.prototype.decryptByURL = function(URL, password) {
-  
+
   this.logger.info('Request to decrypt ' + URL + '.');
   var container = this.media.loadContainer(URL);
-  
+
   var loader = new cryptagram.loader(container);
   var fullURL = this.media.fixURL(URL);
-  
+
   var self = this;
   loader.getImageData(fullURL, function(data) {
-    var decoder = new cryptagram.decoder(container);
+    // TODO(tierney): May not want/need the password option here.
+    var decoder = new cryptagram.decoder(container, {password:password});
     decoder.decodeData(data, null, function(result) {
       if (result) {
-        
+
         var cipher = new cryptagram.cipher();
-        var decryptedData = cipher.decrypt(result, password);  
-        
+        var decryptedData = cipher.decrypt(result, password);
+
         if (!decryptedData) {
-          return;  
-        }     
+          return;
+        }
         self.media.setContainerSrc(container, decryptedData);
         var photoName = self.media.getPhotoName(URL);
         var albumName = self.media.getAlbumName(URL);
-        
+
         var savePassword = (self.storage.lookup['save_passwords'] == 'true');
         if (self.overrideSavePassword != null) {
           savePassword = self.overrideSavePassword;
         }
-  
+
         var albumPassword = (self.storage.lookup['album_passwords'] == 'true');
         if (self.overrideAlbumPassword != null) {
           albumPassword = self.overrideAlbumPassword;
         }
-  
+
         if (savePassword) {
-          self.logger.info("Saving image password for " + photoName); 
+          self.logger.info("Saving image password for " + photoName);
           var obj = {'outcome': 'success', 'id' : photoName, 'password' : password};
           if (albumPassword && albumName) {
-            self.logger.info("Saving album password for " + albumName); 
+            self.logger.info("Saving album password for " + albumName);
             obj['album'] = albumName;
           }
           self.callback(obj);
@@ -221,14 +222,14 @@ cryptagram.content.prototype.decryptByURL = function(URL, password) {
 
 
 cryptagram.content.prototype.checkQueue = function() {
-  
+
   if (this.loaders.length == 0) return;
-    
+
   var maxLoading = 1;
   var loadingCount = 0;
-  
+
   for (var i = this.loaders.length - 1; i >= 0; i--) {
-  
+
       if (this.loaders[i].state == cryptagram.loader.state.LOADING) {
         loadingCount++;
       }
@@ -237,15 +238,15 @@ cryptagram.content.prototype.checkQueue = function() {
         delete pop;
       }
   }
-  
+
   for (var i = 0; i < this.loaders.length; i++) {
       if (this.loaders[i].state == cryptagram.loader.state.WAITING &&
             loadingCount < maxLoading) {
-        this.loaders[i].start();     
+        this.loaders[i].start();
         loadingCount++;
       }
   }
-  
+
   var self = this;
   setTimeout(function() { self.checkQueue(); }, 1000);
 };
@@ -253,17 +254,17 @@ cryptagram.content.prototype.checkQueue = function() {
 
 
 cryptagram.content.prototype.autoDecrypt = function() {
-      
+
   var images = this.media.getImages();
-  
+
   if (images) {
-    this.logger.info('Checking ' + images.length + 
+    this.logger.info('Checking ' + images.length +
                      ' images against saved passwords.');
   }
-  
+
   var needsQueue = true;
   if (images.length < 4) needsQueue = false;
-  
+
   for (var i = 0; i < images.length; i++) {
     var password = this.storage.getPasswordForURL(images[i].src);
     if (password) {
@@ -282,10 +283,10 @@ cryptagram.content.prototype.getPassword = function(URL) {
     this.decryptByURL(URL, password);
     return;
   }
-  
+
   var self = this;
   var dialog = new goog.ui.Dialog(null, false);
-    
+
   dialog.setContent(cryptagram.templates.passwordDialog({'URL':URL}));
   dialog.setTitle('Cryptagram');
   dialog.setButtonSet(goog.ui.Dialog.ButtonSet.OK_CANCEL);
@@ -301,7 +302,7 @@ cryptagram.content.prototype.getPassword = function(URL) {
   });
   dialog.setVisible(true);
   goog.dom.getElement('password').focus();
-  
+
   var hidePassword = goog.dom.getElement('hidePassword');
   if (this.storage.lookup['hide_passwords'] == 'true') {
     hidePassword.checked = true;
