@@ -31,6 +31,8 @@ cryptagram.codec.prototype.decodeProgress = function() {
 };
 
 cryptagram.codec.prototype.decrypt = function(password) {
+  console.log("Generic decrypt");
+  console.log(this.cipher);
   return this.cipher.decrypt(this.decodeData, password);
 };
 

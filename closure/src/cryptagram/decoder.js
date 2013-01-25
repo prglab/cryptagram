@@ -54,7 +54,7 @@ cryptagram.decoder.prototype.decodeData = function(data, codec, callback) {
       self.container.setStatus();
     } else {
       self.data = "";
-      self.codec.decode(img, imageData);
+      self.codec.setDecodeParams(img, imageData);
       self.timeA = new Date().getTime();
       self.processImage();
     }
@@ -95,13 +95,13 @@ cryptagram.decoder.prototype.processImage = function() {
 
   // Done processing
   } else {
-
     var timeB = new Date().getTime();
     this.elapsed = timeB - this.timeA;
     this.logger.shout("Decoded " + this.codec.decodeData.length +
                       " base64 in " + this.elapsed + " ms.");
     this.container.setStatus();
     this.logger.info("Password here: " + this.password);
+    this.logger.info("Codec name: " + this.codec.name());
     var decrypted = this.codec.decrypt(this.password);
     this.logger.info("Got the decrypted back.");
     this.callback(decrypted);
