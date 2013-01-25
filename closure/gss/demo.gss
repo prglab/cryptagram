@@ -30,6 +30,14 @@ body {
   padding: 20px;
 }
 
+#main h1 {
+  position: absolute;
+  top: 0px;
+  left: 20px;
+  font-size: 36px;
+  z-index: 100;
+}
+
 #encoded_image, #decoded_image, #original_image {
   width: 100%;
   overflow: hidden;
@@ -74,6 +82,33 @@ body {
   vertical-align: middle;
 }
 
+
+#medium {
+  min-height: 100px;
+  margin-bottom: 20px;
+}
+
+#medium .frame {
+  width: 60px;
+  height: 60px;
+  border: 1px solid gray;
+  padding: 2px;
+  margin: 5px;
+  line-height: 60px;
+  text-align: center;
+  background: #EEEEEE;
+  float: left;
+  position: relative;
+}
+
+#medium img {
+  max-width: 60px;
+  max-height: 60px;
+  vertical-align: middle;
+}
+
+
+
 #preview {
   width: 100px;
   height: 100px;
@@ -92,14 +127,19 @@ body {
 }
 
 #drop_zone {
-  width: 100%; 
-  height: 100%;
   border: 3px dashed #666666; 
   background: #FFFFFF; 
   text-align: center; 
   border-radius: 2px;
   color: #bbbbbb;
   font-size: 12px;
+  position: absolute;
+  height: auto;
+  top: 50px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 20px;
 }
 
 #drop_zone #floater {
@@ -151,9 +191,11 @@ body {
   color: #4444FF;
 }
 
-.frame {
+.box {
   position: relative;
+  display: inline-block;  
 }
+
 
 #progress {
   position: absolute;
