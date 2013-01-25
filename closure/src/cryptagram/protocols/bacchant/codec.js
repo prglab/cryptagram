@@ -15,7 +15,6 @@ cryptagram.codec.bacchant = function() {
   this.symbol_thresholds = [0, 36, 72, 109, 145, 182, 218, 255];
   this.cipher = new cryptagram.cipher.bacchant();
 };
-
 goog.inherits(cryptagram.codec.bacchant, cryptagram.codec);
 
 cryptagram.codec.bacchant.prototype.logger =
@@ -201,8 +200,7 @@ cryptagram.codec.bacchant.dimensions = function (width_to_height_ratio,
 
   var width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
 		width_to_height_ratio : 1.0;
-  var header_string = typeof header_string !== 'undefined' ? header_string :
-		"bacchant";
+  var header_string = "bacchant";
   var block_width = typeof block_width !== 'undefined' ? block_width : 2;
   var block_height = typeof block_height !== 'undefined' ? block_height : 2;
 
@@ -308,7 +306,7 @@ cryptagram.codec.bacchant.prototype.decodeProgress = function() {
 
 }
 
-cryptagram.codec.bacchant.prototype.decode = function(img, imageData) {
+cryptagram.codec.bacchant.prototype.setDecodeParams = function(img, imageData) {
   this.count = 0;
   this.chunkSize = 10;
   this.y = 0;
@@ -348,7 +346,8 @@ cryptagram.codec.bacchant.prototype.getChunk = function() {
         }
 
         var base8_0 = this.getBase8Value(this.img, this.imageData, x, this.y);
-        var base8_1 = this.getBase8Value(this.img, this.imageData, x + this.blockSize, this.y);
+        var base8_1 = this.getBase8Value(this.img, this.imageData,
+                                         x + this.blockSize, this.y);
 
         var base64Num = base8_0 * 8 + base8_1 ;
         var base64 = this.base64Values.charAt(base64Num);
@@ -371,7 +370,7 @@ cryptagram.codec.bacchant.prototype.getChunk = function() {
       break;
     }
 
-    this.y+= this.blockSize;
+    this.y += this.blockSize;
     count++;
   }
   this.decodeData += newBase64;

@@ -44,7 +44,11 @@ cryptagram.cipher.bacchant.prototype.decrypt = function(newBase64, password) {
   try {
     decrypted = sjcl.decrypt(password, base64Decode);
   } catch(err) {
+<<<<<<< HEAD
     this.logger.severe("Error decrypting " + err.toString());
+=======
+    this.logger.severe("Could not decrypt: " + err.toString());
+>>>>>>> 5361a5da8593e412feb8c2991584936fc8d33a0f
     return null;
   }
 
