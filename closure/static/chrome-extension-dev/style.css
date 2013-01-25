@@ -48,6 +48,8 @@
   position: absolute;
   width: 350px;
   z-index: 100001;
+  font-size: 12px;
+  font-family: helvetica;
 }
 
 .modal-dialog a,

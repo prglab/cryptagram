@@ -288,7 +288,7 @@ cryptagram.codec.aesthete.prototype.decodeProgress = function() {
 
 }
 
-cryptagram.codec.aesthete.prototype.decode = function(img, imageData) {
+cryptagram.codec.aesthete.prototype.setDecodeParams = function(img, imageData) {
   this.count = 0;
   this.headerSize = this.blockSize * 4;
   this.chunkSize = 10;
