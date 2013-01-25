@@ -1,6 +1,7 @@
 goog.provide('cryptagram.codec.experimental');
 
 goog.require('cryptagram.codec');
+goog.require('cryptagram.cipher.bacchant');
 goog.require('goog.debug.Logger');
 
 
@@ -14,7 +15,8 @@ cryptagram.codec.experimental = function(blockSize, quality, numberSymbols) {
   this.blockSize = blockSize;
   this.symbol_thresholds = [];
   this.base = numberSymbols;
-  
+  this.cipher = new cryptagram.cipher.bacchant();
+
   for (var i = 0; i < numberSymbols; i++) {
     var level = (i / (numberSymbols - 1)) * 255;
     this.symbol_thresholds.push(Math.round(level));
@@ -74,13 +76,6 @@ cryptagram.codec.experimental.prototype.encode = function(data,
     lengthString = "0" + lengthString;
   }
     
-   // next translate the image data
-  var values1 = new Array();
-  for (var i = 0; i < data.length; i++) {
-    add_char(data[i], values1);
-  }
-  this.lastOctal = values1;
-
   data = lengthString + data;
   
   // next translate the image data
@@ -89,7 +84,8 @@ cryptagram.codec.experimental.prototype.encode = function(data,
     add_char(data[i], values);
   }
 
-  
+  this.lastOctal = values;
+
   // how many octal values did we get from the header string?
   var n_header_values = header_values.length;
   var n_header_values_in_row = Math.ceil(Math.sqrt(n_header_values));
@@ -254,9 +250,21 @@ cryptagram.codec.experimental.prototype.decode = function(img, imageData) {
   this.imageData = imageData;
   this.lengthString = "";
   this.errorCount = 0;
-  
+  this.decodeData = "";
   this.newOctal = [];
 };
+
+
+cryptagram.codec.experimental.prototype.getErrorCount = function() {
+  var errorCount = 0;
+  for (var i = 0; i < this.lastOctal.length; i++) {
+    if (this.newOctal[i] != this.lastOctal[i]) {
+      errorCount++;
+    }
+  }
+  return errorCount;
+}
+
 
 cryptagram.codec.experimental.prototype.getChunk = function() {
 
@@ -300,35 +308,18 @@ cryptagram.codec.experimental.prototype.getChunk = function() {
         base64Num = base8_0 * 8 + base8_1 ;
         base64 = this.base64Values.charAt(base64Num);
                            
-       
         // Next super-block contains the length
         if (this.y == 0 && x < headerSize + 16 * this.blockSize) {
           this.lengthString += base64;
         } else {
-          
-          var last_0 = this.lastOctal[this.count];
-          var last_1 = this.lastOctal[this.count + 1];
-                    
-          if (base8_0 != last_0) {
-            this.errorCount++;
-          }
-          
-          if (base8_1 != last_1) {
-            this.errorCount++;
-          }
-                       
+                               
           newBase64 += base64;
                     
           if (this.length == null) {
             this.length = parseInt(this.lengthString);
           }
-        
-        
            this.count += 2;
-
         }
-    
-    
     }
     if (this.y >= this.img.height) {
       break;
@@ -337,27 +328,6 @@ cryptagram.codec.experimental.prototype.getChunk = function() {
     this.y += this.blockSize;
     count++;
   }
-  return newBase64;
+  this.decodeData += newBase64;
+  return true;
 }
-  
-
-
-
-
-/*  
-    var stripeX = Math.floor(x_start / 16) % 3;
-    var stripeY = Math.floor(y_start / 16) % 3;
-    
-    if (stripeX == 0) {
-      r = level + 25;
-    } else if (stripeX == 1) {
-      r = level - 25;
-    }
-    
-    
-    if (stripeY == 0) {
-      b = level + 25;
-    } else if (stripeY == 1) {
-      b = level - 25;
-    }
-*/   
