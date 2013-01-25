@@ -11,6 +11,10 @@ cryptagram.codec.prototype.getChunk = goog.abstractMethod;
 
 cryptagram.codec.prototype.getHeader = goog.abstractMethod;
 
+cryptagram.codec.dimensions = goog.abstractMethod;
+
+cryptagram.codec.maxBase64Values = goog.abstractMethod;
+
 cryptagram.codec.prototype.base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 cryptagram.codec.prototype.quality = .74;
