@@ -22,11 +22,13 @@ cryptagram.cipher.bacchant.prototype.decrypt = function(newBase64, password) {
   var salt = newBase64.substring(54,65);
   var ct = newBase64.substring(65,newBase64.length);
   var full = iv + salt + ct;
+  this.logger.info("Full message: " + full);
 
   var hash = CryptoJS.MD5(full);
 
-  this.logger.info("Decrypting Image");
-  
+  this.logger.info("Decrypting Image hashed " + hash);
+  this.logger.info("Decrypting Image (image) " + check);
+
   if (hash != check) {
     this.logger.severe("Checksum failed. Image is corrupted.");
     return;
@@ -70,10 +72,11 @@ cryptagram.cipher.bacchant.prototype.encrypt = function(data, password) {
   var ct = encrypted['ct'];
 	this.logger.info("to_hash");
   var full = iv + salt + ct;
-  
+
 	this.logger.info("Hashing");
   var hash = CryptoJS.MD5(full);
+  this.logger.info("Full message: " + full);
   this.logger.shout("Encrypting Image. Hash:" + hash);
-  
+
   return hash + full;
 };
