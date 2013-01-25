@@ -11,7 +11,7 @@ goog.require('goog.debug.Logger');
  */
 cryptagram.codec.bacchant = function() {
   this.blockSize = 2;
-  this.quality = .95;
+  this.quality = .85;
   this.symbol_thresholds = [0, 36, 72, 109, 145, 182, 218, 255];
   this.cipher = new cryptagram.cipher.bacchant();
 };
@@ -280,7 +280,7 @@ cryptagram.codec.bacchant.prototype.getBase8Value = function(img, imgData, x, y)
   var count = 0.0;
   var vt = 0.0;
   var avg;
-
+  var inc = (255.0 / 7.0);
   for (var i = 0; i < this.blockSize; i++) {
     for (var j = 0; j < this.blockSize; j++) {
 
@@ -297,8 +297,8 @@ cryptagram.codec.bacchant.prototype.getBase8Value = function(img, imgData, x, y)
   }
 
   var v = vt / count;
-  var bin = Math.floor(v / 32.0);
-
+  var bin = Math.round(v / inc);
+  if (bin >= 7) bin = 7;
   return bin;
 }
 
