@@ -201,8 +201,7 @@ cryptagram.codec.bacchant.dimensions = function (width_to_height_ratio,
 
   var width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
 		width_to_height_ratio : 1.0;
-  var header_string = typeof header_string !== 'undefined' ? header_string :
-		"bacchant";
+  var header_string = "bacchant";
   var block_width = typeof block_width !== 'undefined' ? block_width : 2;
   var block_height = typeof block_height !== 'undefined' ? block_height : 2;
 
