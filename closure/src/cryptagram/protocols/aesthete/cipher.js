@@ -11,7 +11,8 @@ cryptagram.cipher.aesthete = function() {};
 
 goog.inherits(cryptagram.cipher.aesthete, cryptagram.cipher);
 
-cryptagram.cipher.aesthete.prototype.logger = goog.debug.Logger.getLogger('cryptagram.cipher.aesthete');
+cryptagram.cipher.aesthete.prototype.logger =
+  goog.debug.Logger.getLogger('cryptagram.cipher.aesthete');
 
 /**
  */
@@ -28,10 +29,10 @@ cryptagram.cipher.aesthete.prototype.decrypt = function(newBase64, password) {
 
   this.logger.info("Decrypting Image");
 
-  this.logger.shout("HASH_EMBED_CALC " + check + " " + hexHash);
+  this.logger.shout("DECRYPT_HASH_EMBED_CALC " + check + " " + hexHash);
 
   if (hexHash != check) {
-    this.logger.severe("FAILED_HASH_EMBED_CALC " + check + " " + hash);
+    this.logger.severe("DECRYPT_FAILED_HASH_EMBED_CALC " + check + " " + hash);
     return;
   } else {
     this.logger.info("Checksum passed.");
@@ -47,11 +48,11 @@ cryptagram.cipher.aesthete.prototype.decrypt = function(newBase64, password) {
   try {
     decrypted = sjcl.decrypt(password, base64Decode);
   } catch(err) {
-    this.logger.severe("FAILED_DECRYPT " + hash + " " + err.toString());
+    this.logger.severe("DECRYPT_FAILED " + hash + " " + err.toString());
     return null;
   }
 
-  this.logger.shout("DECRYPTED_OUT_LEN " + decrypted.length);
+  this.logger.shout("DECRYPT_OUT_LEN " + decrypted.length);
 
   var payload = this.URIHeader + decrypted;
   return payload;
