@@ -27,8 +27,7 @@ cryptagram.cipher.bacchant.prototype.decrypt = function(newBase64, password) {
   this.logger.info("Decrypting image with hash " + hash);
 
   if (hash != check) {
-    this.logger.shout("Embedded hash " + check);
-    this.logger.severe("Checksum failed. Image is corrupted.");
+    this.logger.severe("FAILED_HASH_EMBED_CALC " + check + " " + hash);
     return;
   } else {
     this.logger.info("Checksum passed.");
@@ -44,20 +43,22 @@ cryptagram.cipher.bacchant.prototype.decrypt = function(newBase64, password) {
   try {
     decrypted = sjcl.decrypt(password, base64Decode);
   } catch(err) {
-    this.logger.severe("Error decrypting " + err.toString());
+    this.logger.severe("FAILED_DECRYPT " + hash + " " + err.toString());
     return null;
   }
 
-  this.logger.shout("Decrypted base64 " + decrypted.length);
+  this.logger.shout("HASH_LEN " + hash + " " + decrypted.length);
 
   var payload = this.URIHeader + decrypted;
   return payload;
 };
 
 cryptagram.cipher.bacchant.prototype.encrypt = function(data, password) {
-  // Get rid of data type information (for now assuming always JPEG.
+  // Get rid of data type information (for now assuming always JPEG).
   var withoutMimeHeader = data.split('base64,')[1];
-	this.logger.shout("Started encrypting data " + data.length);
+
+	this.logger.shout("START " + data.length);
+
 	var unparsed = sjcl.encrypt(password, withoutMimeHeader);
   var encrypted = JSON.parse(unparsed);
 
@@ -66,8 +67,8 @@ cryptagram.cipher.bacchant.prototype.encrypt = function(data, password) {
   var ct = encrypted['ct'];
   var full = iv + salt + ct;
   var hash = CryptoJS.MD5(full);
-  
-  this.logger.shout("Encrypted image with hash " + hash);
+
+  this.logger.shout("FINISH " + hash);
 
   return hash + full;
 };

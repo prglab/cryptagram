@@ -49,7 +49,7 @@ cryptagram.media.facebook.prototype.loadContainer = function(URL) {
   var images = this.getImages(URL);
   var image = images[0];
   if (this.state == cryptagram.media.facebook.state.ALBUM) {
-    return new cryptagram.container.div(image);  
+    return new cryptagram.container.div(image);
   } else {
     return new cryptagram.container.img(image);
   }
@@ -57,7 +57,7 @@ cryptagram.media.facebook.prototype.loadContainer = function(URL) {
 
 /** @inheritDoc */
 cryptagram.media.facebook.prototype.getImages = function(opt_URL) {
-    
+
   var valid = [];
   var images = [];
 
@@ -66,19 +66,19 @@ cryptagram.media.facebook.prototype.getImages = function(opt_URL) {
   } else if (this.state == cryptagram.media.facebook.state.PHOTO) {
     images = goog.dom.getElementsByClass('fbPhotoImage');
   } else {
-  
+
     var thumbs = goog.dom.getElementsByClass('uiMediaThumbImg');
-    
+
     for (var i = 0; i < thumbs.length; i++) {
       var testURL = thumbs[i].style.backgroundImage;
       testURL = testURL.substr(4,testURL.length - 5);
       var ajaxNode = thumbs[i].parentNode.parentNode;
-      
+
       if (ajaxNode.tagName == 'A') {
         var ajaxify = ajaxNode.getAttribute('ajaxify')
         var ajaxParts = ajaxify.split("&");
         var src = ajaxParts[3];
-              
+
         if (src.substring(0,4)=="src=") {
           var fullSrc = unescape(src.substring(4,src.length));
           this.logger.info("Extracted src from ajaxify: " + fullSrc);
@@ -88,17 +88,17 @@ cryptagram.media.facebook.prototype.getImages = function(opt_URL) {
       }
     }
   }
-    
+
   for (var i = 0; i < images.length; i++) {
     var testURL = images[i].src;
-        
-    if (opt_URL) {    
+
+    if (opt_URL) {
       if (testURL == opt_URL) {
         valid.push(images[i]);
       }
-    } else {  
+    } else {
       if (testURL.search('_o.jpg') != -1  || testURL.search('_n.jpg') != -1 ) {
-        valid.push(images[i]);  
+        valid.push(images[i]);
       }
     }
   }
@@ -113,35 +113,35 @@ cryptagram.media.facebook.prototype.parseMedia = function() {
   this.fullURL = null;
   var albumRegex=new RegExp(/^https?:\/\/www.facebook.com\/media\/set\/\?set=a\.[0-9]*\.[0-9]*\.[0-9]*/);
   var URL = new goog.Uri(window.location);
-  
+
   if (albumRegex.test(URL)) {
     this.state = cryptagram.media.facebook.state.ALBUM;
     return true;
   }
 
   var spotlight = document.getElementsByClassName('spotlight');
-  if (goog.isDef(spotlight[0]) && 
+  if (goog.isDef(spotlight[0]) &&
       spotlight[0].className.indexOf('hidden_elem') == -1) {
 
     this.state = cryptagram.media.facebook.state.SPOTLIGHT;
-    
-    var s = document.getElementById("snowliftStageActions");    
+
+    var s = document.getElementById("snowliftStageActions");
     var child = goog.dom.findNode(s, function(n) {
       return n.className == 'uiButtonText';
     });
-    
+
     // Ultimate hack! Click the Options button to trigger the creation of Download button
     if (child) {
         child.click();
         child.click();
     }
-    
+
     var menu = document.getElementsByClassName('uiMenuX');
     if (goog.isDef(menu[0])) {
       var download = goog.dom.findNode(menu[menu.length-1], function(n) {
         return n.className == 'itemLabel' && n.innerHTML == 'Download';
       });
-    
+
       if (download) {
         this.fullURL = download.parentNode.href;
         return true;
@@ -149,19 +149,19 @@ cryptagram.media.facebook.prototype.parseMedia = function() {
         return false;
       }
     }
-     
+
     return true;
   }
- 
+
   var actions = document.getElementsByClassName('fbPhotosPhotoActionsItem');
-  if (goog.isDef(actions[0])) {     
+  if (goog.isDef(actions[0])) {
     for (var i = 0; i < actions.length; i++) {
       var fullURL = actions[i].href;
       if (fullURL) {
         if (fullURL.search('_o.jpg') != -1 || fullURL.search('_n.jpg') != -1) {
           this.fullURL = fullURL;
         }
-      }  
+      }
     }
     this.state = cryptagram.media.facebook.state.PHOTO;
     return true;
@@ -171,13 +171,13 @@ cryptagram.media.facebook.prototype.parseMedia = function() {
 
 
 cryptagram.media.facebook.prototype.checkIfReady = function(callback) {
-  
+
   if (this.parseMedia()) {
-    this.logger.shout("Facebook media is ready: " + this.state + " mode");
+    this.logger.shout("FACEBOOK_MODE " + this.state);
     callback();
     return;
   }
-  
+
   var self = this;
   this.tries++;
   if (this.tries < this.maxTries) {
@@ -185,13 +185,13 @@ cryptagram.media.facebook.prototype.checkIfReady = function(callback) {
     setTimeout(function() { self.checkIfReady(callback); }, self.delay);
   }  else {
     this.logger.info("Facebook failed.");
-  }  
+  }
 };
 
 
 /** @inheritDoc */
 cryptagram.media.facebook.prototype.onReady = function(callback) {
-    
+
   this.tries = 0;
   this.maxTries = 5;
   this.delay = 250;
@@ -212,7 +212,7 @@ cryptagram.media.facebook.prototype.getPhotoName = function(URL) {
 cryptagram.media.facebook.prototype.getAlbumName = function(URL) {
   var browserURL = document.URL;
   var albumIDParts = browserURL.match(/set=a.([0-9a.]*)/);
-  
+
   if (!albumIDParts) {
     var info = document.getElementById('fbPhotoPageMediaInfo');
     if (info) {
@@ -231,19 +231,19 @@ cryptagram.media.facebook.prototype.getAlbumName = function(URL) {
 
 /** @inheritDoc */
 cryptagram.media.facebook.prototype.fixURL = function(URL) {
-  
+
   if (URL.search('_o.jpg') != -1) {
     this.logger.info('Facebook URL is already full size.')
     return URL;
-  }    
-  
+  }
+
   if (this.state == cryptagram.media.facebook.state.SPOTLIGHT) {
     if (this.fullURL) {
       this.logger.info('Extracted full URL from Spotlight Download.');
       return this.fullURL;
     }
   }
-  
+
   if (this.state == cryptagram.media.facebook.state.PHOTO) {
     if (this.fullURL) {
       this.logger.info('Extracted full URL from Photo Download.');

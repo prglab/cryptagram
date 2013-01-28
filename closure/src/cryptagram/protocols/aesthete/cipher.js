@@ -27,9 +27,11 @@ cryptagram.cipher.aesthete.prototype.decrypt = function(newBase64, password) {
   var hexHash = sjcl.codec.hex.fromBits(bits);
 
   this.logger.info("Decrypting Image");
-  
+
+  this.logger.shout("HASH_EMBED_CALC " + check + " " + hexHash);
+
   if (hexHash != check) {
-    this.logger.severe("Checksum failed. Image is corrupted.");
+    this.logger.severe("FAILED_HASH_EMBED_CALC " + check + " " + hash);
     return;
   } else {
     this.logger.info("Checksum passed.");
@@ -45,11 +47,11 @@ cryptagram.cipher.aesthete.prototype.decrypt = function(newBase64, password) {
   try {
     decrypted = sjcl.decrypt(password, base64Decode);
   } catch(err) {
-    this.logger.severe("Error decrypting: " + err.toString());
+    this.logger.severe("FAILED_DECRYPT " + hash + " " + err.toString());
     return null;
   }
 
-  this.logger.shout("Decrypted " + decrypted.length + " base64 characters.");
+  this.logger.shout("DECRYPTED_OUT_LEN " + decrypted.length);
 
   var payload = this.URIHeader + decrypted;
   return payload;
@@ -71,13 +73,13 @@ cryptagram.cipher.aesthete.prototype.encrypt = function(data, password) {
   var ct = encrypted_data['ct'];
 	this.logger.info("to_hash");
   var to_hash = iv + salt + ct;
-  
+
 	this.logger.info("Hashing");
 	var bits = sjcl.hash.sha256.hash(to_hash);
 	this.logger.info("fromBits");
   var integrity_check_value = sjcl.codec.hex.fromBits(bits);
-  //var integrity_check_value = CryptoJS.MD5(to_hash);
-  this.logger.shout("Encrypting Image. Hash:" + integrity_check_value);
-  
+
+  this.logger.shout("ENCRYPTED_HASH " + integrity_check_value);
+
   return integrity_check_value + to_hash;
 };
