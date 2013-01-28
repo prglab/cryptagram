@@ -1,50 +1,104 @@
 body {
   font: 12px arial;
-  background: white;
+  background: #FAFAFA;
 }
 
-iframe {
-  width: 600px;
-  height: 300px;
-  margin-top: 20px;
-  margin-bottom: 10px;
-  border: 1px solid gray;
-  background: white;
+a {
+  text-decoration: none;
+  border-bottom: 1px dotted #3333AA;
+  color: black;
 }
+
+h1 {
+  text-align: center;
+  color: #555555;
+  margin: 40px;
+}
+
+
+
 
 #info {
-    width: 300px;
-    margin-top: 50px;
-    padding: 20px;
-    background: #EEEEEE;
-  }
+  width: 650px;
+  padding: 20px;
+  padding-bottom: 10px;
+  background: url('images/bar.gif');
+  text-align: left;
+  border-radius: 10px;
+  margin: 0 auto;
+}
+
+#info .bar {
+  padding: 8px;
+  background: white;
+  border-radius: 3px;
+  font-weight: bold;
+}
+
+#info .bar img {
+  position: relative;
+  top: 4px;
+  margin-right: 2px;
+}
+
+#info td {
+  vertical-align: top;
+  padding: 5px;
+}
+
+#info td.right {
+  text-align: right;
+}
+
+
+
 
 #frame {
-  width: 600px;
+  position: relative;
+  width: 610px;
   padding: 20px;
   background: #EEEEEE;
   border: 1px solid gray;
+  border-radius: 3px;
   -moz-box-shadow: 5px 5px 5px #888;
   -webkit-box-shadow: 5px 5px 5px #888;
   box-shadow: 5px 5px 5px #888;
-  margin-top: 50px;
-  border-radius: 3px;
+  font-size: 14px;
+  line-height: 1.4em;
+  margin: 0 auto;
+  margin-top: 30px;
+}
+
+iframe {
+  width: 500px;
+  height: 250px;
+  border: 1px solid gray;
+  background: white;
+  margin-top: 15px;
 }
 
 #buttons {
-  width: 600px;
+  margin-top: 10px;
+  width: 100px;
+  float: right;
   text-align: center;
+  font-weight: bold;
 }
 
 #buttons input {
+  display: inline-block; 
   width: 100px;
   height: 40px;
+  margin-top: 10px;
+  font-size: 14px;
+  cursor: pointer;
 }
 
 #buttons #agree {
   background: #AAFFAA;
+  font-weight: bold;
 }
 
 #buttons #disagree {
-  background: #FFAAAA;
+  background: #CCCCCC;
 }
