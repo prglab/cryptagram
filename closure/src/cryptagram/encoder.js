@@ -126,6 +126,9 @@ cryptagram.encoder.prototype.startEncoding = function (options) {
   this.createValidImage(self.images[0]);
 };
 
+// Reloads image and converts to a jpeg at a specific quality. Then proceeds to
+// reduce the size of the image as necessary. After all of this, the image is
+// read to be encoded so is sent to encodeImage().
 cryptagram.encoder.prototype.createValidImage = function (image) {
   var self = this;
 
@@ -143,14 +146,17 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
     true,
     this);
 
-  var reducerOptions = {
-    image: image,
-    quality: this.quality,
-    maxSize :this.maxSize,
-    codec: this.codec
+  var jpegImg = new Image ();
+  jpegImg.onload = function (event) {
+    var reducerOptions = {
+      image: jpegImg,
+      quality: this.quality,
+      maxSize :this.maxSize,
+      codec: this.codec
+    };
+    sizeReducer.startWithImage(reducerOptions);
   };
-
-  sizeReducer.startWithImage(reducerOptions);
+  jpegImg.src = image.toDataURL('image/jpeg', 0.90);
 };
 
 // Expects an image (where .src is a data URL) and will embed without any
