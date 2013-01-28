@@ -9,8 +9,6 @@ goog.require('goog.events.EventType');
 goog.require('cryptagram.container');
 goog.require('cryptagram.decoder');
 goog.require('cryptagram.cipher');
-goog.require('cryptagram.codec.aesthete');
-goog.require('cryptagram.codec.bacchant');
 goog.require('cryptagram.codec.experimental');
 goog.require('cryptagram.loader');
 goog.require('cryptagram.RemoteLog');
@@ -31,17 +29,10 @@ cryptagram.experiment = function() {
   
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
-
-  var remoteLog = new cryptagram.RemoteLog();
-  remoteLog.setCapturing(true);
 };
 
 cryptagram.experiment.prototype.logger = 
     goog.debug.Logger.getLogger('cryptagram.experiment');
-
-cryptagram.experiment.prototype.setStatus = function(message) {
-  console.log(message);
-};
 
 /**
  * Runs decryption on the loaded image, replacing it with the
@@ -86,12 +77,11 @@ cryptagram.experiment.prototype.handleFiles = function(files) {
   
   for (var q = 70; q < 96; q += 2) {
     var quality = q / 100.0;
-    codices.push(new cryptagram.codec.experimental(1, quality, 8));
+    codices.push(new cryptagram.codec.experimental(2, quality, 8));    
   }
   
   var results = goog.dom.getElement('results');
   results.value = "";
-  var cipher = new cryptagram.cipher();
   
     var name = escape(file.name);
     
@@ -104,11 +94,12 @@ cryptagram.experiment.prototype.handleFiles = function(files) {
       originalImage.onload = function () {
         ratio = originalImage.width / originalImage.height;
       
-    		var password = 'cryptagram';
-        var encryptedData = cipher.encrypt(originalData, password);
-
+    		var password = 'cryptagram';       
+        
         for (var c = 0; c < codices.length; c++) {
           var codec = codices[c];
+
+          var encryptedData = codec.encrypt(originalData, password);
           var encodedImage = codec.encode(encryptedData, ratio);
           self.logger.info("Encoded in: " + codec.elapsed + " ms");  
 
@@ -116,24 +107,24 @@ cryptagram.experiment.prototype.handleFiles = function(files) {
           
           var idx = str.indexOf(",");
           var dat = str.substring(idx+1);
-          //alert(dat);
           
           // Decode image to make sure it worked
           var decodedImage = new Image();
           var container = new cryptagram.container(decodedImage);
-          var decoder = new cryptagram.decoder(container);
+          var decoder = new cryptagram.decoder(container, {password: password});
           
-          codec.length = codec.lastOctal.length;
+          //codec.length = codec.lastOctal.length;
                     
           decoder.decodeData(str, codec, function(result) {
             var codec = this.codec;
-            var percent = codec.errorCount / codec.length;
+            var errorCount = codec.getErrorCount();
+            var percent = errorCount / codec.lastOctal.length;
             
-            self.logger.info("Octal decoding errors: " + codec.errorCount + "/" +
+            self.logger.info("Octal decoding errors: " + errorCount + "/" +
                               codec.lastOctal.length + " = " + percent);
-                              
-            var report = codec.quality.toPrecision(2) + "\t" + codec.base + "\t" + codec.blockSize + "\t" +
-              codec.errorCount + "\t" + codec.lastOctal.length + "\t" + percent + "\n";
+                        
+            var report = codec.quality.toPrecision(2) + "\t" + codec.blockSize + "\t" +
+              errorCount + "\t" + codec.lastOctal.length + "\t" + percent + "\n";
             results.value += report;
                               
           });
