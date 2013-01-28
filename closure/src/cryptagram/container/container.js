@@ -11,6 +11,7 @@ cryptagram.container = function(img, node) {
   this.createStatus();
   
   if (!img) {
+    // TODO(tierney): @ispiro, should this message be logged remotely?
     console.log("Bad Container");
     return;
   }
