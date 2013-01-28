@@ -30,6 +30,8 @@ goog.inherits(cryptagram.ResizeValidator.Event, goog.events.Event);
 cryptagram.ResizeValidator.prototype.logger =
     goog.debug.Logger.getLogger('cryptagram.ResizeValidator');
 
+// TODO(tierney): Determine how frequently we want to log validation check
+// images.
 cryptagram.ResizeValidator.prototype.validate = function (bound_w,
                                                           bound_h,
                                                           imageUrl) {
@@ -40,16 +42,10 @@ cryptagram.ResizeValidator.prototype.validate = function (bound_w,
 
     var widthToHeightRatio = image.width / image.height;
 
-    console.log("widthToHeightRatio: " + widthToHeightRatio);
-    console.log("loadedImage.src: " + loadedImage.src.length);
-
     var maxNumValues = cryptagram.codec.aesthete.maxBase64Values(
       widthToHeightRatio);
     var valid = maxNumValues > loadedImage.src.length;
 
-    self.logger.info("Validation: " + valid);
-    self.logger.info(newDims.width + ' ' + bound_w + ' ' +
-                     newDims.height + ' ' + bound_h);
     self.dispatchEvent({type:'RESIZE_VALIDATION',
                         valid:valid,
                         image:image});

@@ -179,10 +179,8 @@ cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   self.images.splice(0,1);
   var encodedImage = loadEvent.target;
   var str = encodedImage.src;
-  console.log('String: ' + str.substring(0,100));
   var idx = str.indexOf(',');
   var dat = str.substring(idx+1);
-  console.log('Encoded data is this long: ' + str.length);
   this.dispatchEvent({type:'IMAGE_DONE',
                       image:encodedImage,
                       remaining: self.images.length});
