@@ -9,7 +9,7 @@ cryptagram.container = function(img, node) {
 
   this.img = img;
   this.createStatus();
-  
+
   if (!img) {
     // TODO(tierney): @ispiro, should this message be logged remotely?
     console.log("Bad Container");
@@ -42,7 +42,7 @@ cryptagram.container.prototype.createStatus = function() {
 };
 
 cryptagram.container.prototype.remove = function() {
-  this.div.parentNode.removeChild(this.div);  
+  this.div.parentNode.removeChild(this.div);
 };
 
 
@@ -51,15 +51,15 @@ cryptagram.container.prototype.getSrc = function() {
 };
 
 
-cryptagram.container.prototype.setSrc = function(src) {    
+cryptagram.container.prototype.setSrc = function(src) {
   this.previousSrc = this.img.src;
   this.img.src = src;
 };
 
 
 cryptagram.container.prototype.revertSrc = function() {
-    if (!this.previousSrc) return;    
-    this.img.src = this.previousSrc; 
+    if (!this.previousSrc) return;
+    this.img.src = this.previousSrc;
     this.previousSrc = null;
 };
 
@@ -68,13 +68,13 @@ cryptagram.container.prototype.setStatus = function(status) {
     this.div.innerHTML = '';
     this.div.style.display = 'none';
   } else {
-    
+
     var width = this.img.width;
     if (this.displayWidth) {
-      width = this.displayWidth;      
+      width = this.displayWidth;
     }
     this.div.style.left = (width / 2) + "px";
     this.div.style.display = 'inline-block';
-    this.div.innerHTML = status;  
+    this.div.innerHTML = status;
     }
 };

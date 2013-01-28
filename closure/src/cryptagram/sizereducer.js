@@ -48,7 +48,6 @@ cryptagram.SizeReducer.prototype.startWithImage = function (options) {
     // TODO(tierney): Develop better model for what fraction to reduce the
     // quality of the image.
     var reduction = limit / image.src.length;
-    console.log("Reduction: " + reduction);
     var fraction = 0.9;
     var fudgeFactor = 0.1;
     if (reduction <= 0.65) {
@@ -66,7 +65,6 @@ cryptagram.SizeReducer.prototype.startWithImage = function (options) {
 cryptagram.SizeReducer.prototype.startWithImageFracQual = function (options,
                                                                     fraction,
                                                                     limit) {
-  console.log("Fraction: " + fraction);
   var self = this;
   var image = options.image;
   var quality = options.quality;
@@ -118,4 +116,3 @@ cryptagram.SizeReducer.prototype.startWithImageFracQual = function (options,
   };
   resizedImage.src = imageDataUrl;
 };
-

@@ -181,7 +181,6 @@ cryptagram.codec.bacchant.maxBase64Values = function (width_to_height_ratio,
   var smallMaxDim = width_to_height_ratio <= 1.0 ?
     Math.floor(largestDim * width_to_height_ratio) :
     Math.floor(largestDim / width_to_height_ratio);
-  console.log("smallMaxDim: " + smallMaxDim);
   var n_pixels = smallMaxDim * largestDim;
 
   return Math.floor(0.75 * ((n_pixels - 64 - 256 - 736 - 32) / 8.0));
@@ -234,8 +233,6 @@ cryptagram.codec.bacchant.dimensions = function (width_to_height_ratio,
   // make output width a multiple of twice block width, so that two octal values
   // always encoded on same line
   width = 4 + Math.ceil(width / (2* block_width)) * 2 *  block_width;
-
-  console.log("DIMS: " + height + " " + width);
 
   return {width:width, height:height};
 };
