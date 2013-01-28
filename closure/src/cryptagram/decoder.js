@@ -71,11 +71,11 @@ cryptagram.decoder.prototype.getCodec = function(img, imageData) {
   for (var i = 0; i < knownCodecs.length; i++) {
     testCodec = new knownCodecs[i]();
     if (testCodec.test(img, imageData)) {
-      this.logger.shout("Found codec: " + testCodec.name());
+      this.logger.shout("CODEC " + testCodec.name());
       return testCodec;
     }
   }
-  this.logger.severe("Unknown codec.");
+  this.logger.severe("UNKNOWN_CODEC");
   return null;
 }
 
@@ -97,8 +97,9 @@ cryptagram.decoder.prototype.processImage = function() {
   } else {
     var timeB = new Date().getTime();
     this.elapsed = timeB - this.timeA;
-    this.logger.shout("Decoded " + this.codec.decodeData.length +
-                      " base64 in " + this.elapsed + " ms.");
+    this.logger.shout("DECODE_LEN_ELAPSED_MS " +
+                      this.codec.decodeData.length + " " +
+                      this.elapsed);
     this.container.setStatus();
     this.logger.info("Password here: " + this.password);
     this.logger.info("Codec name: " + this.codec.name());
@@ -150,6 +151,3 @@ cryptagram.decoder.prototype.queueFiles = function (files) {
     this.loadFile(self.files[0]);
   }
 };
-
-
-
