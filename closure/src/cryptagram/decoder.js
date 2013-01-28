@@ -101,10 +101,9 @@ cryptagram.decoder.prototype.processImage = function() {
                       this.codec.decodeData.length + " " +
                       this.elapsed);
     this.container.setStatus();
-    this.logger.info("Password here: " + this.password);
-    this.logger.info("Codec name: " + this.codec.name());
+    this.logger.shout("PROCESS_IMAGE_DECRYPT_START " + this.codec.decodeData.length);
     var decrypted = this.codec.decrypt(this.password);
-    this.logger.info("Got the decrypted back.");
+    this.logger.shout("PROCESS_IMAGE_DECRYPT_FINISH " + this.codec.decodeData.length);
     this.callback(decrypted);
  }
 }

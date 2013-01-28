@@ -11,12 +11,14 @@ cryptagram.cipher.bacchant = function() {};
 
 goog.inherits(cryptagram.cipher.bacchant, cryptagram.cipher);
 
-cryptagram.cipher.bacchant.prototype.logger = goog.debug.Logger.getLogger('cryptagram.cipher.bacchant');
+cryptagram.cipher.bacchant.prototype.logger =
+  goog.debug.Logger.getLogger('cryptagram.cipher.bacchant');
 
 /**
  */
 cryptagram.cipher.bacchant.prototype.decrypt = function(newBase64, password) {
 
+  this.logger.shout("DECRYPT_START " + newBase64.length);
   var check = newBase64.substring(0,32);
   var iv = newBase64.substring(32,54);
   var salt = newBase64.substring(54,65);
@@ -27,7 +29,7 @@ cryptagram.cipher.bacchant.prototype.decrypt = function(newBase64, password) {
   this.logger.info("Decrypting image with hash " + hash);
 
   if (hash != check) {
-    this.logger.severe("FAILED_HASH_EMBED_CALC " + check + " " + hash);
+    this.logger.severe("DECRYPT_FAILED_HASH_EMBED_CALC " + check + " " + hash);
     return;
   } else {
     this.logger.info("Checksum passed.");
@@ -43,11 +45,12 @@ cryptagram.cipher.bacchant.prototype.decrypt = function(newBase64, password) {
   try {
     decrypted = sjcl.decrypt(password, base64Decode);
   } catch(err) {
-    this.logger.severe("FAILED_DECRYPT " + hash + " " + err.toString());
+    this.logger.severe("DECRYPT_FAILED " + hash + " " + err.toString());
     return null;
   }
 
-  this.logger.shout("HASH_LEN " + hash + " " + decrypted.length);
+  this.logger.shout("DECRYPT_DONE " + hash + " " + newBase64.length + " " +
+                    decrypted.length);
 
   var payload = this.URIHeader + decrypted;
   return payload;
@@ -57,7 +60,7 @@ cryptagram.cipher.bacchant.prototype.encrypt = function(data, password) {
   // Get rid of data type information (for now assuming always JPEG).
   var withoutMimeHeader = data.split('base64,')[1];
 
-	this.logger.shout("START " + data.length);
+	this.logger.shout("ENCRYPT_START " + data.length);
 
 	var unparsed = sjcl.encrypt(password, withoutMimeHeader);
   var encrypted = JSON.parse(unparsed);
@@ -68,7 +71,7 @@ cryptagram.cipher.bacchant.prototype.encrypt = function(data, password) {
   var full = iv + salt + ct;
   var hash = CryptoJS.MD5(full);
 
-  this.logger.shout("FINISH " + hash);
+  this.logger.shout("ENCRYPT_FINISH " + hash);
 
   return hash + full;
 };
