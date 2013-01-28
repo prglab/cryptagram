@@ -910,7 +910,7 @@ var JSZipBase64 = (function() {
       decode : function(input, utf8) {
       
          // ispiro: seems to work just fine in Chrome, and faster
-         return window.atob(input);
+         // return window.atob(input);
       
          var output = "";
          var chr1, chr2, chr3;

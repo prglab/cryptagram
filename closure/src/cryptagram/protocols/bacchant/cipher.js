@@ -22,14 +22,12 @@ cryptagram.cipher.bacchant.prototype.decrypt = function(newBase64, password) {
   var salt = newBase64.substring(54,65);
   var ct = newBase64.substring(65,newBase64.length);
   var full = iv + salt + ct;
-  // this.logger.info("Full message: " + full);
 
   var hash = CryptoJS.MD5(full);
-
-  this.logger.info("Decrypting Image hashed " + hash);
-  this.logger.info("Decrypting Image (image) " + check);
+  this.logger.info("Decrypting image with hash " + hash);
 
   if (hash != check) {
+    this.logger.shout("Embedded hash " + check);
     this.logger.severe("Checksum failed. Image is corrupted.");
     return;
   } else {
@@ -43,17 +41,14 @@ cryptagram.cipher.bacchant.prototype.decrypt = function(newBase64, password) {
   var base64Decode = JSON.stringify(obj);
   var decrypted;
 
-  this.logger.info("password: " + password);
-  // this.logger.info("base64Decode: " + base64Decode);
-
   try {
     decrypted = sjcl.decrypt(password, base64Decode);
   } catch(err) {
-    this.logger.severe("Could not decrypt: " + err.toString());
+    this.logger.severe("Error decrypting " + err.toString());
     return null;
   }
 
-  this.logger.shout("Decrypted " + decrypted.length + " base64 characters.");
+  this.logger.shout("Decrypted base64 " + decrypted.length);
 
   var payload = this.URIHeader + decrypted;
   return payload;
@@ -62,24 +57,17 @@ cryptagram.cipher.bacchant.prototype.decrypt = function(newBase64, password) {
 cryptagram.cipher.bacchant.prototype.encrypt = function(data, password) {
   // Get rid of data type information (for now assuming always JPEG.
   var withoutMimeHeader = data.split('base64,')[1];
-	this.logger.info("Start");
+	this.logger.shout("Started encrypting data " + data.length);
 	var unparsed = sjcl.encrypt(password, withoutMimeHeader);
   var encrypted = JSON.parse(unparsed);
-	this.logger.info("Stop");
 
-	this.logger.info("iv");
   var iv = encrypted['iv'];
-	this.logger.info("salt");
   var salt = encrypted['salt'];
-	this.logger.info("ct");
   var ct = encrypted['ct'];
-	this.logger.info("to_hash");
   var full = iv + salt + ct;
-
-	this.logger.info("Hashing");
   var hash = CryptoJS.MD5(full);
-  this.logger.info("Full message: " + full);
-  this.logger.shout("Encrypting Image. Hash:" + hash);
+  
+  this.logger.shout("Encrypted image with hash " + hash);
 
   return hash + full;
 };
