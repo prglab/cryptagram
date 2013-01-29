@@ -26,7 +26,7 @@ var content_;
  */
 cryptagram.content = function() {
 
-  localStorage['cryptagram_user_study_consent'] = true;
+  //localStorage['user_study'] = true;
 
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
@@ -79,6 +79,10 @@ cryptagram.content.prototype.handleRequest =
   // Always check user_study variable in case it has changed
   var remoteCapture = (self.storage.lookup['user_study'] == 'true');
   this.remoteLog.setCapturing(remoteCapture);
+
+  if (request['setUserStudy']) {
+    localStorage['user_study'] = self.storage.lookup['user_study'];
+  }
 
   if (request['autoDecrypt'] && this.media.supportsAutodecrypt) {
 

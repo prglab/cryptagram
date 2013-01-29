@@ -22,22 +22,12 @@ goog.require('cryptagram.encoder');
  */
 cryptagram.demo = function () {
 
-  document.body.innerHTML += cryptagram.templates.demo();
-
-  goog.events.listen(goog.dom.getElement('encrypt_link'),
-                     goog.events.EventType.CLICK, this.showEncrypt, false, this);
-
-  goog.events.listen(goog.dom.getElement('decrypt_link'),
-                     goog.events.EventType.CLICK, this.showDecrypt, false, this);
-
-  goog.events.listen(goog.dom.getElement('demo_link'),
-                     goog.events.EventType.CLICK, this.showDemo, false, this);
+  document.body.innerHTML = "<div id=main></div>";
 
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
 
-//  var remoteLog = new cryptagram.RemoteLog();
-//  remoteLog.setCapturing(true);
+  this.remoteLog = new cryptagram.RemoteLog();
 };
 
 cryptagram.demo.prototype.logger = goog.debug.Logger.getLogger('cryptagram.demo');
@@ -70,6 +60,22 @@ cryptagram.demo.prototype.showDemo = function () {
 
 };
 
+/**
+ * Checks localStorage to see if the user has consented to the
+ * user study or not. If undefined, show the dialog.
+ */
+cryptagram.demo.prototype.checkConsent = function() {
+  
+  if (typeof localStorage['user_study'] != 'undefined') {
+    if (localStorage['user_study'] == 'true') {
+      this.remoteLog.setCapturing(true);
+    }
+  } else {
+    this.showConsentDialog();
+  }
+}
+
+
 
 /**
  * Shows the encryptor.
@@ -93,6 +99,10 @@ cryptagram.demo.prototype.showEncrypt = function () {
       var files = e.getBrowserEvent().dataTransfer.files;
       self.encryptFiles(files);
     });
+  
+  // Check with a timeout so injected extension content has a
+  // chance to set the localStorage variable (if installed).
+  setTimeout(function() { self.checkConsent(); }, 500);
 };
 
 
@@ -117,12 +127,6 @@ cryptagram.demo.prototype.showDecrypt = function () {
       var files = e.getBrowserEvent().dataTransfer.files;
       self.decryptFiles(files);
     });
-};
-
-
-
-cryptagram.demo.prototype.setStatus = function (message) {
-  console.log(message);
 };
 
 
@@ -298,12 +302,50 @@ cryptagram.demo.prototype.showDownloadDialog = function () {
 };
 
 
-cryptagram.demo.prototype.runDecrypt = function (image, password) {
-  var container = new cryptagram.container(image);
-  var decoder = new cryptagram.decoder(container, {password: password});
-  decoder.decodeData(image.src, null, function (result) {
-    container.setSrc(result);
-  });
+
+/**
+ * Shows the consent dialog.
+ */
+cryptagram.demo.prototype.showConsentDialog = function () {
+  var self = this;    
+
+  var dialog = new goog.ui.Dialog(null, false);
+  dialog.setContent(cryptagram.templates.consentDialog());
+  dialog.setTitle('Cryptagram');
+  dialog.setDisposeOnHide(true);
+
+  var bs = new goog.ui.Dialog.ButtonSet();
+  bs.set('AGREE', 'I Agree', true);
+  bs.set('DISAGREE', 'I Don\'t Agree', false, false);
+  dialog.setButtonSet(bs);
+  
+  dialog.setDisposeOnHide(true);
+  self.dialog = dialog;
+ 
+  goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function (e) {
+
+    if (e.key == 'AGREE') {
+      localStorage['user_study'] = true;
+    }
+    if (e.key == 'DISAGREE') {
+      localStorage['user_study'] = false;
+    }
+  }, false, this);
+
+  dialog.setVisible(true);
+};
+
+
+
+cryptagram.demo.prototype.runDecrypt = function (images, password) {
+  for (var i = 0; i < images.length; i++) {
+    var image = images[i];
+    var container = new cryptagram.container(image);
+    var decoder = new cryptagram.decoder(container, {password: password});
+    decoder.decodeData(image.src, null, function (result) {
+      container.setSrc(result);
+    });
+  }
 };
 
 cryptagram.demo.prototype.showDecryptDialog = function () {
@@ -336,11 +378,7 @@ cryptagram.demo.prototype.showDecryptDialog = function () {
       e.stopPropagation();
       e.preventDefault();
       dialog.getButtonSet().setAllButtonsEnabled(false);
-      
-      for (var i = 0; i < self.images.length; i++) {
-        self.runDecrypt(self.images[i], password);    
-      }
-      
+      self.runDecrypt(self.images, password);
     }
   }, false, this);
 

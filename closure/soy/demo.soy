@@ -61,6 +61,7 @@
 /**
  */
 {template .encodeDialog}
+<div class="fixedWidth">
 <div id="left">
 Settings<br>
 <p>Max Output Size<br>
@@ -85,6 +86,7 @@ Settings<br>
 <div id="status">Images</div>
 <div id="thumbs"></div>
 </div>
+</div>
 {/template}
 
 
@@ -92,19 +94,38 @@ Settings<br>
 /**
  */
 {template .decryptDialog}
+<div class="fixedWidth">
 <div id="medium"></div>
 <br><br>
 <p>Password<br>
 <input type=text id=password size=20>
 </p>
+</div>
 {/template}
 
 
 /**
  */
+{template .consentDialog}
+<div id=terms>
+Cryptagram is <a href="http://github.com/prglab/cryptogram" target=_new>open-source</a> research-ware, written 
+by <a href="http://cs.nyu.edu/~spiro" target=_new>Ian</a> & <a href="http://cs.nyu.edu/~tierney" target=_new>Matt</a>.
+We are asking you to participate in an academic user-study to help us improve the software and better 
+understand image privacy. We will protect your privacy by collecting only non-identifying data and only with your consent. 
+If you do not consent, you can still use the software. Thank you!
+<iframe src="terms.html"></iframe>
+</div>
+{/template}
+
+
+
+/**
+ */
 {template .progress}
+<div class="fixedWidth">
 <div id="status">Starting Encoder</div>
 <div id="preview"></div>
+</div>
 {/template}
 
 /**
@@ -112,6 +133,8 @@ Settings<br>
  * @param id
  */
 {template .downloadDialog}
+<div class="fixedWidth">
 <div id="info"><b>{$imageCount}</b> images stored in ZIP file</div>
 <br><div id="downloadify{$id}"></div>
+</div>
 {/template}
