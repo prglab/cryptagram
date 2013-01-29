@@ -8,14 +8,27 @@
   <body>
   <div id=title>Cryptagram</div>
   <div id=controls>
-  <input type=checkbox id=checkbox_auto_decrypt autofocus>Auto decrypt<br>
-  <input type=checkbox id=checkbox_hide_passwords>Hide passwords<br>
-  <input type=checkbox id=checkbox_save_passwords>Save passwords<br>
-  <input type=checkbox id=checkbox_album_passwords>Album passwords<br>
-  <input type=checkbox id=checkbox_user_study>User study<br>
+
+  <form method=POST target=_new action="http://cryptagr.am/encoder">
+  <input type=submit id=button_encryptor value="Encrypt Photos"></form>
+  
+  <input type=checkbox id=checkbox_auto_decrypt autofocus>
+  <label for=checkbox_auto_decrypt>Auto decrypt</label><br>
+  
+  <input type=checkbox id=checkbox_hide_passwords>
+  <label for=checkbox_hide_passwords>Hide passwords</label><br>
+
+  <input type=checkbox id=checkbox_save_passwords>
+    <label for=checkbox_save_passwords>Save passwords</label><br>
+
+  <input type=checkbox id=checkbox_album_passwords>
+  <label for=checkbox_album_passwords>Album passwords</label><br>
+
+  <input type=checkbox id=checkbox_user_study>
+  <label for=checkbox_user_study>User study</label><br>
+
   </div>
-  <a href="mailto:cryptagram@prglab.org" target="_new">Contact us</a>
-  <a href="http://cryptagram.prglab.org" target="_new" id="prglab">Project Info</a>
+  <a href="http://cryptagr.am" target="_new" id="prglab">Project Homepage</a>
   </body>
 
 
