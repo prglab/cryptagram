@@ -9,6 +9,9 @@ cryptagram.extension.settings = [['save_passwords','true'],
                                  ['auto_decrypt','true'],
                                  ['album_passwords','true'],
                                  ['user_study','false']];
+                                 
+cryptagram.extension.encoderURL = 'http://cryptagr.am';
+//cryptagram.extension.encoderURL = 'http://localhost:8888';
 
 cryptagram.extension.lastCheck = '';
 
@@ -61,14 +64,22 @@ cryptagram.extension.init = function() {
       localStorage[setting] = cryptagram.extension.settings[i][1];
     }
   }
-
+  
   chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
     if (info['status'] == 'complete') {
+    
+      // If we're on the encoder page, send a special request to tell
+      // injected content to set the localStorage variable. This way,
+      // the user won't have to agree/disagree to terms again.
+      if (tab.url.indexOf(cryptagram.extension.encoderURL) == 0) {
+        chrome.tabs.sendMessage(
+            tabId,{'setUserStudy': 1, 'storage': localStorage}, null);
+      }
+    
       if (localStorage['auto_decrypt'] == 'true') {
         chrome.tabs.sendMessage(
             tabId,
-            {'autoDecrypt': tab.url, 'storage': localStorage},
-            null);
+            {'autoDecrypt': tab.url, 'storage': localStorage}, null);
       }
     }
   });
