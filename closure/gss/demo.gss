@@ -1,12 +1,13 @@
 html, body {
   height: 100%;
-  background: url('images/bar.gif');
+  background: url('http://localhost:8888/images/bar.gif');
 }
 
 body {
   padding: 0px;
   margin: 0px;
   min-height: 200px;
+  font-family: "HelveticaNeue-Light", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
 
 #demo {
@@ -31,12 +32,32 @@ body {
 }
 
 #main h1 {
-  position: absolute;
-  top: 0px;
-  left: 20px;
   font-size: 36px;
   z-index: 100;
+  margin: 0px;
+  vertical-align: top;
+  text-shadow: 2px 2px 5px gray;
+  text-align: center;
 }
+
+a.title {
+  font-size: 36px;
+  font-weight: bold;
+  text-decoration: none;
+  letter-spacing: 3px;
+  display: inline;
+  position: absolute;
+  top: 16px;
+  color: white;
+  text-shadow: 0px 0px 5px #000, 2px 2px 5px gray;
+}
+
+ 
+.title img {
+  position: relative;
+  top: 3px;
+  height: 36px;
+} 
 
 #encoded_image, #decoded_image, #original_image {
   width: 100%;
