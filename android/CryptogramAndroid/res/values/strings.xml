@@ -21,5 +21,6 @@
     <string name="file_creation_failed">Failed to create file!</string>
     <string name="no_camera_app">There is no camera application available!!</string>
     <string name="file_location_failed">Could not find image file!</string>
+    <string name="thumbnail_desc">Thumbnail of selected image</string>
 
 </resources>

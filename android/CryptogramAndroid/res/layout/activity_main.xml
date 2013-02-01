@@ -16,6 +16,7 @@
         android:id="@+id/image_preview"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:contentDescription="@string/preview_content_description"
         android:src="@drawable/no_image_selected" />
     
