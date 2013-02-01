@@ -4,3 +4,6 @@
 [submodule "plovr"]
 	path = plovr
 	url = ./plovr
+[submodule "AndroidFilePicker"]
+	path = AndroidFilePicker
+	url = git://github.com/davidmi/AndroidFilePicker
