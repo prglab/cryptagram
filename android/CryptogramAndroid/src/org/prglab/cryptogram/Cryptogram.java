@@ -325,7 +325,7 @@ public class Cryptogram extends Activity {
         		/**
         		 * Array adapter that fills the list of selected images with thumbnails and their image names
         		 */
-        		new ArrayAdapter<Object>(this, R.id.selected_images_list, dataUris){
+        		new ArrayAdapter<Object>(this, R.id.selected_images_list, dataUris.toArray()){
         			@Override
     			    public View getView(int position, View convertView, ViewGroup parent) {
     			    	View v = convertView;
@@ -333,18 +333,23 @@ public class Cryptogram extends Activity {
     			            LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     			            v = vi.inflate(R.layout.selected_item, null);
     			        }
-    			    	else {
+    			    	if (v != null) {
     			                TextView nameView = (TextView) v.findViewById(R.id.list_text);
     			                ImageView thumbnailView = (ImageView) v.findViewById(R.id.list_thumbnail);
     			                Object o = getItem(position);
     			                nameView.setText(o.toString());
-    			                if (o instanceof String){
-    			                	thumbnailView.setImageBitmap(getThumbnail((String) o));
+    			                if (thumbnailView.getDrawable() == null){
+	    			                if (o instanceof String){
+	    			                	thumbnailView.setImageBitmap(getThumbnail((String) o));
+	    			                }
+	    			                else if (o instanceof Uri){  			                	
+	    			                	thumbnailView.setImageBitmap(getThumbnail((Uri) o));
+	    			                }
     			                }
-    			                else if (o instanceof Uri){  			                	
-    			                	thumbnailView.setImageBitmap(getThumbnail((Uri) o));
-    			                }
-    			        }
+    			        
+    			    	}else{
+    			        	Log.d(DEBUG_TAG, "Failed to inflate ListView item view!");
+    			    	}
     			        return v;
     			    	
     			    }
@@ -398,15 +403,17 @@ public class Cryptogram extends Activity {
      * Set the current image preview with a file
      * @param filepath the path to the file
      */
-    private void setImagePreview(String filepath){
+    private boolean setImagePreview(String filepath){
 
     	try{
 	    	Bitmap temp = BitmapFactory.decodeFile(filepath);
 	    	if (temp == null) throw new Exception("we need an image, yo");
 	    	setImagePreview(temp);
+	    	return true;
     	}
     	catch ( Exception e ){
     		imagePreview.setImageDrawable(noImageSelected);
+    		return false;
     	}
     }
     
@@ -414,16 +421,15 @@ public class Cryptogram extends Activity {
      * Set the current image preview with a uri
      * @param u the image's MediaStore uri
      */
-    private void setImagePreview(Uri u){
+    private boolean setImagePreview(Uri u){
     	try{
 	    	Bitmap temp = MediaStore.Images.Media.getBitmap(getContentResolver(), u);
-	    	int width = imagePreview.getWidth();
-	    	imagePreview.setImageBitmap(
-	    			Bitmap.createScaledBitmap(temp, width, (int)(temp.getHeight()*((double)(width)/temp.getWidth())), true)   			
-	    	);
+	    	setImagePreview(temp);
+	    	return true;
     	}
     	catch ( Exception e ){
     		imagePreview.setImageDrawable(noImageSelected);
+    		return false;
     	}
     }
     
@@ -433,15 +439,11 @@ public class Cryptogram extends Activity {
      * @param b
      */
     private void setImagePreview(Bitmap temp){
-    	int width = imagePreview.getWidth();
+    	int height = imagePreview.getHeight();
     	imagePreview.setImageBitmap(
-    			Bitmap.createScaledBitmap(temp, width, (int)(temp.getHeight()*((double)(width)/temp.getWidth())), true)   			
+    			Bitmap.createScaledBitmap(temp, (int)(temp.getWidth()*((double)(height)/temp.getHeight())), height, true)   			
     	);
     }
-    
-    
-    
-    
     
     /**
      * Set globals by values stored in SharedPreferences, or to defaults
@@ -658,10 +660,8 @@ public class Cryptogram extends Activity {
 	   	// Just show the uri in a Toast for now, we'll do something with it later
 	   	//Toast.makeText(this, targetUri.toString(), Toast.LENGTH_SHORT).show();
 	
-	   		
 	   	try{
-		   	imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), targetUri);
-		   	imagePreview.setImageBitmap(imageBitmap);
+		   	if (!setImagePreview(targetUri)) throw new RuntimeException("Failed to load uri");
 		   	// We place this here because we only want to add valid uris to the list
 	    	dataUris.add(targetUri);
 	   	}
@@ -680,11 +680,7 @@ public class Cryptogram extends Activity {
     private void useImageFromCamera(){
     	try{
     		String path = getPreferences(MODE_PRIVATE).getString(TEMP_PHOTO_PATH_KEY, null);
-		   	imageBitmap = BitmapFactory.decodeFile(path);
-		   	if (imageBitmap == null){
-		   		throw new RuntimeException("File not found!");
-		   	}
-		   	imagePreview.setImageBitmap(imageBitmap);
+		   	if (!setImagePreview(path)) throw new RuntimeException("File not found");
 		   	// We place this here because we only want to add valid paths to the list
 		   	dataUris.add(path);
 	   	}
