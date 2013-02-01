@@ -29,10 +29,10 @@ cryptagram.cipher.aesthete.prototype.decrypt = function(newBase64, password) {
 
   this.logger.info("Decrypting Image");
 
-  this.logger.shout("DECRYPT_HASH_EMBED_CALC " + check + " " + hexHash);
+  this.logger.shout("DECRYPT_HASH_EMBED " + check);
 
   if (hexHash != check) {
-    this.logger.severe("DECRYPT_FAILED_HASH_EMBED_CALC " + check + " " + hash);
+    this.logger.severe("DECRYPT_FAILED_HASH_CALC " + hexHash);
     return;
   } else {
     this.logger.info("Checksum passed.");
@@ -48,7 +48,7 @@ cryptagram.cipher.aesthete.prototype.decrypt = function(newBase64, password) {
   try {
     decrypted = sjcl.decrypt(password, base64Decode);
   } catch(err) {
-    this.logger.severe("DECRYPT_FAILED " + hash + " " + err.toString());
+    this.logger.severe("DECRYPT_FAILED " + hexHash + " " + err.toString());
     return null;
   }
 
