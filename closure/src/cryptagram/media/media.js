@@ -20,7 +20,7 @@ cryptagram.media.prototype.getPhotoName = goog.abstractMethod;
 cryptagram.media.prototype.supportsAutodecrypt = false;
 
 cryptagram.media.prototype.loadContainer = function(URL) {
-  var images = this.getImages(URL);
+  var images = this.getImages(URL);  
   var container = new cryptagram.container.img(images[0]);
   return container;
 };
@@ -30,7 +30,7 @@ cryptagram.media.prototype.fixURL = function(URL) {
 };
 
 cryptagram.media.prototype.onReady = function(callback) {
-  callback(true);
+  callback();
 };
 
 cryptagram.media.prototype.getImages = function(opt_URL) {

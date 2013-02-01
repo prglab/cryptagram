@@ -26,8 +26,6 @@ var content_;
  */
 cryptagram.content = function() {
 
-  //localStorage['user_study'] = true;
-
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
 
@@ -93,10 +91,8 @@ cryptagram.content.prototype.handleRequest =
     this.logger.info('Autodecrypting.');
 
     this.lastAutoDecrypt = request['autoDecrypt'];
-    this.media.onReady(function(ready) {
-      if (ready) {
-        self.autoDecrypt(request['autoDecrypt']);
-      }
+    this.media.onReady(function() {
+      self.autoDecrypt(request['autoDecrypt']);
     });
   }
 
@@ -113,11 +109,7 @@ cryptagram.content.prototype.handleRequest =
       return;
     }
 
-    this.media.onReady(function(ready) {
-      if (!ready) {
-        self.logger.info('Trying generic web media.');
-        self.media = new cryptagram.media.web();
-      }
+    this.media.onReady(function() {
       self.getPassword(URL);
     });
   }
@@ -131,10 +123,6 @@ cryptagram.content.prototype.setStatus = function(message) {
 
 cryptagram.content.prototype.decryptImage = function(image, password, queue) {
 
-  if (image.previousSrc != null) {
-    this.logger.info("URL already decrypted: " + image.previousSrc);
-    return;
-  }
   var container = this.media.loadContainer(image.src);
 
   var self = this;
@@ -284,6 +272,12 @@ cryptagram.content.prototype.getPassword = function(URL) {
 
   var self = this;
   var dialog = new goog.ui.Dialog(null, false);
+  
+  // Check if we're in image mode, in which case the CSS
+  // hack is necessary.
+  if (this.media.cssHack) {
+    this.media.cssHack(dialog);
+  }
 
   dialog.setContent(cryptagram.templates.passwordDialog({'URL':URL}));
   dialog.setTitle('Cryptagram');

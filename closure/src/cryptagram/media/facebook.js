@@ -13,15 +13,12 @@ goog.require('goog.debug.Logger');
  * @extends {cryptagram.media.social}
  */
 cryptagram.media.facebook = function() {
-  this.webMode = false;  
-  this.albumRegex=new RegExp(/^https?:\/\/www.facebook.com\/media\/set\/\?set=a\.[0-9]*\.[0-9]*\.[0-9]*/);
-  this.photoRegex=new RegExp(/^https?:\/\/www.facebook.com\/photo.php/);
+  this.ready = false;
   cryptagram.media.social.call(this);
 };
 goog.inherits(cryptagram.media.facebook, cryptagram.media.social);
 
 cryptagram.media.facebook.prototype.logger = goog.debug.Logger.getLogger('cryptagram.media.facebook');
-
 
 /**
  * Enum for possible Facebook states
@@ -46,21 +43,31 @@ cryptagram.media.facebook.prototype.name = function() {
 cryptagram.media.facebook.prototype.matchesURL = function(URL) {
   var regex=new RegExp(/^https?:\/\/www.facebook.com/);
   if (regex.test(URL)) {
-    
-    this.state = cryptagram.media.facebook.state.OTHER;
-
-    if (this.albumRegex.test(URL)) {
-      this.state = cryptagram.media.facebook.state.ALBUM;
-    }
-    
-    if (this.photoRegex.test(URL)) {
-      this.state = cryptagram.media.facebook.state.PHOTO;
-    }
-    
+    this.determineState(URL);
     return true;  
   }
   return false;
-}
+};
+
+cryptagram.media.facebook.prototype.determineState = function(URL) {
+  var albumRegex=new RegExp(/^https?:\/\/www.facebook.com\/media\/set\/\?set=a\.[0-9]*\.[0-9]*\.[0-9]*/);
+  var photoRegex=new RegExp(/^https?:\/\/www.facebook.com\/photo.php/);
+ 
+  this.state = cryptagram.media.facebook.state.OTHER;
+  this.ready = true;
+  
+  if (albumRegex.test(URL)) {
+      this.state = cryptagram.media.facebook.state.ALBUM;
+      this.supportsAutodecrypt = true;
+  }
+    
+  if (photoRegex.test(URL)) {
+    this.state = cryptagram.media.facebook.state.PHOTO;
+    this.ready = false;
+    this.supportsAutodecrypt = true;
+  }
+};
+
 
 /** @inheritDoc */
 cryptagram.media.facebook.prototype.loadContainer = function(URL) {
@@ -76,9 +83,7 @@ cryptagram.media.facebook.prototype.loadContainer = function(URL) {
 /** @inheritDoc */
 cryptagram.media.facebook.prototype.getImages = function(opt_URL) {
 
-
   if (this.state == cryptagram.media.facebook.state.OTHER) {
-    this.logger.info("Using generic getImages");
     return goog.base(this, 'getImages', opt_URL);
   }
 
@@ -89,12 +94,20 @@ cryptagram.media.facebook.prototype.getImages = function(opt_URL) {
     images = goog.dom.getElementsByClass('spotlight');
   } else if (this.state == cryptagram.media.facebook.state.PHOTO) {
     images = goog.dom.getElementsByClass('fbPhotoImage');
+    
+  // Album Mode
   } else {
 
     var thumbs = goog.dom.getElementsByClass('uiMediaThumbImg');
 
     for (var i = 0; i < thumbs.length; i++) {
       var testURL = thumbs[i].style.backgroundImage;
+      
+      // Skip anything already decoded
+      if (testURL.indexOf('url(data:') == 0) {
+        continue;
+      }
+      
       testURL = testURL.substr(4,testURL.length - 5);
       var ajaxNode = thumbs[i].parentNode.parentNode;
 
@@ -131,11 +144,6 @@ cryptagram.media.facebook.prototype.getImages = function(opt_URL) {
 
 
 cryptagram.media.facebook.prototype.parseMedia = function() {
-
-  if (this.state == cryptagram.media.facebook.state.ALBUM ||
-      this.state == cryptagram.media.facebook.state.OTHER) {
-    return true;    
-  }
 
   this.actions = null;
   this.fullURL = null;
@@ -193,10 +201,13 @@ cryptagram.media.facebook.prototype.parseMedia = function() {
 
 
 cryptagram.media.facebook.prototype.checkIfReady = function(callback) {
+  
+  // Need to check every time
+  this.determineState(document.URL);
 
-  if (this.parseMedia()) {
+  if (this.ready || this.parseMedia()) {
     this.logger.shout("FACEBOOK_MODE " + this.state);
-    callback(true);
+    callback();
     return;
   }
 
@@ -207,14 +218,12 @@ cryptagram.media.facebook.prototype.checkIfReady = function(callback) {
     setTimeout(function() { self.checkIfReady(callback); }, self.delay);
   }  else {
     this.logger.info("Facebook failed.");
-    callback(false);
   }
 };
 
 
 /** @inheritDoc */
 cryptagram.media.facebook.prototype.onReady = function(callback) {
-
   this.tries = 0;
   this.maxTries = 5;
   this.delay = 250;
