@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,11 +17,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.provider.MediaStore.MediaColumns;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -32,17 +29,22 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -66,6 +68,9 @@ public class Cryptogram extends Activity {
 	/** The folder into which to export the generated images */
 	private String EXPORT_FOLDER_PATH = Environment.getExternalStorageDirectory().getPath()+"/Cryptogram";
 	
+	private int THUMBNAIL_HEIGHT = 75;
+	private int PREVIEW_HEIGHT = 200;
+	
 	/** The fewest number of characters acceptable in the password */
 	public final int MIN_PASSWORD_LENGTH = 8;
 	
@@ -73,7 +78,8 @@ public class Cryptogram extends Activity {
 	
 	private final String TEMP_PHOTO_PATH_KEY = "tmp_file_path";
 	
-	private ArrayList<String> dataUris;
+	/** The list of pictures the user has selected. May be String paths or Uri resources ids */
+	private ArrayList<Object> dataUris;
 	
 
 	
@@ -115,13 +121,13 @@ public class Cryptogram extends Activity {
 		        }
 		        
 		        else if ( func.equalsIgnoreCase("setHash")){
-		        	Toast.makeText(context, "Got Hash" + parameter, Toast.LENGTH_SHORT).show();
+		        	Toast.makeText(context, "Got sjcl hash", Toast.LENGTH_SHORT).show();
 		        	dataAccessor.setHash(parameter);
 		        }
 		        		
 		        
 		        else if ( func.equalsIgnoreCase("setDone") ) {
-		        	Toast.makeText(getApplicationContext(), "Done sending!", Toast.LENGTH_SHORT).show();
+		        	Toast.makeText(getApplicationContext(), "Done sjcl encryption", Toast.LENGTH_SHORT).show();
 		        	dataAccessor.setDone();
 		        	
 		        } else {
@@ -178,7 +184,7 @@ public class Cryptogram extends Activity {
 		}
 		
 		public synchronized void setCt(String jsCt){
-			Toast.makeText(context, jsCt, Toast.LENGTH_SHORT).show();
+			//Toast.makeText(context, jsCt, Toast.LENGTH_SHORT).show();
 			ct = jsCt;
 		}
 		
@@ -260,6 +266,8 @@ public class Cryptogram extends Activity {
 	Button buttonSelectPhoto;
 	Button buttonUploadPhoto;
 	
+	ListView selectedImagesView;
+	
 	ImageView imagePreview;
 	WebView jsExecutionView;
 	
@@ -275,6 +283,11 @@ public class Cryptogram extends Activity {
 	
 	int targetWidth, targetHeight;
 	
+	Drawable noImageSelected;
+	
+	/**
+	 * Initialize the activity
+	 */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -291,9 +304,151 @@ public class Cryptogram extends Activity {
         
         initializePreferences();
         
+        
+        selectedImagesView = (ListView) findViewById(R.id.selected_images_list);
+        
+        dataUris = new ArrayList<Object>();
+        
+        noImageSelected = getResources().getDrawable(R.drawable.no_image_selected);
+        
         context = this;
     }
+
+    /**
+     * Reload the list adapter containing all the user-selected images
+     */
+    private void refreshImageList(){
+    	selectedImagesView.setAdapter(
+        		
+        		/**
+        		 * Array adapter that fills the list of selected images with thumbnails and their image names
+        		 */
+        		new ArrayAdapter<Object>(this, R.id.selected_images_list, dataUris.toArray()){
+        			@Override
+    			    public View getView(int position, View convertView, ViewGroup parent) {
+    			    	View v = convertView;
+    			    	if (v == null) {
+    			            LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    			            v = vi.inflate(R.layout.selected_item, null);
+    			        }
+    			    	if (v != null) {
+    			                TextView nameView = (TextView) v.findViewById(R.id.list_text);
+    			                ImageView thumbnailView = (ImageView) v.findViewById(R.id.list_thumbnail);
+    			                Object o = getItem(position);
+    			                nameView.setText(o.toString());
+    			                if (thumbnailView.getDrawable() == null){
+	    			                if (o instanceof String){
+	    			                	thumbnailView.setImageBitmap(getThumbnail((String) o));
+	    			                }
+	    			                else if (o instanceof Uri){  			                	
+	    			                	thumbnailView.setImageBitmap(getThumbnail((Uri) o));
+	    			                }
+    			                }
+    			        
+    			    	}else{
+    			        	Log.d(DEBUG_TAG, "Failed to inflate ListView item view!");
+    			    	}
+    			        return v;
+    			    	
+    			    }
+        		}
+        		
+        );
+    }
     
+    /**
+     * Open an image file and return a small thumbnail of it
+     * @param filepath the absolute path to the file
+     * @return the thumbnail
+     */
+    private Bitmap getThumbnail(String filepath){
+    	try{
+    		Bitmap temp = BitmapFactory.decodeFile(filepath);
+    		return scaleThumbnail(temp);
+    		
+    	}
+    	catch(Exception e){
+    		return null;
+    	}
+    }
+    
+    /**
+     * Open an image uri and return a small thumbnail of it
+     * @param u the MediaStore Uri for the image
+     * @return the thumbnail
+     */
+    private Bitmap getThumbnail(Uri u){
+    	try{
+    		Bitmap temp = MediaStore.Images.Media.getBitmap(getContentResolver(), u);
+    		return scaleThumbnail(temp);
+    	}
+    	catch (Exception e){
+    		return null;
+    	}
+    }
+    
+    /**
+     * Scale a given image to thumbnail size
+     * @param temp
+     */
+    private Bitmap scaleThumbnail(Bitmap temp){
+    	return Bitmap.createScaledBitmap(temp, (int)(temp.getWidth()*(((double)THUMBNAIL_HEIGHT)/temp.getHeight())),
+				THUMBNAIL_HEIGHT , true);
+    }
+    
+    
+    /**
+     * Set the current image preview with a file
+     * @param filepath the path to the file
+     */
+    private boolean setImagePreview(String filepath){
+
+    	try{
+	    	Bitmap temp = BitmapFactory.decodeFile(filepath);
+	    	if (temp == null) throw new Exception("we need an image, yo");
+	    	setImagePreview(temp);
+	    	return true;
+    	}
+    	catch ( Exception e ){
+    		imagePreview.setImageDrawable(noImageSelected);
+    		return false;
+    	}
+    }
+    
+    /**
+     * Set the current image preview with a uri
+     * @param u the image's MediaStore uri
+     */
+    private boolean setImagePreview(Uri u){
+    	try{
+	    	Bitmap temp = MediaStore.Images.Media.getBitmap(getContentResolver(), u);
+	    	setImagePreview(temp);
+	    	return true;
+    	}
+    	catch ( Exception e ){
+    		imagePreview.setImageDrawable(noImageSelected);
+    		return false;
+    	}
+    }
+    
+    
+    /**
+     * Set the image preview with a given Bitmap
+     * @param b
+     */
+    private void setImagePreview(Bitmap temp){
+    	int height = PREVIEW_HEIGHT;
+    	imagePreview.setImageBitmap(
+    			Bitmap.createScaledBitmap(temp, (int)(temp.getWidth()*((double)(height)/temp.getHeight())), height, true)   			
+    	);
+    	//TODO: Disable this when we do batch by uri/filenames, they'll get read from files on demand, and this
+    	// just will waste memory
+    	imageBitmap = temp;
+    }
+    
+    /**
+     * Set globals by values stored in SharedPreferences, or to defaults
+     */
     void initializePreferences(){
     	SharedPreferences s = getPreferences(MODE_PRIVATE);
     	EXPORT_FOLDER_PATH  = s.getString(getString(R.string.folder_path_key), EXPORT_FOLDER_PATH);
@@ -422,7 +577,7 @@ public class Cryptogram extends Activity {
     	try{
 			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 			
-			Toast.makeText(this, "Width: " + imageBitmap.getWidth() + " Height: " + imageBitmap.getHeight(), Toast.LENGTH_SHORT).show();
+			//Toast.makeText(this, "Width: " + imageBitmap.getWidth() + " Height: " + imageBitmap.getHeight(), Toast.LENGTH_SHORT).show();
 			
 			//Make sure we don't crash the app with huge images: resize to something reasonable
 			if (imageBitmap.getWidth() > MAX_IMAGE_WIDTH){
@@ -430,7 +585,8 @@ public class Cryptogram extends Activity {
 				imageBitmap = Bitmap.createScaledBitmap(imageBitmap, MAX_IMAGE_WIDTH, (int)(MAX_IMAGE_WIDTH*(((double)imageBitmap.getHeight())/imageBitmap.getWidth())), true);
 			}
 			
-			Toast.makeText(this, "Width: " + imageBitmap.getWidth() + " Height: " + imageBitmap.getHeight(), Toast.LENGTH_SHORT).show();
+			// Debug outputted width
+			Toast.makeText(this, "Resized Width: " + imageBitmap.getWidth() + " Height: " + imageBitmap.getHeight(), Toast.LENGTH_SHORT).show();
 			
 			if (imageBitmap.getHeight() > MAX_IMAGE_HEIGHT){
 				//Resize the bitmap
@@ -472,7 +628,7 @@ public class Cryptogram extends Activity {
 			
 			@Override
 			public boolean onConsoleMessage(ConsoleMessage consoleMessage){
-				Toast.makeText(context, consoleMessage.message() + ":" + Integer.toString(consoleMessage.lineNumber()), Toast.LENGTH_SHORT).show();
+				//Toast.makeText(context, consoleMessage.message() + ":" + Integer.toString(consoleMessage.lineNumber()), Toast.LENGTH_SHORT).show();
 				
 				return true;
 			}
@@ -502,13 +658,14 @@ public class Cryptogram extends Activity {
      */
     private void useImageFromGallery(Intent data){
     	Uri targetUri = data.getData();
+
 	   	// Just show the uri in a Toast for now, we'll do something with it later
 	   	//Toast.makeText(this, targetUri.toString(), Toast.LENGTH_SHORT).show();
 	
-	   		
 	   	try{
-		   	imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), targetUri);
-		   	imagePreview.setImageBitmap(imageBitmap);
+		   	if (!setImagePreview(targetUri)) throw new RuntimeException("Failed to load uri");
+		   	// We place this here because we only want to add valid uris to the list
+	    	dataUris.add(targetUri);
 	   	}
 	   	catch(Exception e){
 	   		Toast.makeText(this, getString(R.string.file_location_failed), Toast.LENGTH_SHORT).show();
@@ -525,11 +682,9 @@ public class Cryptogram extends Activity {
     private void useImageFromCamera(){
     	try{
     		String path = getPreferences(MODE_PRIVATE).getString(TEMP_PHOTO_PATH_KEY, null);
-		   	imageBitmap = BitmapFactory.decodeFile(path);
-		   	if (imageBitmap == null){
-		   		throw new RuntimeException("File not found!");
-		   	}
-		   	imagePreview.setImageBitmap(imageBitmap);
+		   	if (!setImagePreview(path)) throw new RuntimeException("File not found");
+		   	// We place this here because we only want to add valid paths to the list
+		   	dataUris.add(path);
 	   	}
 	   	catch(Exception e){
 	   		Toast.makeText(this, getString(R.string.file_location_failed) + " " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -544,6 +699,8 @@ public class Cryptogram extends Activity {
     	
     	// 
     	base64String = base64String.replace(' ', '+');
+    	/* Hash is now calculated in ImageEncoder. Spaces must first be trimmed
+    	 * Disabled. This part probably needs to be removed, keeping for future debugging just in case
     	try {
 			String checksum = ImageEncoder.computeHash(base64String);
 			if (!checksum.equals(dataAccessor.getHash())){
@@ -562,20 +719,24 @@ public class Cryptogram extends Activity {
 		catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException("Can't encode sha-256!!");
 			
-		}
+		}*/
     	
     	
     	Bitmap encodedBitmap = ImageEncoder.encodeBase64(base64String, dataAccessor.getHash(), HEADER, targetWidth/(double)targetHeight);
 
-		imagePreview.setImageBitmap(encodedBitmap);
+    	// Show just a preview
+		//imagePreview.setImageBitmap(encodedBitmap);
+    	if (encodedBitmap != null)
+    		setImagePreview(encodedBitmap);
 		
 		Toast.makeText(this, "Exporting image to gallery", Toast.LENGTH_SHORT).show();
 		
-		String filename = String.valueOf(System.currentTimeMillis());
+		/** this is no longer necessary, as we're exporting to user-defined folder
 		ContentValues values = new ContentValues();
 		values.put(MediaColumns.TITLE, filename);
 		values.put(MediaColumns.DATE_ADDED, System.currentTimeMillis());
 		values.put(MediaColumns.MIME_TYPE, "image/jpeg");
+		*/
 		
 		//Uri uri = context.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 		// We'll write to files now
@@ -639,6 +800,8 @@ public class Cryptogram extends Activity {
 	    	 		useImageFromCamera();
 	    	 		break;
 	    	 }
+	    	 
+	    	 refreshImageList();
 	    	 	      
 	     }
 	     
