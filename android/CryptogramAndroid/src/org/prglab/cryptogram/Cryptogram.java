@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,11 +17,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.provider.MediaStore.MediaColumns;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -72,6 +69,7 @@ public class Cryptogram extends Activity {
 	private String EXPORT_FOLDER_PATH = Environment.getExternalStorageDirectory().getPath()+"/Cryptogram";
 	
 	private int THUMBNAIL_HEIGHT = 75;
+	private int PREVIEW_HEIGHT = 200;
 	
 	/** The fewest number of characters acceptable in the password */
 	public final int MIN_PASSWORD_LENGTH = 8;
@@ -123,13 +121,13 @@ public class Cryptogram extends Activity {
 		        }
 		        
 		        else if ( func.equalsIgnoreCase("setHash")){
-		        	Toast.makeText(context, "Got Hash" + parameter, Toast.LENGTH_SHORT).show();
+		        	Toast.makeText(context, "Got sjcl hash", Toast.LENGTH_SHORT).show();
 		        	dataAccessor.setHash(parameter);
 		        }
 		        		
 		        
 		        else if ( func.equalsIgnoreCase("setDone") ) {
-		        	Toast.makeText(getApplicationContext(), "Done sending!", Toast.LENGTH_SHORT).show();
+		        	Toast.makeText(getApplicationContext(), "Done sjcl encryption", Toast.LENGTH_SHORT).show();
 		        	dataAccessor.setDone();
 		        	
 		        } else {
@@ -186,7 +184,7 @@ public class Cryptogram extends Activity {
 		}
 		
 		public synchronized void setCt(String jsCt){
-			Toast.makeText(context, jsCt, Toast.LENGTH_SHORT).show();
+			//Toast.makeText(context, jsCt, Toast.LENGTH_SHORT).show();
 			ct = jsCt;
 		}
 		
@@ -439,10 +437,13 @@ public class Cryptogram extends Activity {
      * @param b
      */
     private void setImagePreview(Bitmap temp){
-    	int height = imagePreview.getHeight();
+    	int height = PREVIEW_HEIGHT;
     	imagePreview.setImageBitmap(
     			Bitmap.createScaledBitmap(temp, (int)(temp.getWidth()*((double)(height)/temp.getHeight())), height, true)   			
     	);
+    	//TODO: Disable this when we do batch by uri/filenames, they'll get read from files on demand, and this
+    	// just will waste memory
+    	imageBitmap = temp;
     }
     
     /**
@@ -576,7 +577,7 @@ public class Cryptogram extends Activity {
     	try{
 			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 			
-			Toast.makeText(this, "Width: " + imageBitmap.getWidth() + " Height: " + imageBitmap.getHeight(), Toast.LENGTH_SHORT).show();
+			//Toast.makeText(this, "Width: " + imageBitmap.getWidth() + " Height: " + imageBitmap.getHeight(), Toast.LENGTH_SHORT).show();
 			
 			//Make sure we don't crash the app with huge images: resize to something reasonable
 			if (imageBitmap.getWidth() > MAX_IMAGE_WIDTH){
@@ -584,7 +585,8 @@ public class Cryptogram extends Activity {
 				imageBitmap = Bitmap.createScaledBitmap(imageBitmap, MAX_IMAGE_WIDTH, (int)(MAX_IMAGE_WIDTH*(((double)imageBitmap.getHeight())/imageBitmap.getWidth())), true);
 			}
 			
-			Toast.makeText(this, "Width: " + imageBitmap.getWidth() + " Height: " + imageBitmap.getHeight(), Toast.LENGTH_SHORT).show();
+			// Debug outputted width
+			Toast.makeText(this, "Resized Width: " + imageBitmap.getWidth() + " Height: " + imageBitmap.getHeight(), Toast.LENGTH_SHORT).show();
 			
 			if (imageBitmap.getHeight() > MAX_IMAGE_HEIGHT){
 				//Resize the bitmap
@@ -626,7 +628,7 @@ public class Cryptogram extends Activity {
 			
 			@Override
 			public boolean onConsoleMessage(ConsoleMessage consoleMessage){
-				Toast.makeText(context, consoleMessage.message() + ":" + Integer.toString(consoleMessage.lineNumber()), Toast.LENGTH_SHORT).show();
+				//Toast.makeText(context, consoleMessage.message() + ":" + Integer.toString(consoleMessage.lineNumber()), Toast.LENGTH_SHORT).show();
 				
 				return true;
 			}
@@ -697,6 +699,8 @@ public class Cryptogram extends Activity {
     	
     	// 
     	base64String = base64String.replace(' ', '+');
+    	/* Hash is now calculated in ImageEncoder. Spaces must first be trimmed
+    	 * Disabled. This part probably needs to be removed, keeping for future debugging just in case
     	try {
 			String checksum = ImageEncoder.computeHash(base64String);
 			if (!checksum.equals(dataAccessor.getHash())){
@@ -715,20 +719,24 @@ public class Cryptogram extends Activity {
 		catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException("Can't encode sha-256!!");
 			
-		}
+		}*/
     	
     	
     	Bitmap encodedBitmap = ImageEncoder.encodeBase64(base64String, dataAccessor.getHash(), HEADER, targetWidth/(double)targetHeight);
 
-		imagePreview.setImageBitmap(encodedBitmap);
+    	// Show just a preview
+		//imagePreview.setImageBitmap(encodedBitmap);
+    	if (encodedBitmap != null)
+    		setImagePreview(encodedBitmap);
 		
 		Toast.makeText(this, "Exporting image to gallery", Toast.LENGTH_SHORT).show();
 		
-		String filename = String.valueOf(System.currentTimeMillis());
+		/** this is no longer necessary, as we're exporting to user-defined folder
 		ContentValues values = new ContentValues();
 		values.put(MediaColumns.TITLE, filename);
 		values.put(MediaColumns.DATE_ADDED, System.currentTimeMillis());
 		values.put(MediaColumns.MIME_TYPE, "image/jpeg");
+		*/
 		
 		//Uri uri = context.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 		// We'll write to files now
