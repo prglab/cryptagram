@@ -30,20 +30,6 @@ cryptagram.media.social.prototype.getPhotoName = function() {
 };
 
 
-cryptagram.media.social.prototype.getImages = function(URL) {
-
-  var elements = document.getElementsByTagName('img');
-  var ret = new Array(); 
-    for (var i = 0; i < elements.length; i++) {
-      var testSrc = elements[i].src;
-      if (URL == null || testSrc == URL) {
-        ret.push(elements[i]);
-      }
-    }
-  return ret;
-};
-
-
 cryptagram.media.social.prototype.onReady = function(callback) {
   callback();
 };

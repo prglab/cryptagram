@@ -54,7 +54,7 @@ cryptagram.content = function() {
   this.lastAutoDecrypt = '';
   this.storage = new cryptagram.storage(this.media);
   var self = this;
-
+  
   chrome.extension.onMessage.addListener(function(request, sender, callback) {
     self.handleRequest(request, sender, callback);
     return true;
@@ -93,8 +93,10 @@ cryptagram.content.prototype.handleRequest =
     this.logger.info('Autodecrypting.');
 
     this.lastAutoDecrypt = request['autoDecrypt'];
-    this.media.onReady(function() {
-      self.autoDecrypt(request['autoDecrypt']);
+    this.media.onReady(function(ready) {
+      if (ready) {
+        self.autoDecrypt(request['autoDecrypt']);
+      }
     });
   }
 
@@ -111,7 +113,11 @@ cryptagram.content.prototype.handleRequest =
       return;
     }
 
-    this.media.onReady(function() {
+    this.media.onReady(function(ready) {
+      if (!ready) {
+        self.logger.info('Trying generic web media.');
+        self.media = new cryptagram.media.web();
+      }
       self.getPassword(URL);
     });
   }

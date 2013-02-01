@@ -13,6 +13,9 @@ goog.require('goog.debug.Logger');
  * @extends {cryptagram.media.social}
  */
 cryptagram.media.facebook = function() {
+  this.webMode = false;  
+  this.albumRegex=new RegExp(/^https?:\/\/www.facebook.com\/media\/set\/\?set=a\.[0-9]*\.[0-9]*\.[0-9]*/);
+  this.photoRegex=new RegExp(/^https?:\/\/www.facebook.com\/photo.php/);
   cryptagram.media.social.call(this);
 };
 goog.inherits(cryptagram.media.facebook, cryptagram.media.social);
@@ -28,6 +31,7 @@ cryptagram.media.facebook.state = {
   PHOTO:      'Photo',
   SPOTLIGHT:  'Spotlight',
   ALBUM:      'Album',
+  OTHER:      'Other',
   TIMELINE:   'Timeline'
 };
 
@@ -41,7 +45,21 @@ cryptagram.media.facebook.prototype.name = function() {
 /** @inheritDoc */
 cryptagram.media.facebook.prototype.matchesURL = function(URL) {
   var regex=new RegExp(/^https?:\/\/www.facebook.com/);
-  return regex.test(URL);
+  if (regex.test(URL)) {
+    
+    this.state = cryptagram.media.facebook.state.OTHER;
+
+    if (this.albumRegex.test(URL)) {
+      this.state = cryptagram.media.facebook.state.ALBUM;
+    }
+    
+    if (this.photoRegex.test(URL)) {
+      this.state = cryptagram.media.facebook.state.PHOTO;
+    }
+    
+    return true;  
+  }
+  return false;
 }
 
 /** @inheritDoc */
@@ -57,6 +75,12 @@ cryptagram.media.facebook.prototype.loadContainer = function(URL) {
 
 /** @inheritDoc */
 cryptagram.media.facebook.prototype.getImages = function(opt_URL) {
+
+
+  if (this.state == cryptagram.media.facebook.state.OTHER) {
+    this.logger.info("Using generic getImages");
+    return goog.base(this, 'getImages', opt_URL);
+  }
 
   var valid = [];
   var images = [];
@@ -108,16 +132,14 @@ cryptagram.media.facebook.prototype.getImages = function(opt_URL) {
 
 cryptagram.media.facebook.prototype.parseMedia = function() {
 
-  this.actions = null;
-  this.state = null;
-  this.fullURL = null;
-  var albumRegex=new RegExp(/^https?:\/\/www.facebook.com\/media\/set\/\?set=a\.[0-9]*\.[0-9]*\.[0-9]*/);
-  var URL = new goog.Uri(window.location);
-
-  if (albumRegex.test(URL)) {
-    this.state = cryptagram.media.facebook.state.ALBUM;
-    return true;
+  if (this.state == cryptagram.media.facebook.state.ALBUM ||
+      this.state == cryptagram.media.facebook.state.OTHER) {
+    return true;    
   }
+
+  this.actions = null;
+  this.fullURL = null;
+  var URL = new goog.Uri(window.location);
 
   var spotlight = document.getElementsByClassName('spotlight');
   if (goog.isDef(spotlight[0]) &&
@@ -174,7 +196,7 @@ cryptagram.media.facebook.prototype.checkIfReady = function(callback) {
 
   if (this.parseMedia()) {
     this.logger.shout("FACEBOOK_MODE " + this.state);
-    callback();
+    callback(true);
     return;
   }
 
@@ -185,6 +207,7 @@ cryptagram.media.facebook.prototype.checkIfReady = function(callback) {
     setTimeout(function() { self.checkIfReady(callback); }, self.delay);
   }  else {
     this.logger.info("Facebook failed.");
+    callback(false);
   }
 };
 

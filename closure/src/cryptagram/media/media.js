@@ -17,8 +17,6 @@ cryptagram.media.prototype.getAlbumName = goog.abstractMethod;
 
 cryptagram.media.prototype.getPhotoName = goog.abstractMethod;
 
-cryptagram.media.prototype.getImages = goog.abstractMethod;
-
 cryptagram.media.prototype.supportsAutodecrypt = false;
 
 cryptagram.media.prototype.loadContainer = function(URL) {
@@ -32,7 +30,22 @@ cryptagram.media.prototype.fixURL = function(URL) {
 };
 
 cryptagram.media.prototype.onReady = function(callback) {
-  callback();
+  callback(true);
+};
+
+cryptagram.media.prototype.getImages = function(opt_URL) {
+  var images = document.getElementsByTagName("img");
+  if (!opt_URL) {
+    return images;
+  } else {
+    var valid = [];
+    for (var i = 0; i < images.length; i++) {
+      if (opt_URL == images[i].src) {
+        valid.push(images[i]);
+      }
+    }
+    return valid;
+  }
 };
 
 cryptagram.media.prototype.containers = {};
