@@ -21,15 +21,39 @@ cryptagram.media.googleplus.prototype.logger = goog.debug.Logger.getLogger('cryp
  */
 cryptagram.media.googleplus.state = {
   PHOTO:      'Photo',
-  ALBUM:      'Album'
+  ALBUM:      'Album',
+  OTHER:      'Other'
 };
 
+cryptagram.media.googleplus.prototype.state = cryptagram.media.googleplus.state.OTHER;
 
 /** @inheritDoc */
 cryptagram.media.googleplus.prototype.matchesURL = function(URL) {
   var regex=new RegExp(/^https:\/\/plus.google.com/);
-  return regex.test(URL);
+  if (regex.test(URL)) {
+    this.determineState(URL);
+    return true;
+  }
+  return false;
 }
+
+
+cryptagram.media.googleplus.prototype.determineState = function(URL) {
+  var albumRegex=new RegExp(/^https:\/\/plus.google.com\/photos\/[0-9]*\/albums\/[0-9]+/);
+  var photoRegex=new RegExp(/^https:\/\/plus.google.com\/photos\/[0-9]*\/albums\/[0-9]*\/[0-9]+/);
+
+  this.state = cryptagram.media.facebook.state.OTHER;
+  
+  if (albumRegex.test(URL)) {
+    this.state = cryptagram.media.googleplus.state.ALBUM;
+    this.supportsAutodecrypt = true;
+  }
+
+  if (photoRegex.test(URL)) {
+    this.state = cryptagram.media.googleplus.state.PHOTO;
+    this.supportsAutodecrypt = true;
+  }  
+};
 
 
 /** @inheritDoc */
@@ -41,24 +65,12 @@ cryptagram.media.googleplus.prototype.name = function() {
 /** @inheritDoc */
 cryptagram.media.googleplus.prototype.parseMedia = function() {
 
-  var albumRegex=new RegExp(/^https:\/\/plus.google.com\/photos\/[0-9]*\/albums\/[0-9]+/);
-  var photoRegex=new RegExp(/^https:\/\/plus.google.com\/photos\/[0-9]*\/albums\/[0-9]*\/[0-9]+/);
-
-  var URL = new goog.Uri(window.location);
-  this.state = null;
-
-  if (albumRegex.test(URL)) {
-    this.state = cryptagram.media.googleplus.state.ALBUM;
-  }
-
-  if (photoRegex.test(URL)) {
-    this.state = cryptagram.media.googleplus.state.PHOTO;
+  if (this.state == cryptagram.media.googleplus.state.PHOTO) {
     var images = this.getImages();
     if (images.length == 0) {
       return false;
     }
   }
-
   return true;
 }
 
@@ -72,10 +84,29 @@ cryptagram.media.googleplus.prototype.onReady = function(callback) {
 }
 
 
+/** @inheritDoc */
+cryptagram.media.googleplus.prototype.loadContainer = function(URL) {
+  var images = this.getImages(URL);
+  
+  if (this.state == cryptagram.media.googleplus.state.PHOTO) {
+    for (var i = 0; i < images.length; i++) {
+      if (images[i].parentElement && images[i].parentElement.style.opacity == "1") {
+        return new cryptagram.container.img(images[i]);
+      }
+    }
+    return null;
+  }
+  return new cryptagram.container.img(images[0]);
+};
+
+
+
 cryptagram.media.googleplus.prototype.checkIfReady = function(callback) {
 
+  this.determineState(document.URL);
+
   if (this.parseMedia()) {
-    this.logger.shout("GPLUS_MODE" + this.state);
+    this.logger.shout("GPLUS_MODE " + this.state);
     callback();
     return;
   }
@@ -94,7 +125,7 @@ cryptagram.media.googleplus.prototype.checkIfReady = function(callback) {
 cryptagram.media.googleplus.prototype.getImages = function(opt_URL) {
   var images = document.getElementsByTagName('img');
   var valid = [];
-  var albumRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-a-zA-Z0-9]*\/[_\-a-zA-Z0-9]*\/[_\-a-zA-Z0-9]*\/[_\-a-zA-Z0-9]*\/[_\-a-zA-Z0-9]*\/[_\-a-zA-Z0-9\.]*/);
+  var albumRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/w[0-9]*\-h[0-9]*\-[np]\-k\/[_\-A-z0-9\.]*/);
 
   for (i = 0; i < images.length; i++) {
     if (opt_URL) {
@@ -104,10 +135,12 @@ cryptagram.media.googleplus.prototype.getImages = function(opt_URL) {
     } else {
 
       if (this.state == cryptagram.media.googleplus.state.ALBUM) {
-        if (albumRegex.test(images[i].src)) {
+        if (albumRegex.test(images[i].src)) {        
           valid.push(images[i]);
         }
       } else {
+        // Google+ puts the image in multiple img elements, possibly to speed up load times.
+        // Only the one with a parent div opacity=1 is visible.
         if (images[i].parentElement && images[i].parentElement.style.opacity == "1") {
           valid.push(images[i]);
         }
@@ -120,8 +153,8 @@ cryptagram.media.googleplus.prototype.getImages = function(opt_URL) {
 
 /** @inheritDoc */
 cryptagram.media.googleplus.prototype.getPhotoName = function(URL) {
-      var URLParts = URL.split("/");
-      return "g+_photo://" + URLParts[4];
+  var URLParts = URL.split("/");
+  return "g+_photo://" + URLParts[4];
 };
 
 
@@ -136,7 +169,6 @@ cryptagram.media.googleplus.prototype.getAlbumName = function(URL) {
 
 /** @inheritDoc */
 cryptagram.media.googleplus.prototype.fixURL = function(URL) {
-
   var parts = URL.split("/");
   parts[7] = "s0";
   return parts.join("/");

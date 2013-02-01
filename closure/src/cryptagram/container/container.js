@@ -39,7 +39,9 @@ cryptagram.container.prototype.createStatus = function() {
   this.div.style.font = "10px arial";
   this.div.style.textAlign = "center";
   this.div.style.borderRadius = "3px";
+  this.div.style.zIndex = 100;
 };
+
 
 cryptagram.container.prototype.remove = function() {
   this.div.parentNode.removeChild(this.div);
@@ -62,6 +64,7 @@ cryptagram.container.prototype.revertSrc = function() {
     this.img.src = this.previousSrc;
     this.previousSrc = null;
 };
+
 
 cryptagram.container.prototype.setStatus = function(status) {
   if (!status) {

@@ -15,8 +15,6 @@ cryptagram.media.social = function() {
 
 goog.inherits(cryptagram.media.social, cryptagram.media);
 
-cryptagram.media.social.prototype.supportsAutodecrypt = true;
-
 cryptagram.media.social.prototype.logger = goog.debug.Logger.getLogger('cryptagram.media.social');
 
 /** @inheritDoc */
