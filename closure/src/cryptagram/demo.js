@@ -240,7 +240,7 @@ cryptagram.demo.prototype.showProgress = function () {
       goog.dom.getElement('preview').removeChild(previousImage);
     }
     previousImage = event.image;
-    goog.dom.getElement('status').innerHTML = 'Encoding <b>' +
+    goog.dom.getElement('status').innerHTML = 'Encoding <b> ' +
       event.image.file + '</b>';
     goog.dom.getElement('preview').appendChild(event.image);
 
