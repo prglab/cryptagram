@@ -65,7 +65,7 @@ cryptagram.demo.prototype.showDemo = function () {
  * user study or not. If undefined, show the dialog.
  */
 cryptagram.demo.prototype.checkConsent = function() {
-  
+
   if (typeof localStorage['user_study'] != 'undefined') {
     if (localStorage['user_study'] == 'true') {
       this.remoteLog.setCapturing(true);
@@ -99,7 +99,7 @@ cryptagram.demo.prototype.showEncrypt = function () {
       var files = e.getBrowserEvent().dataTransfer.files;
       self.encryptFiles(files);
     });
-  
+
   // Check with a timeout so injected extension content has a
   // chance to set the localStorage variable (if installed).
   setTimeout(function() { self.checkConsent(); }, 500);
@@ -137,7 +137,7 @@ cryptagram.demo.prototype.showDecrypt = function () {
  * to the original.
  */
 cryptagram.demo.prototype.demoDecrypt = function (container, button, password) {
-  
+
   if (container.decrypted) {
     container.decrypted = false;
     button.value = 'Decrypt';
@@ -203,7 +203,7 @@ cryptagram.demo.prototype.showEncodeDialog = function () {
 
   goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function (e) {
     if (e.key == 'ok') {
-      
+
       var password = goog.dom.getElement('password').value;
       if (password == '') {
         return;
@@ -233,7 +233,7 @@ cryptagram.demo.prototype.showProgress = function () {
   self.imageCount = 0;
 
   goog.dom.getElement('left').innerHTML = cryptagram.templates.progress();
- 
+
   var previousImage;
   goog.events.listen(this.encoder, 'ENCODE_START', function (event) {
     if (previousImage) {
@@ -243,9 +243,9 @@ cryptagram.demo.prototype.showProgress = function () {
     goog.dom.getElement('status').innerHTML = 'Encoding <b>' +
       event.image.file + '</b>';
     goog.dom.getElement('preview').appendChild(event.image);
-   
+
   }, false, this);
-  
+
   goog.events.listen(this.encoder, 'IMAGE_DONE', function (event) {
     self.imageCount++;
     var frame = self.frames[event.image.file];
@@ -253,7 +253,7 @@ cryptagram.demo.prototype.showProgress = function () {
       frame.removeChild(frame.firstChild);
     }
     frame.appendChild(event.image);
-  
+
     var idx = event.image.src.indexOf(',');
     var dat = event.image.src.substring(idx + 1);
     var bin = window.atob(dat);
@@ -274,7 +274,8 @@ cryptagram.demo.prototype.showDownloadDialog = function () {
 
   var self = this;
   var dialog = new goog.ui.Dialog(null, false);
-  dialog.setContent(cryptagram.templates.downloadDialog({imageCount:self.imageCount, id:self.downloadifyId}));
+  dialog.setContent(cryptagram.templates.downloadDialog(
+    {imageCount:self.imageCount, id:self.downloadifyId}));
   dialog.setTitle('Cryptagram');
   dialog.setModal(false);
   dialog.setDisposeOnHide(true);
@@ -307,7 +308,7 @@ cryptagram.demo.prototype.showDownloadDialog = function () {
  * Shows the consent dialog.
  */
 cryptagram.demo.prototype.showConsentDialog = function () {
-  var self = this;    
+  var self = this;
 
   var dialog = new goog.ui.Dialog(null, false);
   dialog.setContent(cryptagram.templates.consentDialog());
@@ -318,10 +319,10 @@ cryptagram.demo.prototype.showConsentDialog = function () {
   bs.set('AGREE', 'I Agree', true);
   bs.set('DISAGREE', 'I Don\'t Agree', false, false);
   dialog.setButtonSet(bs);
-  
+
   dialog.setDisposeOnHide(true);
   self.dialog = dialog;
- 
+
   goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function (e) {
 
     if (e.key == 'AGREE') {
@@ -370,7 +371,7 @@ cryptagram.demo.prototype.showDecryptDialog = function () {
 
   goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function (e) {
     if (e.key == 'ok') {
-      
+
       var password = goog.dom.getElement('password').value;
       if (password == '') {
         return;
