@@ -290,6 +290,9 @@ cryptagram.demo.prototype.showDownloadDialog = function () {
     onError: function (){
       alert('Nothing to save.');
     },
+    onComplete: function() {
+      dialog.exitDocument();
+    },
     dataType: 'base64',
     swf: 'media/downloadify.swf',
     downloadImage: 'images/download.png',

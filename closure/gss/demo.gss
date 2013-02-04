@@ -67,7 +67,7 @@ a.title {
 #right {
   width: 170px;
   position: absolute;
-  left: 180px;
+  left: 190px;
   top: 44px;
 }
 
@@ -81,8 +81,9 @@ a.title {
 }
 
 #thumbs {
-  min-height: 50px;
-  width: 170px;
+  max-height: 170px;
+  width: 168px;
+  overflow-y: auto;
 }
 
 #thumbs .frame {
@@ -203,6 +204,8 @@ a.title {
 
 #status {
   margin-bottom: 5px;
+  width: 168px;
+  overflow: hidden;
 }
 
 #status b {
