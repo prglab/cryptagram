@@ -71,13 +71,17 @@ cryptagram.encoder.prototype.loadFile = function (file) {
   reader.onerror = cryptagram.encoder.show_error;
   reader.onload = function (e) {
     var image = new Image();
+
+    image.onload = function () {
+      image.file = self.files[0].name;
+      self.images.push(image);
+      self.files.splice(0,1);
+      self.dispatchEvent({type: 'IMAGE_LOADED',
+                          image: image,
+                          remaining: self.files.length});
+    }
+
     image.src = e.target.result;
-    image.file = self.files[0].name;
-    self.images.push(image);
-    self.files.splice(0,1);
-    self.dispatchEvent({type: 'IMAGE_LOADED',
-                        image: image,
-                        remaining: self.files.length});
   }
   reader.readAsDataURL(file);
 }
@@ -152,14 +156,20 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
   canvas.width = image.width;
   canvas.height = image.height;
   var context = canvas.getContext('2d');
+
+  console.log("image.width, image.height " + image.width + " " + image.height);
+
   context.drawImage(image, 0, 0, image.width, image.height);
+
+  var imageFilename = image.file;
 
   var jpegImg = new Image ();
   jpegImg.onload = function (event) {
+    jpegImg.file = imageFilename;
     var reducerOptions = {
       image: jpegImg,
       quality: self.quality,
-      maxSize :self.maxSize,
+      maxSize: self.maxSize,
       codec: self.codec
     };
     sizeReducer.startWithImage(reducerOptions);
