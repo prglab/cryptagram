@@ -146,6 +146,14 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
     true,
     this);
 
+  // Provide the canvas on which to draw the image so that we can requality the
+  // image appropriately.
+  var canvas = document.createElement('canvas');
+  canvas.width = image.width;
+  canvas.height = image.height;
+  var context = canvas.getContext('2d');
+  context.drawImage(image, 0, 0, image.width, image.height);
+
   var jpegImg = new Image ();
   jpegImg.onload = function (event) {
     var reducerOptions = {
@@ -156,7 +164,11 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
     };
     sizeReducer.startWithImage(reducerOptions);
   };
-  jpegImg.src = image.toDataURL('image/jpeg', 0.90);
+
+  // TODO(tierney): Remove magic number and make it possible for the model
+  // function that we use in the resizing to be associated with the chosen
+  // quality here.
+  jpegImg.src = canvas.toDataURL('image/jpeg', 0.90);
 };
 
 // Expects an image (where .src is a data URL) and will embed without any
