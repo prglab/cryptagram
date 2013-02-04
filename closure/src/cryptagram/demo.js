@@ -390,5 +390,7 @@ cryptagram.demo.prototype.showDecryptDialog = function () {
 
 
 goog.exportSymbol('cryptagram.demo', cryptagram.demo);
-goog.exportSymbol('cryptagram.demo.prototype.showDecrypt', cryptagram.demo.prototype.showDecrypt);
-goog.exportSymbol('cryptagram.demo.prototype.showEncrypt', cryptagram.demo.prototype.showEncrypt);
+goog.exportSymbol('cryptagram.demo.prototype.showDecrypt',
+                  cryptagram.demo.prototype.showDecrypt);
+goog.exportSymbol('cryptagram.demo.prototype.showEncrypt',
+                  cryptagram.demo.prototype.showEncrypt);
