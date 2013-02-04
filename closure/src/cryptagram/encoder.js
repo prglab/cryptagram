@@ -142,7 +142,7 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
     'SIZE_REDUCER_DONE',
     function (event) {
       this.logger.info("Image len:" + event.image.src.length);
-      var est = self.codec.dimensions(image.width / image.height,
+      var est = self.codec.dimensions(image.naturalWidth / image.naturalHeight,
                                       event.image.src.length);
       this.logger.info("Image est:" + est.width + " " + est.height);
       self.encodeImage(event.image);
@@ -153,13 +153,11 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
   // Provide the canvas on which to draw the image so that we can requality the
   // image appropriately.
   var canvas = document.createElement('canvas');
-  canvas.width = image.width;
-  canvas.height = image.height;
+  canvas.width = image.naturalWidth;
+  canvas.height = image.naturalHeight;
   var context = canvas.getContext('2d');
 
-  console.log("image.width, image.height " + image.width + " " + image.height);
-
-  context.drawImage(image, 0, 0, image.width, image.height);
+  context.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight);
 
   var imageFilename = image.file;
 
