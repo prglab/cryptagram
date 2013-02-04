@@ -158,9 +158,9 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
   jpegImg.onload = function (event) {
     var reducerOptions = {
       image: jpegImg,
-      quality: this.quality,
-      maxSize :this.maxSize,
-      codec: this.codec
+      quality: self.quality,
+      maxSize :self.maxSize,
+      codec: self.codec
     };
     sizeReducer.startWithImage(reducerOptions);
   };
