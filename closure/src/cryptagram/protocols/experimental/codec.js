@@ -266,6 +266,18 @@ cryptagram.codec.experimental.prototype.getErrorCount = function() {
 }
 
 
+cryptagram.codec.experimental.prototype.setDecodeParams = function(img, imageData) {
+  this.count = 0;
+  this.headerSize = this.blockSize * 4;
+  this.chunkSize = 10;
+  this.y = 0;
+  this.img = img;
+  this.imageData = imageData;
+  this.decodeData = '';
+  this.newOctal = [];
+};
+
+
 cryptagram.codec.experimental.prototype.getChunk = function() {
 
   var newBase64 = "";
