@@ -1,5 +1,6 @@
 goog.provide('cryptagram.extension');
 
+goog.require('cryptagram.RemoteLog');
 goog.require('goog.dom');
 goog.require('goog.net.XhrIo');
 
@@ -16,6 +17,7 @@ cryptagram.extension.encoderURL = 'http://cryptagr.am';
 cryptagram.extension.lastCheck = '';
 
 cryptagram.extension.onInstall =  function() {
+  cryptagram.RemoteLog.simpleLog('INSTALL_CONSENT');
   chrome.tabs.create({
     url: 'welcome.html'
   });
@@ -26,6 +28,7 @@ cryptagram.extension.onUpdate = function() {
   // If this is an update and the user already agreed to the user study, we do
   // not ask for consent. Otherwise, we do.
   if (localStorage['user_study'] == 'false') {
+    cryptagram.RemoteLog.simpleLog('UPDATE_CONSENT');
     chrome.tabs.create({
       url: 'welcome.html'
     });
@@ -118,7 +121,6 @@ cryptagram.extension.showEncoder = function() {
 cryptagram.extension.getClickHandler = function() {
 
   return function(info, tab) {
-
     chrome.tabs.getSelected(null, function(tab) {
       chrome.tabs.sendMessage(tab.id, {'decryptURL':info['srcUrl'], 'storage': localStorage}, function(response) {
         if (response['outcome'] == 'success') {
