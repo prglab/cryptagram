@@ -352,6 +352,7 @@ cryptagram.demo.prototype.showConsentDialog = function () {
     }
   }, false, this);
 
+  cryptagram.RemoteLog.simpleLog('ENCODER_CONSENT');
   dialog.setVisible(true);
 };
 

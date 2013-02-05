@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', function () {
           if (tabParts[0] == "chrome-extension:" && tabParts[2] == popupParts[2]) {
             return;
           }
+          
+          page.cryptagram.RemoteLog.simpleLog('POPUP_CONSENT');
           chrome.tabs.create({
             url: 'welcome.html'
           });

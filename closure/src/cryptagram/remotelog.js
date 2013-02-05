@@ -147,6 +147,18 @@ cryptagram.RemoteLog.show = function() {
 
 
 /**
+ * Static method for posting simple messages without creating a logger
+ * instance. A datestamp is appended to make sure the URL is unique, and
+ * thus not cached.
+ */
+cryptagram.RemoteLog.simpleLog = function(record) {
+  var d = new Date();
+  var message = record + " " + d.getTime();
+  cryptagram.RemoteLog.logToRemoteLog_(cryptagram.RemoteLog.host_, 'info', message);
+};
+
+
+/**
  * Logs the record to the remote log using the given function.  If the function
  * is not available on the remote log object, the log function is used instead.
  * @param {string} remote log The remote log host .
