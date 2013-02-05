@@ -186,6 +186,10 @@ a.title {
   margin-left: 80px;
 }
 
+.downloadify {
+  text-align: right;
+}
+
 .status {
   position: absolute;
   width: 50px;
@@ -204,7 +208,7 @@ a.title {
 
 #status {
   margin-bottom: 5px;
-  width: 168px;
+  width: 160px;
   overflow: hidden;
 }
 

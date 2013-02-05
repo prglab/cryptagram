@@ -68,6 +68,7 @@ Settings<br>
 <p>Max Output Size<br>
 <select id="maxSize">
   <option value="2048">2048x2048</option>
+  <option value="1024" selected>1024x1024</option>
   <option value="720">720x720</option>
 </select>
 </p>
@@ -132,10 +133,12 @@ If you do not consent, you can still use the software. Thank you!
 /**
  * @param imageCount
  * @param id
+ * @param status
  */
 {template .downloadDialog}
 <div class="fixedWidth">
 <div id="info"><b>{$imageCount}</b> images stored in ZIP file</div>
-<br><div id="downloadify{$id}"></div>
+{$status}
+<br><div class={css downloadify} id="downloadify{$id}"></div>
 </div>
 {/template}
