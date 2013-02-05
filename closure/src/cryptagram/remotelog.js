@@ -147,14 +147,10 @@ cryptagram.RemoteLog.show = function() {
 
 
 /**
- * Static method for posting simple messages without creating a logger
- * instance. A datestamp is appended to make sure the URL is unique, and
- * thus not cached.
+ * Static method for posting simple messages without creating a logger instance.
  */
 cryptagram.RemoteLog.simpleLog = function(record) {
-  var d = new Date();
-  var message = record + " " + d.getTime();
-  cryptagram.RemoteLog.logToRemoteLog_(cryptagram.RemoteLog.host_, 'info', message);
+  cryptagram.RemoteLog.logToRemoteLog_(cryptagram.RemoteLog.host_, 'info', record);
 };
 
 
@@ -168,9 +164,11 @@ cryptagram.RemoteLog.simpleLog = function(record) {
  */
 cryptagram.RemoteLog.logToRemoteLog_ = function(host, fnName, record) {
 /* Working solution but causes warning messages that we may want to avoid. */
+  var d = new Date();
   var img = new Image();
   img.src = "http://" + host + 
-            "?sev=" + encodeURIComponent(fnName) + 
+            "?ts=" + d.getTime() +
+            "&sev=" + encodeURIComponent(fnName) + 
             "&msg=" + encodeURIComponent(record);
 
   /*var xhr = new XMLHttpRequest();
