@@ -84,6 +84,7 @@ a.title {
   max-height: 170px;
   width: 168px;
   overflow-y: auto;
+  margin-bottom: 5px;
 }
 
 #thumbs .frame {
@@ -103,7 +104,6 @@ a.title {
   max-height: 30px;
   vertical-align: middle;
 }
-
 
 #medium {
   min-height: 100px;
@@ -186,8 +186,27 @@ a.title {
   margin-left: 80px;
 }
 
+.files {
+  display: inline-block;
+  float: left;
+  margin-right: 20px;
+}
+
+.files textarea {
+  
+  height: 100px;
+  width: 140px;
+  margin-top: 5px;
+}
+
+.inline {
+  display: inline-block;
+}
+
+
 .downloadify {
-  text-align: right;
+  text-align: left;
+  margin: 10px;
 }
 
 .status {
@@ -296,6 +315,7 @@ a.title {
 
 .fixedWidth {
   width: 350px;
+  display: inline-block;
 }
 
 .modal-dialog a,

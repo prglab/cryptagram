@@ -170,7 +170,7 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
 
   var timeB = new Date().getTime();
   var elapsed = timeB - timeA;
-  this.logger.info("Encoded in (): " + elapsed + " ms");
+  this.logger.info("Encoded in: " + elapsed + " ms");
   return img;
 };
 

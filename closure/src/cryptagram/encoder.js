@@ -212,9 +212,14 @@ cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   var str = encodedImage.src;
   var idx = str.indexOf(',');
   var dat = str.substring(idx+1);
+  var remaining = [];
+  for (var i = 0; i < self.images.length; i++) {
+    remaining.push(self.images[i].file);
+  }
+
   this.dispatchEvent({type:'IMAGE_DONE',
                       image:encodedImage,
-                      remaining: self.images.length});
+                      remaining: remaining});
 };
 
 
