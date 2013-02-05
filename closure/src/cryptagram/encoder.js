@@ -108,6 +108,11 @@ cryptagram.encoder.prototype.queueFiles = function (files) {
   }
 };
 
+
+cryptagram.encoder.prototype.cancel = function() {
+  this.images = [];
+}
+
 // Main driver for the encoding of images.
 //
 // Note: The call the encodeImage() callos encodedOnload() which splices the
