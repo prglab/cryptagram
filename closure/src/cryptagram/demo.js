@@ -236,6 +236,8 @@ cryptagram.demo.prototype.showProgress = function () {
   self.status = "";
   self.images = self.zip.folder('images');
   self.imageCount = 0;
+  self.imageList = [];
+  self.remaining = [];
 
   goog.dom.getElement('left').innerHTML = cryptagram.templates.progress();
 
@@ -252,33 +254,34 @@ cryptagram.demo.prototype.showProgress = function () {
   }, false, this);
 
   goog.events.listen(this.encoder, 'IMAGE_DONE', function (event) {
+    
+    var idx = event.image.src.indexOf(',');
+    var dat = event.image.src.substring(idx + 1);
+    var bin = window.atob(dat);
+  
+    if (self.zipSize + bin.length > self.maxZipSize) {
+      self.logger.info("Exceeded max zip size.");
+      goog.events.removeAll(self.encoder);
+      self.encoder.cancel();
+      self.showDownloadDialog();
+      self.dialog.exitDocument();
+      return;
+    }
+
+    self.zipSize += bin.length;
     self.imageCount++;
+    self.imageList.push(event.image.file);
     var frame = self.frames[event.image.file];
     if (frame.firstChild) {
       frame.removeChild(frame.firstChild);
     }
     frame.appendChild(event.image);
-
-    var idx = event.image.src.indexOf(',');
-    var dat = event.image.src.substring(idx + 1);
-    var bin = window.atob(dat);
-    
-    self.zipSize += bin.length;
-    
-    // This value corresponds pretty much exactly with the final output .zip size
-    console.log("Zip Size: " + self.zipSize);
-    
-    if (self.zipSize > self.maxZipSize) {
-      self.logger.info("Exceeded max zip size.");
-      self.status = "Skipped " + event.remaining + " files."
-      self.encoder.cancel();
-    }
     
     self.images.file(event.image.file,
                      bin,
                      { base64: false, binary: true });
-
-    if (event.remaining == 0) {
+    self.remaining = event.remaining;
+    if (event.remaining.length == 0) {
       goog.events.removeAll(self.encoder);
       self.showDownloadDialog();
       self.dialog.exitDocument();
@@ -291,8 +294,9 @@ cryptagram.demo.prototype.showDownloadDialog = function () {
 
   var self = this;
   var dialog = new goog.ui.Dialog(null, false);
+  
   dialog.setContent(cryptagram.templates.downloadDialog(
-    {imageCount:self.imageCount, id:self.downloadifyId, status:self.status}));
+    {images:self.imageList, id:self.downloadifyId, skipped:self.remaining}));
   dialog.setTitle('Cryptagram');
   dialog.setModal(false);
   dialog.setDisposeOnHide(true);

@@ -131,14 +131,32 @@ If you do not consent, you can still use the software. Thank you!
 {/template}
 
 /**
- * @param imageCount
+ * @param images
+ * @param skipped
  * @param id
- * @param status
  */
 {template .downloadDialog}
-<div class="fixedWidth">
-<div id="info"><b>{$imageCount}</b> images stored in ZIP file</div>
-{$status}
-<br><div class={css downloadify} id="downloadify{$id}"></div>
+<div class={css downloadify} id="downloadify{$id}"></div>
+<div class={css inline}>
+<div class={css files}>
+Saved <b>{length($images)}</b> images in ZIP file.<br>
+<textarea>
+{foreach $image in $images}
+  {$image}
+  {\n}
+{/foreach}
+</textarea>
+</div>
+{if length($skipped) > 0}
+<div class={css files}>
+Skipped <b>{length($skipped)}</b> images.<br>
+<textarea>
+  {foreach $image in $skipped}
+    {$image} 
+    {\n}
+  {/foreach}
+  </textarea>
+</div>
+{/if}
 </div>
 {/template}
