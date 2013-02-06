@@ -618,7 +618,11 @@ this.JpegMeta.JpegFile.prototype._parseIfd = function _parseIfd(endian, _binary_
 		value = value[0];
 	    }
 	}
-	group._addProperty(tags[tag_field][1], tags[tag_field][0], value);
+	
+	 // ispiro: added if statement. Otherwise some iPhone photos were crashing jpegmeta.
+		if (tags && tags[tag_field] && tags[tag_field].length >= 2) {
+      group._addProperty(tags[tag_field][1], tags[tag_field][0], value);
+    }
     }
 }
 
