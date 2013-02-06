@@ -160,7 +160,29 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
     y = y_coord * block_height;
     this.set_block(x,y,level);
   }
-
+  
+  var fill_x = x_coord;
+  var fill_y = y_coord;
+  var fill_width = width / block_width;
+  var fill_height = height / block_height;
+  var level, rand_octal;
+  
+  // Fill end of image with random blocks.
+  while(1) {
+    fill_x++;
+    if (fill_x >= fill_width) {
+      fill_x = 0;
+      fill_y++;
+    }
+    
+    if (fill_y >= fill_height) {
+      break;
+    }
+    rand_octal = Math.floor(Math.random() * 8);
+    level = this.symbol_thresholds[rand_octal];
+    this.set_block(fill_x * block_width, fill_y * block_height, level);
+  }
+ 
   cxt.putImageData(imageData, 0, 0);
   var img = new Image();
 
