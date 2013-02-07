@@ -18,6 +18,8 @@ goog.require('cryptagram.codec.aesthete');
 goog.require('cryptagram.loader');
 goog.require('cryptagram.RemoteLog');
 
+goog.require('cryptagram.Rotator');
+
 goog.require('cryptagram.SizeReducer');
 goog.require('cryptagram.SizeReducer.Event');
 goog.require('cryptagram.SizeReducer.EventType');
@@ -64,42 +66,57 @@ goog.inherits(cryptagram.encoder.EncoderEventTarget, goog.events.EventTarget);
 
 
 
+cryptagram.encoder.prototype.imageLoaded = function(image) {
+  image.file = this.files[0].name;
+  this.images.push(image);
+  this.files.splice(0,1);
+  this.dispatchEvent({type: 'IMAGE_LOADED',
+                     image: image,
+                 remaining: this.files.length});
+};
+
 cryptagram.encoder.prototype.loadBinary = function (file) {
   var self = this;
   var reader = new FileReader();
   reader.onerror = cryptagram.encoder.show_error;
   reader.onload = function (e) {
-    
+  
     var jpeg = new JpegMeta.JpegFile(this.result, file.name);
     
-    if (jpeg.tiff && jpeg.tiff.Orientation) {
-      console.log("Found Orientation Flag: " + jpeg.tiff.Orientation);
+    if (jpeg.tiff && jpeg.tiff.Orientation && jpeg.tiff.Orientation != 1) {      
+      var rotator = new cryptagram.Rotator();
+      rotator.rotateBinary(this.result, jpeg.tiff.Orientation);
+      
+      goog.events.listenOnce(rotator, 'ROTATE_DONE', function (event) {
+        var image = event.image;
+        image.file = file.file;
+        self.imageLoaded(image);
+      }, true, this);
+       
+    // No need to rotate. Reuse the loaded binary to create JPEG data.
+    } else {
+      var b64 = "data:image/jpeg;base64," + window.btoa(this.result);
+      var image = new Image();
+      image.onload = function () { 
+        self.imageLoaded(image);
+      }
+      image.src = b64;
     }
-        
-    var b64 = "data:image/jpeg;base64," + window.btoa(this.result);
-    
-    var image = new Image();
-
-    image.onload = function () {
-      image.file = self.files[0].name;
-      self.images.push(image);
-      self.files.splice(0,1);
-      self.dispatchEvent({type: 'IMAGE_LOADED',
-                          image: image,
-                          remaining: self.files.length});
-    }
-
-    image.src = b64;
-  }
+  };
   reader.readAsBinaryString(file);
-}
-
-
+};
 
 
 // Changes the state of self.files by splicing. Loads the self.images array with
 // Image objects.
 cryptagram.encoder.prototype.loadFile = function (file) {
+
+  // If jpeg, switch to binary loading to check headers
+  if (file.type.indexOf('image/jpeg') == 0) {
+    this.loadBinary(file);
+    return;
+  }
+
   var self = this;
   var reader = new FileReader();
   reader.onerror = cryptagram.encoder.show_error;
@@ -139,7 +156,7 @@ cryptagram.encoder.prototype.queueFiles = function (files) {
   }, true, this);
 
   if (self.files.length > 0) {
-    this.loadBinary(self.files[0]);
+    this.loadFile(self.files[0]);
   }
 };
 
@@ -196,7 +213,6 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
   canvas.width = image.naturalWidth;
   canvas.height = image.naturalHeight;
   var context = canvas.getContext('2d');
-
   context.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight);
 
   var imageFilename = image.file;
