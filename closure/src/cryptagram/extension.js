@@ -10,7 +10,7 @@ cryptagram.extension.settings = [['save_passwords','true'],
                                  ['auto_decrypt','true'],
                                  ['album_passwords','true'],
                                  ['user_study','false']];
-                                 
+
 cryptagram.extension.encoderURL = 'http://cryptagr.am';
 //cryptagram.extension.encoderURL = 'http://localhost:8888';
 
@@ -25,9 +25,10 @@ cryptagram.extension.onInstall =  function() {
 }
 
 cryptagram.extension.onUpdate = function() {
-  // If this is an update and the user already agreed to the user study, we do
-  // not ask for consent. Otherwise, we do.
-  if (localStorage['user_study'] == 'false') {
+  // Only ask for consent if not already asked (if someone has said no, then
+  // obey request).
+  if (localStorage['user_study'] != 'false' &&
+      localStorage['user_study'] != 'true') {
     cryptagram.RemoteLog.simpleLog('UPDATE_CONSENT');
     chrome.tabs.create({
       url: 'welcome.html'
@@ -67,10 +68,10 @@ cryptagram.extension.init = function() {
       localStorage[setting] = cryptagram.extension.settings[i][1];
     }
   }
-  
+
   chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
     if (info['status'] == 'complete') {
-    
+
       // If we're on the encoder page, send a special request to tell
       // injected content to set the localStorage variable. This way,
       // the user won't have to agree/disagree to terms again.
@@ -78,7 +79,7 @@ cryptagram.extension.init = function() {
         chrome.tabs.sendMessage(
             tabId,{'setUserStudy': 1, 'storage': localStorage}, null);
       }
-    
+
       if (localStorage['auto_decrypt'] == 'true') {
         chrome.tabs.sendMessage(
             tabId,
