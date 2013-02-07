@@ -59,7 +59,7 @@ a.a {
 #right {
   width: 170px;
   position: absolute;
-  left: 180px;
+  left: 190px;
   top: 44px;
 }
 #left {
@@ -70,8 +70,10 @@ a.a {
   margin-bottom: 5px;
 }
 #thumbs {
-  min-height: 50px;
-  width: 170px;
+  max-height: 170px;
+  width: 168px;
+  overflow-y: auto;
+  margin-bottom: 5px;
 }
 #thumbs .b {
   width: 30px;
@@ -161,6 +163,23 @@ a.a {
   margin-left: 80px;
 }
 .c {
+  display: inline-block;
+  float: left;
+  margin-right: 20px;
+}
+.c textarea {
+  height: 100px;
+  width: 140px;
+  margin-top: 5px;
+}
+.d {
+  display: inline-block;
+}
+.e {
+  text-align: left;
+  margin: 10px;
+}
+.f {
   position: absolute;
   width: 50px;
   top: 0;
@@ -177,12 +196,14 @@ a.a {
 }
 #status {
   margin-bottom: 5px;
+  width: 160px;
+  overflow: hidden;
 }
 #status b {
   font-weight: normal;
   color: #44f;
 }
-.d {
+.g {
   position: relative;
   display: inline-block;
 }
@@ -200,15 +221,15 @@ a.a {
   border: 1px solid gray;
   margin-top: 10px;
 }
-.e-f-g {
+.h-d-i {
   position: relative;
   display: -moz-inline-box;
   display: inline-block;
 }
-* html .e-f-g, *:first-child+html .e-f-g {
+* html .h-d-i, *:first-child+html .h-d-i {
   display: inline;
 }
-.h-i {
+.j-k {
   background: #c1d9ff;
   border: 1px solid #3a5774;
   color: #000;
@@ -218,24 +239,25 @@ a.a {
   font-size: 12px;
   font-family: helvetica;
 }
-.j {
+.l {
   width: 350px;
+  display: inline-block;
 }
-.h-i a, .h-i a:link, .h-i a:visited {
+.j-k a, .j-k a:link, .j-k a:visited {
   color: #06c;
   cursor: pointer;
 }
-.h-i b {
+.j-k b {
   font-weight: 600;
 }
-.h-i-k {
+.j-k-m {
   background: #666;
   left: 0;
   position: absolute;
   top: 0;
   z-index: 100000;
 }
-.h-i-a {
+.j-k-a {
   background: #e0edfe;
   color: #000;
   cursor: pointer;
@@ -245,7 +267,7 @@ a.a {
   position: relative;
   _zoom: 1;
 }
-.h-i-a-l {
+.j-k-a-n {
   background: #e0edfe url(//ssl.gstatic.com/editor/editortoolbar.png) no-repeat -528px 0;
   cursor: default;
   height: 15px;
@@ -255,13 +277,13 @@ a.a {
   width: 15px;
   vertical-align: middle;
 }
-.h-i-m, .h-i-n {
+.j-k-o, .j-k-p {
   background-color: #fff;
   padding: 8px;
 }
-.h-i-m {
+.j-k-o {
   padding-top: 0;
 }
-.e-o-p {
+.h-q-r {
   font-weight: bold;
 }
