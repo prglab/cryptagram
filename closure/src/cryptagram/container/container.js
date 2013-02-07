@@ -25,15 +25,16 @@ cryptagram.container = function(img, node) {
 
 
 cryptagram.container.prototype.createStatus = function() {
-  this.div = goog.dom.createDom('div', { 'class': 'status'});
+  this.div = goog.dom.createDom('div', { 'class': goog.getCssName('status')});
   this.div.style.display = 'none';
   this.div.style.position = "absolute";
   this.div.style.width = "50px";
   this.div.style.top = "0px";
-  this.div.style.margin = "5px";
   this.div.style.marginLeft = "-25px";
+  this.div.style.marginTop = "5px";
   this.div.style.padding = "5px";
   this.div.style.color = "black";
+  this.div.style.left = "50%";
   this.div.style.background = "white";
   this.div.style.opacity = "0.8";
   this.div.style.font = "10px arial";
