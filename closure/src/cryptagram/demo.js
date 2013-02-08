@@ -225,6 +225,14 @@ cryptagram.demo.prototype.showEncodeDialog = function () {
 
   dialog.setVisible(true);
   dialog.getButtonSet().setAllButtonsEnabled(false);
+  
+  var quality = goog.dom.getElement('quality');
+  var warning = goog.dom.getElement('warning');
+  quality.onchange = function() {
+      var option = quality.options[quality.selectedIndex];
+      warning.innerHTML = option.innerText;
+  }
+  
   goog.dom.getElement('password').focus();
 };
 

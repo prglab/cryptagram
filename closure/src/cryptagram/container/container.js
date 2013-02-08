@@ -45,6 +45,10 @@ cryptagram.container.prototype.createStatus = function() {
 
 
 cryptagram.container.prototype.remove = function() {
+  if (!this.div || !this.div.parentNode) {
+    return;
+  }
+
   this.div.parentNode.removeChild(this.div);
 };
 
@@ -55,8 +59,11 @@ cryptagram.container.prototype.getSrc = function() {
 
 
 cryptagram.container.prototype.setSrc = function(src) {
-  this.previousSrc = this.img.src;
-  this.img.src = src;
+console.dir(this);
+  if (this.img) {
+    this.previousSrc = this.img.src;
+    this.img.src = src;
+  }
 };
 
 
@@ -69,15 +76,16 @@ cryptagram.container.prototype.revertSrc = function() {
 
 cryptagram.container.prototype.setStatus = function(status) {
   if (!status) {
-    this.div.innerHTML = '';
+    this.div.innerHTML = 'Done';
     this.div.style.display = 'none';
+    this.remove();
   } else {
 
     var width = this.img.width;
     if (this.displayWidth) {
       width = this.displayWidth;
     }
-    this.div.style.left = (width / 2) + "px";
+    //this.div.style.left = (width / 2) + "px";
     this.div.style.display = 'inline-block';
     this.div.innerHTML = status;
     }

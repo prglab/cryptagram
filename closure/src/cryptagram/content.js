@@ -48,6 +48,7 @@ cryptagram.content = function() {
   }
 
   this.logger.info('Found media: ' + this.media.name());
+  
   this.loaders = [];
   this.lastAutoDecrypt = '';
   this.storage = new cryptagram.storage(this.media);
@@ -65,7 +66,6 @@ cryptagram.content.prototype.logger =
 
 cryptagram.content.prototype.handleRequest =
     function(request, sender, callback) {
-
   var self = this;
   var password = null;
   this.callback = callback;
@@ -81,19 +81,22 @@ cryptagram.content.prototype.handleRequest =
   if (request['setUserStudy']) {
     localStorage['user_study'] = self.storage.lookup['user_study'];
   }
+  
+  if (request['autoDecrypt']) {
+    this.media.determineState(request['autoDecrypt']);
 
-  if (request['autoDecrypt'] && this.media.supportsAutodecrypt) {
+    if (this.media.supportsAutodecrypt) {
+      if (request['autoDecrypt'] == this.lastAutoDecrypt) {
+        this.logger.info('Ignoring redundant autodecrypt request.');
+        return;
+      }
+      this.logger.info('Autodecrypting.');
 
-    if (request['autoDecrypt'] == this.lastAutoDecrypt) {
-      this.logger.info('Ignoring redundant autodecrypt request.');
-      return;
+      this.lastAutoDecrypt = request['autoDecrypt'];
+      this.media.onReady(function() {
+        self.autoDecrypt(request['autoDecrypt']);
+      });
     }
-    this.logger.info('Autodecrypting.');
-
-    this.lastAutoDecrypt = request['autoDecrypt'];
-    this.media.onReady(function() {
-      self.autoDecrypt(request['autoDecrypt']);
-    });
   }
 
   if (request['decryptURL']) {

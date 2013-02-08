@@ -29,6 +29,8 @@ cryptagram.media.prototype.fixURL = function(URL) {
   return URL;
 };
 
+cryptagram.media.prototype.determineState = function(URL) {};
+
 cryptagram.media.prototype.onReady = function(callback) {
   callback();
 };
@@ -53,7 +55,7 @@ cryptagram.media.prototype.containers = {};
 cryptagram.media.prototype.setContainerSrc = function(container, src) {
   var check = CryptoJS.MD5(src);
   this.containers[check] = container;
-  container.setSrc(src);
+  if (container) container.setSrc(src);
 };
 
 
