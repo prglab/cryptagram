@@ -221,6 +221,18 @@ a.a {
   border: 1px solid gray;
   margin-top: 10px;
 }
+#left table {
+  border-spacing: 0;
+}
+#quality {
+  padding: 0;
+  clear: both;
+}
+#warning {
+  font-size: 12px;
+  color: gray;
+  margin: none;
+}
 .h-d-i {
   position: relative;
   display: -moz-inline-box;
