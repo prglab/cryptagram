@@ -12,6 +12,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -39,6 +43,7 @@ import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -77,6 +82,10 @@ public class Cryptogram extends Activity {
 	private final String HEADER = "aesthete";
 	
 	private final String TEMP_PHOTO_PATH_KEY = "tmp_file_path";
+	
+	private String DATA_URIS_BUNDLE_KEY = "cryptagram_bundle_datauris";
+	
+	private String SHARED_PREFS = "cryptogram_shared_prefs";
 	
 	/** The list of pictures the user has selected. May be String paths or Uri resources ids */
 	private ArrayList<Object> dataUris;
@@ -307,7 +316,66 @@ public class Cryptogram extends Activity {
         
         selectedImagesView = (ListView) findViewById(R.id.selected_images_list);
         
-        dataUris = new ArrayList<Object>();
+    	dataUris = new ArrayList<Object>();
+    	String uris = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).getString(DATA_URIS_BUNDLE_KEY, null);
+    	// Restore the selections from the user's previous session
+    	if (uris != null){
+    		JSONArray a;
+			try {
+				a = new JSONArray(uris);
+			
+        		for (int i = 0; i < a.length(); i++){
+        			String uri = (String)a.get(i);
+        			// If it's a content: protocol string, treat it as a URI
+        			// otherwise it's a string path
+        			
+        			// Apparently, Uris are stupidly difficult to build from strings because
+        			// the Android Uri class tried to cover all the bases and ended up with a behemoth.
+        			// Sorry to anyone reading this. Uri should have been serializable...
+        			// TODO: Uri Serializable subclass that later.
+        			if (uri.split(":")[0].equals("content")){
+        				String ssp = uri.split(":")[1].split("#")[0].replaceFirst("//media", "");
+        				String[] fragmentArr = uri.split("#");
+        				String fragment;
+        				if (fragmentArr.length < 2){
+        					fragment = "";
+        				}
+        				else {
+        					fragment = fragmentArr[1];
+        				}
+        				
+        				Toast.makeText(this, ssp, Toast.LENGTH_SHORT).show();
+        				Uri.Builder b = new Uri.Builder().scheme("content").authority("media").path(ssp);
+        				
+        				dataUris.add(b.build());
+        				Toast.makeText(this, b.build().toString(), Toast.LENGTH_SHORT).show();
+        				
+        			}
+        			
+        			else{
+        				dataUris.add(uri);
+        			}
+        		}
+    		
+			} catch (JSONException e) {
+				// This. should. not. happen.
+				// The stored value should be a valid JSON array stored in sharedPrefs
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				finish();
+			}
+    	}
+    	
+    	selectedImagesView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		    public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
+		    	dataUris.remove(pos);
+		    	refreshImageList();
+		    }
+		});
+
+        
+        refreshImageList();
+        Toast.makeText(this, Integer.toString(dataUris.size()), Toast.LENGTH_SHORT).show();
         
         noImageSelected = getResources().getDrawable(R.drawable.no_image_selected);
         
@@ -805,6 +873,18 @@ public class Cryptogram extends Activity {
 	    	 	      
 	     }
 	     
+    }
+    
+    @Override
+    public void onPause(){
+    	super.onPause();
+    	JSONArray a = new JSONArray();
+    	for (Object o : dataUris){
+    		a.put(o.toString());
+    	}
+    	getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).edit().
+    		putString(DATA_URIS_BUNDLE_KEY, a.toString()).apply();
+
     }
 
     @Override
