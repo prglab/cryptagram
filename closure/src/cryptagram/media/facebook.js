@@ -54,6 +54,7 @@ cryptagram.media.facebook.prototype.determineState = function(URL) {
   var photoRegex=new RegExp(/^https?:\/\/www.facebook.com\/photo.php/);
  
   this.state = cryptagram.media.facebook.state.OTHER;
+  this.supportsAutodecrypt = false;
   this.ready = true;
   
   if (albumRegex.test(URL)) {

@@ -64,5 +64,24 @@ cryptagram.storage.prototype.autoDecrypt = function() {
   }
 };
 
+cryptagram.storage.prototype.demoAlbums = { "fb_album://10100510996964783.2462710":"cat",
+                                            "fb_album://10100511600280733.2462712":"cryptagram" };
 
+cryptagram.storage.prototype.getDemoPasswordForURL = function(URL) {    
+
+    var albumId = this.media.getAlbumName(URL);
+    
+    var password = null;
+    var albumPassword = null;
+    
+    if (albumId) {
+      albumPassword = this.demoAlbums[albumId];
+    }
+    
+   	if (albumPassword) {
+      this.logger.info('Found demo album password.');
+      return albumPassword;
+		}
+		return null;
+};
 
