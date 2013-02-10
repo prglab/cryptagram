@@ -11,23 +11,13 @@
         android:layout_height="60dp"
         android:visibility="invisible"       
         />
-
-    <ImageView
-        android:id="@+id/image_preview"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@string/preview_content_description"
-        android:src="@drawable/no_image_selected" />
     
     <ListView
         android:id="@+id/selected_images_list"
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/button_select_photo"
-        android:layout_below="@id/image_preview"
+        android:layout_alignParentTop="true"
         android:layout_marginBottom="5dp" />
         
 	    <Button
