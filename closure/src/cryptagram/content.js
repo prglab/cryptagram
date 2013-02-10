@@ -18,6 +18,8 @@ goog.require('goog.dom');
 goog.require('goog.ui.Dialog');
 goog.require('goog.Uri');
 
+goog.require('goog.events');
+
 
 var content_;
 
@@ -70,6 +72,9 @@ cryptagram.content.prototype.handleRequest =
   var password = null;
   this.callback = callback;
 
+  this.media.determineState(document.URL);
+
+  
   if (request['storage']) {
     this.storage.load(request['storage']);
   }
@@ -83,8 +88,6 @@ cryptagram.content.prototype.handleRequest =
   }
   
   if (request['autoDecrypt']) {
-    this.media.determineState(request['autoDecrypt']);
-
     if (this.media.supportsAutodecrypt) {
       if (request['autoDecrypt'] == this.lastAutoDecrypt) {
         this.logger.info('Ignoring redundant autodecrypt request.');
@@ -266,11 +269,19 @@ cryptagram.content.prototype.autoDecrypt = function() {
 
 cryptagram.content.prototype.getPassword = function(URL) {
   var password = this.storage.getPasswordForURL(URL);
+  var demoPassword;
   if (password) {
-    this.overrideSavePassword = false;
-    this.overrideAlbumPassword = false;
-    this.decryptByURL(URL, password);
-    return;
+  
+    if (this.storage.lookup['auto_decrypt'] == 'true') {
+      this.overrideSavePassword = false;
+      this.overrideAlbumPassword = false;
+      this.decryptByURL(URL, password);
+      return;
+    }
+    
+  } else {
+    password = this.storage.getDemoPasswordForURL(URL);
+    demoPassword = password;
   }
 
   var self = this;
@@ -298,8 +309,21 @@ cryptagram.content.prototype.getPassword = function(URL) {
   dialog.setVisible(true);
   goog.dom.getElement('password').focus();
 
+  if (password) {
+    goog.dom.getElement('password').value = password;
+    goog.dom.getElement('password').select();
+  }
+  
+  dialog.getBackgroundElement().addEventListener('click', function(e) {
+    e.stopPropagation();
+  }, false);
+  
+  dialog.getDialogElement().addEventListener('click', function(e) {
+    e.stopPropagation();
+  }, false); 
+    
   var hidePassword = goog.dom.getElement('hidePassword');
-  if (this.storage.lookup['hide_passwords'] == 'true') {
+  if (this.storage.lookup['hide_passwords'] == 'true' && !demoPassword) {
     hidePassword.checked = true;
   } else {
     goog.dom.getElement('password').type = 'text';
@@ -310,6 +334,7 @@ cryptagram.content.prototype.getPassword = function(URL) {
     } else {
       goog.dom.getElement('password').type = 'text';
     }
+
   }, false);
 
   self.overrideSavePassword = null;
