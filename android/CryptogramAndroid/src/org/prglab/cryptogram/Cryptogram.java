@@ -276,8 +276,6 @@ public class Cryptogram extends Activity {
 	Button buttonUploadPhoto;
 	
 	ListView selectedImagesView;
-	
-	ImageView imagePreview;
 	WebView jsExecutionView;
 	
 	Uri imageUri;
@@ -307,7 +305,6 @@ public class Cryptogram extends Activity {
         buttonUploadPhoto = (Button) findViewById(R.id.button_upload_photo);
         
         jsExecutionView = (WebView) findViewById(R.id.js_encryption_webview);
-        imagePreview = (ImageView) findViewById(R.id.image_preview);
         
         dataAccessor = new DataAccessor();
         
@@ -332,7 +329,7 @@ public class Cryptogram extends Activity {
         			// Apparently, Uris are stupidly difficult to build from strings because
         			// the Android Uri class tried to cover all the bases and ended up with a behemoth.
         			// Sorry to anyone reading this. Uri should have been serializable...
-        			// TODO: Uri Serializable subclass that later.
+        			// TODO: Uri Serializable subclass.
         			if (uri.split(":")[0].equals("content")){
         				String ssp = uri.split(":")[1].split("#")[0].replaceFirst("//media", "");
         				String[] fragmentArr = uri.split("#");
@@ -469,16 +466,15 @@ public class Cryptogram extends Activity {
      * Set the current image preview with a file
      * @param filepath the path to the file
      */
-    private boolean setImagePreview(String filepath){
+    private boolean setImageBitmap(String filepath){
 
     	try{
 	    	Bitmap temp = BitmapFactory.decodeFile(filepath);
 	    	if (temp == null) throw new Exception("we need an image, yo");
-	    	setImagePreview(temp);
+	    	setImageBitmap(temp);
 	    	return true;
     	}
     	catch ( Exception e ){
-    		imagePreview.setImageDrawable(noImageSelected);
     		return false;
     	}
     }
@@ -487,14 +483,13 @@ public class Cryptogram extends Activity {
      * Set the current image preview with a uri
      * @param u the image's MediaStore uri
      */
-    private boolean setImagePreview(Uri u){
+    private boolean setImageBitmap(Uri u){
     	try{
 	    	Bitmap temp = MediaStore.Images.Media.getBitmap(getContentResolver(), u);
-	    	setImagePreview(temp);
+	    	setImageBitmap(temp);
 	    	return true;
     	}
     	catch ( Exception e ){
-    		imagePreview.setImageDrawable(noImageSelected);
     		return false;
     	}
     }
@@ -504,11 +499,7 @@ public class Cryptogram extends Activity {
      * Set the image preview with a given Bitmap
      * @param b
      */
-    private void setImagePreview(Bitmap temp){
-    	int height = PREVIEW_HEIGHT;
-    	imagePreview.setImageBitmap(
-    			Bitmap.createScaledBitmap(temp, (int)(temp.getWidth()*((double)(height)/temp.getHeight())), height, true)   			
-    	);
+    private void setImageBitmap(Bitmap temp){
     	//TODO: Disable this when we do batch by uri/filenames, they'll get read from files on demand, and this
     	// just will waste memory
     	imageBitmap = temp;
@@ -663,9 +654,6 @@ public class Cryptogram extends Activity {
 			
 			targetWidth = imageBitmap.getWidth();
 			targetHeight = imageBitmap.getHeight();
-			
-			// Save some memory!
-			imagePreview.setImageBitmap(null);
     		
 			imageBitmap.compress(CompressFormat.JPEG, 80, byteOut);
 			imageBitmap = null;
@@ -731,7 +719,7 @@ public class Cryptogram extends Activity {
 	   	//Toast.makeText(this, targetUri.toString(), Toast.LENGTH_SHORT).show();
 	
 	   	try{
-		   	if (!setImagePreview(targetUri)) throw new RuntimeException("Failed to load uri");
+		   	if (!setImageBitmap(targetUri)) throw new RuntimeException("Failed to load uri");
 		   	// We place this here because we only want to add valid uris to the list
 	    	dataUris.add(targetUri);
 	   	}
@@ -750,7 +738,7 @@ public class Cryptogram extends Activity {
     private void useImageFromCamera(){
     	try{
     		String path = getPreferences(MODE_PRIVATE).getString(TEMP_PHOTO_PATH_KEY, null);
-		   	if (!setImagePreview(path)) throw new RuntimeException("File not found");
+		   	if (!setImageBitmap(path)) throw new RuntimeException("File not found");
 		   	// We place this here because we only want to add valid paths to the list
 		   	dataUris.add(path);
 	   	}
@@ -795,7 +783,7 @@ public class Cryptogram extends Activity {
     	// Show just a preview
 		//imagePreview.setImageBitmap(encodedBitmap);
     	if (encodedBitmap != null)
-    		setImagePreview(encodedBitmap);
+    		setImageBitmap(encodedBitmap);
 		
 		Toast.makeText(this, "Exporting image to gallery", Toast.LENGTH_SHORT).show();
 		
