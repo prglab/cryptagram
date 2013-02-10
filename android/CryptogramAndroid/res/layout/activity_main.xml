@@ -37,7 +37,8 @@
 	        android:text="@string/button_snap_photo"
 	        android:onClick="takePhoto"
 	        android:layout_alignTop="@+id/button_select_photo"
-	        android:layout_alignParentBottom="true" />
+	        android:layout_alignParentBottom="true"
+	        android:layout_alignParentLeft="true" />
 	
 	    <Button
 	        android:id="@+id/button_select_photo"
@@ -45,7 +46,9 @@
 	        android:layout_height="wrap_content"
 	        android:layout_alignParentBottom="true"
 	        android:layout_alignTop="@+id/button_upload_photo"
-	        android:layout_toRightOf="@id/button_snap_photo"
+	        android:layout_centerHorizontal="true"
+	        android:layout_toLeftOf="@+id/button_upload_photo"
+	        android:layout_toRightOf="@+id/button_snap_photo"
 	        android:onClick="selectPhoto"
 	        android:text="@string/button_select_photo" />
 	
@@ -55,7 +58,7 @@
 	        android:layout_height="wrap_content"
 	        android:onClick="encryptPhoto"
 	        android:text="@string/button_upload_photo"
-	        android:layout_toRightOf="@id/button_select_photo"
+	        android:layout_alignParentRight="true"
 	    	android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>
