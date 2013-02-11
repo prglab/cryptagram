@@ -5,6 +5,7 @@
  * @param URL The URL of the image
  */
 {template .passwordDialog}
+<div class = "{css password-dialog}">
 <table style="font: inherit;">
 <tr><td><b>Image:</b></td><td style="word-break: break-all">{$URL}</td></tr>
 <tr><td><b>Password:</b></td><td><input type=password id=password size=35>
@@ -15,5 +16,17 @@
 <input type=checkbox id=albumPassword disabled>Album Password<br>
 </td></tr>
 </table>
+</div>
+{/template}
+
+
+/**
+ */
+{template .progress}
+<div class="{css progress-bar-dialog}">
+<div class="{css progress-bar-info}" id="out"></div>
+<div class="{css progress-bar-horizontal}" id="progress"></div>
+<input type=button value="Cancel" id="cancel_button">
+</div>
 {/template}
 

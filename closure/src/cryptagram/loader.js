@@ -24,6 +24,7 @@ cryptagram.loader.state = {
   WAITING:      'Waiting',
   LOADING:  'Loading',
   LOADED:  'Loaded',
+  CANCELED:  'Canceled',
   DONE:      'Done'
 };
 
@@ -55,6 +56,13 @@ cryptagram.loader.prototype.createRequest = function() {
   }
 }
 
+
+cryptagram.loader.prototype.cancel = function() {
+  if (this.state != cryptagram.loader.state.DONE) {
+    this.state = cryptagram.loader.state.CANCELED;
+    this.container.setStatus();
+  }
+}
 
 /**
  * Converts the loader's raw bytes into base64.
