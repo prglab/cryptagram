@@ -16,6 +16,7 @@ goog.require('goog.debug.Logger');
 goog.require('goog.debug.Logger.Level');
 goog.require('goog.dom');
 goog.require('goog.ui.Dialog');
+goog.require('goog.ui.ProgressBar');
 goog.require('goog.Uri');
 
 goog.require('goog.events');
@@ -130,7 +131,6 @@ cryptagram.content.prototype.setStatus = function(message) {
 cryptagram.content.prototype.decryptImage = function(image, password, queue) {
 
   var container = this.media.loadContainer(image.src);
-
   var self = this;
   var loader = new cryptagram.loader(container);
   var cipher = new cryptagram.cipher();
@@ -138,9 +138,9 @@ cryptagram.content.prototype.decryptImage = function(image, password, queue) {
 
   var fullURL = this.media.fixURL(image.src);
   if (!fullURL) return;
-
+    
   if (queue) {
-
+    this.showProgressDialog();
     loader.queue(fullURL, function(data) {
       decoder.decodeData(data, null, function(result) {
       loader.state = cryptagram.loader.state.DONE;
@@ -219,18 +219,42 @@ cryptagram.content.prototype.checkQueue = function() {
 
   var maxLoading = 1;
   var loadingCount = 0;
-
+  var doneCount = 0;
+  var waitingCount = 0;
+  
   for (var i = this.loaders.length - 1; i >= 0; i--) {
 
       if (this.loaders[i].state == cryptagram.loader.state.LOADING) {
         loadingCount++;
       }
       if (this.loaders[i].state == cryptagram.loader.state.DONE) {
-        var pop = this.loaders.splice(i,1);
-        delete pop;
+        //var pop = this.loaders.splice(i,1);
+        //delete pop;
+        doneCount++;
       }
+      
+      if (this.loaders[i].state == cryptagram.loader.state.WAITING) {
+        //var pop = this.loaders.splice(i,1);
+        //delete pop;
+        waitingCount++;
+      }
+      
   }
 
+  if (this.pb) {
+    var totalCount = waitingCount + loadingCount + doneCount;
+    var percent = 100;
+    if (totalCount != 0) {
+      percent = 100 * doneCount / totalCount;
+    }
+    this.pb.setValue(percent);
+    if (percent == 100) {
+      this.progressDialog.exitDocument();
+      this.loaders = [];  
+      this.pb = null;       
+    }
+  }
+  
   for (var i = 0; i < this.loaders.length; i++) {
       if (this.loaders[i].state == cryptagram.loader.state.WAITING &&
             loadingCount < maxLoading) {
@@ -238,9 +262,43 @@ cryptagram.content.prototype.checkQueue = function() {
         loadingCount++;
       }
   }
-
+ 
   var self = this;
   setTimeout(function() { self.checkQueue(); }, 1000);
+};
+
+
+cryptagram.content.prototype.showProgressDialog = function() {
+  if (this.pb) {
+    return;
+  }
+  var self = this;
+  var dialog = new goog.ui.Dialog(null, false);
+  this.progressDialog = dialog;
+  dialog.setContent(cryptagram.templates.progress());
+  dialog.setTitle('Decrypting');
+  dialog.setDisposeOnHide(true);
+  dialog.setModal(false);
+  dialog.setButtonSet(null);
+  dialog.setVisible(true);
+
+  this.pb = new goog.ui.ProgressBar;
+  this.pb.decorate(goog.dom.getElement('progress'));
+  goog.style.setPosition(dialog.getDialogElement(), 20, 20);
+        
+  this.pb.addEventListener(goog.ui.Component.EventType.CHANGE, function() {
+    var out = goog.dom.getElement('out');
+    if (out) {
+      out.innerHTML = this.getValue() + "%";
+    }
+  });
+    
+  var button = goog.dom.getElement('cancel_button');
+  goog.events.listenOnce(button, goog.events.EventType.CLICK, function(e) {
+    for (var i = 0; i < self.loaders.length; i++) {
+      self.loaders[i].cancel();
+    }
+  }); 
 };
 
 
@@ -253,7 +311,7 @@ cryptagram.content.prototype.autoDecrypt = function() {
     this.logger.info('Checking ' + images.length +
                      ' images against saved passwords.');
   }
-
+    
   var needsQueue = true;
   if (images.length < 4) needsQueue = false;
 
