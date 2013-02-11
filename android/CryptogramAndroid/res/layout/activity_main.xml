@@ -12,13 +12,18 @@
         android:visibility="invisible"       
         />
     
-    <ListView
+    <GridView
         android:id="@+id/selected_images_list"
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/button_select_photo"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="5dp" />
+        android:layout_marginBottom="5dp"
+        android:columnWidth="90dp"
+        android:numColumns="auto_fit"
+        android:verticalSpacing="10dp"
+        android:horizontalSpacing="10dp"
+        android:stretchMode="columnWidth" />
         
 	    <Button
 	        android:id="@+id/button_snap_photo"

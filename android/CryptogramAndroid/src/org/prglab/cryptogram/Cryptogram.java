@@ -47,9 +47,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -275,7 +275,7 @@ public class Cryptogram extends Activity {
 	Button buttonSelectPhoto;
 	Button buttonUploadPhoto;
 	
-	ListView selectedImagesView;
+	GridView selectedImagesView;
 	WebView jsExecutionView;
 	
 	Uri imageUri;
@@ -311,7 +311,7 @@ public class Cryptogram extends Activity {
         initializePreferences();
         
         
-        selectedImagesView = (ListView) findViewById(R.id.selected_images_list);
+        selectedImagesView = (GridView) findViewById(R.id.selected_images_list);
         
     	dataUris = new ArrayList<Object>();
     	String uris = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).getString(DATA_URIS_BUNDLE_KEY, null);
@@ -397,10 +397,10 @@ public class Cryptogram extends Activity {
     			            v = vi.inflate(R.layout.selected_item, null);
     			        }
     			    	if (v != null) {
-    			                TextView nameView = (TextView) v.findViewById(R.id.list_text);
+    			                //TextView nameView = (TextView) v.findViewById(R.id.list_text);
     			                ImageView thumbnailView = (ImageView) v.findViewById(R.id.list_thumbnail);
     			                Object o = getItem(position);
-    			                nameView.setText(o.toString());
+    			                //nameView.setText(o.toString());
     			                if (thumbnailView.getDrawable() == null){
 	    			                if (o instanceof String){
 	    			                	thumbnailView.setImageBitmap(getThumbnail((String) o));
@@ -871,7 +871,7 @@ public class Cryptogram extends Activity {
     		a.put(o.toString());
     	}
     	getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).edit().
-    		putString(DATA_URIS_BUNDLE_KEY, a.toString()).apply();
+    		putString(DATA_URIS_BUNDLE_KEY, a.toString()).commit();
 
     }
 
