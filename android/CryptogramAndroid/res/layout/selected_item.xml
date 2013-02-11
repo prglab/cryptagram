@@ -6,16 +6,18 @@
 
     <ImageView
         android:id="@+id/list_thumbnail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:layout_centerVertical="true"
-        android:contentDescription="@string/thumbnail_desc"/>
-
+        android:contentDescription="@string/thumbnail_desc"
+        android:scaleType="centerCrop" />
+<!--
     <TextView
         android:id="@+id/list_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/list_thumbnail" />
+-->
 
 </RelativeLayout>
