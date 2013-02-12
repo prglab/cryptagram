@@ -6,11 +6,13 @@
     <script src="popup.js"></script>
   </head>
   <body>
-  <div id=title>Cryptagram</div>
+  <div id=title>
+    <a href="http://cryptagr.am" id="prglab" target="_new">Cryptagram</a>
+  </div>
   <div id=controls>
 
   <form method=POST target=_new action="http://cryptagr.am/encoder">
-  <input type=submit id=button_encryptor value="Encrypt Photos"></form>
+  <input type=submit id=button_encryptor value="Encode Photos"></form>
   
   <input type=checkbox id=checkbox_auto_decrypt autofocus>
   <label for=checkbox_auto_decrypt>Auto decrypt</label><br>
@@ -28,7 +30,6 @@
   <label for=checkbox_user_study>User study</label><br>
 
   </div>
-  <a href="http://cryptagr.am" target="_new" id="prglab">Project Homepage</a>
   </body>
 
 
