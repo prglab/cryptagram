@@ -39,8 +39,8 @@ cryptagram.media.googleplus.prototype.matchesURL = function(URL) {
 
 
 cryptagram.media.googleplus.prototype.determineState = function(URL) {
-  var albumRegex=new RegExp(/^https:\/\/plus.google.com\/photos\/[0-9]*\/albums\/[0-9]+/);
-  var photoRegex=new RegExp(/^https:\/\/plus.google.com\/photos\/[0-9]*\/albums\/[0-9]*\/[0-9]+/);
+  var albumRegex=new RegExp(/^https:\/\/plus.google.com\/(u\/0\/)?photos\/[0-9]*\/albums\/[0-9]+/);
+  var photoRegex=new RegExp(/^https:\/\/plus.google.com\/(u\/0\/)?photos\/[0-9]*\/albums\/[0-9]*\/[0-9]+/);
 
   this.state = cryptagram.media.facebook.state.OTHER;
   
