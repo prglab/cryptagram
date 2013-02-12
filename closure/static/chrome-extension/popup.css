@@ -10,7 +10,8 @@ a {
   color: #333333;
 }
 
-#title {
+#title a {
+ display: block;
  text-align: center;
  font-size: 14px;
  background: #DDDDDD;
@@ -18,6 +19,13 @@ a {
  border: none;
  padding: 5px;
  height: 1em;
+ margin-top: 1px;
+ text-decoration: none;
+}
+
+#title a:hover {
+  background: #888888;
+  color: white;
 }
 
 #controls {
@@ -27,22 +35,6 @@ a {
 
 #button_encryptor {
   width: 120px;
-}
-
-a {
-  display: block;
-  color: black;
-  background: #DDDDDD;
-  text-align: center;
-  font-size: 12px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  margin-top: 1px;
-}
-
-a:hover {
-  background: #888888;
-  color: white;
 }
 
 #controls input {
