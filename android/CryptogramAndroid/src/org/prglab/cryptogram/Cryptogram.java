@@ -12,6 +12,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -39,12 +43,13 @@ import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -77,6 +82,10 @@ public class Cryptogram extends Activity {
 	private final String HEADER = "aesthete";
 	
 	private final String TEMP_PHOTO_PATH_KEY = "tmp_file_path";
+	
+	private String DATA_URIS_BUNDLE_KEY = "cryptagram_bundle_datauris";
+	
+	private String SHARED_PREFS = "cryptogram_shared_prefs";
 	
 	/** The list of pictures the user has selected. May be String paths or Uri resources ids */
 	private ArrayList<Object> dataUris;
@@ -266,9 +275,7 @@ public class Cryptogram extends Activity {
 	Button buttonSelectPhoto;
 	Button buttonUploadPhoto;
 	
-	ListView selectedImagesView;
-	
-	ImageView imagePreview;
+	GridView selectedImagesView;
 	WebView jsExecutionView;
 	
 	Uri imageUri;
@@ -298,16 +305,74 @@ public class Cryptogram extends Activity {
         buttonUploadPhoto = (Button) findViewById(R.id.button_upload_photo);
         
         jsExecutionView = (WebView) findViewById(R.id.js_encryption_webview);
-        imagePreview = (ImageView) findViewById(R.id.image_preview);
         
         dataAccessor = new DataAccessor();
         
         initializePreferences();
         
         
-        selectedImagesView = (ListView) findViewById(R.id.selected_images_list);
+        selectedImagesView = (GridView) findViewById(R.id.selected_images_list);
         
-        dataUris = new ArrayList<Object>();
+    	dataUris = new ArrayList<Object>();
+    	String uris = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).getString(DATA_URIS_BUNDLE_KEY, null);
+    	// Restore the selections from the user's previous session
+    	if (uris != null){
+    		JSONArray a;
+			try {
+				a = new JSONArray(uris);
+			
+        		for (int i = 0; i < a.length(); i++){
+        			String uri = (String)a.get(i);
+        			// If it's a content: protocol string, treat it as a URI
+        			// otherwise it's a string path
+        			
+        			// Apparently, Uris are stupidly difficult to build from strings because
+        			// the Android Uri class tried to cover all the bases and ended up with a behemoth.
+        			// Sorry to anyone reading this. Uri should have been serializable...
+        			// TODO: Uri Serializable subclass.
+        			if (uri.split(":")[0].equals("content")){
+        				String ssp = uri.split(":")[1].split("#")[0].replaceFirst("//media", "");
+        				String[] fragmentArr = uri.split("#");
+        				String fragment;
+        				if (fragmentArr.length < 2){
+        					fragment = "";
+        				}
+        				else {
+        					fragment = fragmentArr[1];
+        				}
+        				
+        				Toast.makeText(this, ssp, Toast.LENGTH_SHORT).show();
+        				Uri.Builder b = new Uri.Builder().scheme("content").authority("media").path(ssp);
+        				
+        				dataUris.add(b.build());
+        				Toast.makeText(this, b.build().toString(), Toast.LENGTH_SHORT).show();
+        				
+        			}
+        			
+        			else{
+        				dataUris.add(uri);
+        			}
+        		}
+    		
+			} catch (JSONException e) {
+				// This. should. not. happen.
+				// The stored value should be a valid JSON array stored in sharedPrefs
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				finish();
+			}
+    	}
+    	
+    	selectedImagesView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		    public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
+		    	dataUris.remove(pos);
+		    	refreshImageList();
+		    }
+		});
+
+        
+        refreshImageList();
+        Toast.makeText(this, Integer.toString(dataUris.size()), Toast.LENGTH_SHORT).show();
         
         noImageSelected = getResources().getDrawable(R.drawable.no_image_selected);
         
@@ -332,10 +397,10 @@ public class Cryptogram extends Activity {
     			            v = vi.inflate(R.layout.selected_item, null);
     			        }
     			    	if (v != null) {
-    			                TextView nameView = (TextView) v.findViewById(R.id.list_text);
+    			                //TextView nameView = (TextView) v.findViewById(R.id.list_text);
     			                ImageView thumbnailView = (ImageView) v.findViewById(R.id.list_thumbnail);
     			                Object o = getItem(position);
-    			                nameView.setText(o.toString());
+    			                //nameView.setText(o.toString());
     			                if (thumbnailView.getDrawable() == null){
 	    			                if (o instanceof String){
 	    			                	thumbnailView.setImageBitmap(getThumbnail((String) o));
@@ -401,16 +466,15 @@ public class Cryptogram extends Activity {
      * Set the current image preview with a file
      * @param filepath the path to the file
      */
-    private boolean setImagePreview(String filepath){
+    private boolean setImageBitmap(String filepath){
 
     	try{
 	    	Bitmap temp = BitmapFactory.decodeFile(filepath);
 	    	if (temp == null) throw new Exception("we need an image, yo");
-	    	setImagePreview(temp);
+	    	setImageBitmap(temp);
 	    	return true;
     	}
     	catch ( Exception e ){
-    		imagePreview.setImageDrawable(noImageSelected);
     		return false;
     	}
     }
@@ -419,14 +483,13 @@ public class Cryptogram extends Activity {
      * Set the current image preview with a uri
      * @param u the image's MediaStore uri
      */
-    private boolean setImagePreview(Uri u){
+    private boolean setImageBitmap(Uri u){
     	try{
 	    	Bitmap temp = MediaStore.Images.Media.getBitmap(getContentResolver(), u);
-	    	setImagePreview(temp);
+	    	setImageBitmap(temp);
 	    	return true;
     	}
     	catch ( Exception e ){
-    		imagePreview.setImageDrawable(noImageSelected);
     		return false;
     	}
     }
@@ -436,11 +499,7 @@ public class Cryptogram extends Activity {
      * Set the image preview with a given Bitmap
      * @param b
      */
-    private void setImagePreview(Bitmap temp){
-    	int height = PREVIEW_HEIGHT;
-    	imagePreview.setImageBitmap(
-    			Bitmap.createScaledBitmap(temp, (int)(temp.getWidth()*((double)(height)/temp.getHeight())), height, true)   			
-    	);
+    private void setImageBitmap(Bitmap temp){
     	//TODO: Disable this when we do batch by uri/filenames, they'll get read from files on demand, and this
     	// just will waste memory
     	imageBitmap = temp;
@@ -595,9 +654,6 @@ public class Cryptogram extends Activity {
 			
 			targetWidth = imageBitmap.getWidth();
 			targetHeight = imageBitmap.getHeight();
-			
-			// Save some memory!
-			imagePreview.setImageBitmap(null);
     		
 			imageBitmap.compress(CompressFormat.JPEG, 80, byteOut);
 			imageBitmap = null;
@@ -663,7 +719,7 @@ public class Cryptogram extends Activity {
 	   	//Toast.makeText(this, targetUri.toString(), Toast.LENGTH_SHORT).show();
 	
 	   	try{
-		   	if (!setImagePreview(targetUri)) throw new RuntimeException("Failed to load uri");
+		   	if (!setImageBitmap(targetUri)) throw new RuntimeException("Failed to load uri");
 		   	// We place this here because we only want to add valid uris to the list
 	    	dataUris.add(targetUri);
 	   	}
@@ -682,7 +738,7 @@ public class Cryptogram extends Activity {
     private void useImageFromCamera(){
     	try{
     		String path = getPreferences(MODE_PRIVATE).getString(TEMP_PHOTO_PATH_KEY, null);
-		   	if (!setImagePreview(path)) throw new RuntimeException("File not found");
+		   	if (!setImageBitmap(path)) throw new RuntimeException("File not found");
 		   	// We place this here because we only want to add valid paths to the list
 		   	dataUris.add(path);
 	   	}
@@ -727,7 +783,7 @@ public class Cryptogram extends Activity {
     	// Show just a preview
 		//imagePreview.setImageBitmap(encodedBitmap);
     	if (encodedBitmap != null)
-    		setImagePreview(encodedBitmap);
+    		setImageBitmap(encodedBitmap);
 		
 		Toast.makeText(this, "Exporting image to gallery", Toast.LENGTH_SHORT).show();
 		
@@ -805,6 +861,18 @@ public class Cryptogram extends Activity {
 	    	 	      
 	     }
 	     
+    }
+    
+    @Override
+    public void onPause(){
+    	super.onPause();
+    	JSONArray a = new JSONArray();
+    	for (Object o : dataUris){
+    		a.put(o.toString());
+    	}
+    	getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).edit().
+    		putString(DATA_URIS_BUNDLE_KEY, a.toString()).commit();
+
     }
 
     @Override
