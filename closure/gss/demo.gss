@@ -259,6 +259,20 @@ a.title {
   margin-top: 10px;
 }
 
+#left table {
+  border-spacing: 0px;
+}
+
+#quality {
+  padding: 0px;
+  clear: both;
+}
+
+#warning{  
+  font-size: 12px;
+  color: gray;
+  margin: none;
+}
 
 /*
  * Copyright 2009 The Closure Library Authors. All Rights Reserved.

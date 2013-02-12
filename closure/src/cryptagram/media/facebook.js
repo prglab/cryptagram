@@ -54,6 +54,7 @@ cryptagram.media.facebook.prototype.determineState = function(URL) {
   var photoRegex=new RegExp(/^https?:\/\/www.facebook.com\/photo.php/);
  
   this.state = cryptagram.media.facebook.state.OTHER;
+  this.supportsAutodecrypt = false;
   this.ready = true;
   
   if (albumRegex.test(URL)) {
@@ -282,6 +283,28 @@ cryptagram.media.facebook.prototype.fixURL = function(URL) {
       return this.fullURL;
     }
   }
+  
+  // For profile and other images 
+  var imageRegex = new RegExp(/^https:\/\/[\-A-z0-9\.]*fbcdn[\-A-z0-9\.]*\/[\-A-z0-9]*\/c[\.0-9]*\/[sp][0-9x]*\/[_0-9]*n\.jpg/);
+  if (imageRegex.test(URL)) {
+  
+    var imageParts = URL.split('/');
+    imageParts[4] = 'c0';
+    imageParts[5] = 's0';
+    var newURL = imageParts.join('/');
+    return newURL;
+  }
+  
+  var imageRegex2 = new RegExp(/^https:\/\/fbcdn[\-A-z0-9\.]*\/[\-A-z0-9]*\/s[0-9x]*\/[_0-9a-z]*\.jpg/);
+  if (imageRegex2.test(URL)) {
+    var imageParts = URL.split('/');
+    imageParts[4] = 's0';
+    var filenameParts = imageParts[5].split('_');
+    filenameParts[filenameParts.length - 1] = 'o.jpg';
+    imageParts[5] = filenameParts.join('_');
+    var newURL = imageParts.join('/');
+    return newURL;
+  }  
 
   return URL;
 };
