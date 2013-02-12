@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
      
     var settingCheckbox = document.getElementById(checkboxName);
     settingCheckbox.checked = (localStorage[setting] == "true" ? true : false);
-    settingCheckbox.setting = setting;
-    
+    settingCheckbox.setting = setting;    
     settingCheckbox.addEventListener('change', function(e) {
     
       if (this.setting == 'user_study' && this.checked) {
