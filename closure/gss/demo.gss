@@ -64,6 +64,18 @@ a.title {
   overflow: hidden;
 }
 
+.images .frame {
+  margin: 5px;
+  float: left;
+  border: 1px solid gray;
+}
+
+.images .frame img {
+  width: 100px;
+  height: 100px;
+}
+
+
 #right {
   width: 170px;
   position: absolute;

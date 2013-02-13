@@ -9,7 +9,9 @@ goog.require('goog.events.EventType');
 goog.require('cryptagram.container');
 goog.require('cryptagram.decoder');
 goog.require('cryptagram.cipher');
+goog.require('cryptagram.codec.bacchant');
 goog.require('cryptagram.codec.experimental');
+goog.require('cryptagram.codec.chrominance');
 goog.require('cryptagram.loader');
 goog.require('cryptagram.RemoteLog');
 
@@ -75,10 +77,12 @@ cryptagram.experiment.prototype.handleFiles = function(files) {
   var file = files[0];
   var codices = [];
   
-  for (var q = 70; q < 96; q += 2) {
+  for (var q = 60; q < 100; q += 5) {
     var quality = q / 100.0;
-    codices.push(new cryptagram.codec.experimental(2, quality, 8));    
+    codices.push(new cryptagram.codec.chrominance(1, quality, 8));    
   }
+  
+  codices.push(new cryptagram.codec.bacchant());
   
   var results = goog.dom.getElement('results');
   results.value = "";
@@ -94,6 +98,11 @@ cryptagram.experiment.prototype.handleFiles = function(files) {
       originalImage.onload = function () {
         ratio = originalImage.width / originalImage.height;
       
+        var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
+        frame.appendChild(originalImage);
+        document.getElementById('original_image').appendChild(frame);
+       
+        
     		var password = 'cryptagram';       
         
         for (var c = 0; c < codices.length; c++) {
@@ -102,7 +111,11 @@ cryptagram.experiment.prototype.handleFiles = function(files) {
           var encryptedData = codec.encrypt(originalData, password);
           var encodedImage = codec.encode(encryptedData, ratio);
           self.logger.info("Encoded in: " + codec.elapsed + " ms");  
-
+          
+          var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
+          frame.appendChild(encodedImage);
+          document.getElementById('decoded_image').appendChild(frame);
+          
           var str = encodedImage.src;
           
           var idx = str.indexOf(",");

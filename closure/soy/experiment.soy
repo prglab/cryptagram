@@ -5,13 +5,14 @@
  * a container for drag & drop interactions.
  */
 {template .experiment}
+<textarea id="results" rows=20 cols=100></textarea>
+
 <div id="files">
 <input type="file" id="file_selector" name="file_selector" multiple/></span>
 <hr>
-<div id="original_image"></div>
-<div id="encoded_image"></div>
-<div id="decoded_image"></div>
+<div id="original_image" class="images"></div>
+<div id="encoded_image" class="images"></div>
+<div id="decoded_image" class="images"></div>
 </div>
-<textarea id="results" rows=20 cols=100></textarea>
 
 {/template}
