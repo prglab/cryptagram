@@ -74,7 +74,6 @@ public class Cryptogram extends Activity {
 	private String EXPORT_FOLDER_PATH = Environment.getExternalStorageDirectory().getPath()+"/Cryptogram";
 	
 	private int THUMBNAIL_HEIGHT = 75;
-	private int PREVIEW_HEIGHT = 200;
 	
 	/** The fewest number of characters acceptable in the password */
 	public final int MIN_PASSWORD_LENGTH = 8;
@@ -89,6 +88,12 @@ public class Cryptogram extends Activity {
 	
 	/** The list of pictures the user has selected. May be String paths or Uri resources ids */
 	private ArrayList<Object> dataUris;
+	
+	/** The name the user has selected for the current album to export to */
+	private String albumName;
+	
+	/** The password entered by the user */
+	private String password;
 	
 
 	
@@ -332,21 +337,10 @@ public class Cryptogram extends Activity {
         			// TODO: Uri Serializable subclass.
         			if (uri.split(":")[0].equals("content")){
         				String ssp = uri.split(":")[1].split("#")[0].replaceFirst("//media", "");
-        				String[] fragmentArr = uri.split("#");
-        				String fragment;
-        				if (fragmentArr.length < 2){
-        					fragment = "";
-        				}
-        				else {
-        					fragment = fragmentArr[1];
-        				}
-        				
-        				Toast.makeText(this, ssp, Toast.LENGTH_SHORT).show();
+
         				Uri.Builder b = new Uri.Builder().scheme("content").authority("media").path(ssp);
         				
-        				dataUris.add(b.build());
-        				Toast.makeText(this, b.build().toString(), Toast.LENGTH_SHORT).show();
-        				
+        				dataUris.add(b.build());        				
         			}
         			
         			else{
@@ -593,8 +587,10 @@ public class Cryptogram extends Activity {
 		
 		alertDialogBuilder.setTitle(R.string.password_prompt);
 
-		final EditText userInput = (EditText) promptsView
+		final EditText passwordField = (EditText) promptsView
 				.findViewById(R.id.inputText);
+		final EditText albumNameField = (EditText) promptsView
+				.findViewById(R.id.album_name);
 
 		// set dialog message
 		alertDialogBuilder
@@ -603,10 +599,11 @@ public class Cryptogram extends Activity {
 			  new DialogInterface.OnClickListener() {
 			    @Override
 				public void onClick(DialogInterface dialog,int id) {
-			    	String password = userInput.getText().toString();
-			    	if (password.length() >= MIN_PASSWORD_LENGTH)
-			    		//Encrypt the photo using the user-defined password
-			    		encryptPhoto(password);
+			    	String inputPassword = passwordField.getText().toString();
+			    	albumName = albumNameField.getText().toString();
+			    	if (inputPassword.length() >= MIN_PASSWORD_LENGTH){
+			    		encryptFirstPhoto();
+			    	}
 			    	
 			    	else
 			    		Toast.makeText(context, "Please enter a password of at least " + MIN_PASSWORD_LENGTH + " characters.", Toast.LENGTH_LONG)
@@ -629,8 +626,27 @@ public class Cryptogram extends Activity {
     
     }
     
+    private void encryptFirstPhoto(){
+    	if (!dataUris.isEmpty()){
+    		//TODO: Refactor to pass image
+    		Object o = dataUris.get(0);
+    		if ( o instanceof String ){
+    			setImageBitmap((String) o);
+    		}
+    		if ( o instanceof Uri ){
+    			setImageBitmap((Uri) o);
+    		}
+    		encryptPhoto();
+    		dataUris.remove(0);
+    	}
+    	// Clear what was encrypted from the selection window
+    	else{
+    		refreshImageList();
+    	}
+    }
+    
     @SuppressLint("SetJavaScriptEnabled")
-	private void encryptPhoto(String password){
+	private void encryptPhoto(){
     	String base64String; 
     	
     	try{
@@ -692,6 +708,8 @@ public class Cryptogram extends Activity {
 			
 		});
 		
+		// Set the WebView to encrypt the data.
+		// On completion, encodeToImage() is called
 		jsExecutionView.loadUrl("file:///android_asset/run_sjcl.html?password="+"password"+"&data="+base64String);
     }
     
@@ -800,8 +818,8 @@ public class Cryptogram extends Activity {
 		String outputDate = new SimpleDateFormat("EEE_MMM_dd_HH_mm_ss_zzz_yyyy", Locale.US).format(new Date());
 		
 		// Make sure the export directory exists, or try to make it if doesn't
-		checkDirectory(EXPORT_FOLDER_PATH);
-		File exportFile = new File(EXPORT_FOLDER_PATH + "/" + outputDate + ".jpg");
+		checkDirectory(EXPORT_FOLDER_PATH + "/" + albumName);
+		File exportFile = new File(EXPORT_FOLDER_PATH + "/" + albumName + "/" + outputDate + ".jpg");
 		
 		try {
 			FileOutputStream outStream = new FileOutputStream(exportFile);
@@ -816,6 +834,8 @@ public class Cryptogram extends Activity {
 			Toast.makeText(this, getString(R.string.file_creation_failed), Toast.LENGTH_SHORT).show();
 			//e.printStackTrace();
 		}
+		
+		encryptFirstPhoto();
     }
     
     /**
