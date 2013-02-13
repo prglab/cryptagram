@@ -33,7 +33,7 @@ a {
   margin: none;
 }
 
-#button_encryptor {
+#button_encryptor, #button_decryptor {
   width: 120px;
 }
 

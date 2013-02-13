@@ -69,21 +69,31 @@ cryptagram.storage.prototype.demoAlbums = { "fb_album://10100510996964783.246271
                                             "g+_album://5842300427612841233":"cat",
                                             "g+_album://5842299216653911073":"cryptagram"};
 
+cryptagram.storage.prototype.demoPhotos = { "http://cryptagr.am/encoded_1.jpg":"cryptagram",
+                                            "http://cryptagr.am/encoded_2.jpg":"cryptagram"};
+
+
 cryptagram.storage.prototype.getDemoPasswordForURL = function(URL) {    
 
+    var photoId = this.media.getPhotoName(URL);
     var albumId = this.media.getAlbumName(URL);
-    
-    var password = null;
-    var albumPassword = null;
-    
+        
     if (albumId) {
-      albumPassword = this.demoAlbums[albumId];
-    }
-    
-   	if (albumPassword) {
-      this.logger.info('Found demo album password.');
-      return albumPassword;
+      var albumPassword = this.demoAlbums[albumId];
+     	if (albumPassword) {
+        this.logger.info('Found demo album password.');
+        return albumPassword;
+		  }
 		}
+		
+		if (photoId) {
+      var photoPassword = this.demoPhotos[photoId];
+     	if (photoPassword) {
+        this.logger.info('Found demo photo password.');
+        return photoPassword;
+		  }
+		}
+		
 		return null;
 };
 
