@@ -3,7 +3,12 @@ var page = chrome.extension.getBackgroundPage();
 document.addEventListener('DOMContentLoaded', function () {
   
   var settings = page.cryptagram.extension.settings;
-    
+  var decodeButton = document.getElementById('button_decryptor');
+  decodeButton.addEventListener('click', function(e) {
+    page.cryptagram.extension.decode();
+    window.close();
+  });
+      
   for (i = 0; i < settings.length; i++) {
     var setting = settings[i][0];
     var checkboxName = "checkbox_" + setting;
