@@ -22,5 +22,6 @@
     <string name="no_camera_app">There is no camera application available!!</string>
     <string name="file_location_failed">Could not find image file!</string>
     <string name="thumbnail_desc">Thumbnail of selected image</string>
+    <string name="album_name_hint">Album Name</string>
 
 </resources>
