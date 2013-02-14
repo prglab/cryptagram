@@ -100,7 +100,7 @@ cryptagram.decoder.prototype.processImage = function() {
     this.logger.shout("DECODE_LEN_ELAPSED_MS " +
                       this.codec.decodeData.length + " " +
                       this.elapsed);
-    this.container.setStatus();
+    this.container.setStatus();    
     this.logger.shout("PROCESS_IMAGE_DECRYPT_START " + this.codec.decodeData.length);
     var decrypted = this.codec.decrypt(this.password);
     this.logger.shout("PROCESS_IMAGE_DECRYPT_FINISH " + this.codec.decodeData.length);

@@ -68,12 +68,13 @@ a.title {
   margin: 5px;
   float: left;
   border: 1px solid gray;
+   width: 100px;
+  height: 100px;
+  overflow: hidden;
 }
 
 .images .frame img {
-  width: 100px;
-  height: 100px;
-}
+ }
 
 
 #right {
