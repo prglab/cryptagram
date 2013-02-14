@@ -31,6 +31,18 @@ cryptagram.experiment = function() {
   
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
+  
+  var sampleImage = document.getElementById("sampleImage");
+  if (sampleImage) {
+  
+    var loader = new cryptagram.loader();
+    loader.queue(sampleImage.src, function(result) {
+      sampleImage.src = result;
+      self.imageExperiment(sampleImage);
+    });
+    loader.start();
+  }
+  
 };
 
 cryptagram.experiment.prototype.logger = 
@@ -65,88 +77,83 @@ cryptagram.experiment.prototype.runDecrypt = function() {
 };
 
 
+
+cryptagram.experiment.prototype.handleFiles = function(files) {
+
+  var file = files[0];
+  var self = this;
+  var reader = new FileReader();
+  reader.onload = function (loadEvent) {
+      var originalData = loadEvent.target.result;
+      var originalImage = new Image();
+      originalImage.onload = function () {
+        self.imageExperiment(originalImage);
+      };
+      originalImage.src = originalData;
+    };
+  reader.onerror = cryptagram.experiment.show_error;
+  reader.readAsDataURL(file);
+}
+
+
 /**
  * @param{Array} files
  * @private
  */
-cryptagram.experiment.prototype.handleFiles = function(files) {
-
+cryptagram.experiment.prototype.imageExperiment = function(image) {
+  
   var output = [];
-  var zip;
   var self = this;
-  var file = files[0];
   var codices = [];
   
-  for (var q = 60; q < 100; q += 5) {
+  for (var q = 70; q < 92; q += 2) {
     var quality = q / 100.0;
-    codices.push(new cryptagram.codec.chrominance(1, quality, 8));    
+    codices.push(new cryptagram.codec.chrominance(1, 2, quality, 8));    
   }
-  
-  codices.push(new cryptagram.codec.bacchant());
-  
+    
   var results = goog.dom.getElement('results');
   results.value = "";
-  
-    var name = escape(file.name);
-    
-    var type = file.type || 'n/a';
-    var reader = new FileReader();
-    var ratio = 1.0;
-    reader.onload = function (loadEvent) {
-      var originalData = loadEvent.target.result;
-      var originalImage = new Image();
-      originalImage.onload = function () {
-        ratio = originalImage.width / originalImage.height;
+  var ratio = 1.0;
+  ratio = image.width / image.height;
       
-        var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
-        frame.appendChild(originalImage);
-        document.getElementById('original_image').appendChild(frame);
-       
+ 	var password = 'cryptagram';       
         
-    		var password = 'cryptagram';       
-        
-        for (var c = 0; c < codices.length; c++) {
-          var codec = codices[c];
-
-          var encryptedData = codec.encrypt(originalData, password);
-          var encodedImage = codec.encode(encryptedData, ratio);
-          self.logger.info("Encoded in: " + codec.elapsed + " ms");  
+  for (var c = 0; c < codices.length; c++) {
+    var codec = codices[c];
+    var originalData = image.src;
+    var encryptedData = codec.encrypt(originalData, password);
+    var encodedImage = codec.encode(encryptedData, ratio);
+    self.logger.info("Encoded in: " + codec.elapsed + " ms");  
           
-          var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
-          frame.appendChild(encodedImage);
-          document.getElementById('decoded_image').appendChild(frame);
+    var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
+    frame.appendChild(encodedImage);
+    document.getElementById('decoded_image').appendChild(frame);
           
-          var str = encodedImage.src;
+    var str = encodedImage.src;
+  
+    var idx = str.indexOf(",");
+    var dat = str.substring(idx+1);
           
-          var idx = str.indexOf(",");
-          var dat = str.substring(idx+1);
-          
-          // Decode image to make sure it worked
-          var decodedImage = new Image();
-          var container = new cryptagram.container(decodedImage);
-          var decoder = new cryptagram.decoder(container, {password: password});
-          
-          //codec.length = codec.lastOctal.length;
-                    
-          decoder.decodeData(str, codec, function(result) {
-            var codec = this.codec;
-            var errorCount = codec.getErrorCount();
-            var percent = errorCount / codec.lastOctal.length;
-            
-            self.logger.info("Octal decoding errors: " + errorCount + "/" +
-                              codec.lastOctal.length + " = " + percent);
-                        
-            var report = codec.quality.toPrecision(2) + "\t" + codec.blockSize + "\t" +
-              errorCount + "\t" + codec.lastOctal.length + "\t" + percent + "\n";
-            results.value += report;
+    // Decode image to make sure it worked
+    var decodedImage = new Image();
+    var container = new cryptagram.container(decodedImage);
+    var decoder = new cryptagram.decoder(container, {password: password});
                               
-          });
-        }
-      }
-      originalImage.src = originalData;
-    };
-    reader.onerror = cryptagram.experiment.show_error;
-    reader.readAsDataURL(file);
+    decoder.decodeData(str, codec, function(result) {
+      var codec = this.codec;
+      codec.checkChrominancePattern();
+  
+      var errorCount = codec.getErrorCount();
+      var percent = errorCount / codec.lastOctal.length;
+              
+      self.logger.info("Octal decoding errors: " + errorCount + "/" +
+                                codec.lastOctal.length + " = " + percent);
+                          
+      var report = codec.quality.toPrecision(2) + "\t" + codec.blockSize + "\t" +
+          errorCount + "\t" + codec.lastOctal.length + "\t" + percent + "\t\t" + codec.percentChrominanceError + "\n";
+      results.value += report;
+    });     
+  }
 };
 
 cryptagram.experiment.show_error = function(msg, url, linenumber) {
