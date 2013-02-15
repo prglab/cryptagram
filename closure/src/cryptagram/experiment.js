@@ -108,8 +108,12 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
   
   for (var q = 70; q < 92; q += 2) {
     var quality = q / 100.0;
-    codices.push(new cryptagram.codec.chrominance(1, 2, quality, 8));    
+    codices.push(new cryptagram.codec.chrominance(quality, 1, 8, 4, 16, 2, 2));    
   }
+  
+  
+  //codices = new Array(new cryptagram.codec.chrominance(quality, 1, 8, 4, 16, 2, 2));    
+
     
   var results = goog.dom.getElement('results');
   results.value = "";
