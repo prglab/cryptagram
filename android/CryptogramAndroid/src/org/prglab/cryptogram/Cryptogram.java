@@ -795,8 +795,9 @@ public class Cryptogram extends Activity {
 			
 		}*/
     	
-    	
-    	Bitmap encodedBitmap = ImageEncoder.encodeBase64(base64String, dataAccessor.getHash(), HEADER, targetWidth/(double)targetHeight);
+    	// TODO: Replace AestheteEncoder with generic ImageEncoder, created by user preference
+    	// onCreate.
+    	Bitmap encodedBitmap = new AestheteEncoder().encodeToBitmap(base64String, dataAccessor.getHash(), targetWidth/(double)targetHeight);
 
     	// Show just a preview
 		//imagePreview.setImageBitmap(encodedBitmap);
