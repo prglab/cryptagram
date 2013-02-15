@@ -10,21 +10,52 @@ goog.require('goog.debug.Logger');
  * @constructor
  * @extends {cryptagram.codec.experimental}
  */
-cryptagram.codec.chrominance = function(blockSize, chromaSize, quality, numberSymbols) {  
+cryptagram.codec.chrominance = function(quality, blockSize, numberSymbols, chromaSize, chromaDelta, numberChromaB, numberChromaR) {  
 
   this.chromaSize = chromaSize;
-  this.chromaDelta = 12;
+  this.chromaDelta = chromaDelta;
   
   this.quality = quality;
   this.blockSize = blockSize;
   this.symbol_thresholds = [];
+  this.chromaBthresholds = [];
+  this.chromaRthresholds = [];
+  this.numberChromaB = numberChromaB;
+  this.numberChromaR = numberChromaR;
+  this.symbol_thresholds = [];
   this.base = numberSymbols;
   this.cipher = new cryptagram.cipher.bacchant();
+  this.pattern = [];
 
   for (var i = 0; i < numberSymbols; i++) {
     var level = (i / (numberSymbols - 1)) * 255;
     this.symbol_thresholds.push(Math.round(level));
   }  
+  
+  var bInc = this.chromaDelta / (this.numberChromaB-1);
+  
+  for (var i = 0; i < numberChromaB; i++) {
+    var level = 128 + bInc * (i - ((this.numberChromaB) / 2) + .5);    
+    this.chromaBthresholds.push(Math.round(level));
+  }
+  
+  var rInc = this.chromaDelta / (this.numberChromaR-1);
+  
+  for (var i = 0; i < numberChromaR; i++) {
+    var level = 128 + rInc * (i - ((this.numberChromaR) / 2) + .5);    
+    this.chromaRthresholds.push(Math.round(level));
+  } 
+  
+  if (numberChromaB == 2) {
+    this.chromaBthresholds = [128 - this.chromaDelta, 128 + this.chromaDelta];
+  }
+  
+  if (numberChromaR == 2) {
+    this.chromaRthresholds = [128 - this.chromaDelta, 128 + this.chromaDelta];
+  }
+  
+  console.log(this.chromaRthresholds);
+  console.log(this.chromaBthresholds);
 };
 
 goog.inherits(cryptagram.codec.chrominance, cryptagram.codec.experimental);
@@ -35,7 +66,7 @@ cryptagram.codec.chrominance.prototype.logger = goog.debug.Logger.getLogger('cry
 
 cryptagram.codec.chrominance.prototype.set_pixel = function(x, y, lum) {
 
-  var cbcr = this.getChromininance(x, y);
+  var cbcr = this.getChromininance(x, y, true);
   var cb = cbcr[0];
   var cr = cbcr[1];
   
@@ -90,23 +121,48 @@ cryptagram.codec.chrominance.prototype.getPattern = function(x,y) {
   return [pb, pr];
 }
 
-// Shift cb and cr based on the pattern and the chromaDelta
-cryptagram.codec.chrominance.prototype.getChromininance = function(x,y) {
-  var pbpr = this.getPattern(x,y);
-  var cb = 128 + this.chromaDelta * pbpr[0];
-  var cr = 128 + this.chromaDelta * pbpr[1];
-  return [cb, cr];
+
+// Deterministic
+//
+
+cryptagram.codec.chrominance.prototype.getRandom = function(xx,yy,set) {
+  
+  //return this.getPattern(x,y);
+  var x = Math.floor(xx / this.chromaSize);
+  var y = Math.floor(yy / this.chromaSize);
+  
+  if (this.pattern && this.pattern[x] && this.pattern[x][y]) {
+    return this.pattern[x][y];
+  }
+  
+  var pb = -1;
+  var pr = -1;
+  
+  pb = Math.floor(Math.random() * this.numberChromaB);
+  pr = Math.floor(Math.random() * this.numberChromaR);
+  
+  if (!this.pattern) {
+    this.pattern = [];
+  }
+  
+  if (!this.pattern[x]) {
+    this.pattern[x] = [];
+  }
+    
+  var randomBits = [pb,pr];
+  this.pattern[x][y] = randomBits;
+  
+  return randomBits;
 }
 
-// See which side of 128 cb and cr fall on to extract pattern
-cryptagram.codec.chrominance.prototype.getPatternFromChrominance = function(cbcr) {
-  var pb = 0;
-  var pr = 0;
-  if (cbcr[0] < 128) pb = -1;
-  if (cbcr[0] > 128) pb = 1;  
-  if (cbcr[1] < 128) pr = -1;
-  if (cbcr[1] > 128) pr = 1;
-  return [pb, pr];
+
+
+// Shift cb and cr based on the pattern and the chromaDelta
+cryptagram.codec.chrominance.prototype.getChromininance = function(x,y,set) {
+  var pbpr = this.getRandom(x,y,set);
+  var cb = this.chromaBthresholds[pbpr[0]];
+  var cr = this.chromaRthresholds[pbpr[1]];
+  return [cb, cr];
 }
 
 // Loops over whole pattern and checks each chroma block
@@ -116,20 +172,28 @@ cryptagram.codec.chrominance.prototype.checkChrominancePattern = function() {
   var errorCount = 0;
   var totalCount = 0;
   
-  for (var y = 0; y < yblocks; y++) {
-    for (var x = 0; x < xblocks; x++) {
+  for (var y = 0; y < yblocks - 1; y++) {
+    for (var x = 0; x < xblocks - 1; x++) {
       var xx = x * this.chromaSize;
       var yy = y * this.chromaSize;
       var cbcr = this.getAverageChrominance(this.img, this.imageData, xx, yy);
-      var pbpr = this.getPatternFromChrominance(cbcr);
+      var pbpr = this.getChromaValue(cbcr);
       
-      var pbprOriginal = this.getPattern(xx,yy);
-
+      var pbprOriginal = this.getRandom(xx,yy,false);
+      //console.log(pbprOriginal);
       totalCount++;
+      
+             
       if (pbpr[0] != pbprOriginal[0] ||
           pbpr[1] != pbprOriginal[1]) {
+          
+        //console.log(pbpr);
+        //console.log(pbprOriginal);
+        //console.log(cbcr);
         errorCount++;
       }
+      
+      
     }
   }
   this.percentChrominanceError = errorCount / totalCount; 
@@ -166,9 +230,33 @@ cryptagram.codec.chrominance.prototype.getAverageChrominance = function(img, img
   b = bt / count;
   var cb = 128 - (0.168736 * r) - (0.331264 * g) + (0.5 * b);
   var cr = 128 + (0.5 * r) - (0.418688 * g) - (0.081312 * b);
-
+  
   return [cb, cr];
 }
+
+
+cryptagram.codec.experimental.prototype.getChromaValue = function(cbcr) {
+
+  var count = 0.0;
+  var vt = 0.0;
+  var avg;
+  
+  var bInc = this.chromaDelta / (this.numberChromaB - 1);
+  var bDelta = cbcr[0] - 128;
+  var bBin = Math.round((bDelta / bInc) + ((this.numberChromaB-1)/2.0)); // -
+  if (bBin >= this.numberChromaB) bBin = this.numberChromaB - 1;
+  if (bBin < 0) bBin = 0;
+
+  var rInc = this.chromaDelta / (this.numberChromaR - 1);
+  var rDelta = cbcr[1] - 128;
+  var rBin = Math.round((rDelta / rInc) + ((this.numberChromaR-1)/2.0)); // -
+  if (rBin >= this.numberChromaR) rBin = this.numberChromaR - 1;
+  if (rBin < 0) rBin = 0;
+
+  
+  return [bBin, rBin];
+}
+
 
 
 /** @inheritDoc */
