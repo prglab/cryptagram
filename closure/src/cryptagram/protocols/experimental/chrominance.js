@@ -47,15 +47,13 @@ cryptagram.codec.chrominance = function(quality, blockSize, numberSymbols, chrom
   } 
   
   if (numberChromaB == 2) {
-    this.chromaBthresholds = [128 - this.chromaDelta, 128 + this.chromaDelta];
+    this.chromaBthresholds = [128 - this.chromaDelta / 2, 128 + this.chromaDelta / 2];
   }
   
   if (numberChromaR == 2) {
-    this.chromaRthresholds = [128 - this.chromaDelta, 128 + this.chromaDelta];
+    this.chromaRthresholds = [128 - this.chromaDelta / 2, 128 + this.chromaDelta / 2];
   }
-  
-  console.log(this.chromaRthresholds);
-  console.log(this.chromaBthresholds);
+
 };
 
 goog.inherits(cryptagram.codec.chrominance, cryptagram.codec.experimental);
@@ -69,6 +67,11 @@ cryptagram.codec.chrominance.prototype.set_pixel = function(x, y, lum) {
   var cbcr = this.getChromininance(x, y, true);
   var cb = cbcr[0];
   var cr = cbcr[1];
+  
+  /*var buffer = 72;
+  if (lum > (255-buffer) || lum < buffer) {
+    cb = cr = 128;
+  }*/
   
   var r = lum + 1.402 * (cr - 128);
   var b = lum + 1.772 * (cb - 128);
@@ -92,8 +95,7 @@ cryptagram.codec.chrominance.prototype.set_block = function(x_start, y_start, le
 };
 
 
-// A test pattern for CbCr by block:  [-1,-1][+1,-1]                   
-//                                    [-1,+1][+1,+1]
+// A test pattern for CbCr
 //
 cryptagram.codec.chrominance.prototype.getPattern = function(x,y) {
 
@@ -122,9 +124,6 @@ cryptagram.codec.chrominance.prototype.getPattern = function(x,y) {
 }
 
 
-// Deterministic
-//
-
 cryptagram.codec.chrominance.prototype.getRandom = function(xx,yy,set) {
   
   //return this.getPattern(x,y);
@@ -148,7 +147,9 @@ cryptagram.codec.chrominance.prototype.getRandom = function(xx,yy,set) {
   if (!this.pattern[x]) {
     this.pattern[x] = [];
   }
-    
+  
+  //pr = 0;
+  //if (pb == 0) pr = 1;
   var randomBits = [pb,pr];
   this.pattern[x][y] = randomBits;
   
@@ -179,17 +180,13 @@ cryptagram.codec.chrominance.prototype.checkChrominancePattern = function() {
       var cbcr = this.getAverageChrominance(this.img, this.imageData, xx, yy);
       var pbpr = this.getChromaValue(cbcr);
       
+      //var avg = (cbcr[0] + cbcr[1]) / 2.0;
+      //pbpr =  this.getChromaValue([avg, avg];
+      
       var pbprOriginal = this.getRandom(xx,yy,false);
-      //console.log(pbprOriginal);
       totalCount++;
       
-             
-      if (pbpr[0] != pbprOriginal[0] ||
-          pbpr[1] != pbprOriginal[1]) {
-          
-        //console.log(pbpr);
-        //console.log(pbprOriginal);
-        //console.log(cbcr);
+      if (pbpr[0] != pbprOriginal[0] || pbpr[1] != pbprOriginal[1]) {
         errorCount++;
       }
       
@@ -230,7 +227,7 @@ cryptagram.codec.chrominance.prototype.getAverageChrominance = function(img, img
   b = bt / count;
   var cb = 128 - (0.168736 * r) - (0.331264 * g) + (0.5 * b);
   var cr = 128 + (0.5 * r) - (0.418688 * g) - (0.081312 * b);
-  
+
   return [cb, cr];
 }
 
@@ -240,23 +237,37 @@ cryptagram.codec.experimental.prototype.getChromaValue = function(cbcr) {
   var count = 0.0;
   var vt = 0.0;
   var avg;
+  var bBin = 0;
+  var rBin = 0;
   
-  var bInc = this.chromaDelta / (this.numberChromaB - 1);
-  var bDelta = cbcr[0] - 128;
-  var bBin = Math.round((bDelta / bInc) + ((this.numberChromaB-1)/2.0)); // -
-  if (bBin >= this.numberChromaB) bBin = this.numberChromaB - 1;
-  if (bBin < 0) bBin = 0;
+  if (this.numberChromaB == 2) {
+    if (cbcr[0] > 128) {
+      bBin = 1;
+    } 
+  } else {
+  
+    var bInc = this.chromaDelta / (this.numberChromaB - 1);
+    var bDelta = cbcr[0] - 128;
+    bBin = Math.round((bDelta / bInc) + ((this.numberChromaB-1)/2.0)); // -
+    if (bBin >= this.numberChromaB) bBin = this.numberChromaB - 1;
+    if (bBin < 0) bBin = 0;
+  }
 
-  var rInc = this.chromaDelta / (this.numberChromaR - 1);
-  var rDelta = cbcr[1] - 128;
-  var rBin = Math.round((rDelta / rInc) + ((this.numberChromaR-1)/2.0)); // -
-  if (rBin >= this.numberChromaR) rBin = this.numberChromaR - 1;
-  if (rBin < 0) rBin = 0;
 
+  if (this.numberChromaR == 2) {
+    if (cbcr[1] > 128) {
+      rBin = 1;
+    } 
+  } else {
+    var rInc = this.chromaDelta / (this.numberChromaR - 1);
+    var rDelta = cbcr[1] - 128;
+    var rBin = Math.round((rDelta / rInc) + ((this.numberChromaR-1)/2.0)); // -
+    if (rBin >= this.numberChromaR) rBin = this.numberChromaR - 1;
+    if (rBin < 0) rBin = 0;
+  }
   
   return [bBin, rBin];
 }
-
 
 
 /** @inheritDoc */
