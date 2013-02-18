@@ -108,7 +108,7 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
   
   for (var q = 70; q < 92; q += 2) {
     var quality = q / 100.0;
-    codices.push(new cryptagram.codec.chrominance(quality, 1, 8, 4, 16, 2, 2));    
+    codices.push(new cryptagram.codec.chrominance(quality, 1, 8, 2, 32, 2, 2));    
   }
   
   
@@ -154,7 +154,7 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
                                 codec.lastOctal.length + " = " + percent);
                           
       var report = codec.quality.toPrecision(2) + "\t" + codec.blockSize + "\t" +
-          errorCount + "\t" + codec.lastOctal.length + "\t" + percent + "\t\t" + codec.percentChrominanceError + "\n";
+          errorCount + "\t" + codec.lastOctal.length + "\t" + percent + "\t" + codec.percentChrominanceError + "\n";
       results.value += report;
     });     
   }
