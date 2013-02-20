@@ -195,6 +195,7 @@ cryptagram.demo.prototype.showEncodeDialog = function () {
   dialog.setDisposeOnHide(true);
   self.dialog = dialog;
   goog.events.listen(this.encoder, 'IMAGE_LOADED', function (event) {
+  
     var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
     frame.appendChild(event.image);
     goog.dom.getElement('thumbs').appendChild(frame);
@@ -288,6 +289,18 @@ cryptagram.demo.prototype.showProgress = function () {
     self.images.file(event.image.file,
                      bin,
                      { base64: false, binary: true });
+                     
+    
+    
+    // Hack for filesize experiments. Export the cleartext image.     
+    var idx2 = event.image.original.src.indexOf(',');
+    var dat2 = event.image.original.src.substring(idx + 1);
+    var bin2 = window.atob(dat2);
+    self.images.file(event.image.file + "_original.jpg",
+                     bin2,
+                     { base64: false, binary: true });
+
+    
     self.remaining = event.remaining;
     if (event.remaining.length == 0) {
       goog.events.removeAll(self.encoder);
