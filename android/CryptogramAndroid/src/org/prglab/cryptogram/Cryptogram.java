@@ -903,12 +903,19 @@ public class Cryptogram extends Activity {
     }
     
     public boolean onOptionsItemSelected (MenuItem item){
+    	Intent intent;
     	switch (item.getItemId()) {
-        case R.id.main_settings:
-	    	Intent intent = new Intent(this, CryptogramPreferences.class);
-	    	startActivity(intent);
-	    	return true;
-    	}
+	        case R.id.main_settings:
+		    	intent = new Intent(this, CryptogramPreferences.class);
+		    	startActivity(intent);
+		    	return true;
+	    	
+	    	case R.id.decrypt:
+	    		intent = new Intent(this, DecryptImageActivity.class);
+	    		intent.putExtra(DecryptImageActivity.ALBUM_FOLDER, EXPORT_FOLDER_PATH);
+	    		startActivity(intent);
+	    		return true;
+    	}	
 	    return super.onOptionsItemSelected(item);
     }
     

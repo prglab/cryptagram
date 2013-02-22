@@ -171,7 +171,7 @@ public class BacchantEncoder implements ImageEncoder {
 	 * @param widthHeightRatio the desired shape of the resulting image
 	 * @return the encoded Cryptagram Bacchant image
 	 */
-	public static Bitmap encodeToImage(String data, String hash, double widthHeightRatio){
+	public Bitmap encodeToBitmap(String data, String hash, double widthHeightRatio){
 		// get rid of those pesky spaces
 		data = trimSpaces(data);
 		
