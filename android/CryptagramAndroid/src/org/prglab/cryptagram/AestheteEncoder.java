@@ -14,6 +14,9 @@ import android.graphics.Color;
  *
  */
 public class AestheteEncoder implements ImageEncoder{
+	/** The singleton instance of the object */
+	private static AestheteEncoder self;
+	
 	/** The protocol header name (base64) */
 	private final static String HEADER = "aesthete";
 	
@@ -166,13 +169,13 @@ public class AestheteEncoder implements ImageEncoder{
 	/**
 	 * 
 	 * @param data a string of base64 encoded data
-	 * @param hash the hash of the data, also base64
 	 * @param widthHeightRatio the desired shape of the resulting image
 	 * @return the encoded Cryptagram image
 	 */
-	public Bitmap encodeToBitmap(String data, String hash, double widthHeightRatio){
+	public Bitmap encodeToBitmap(String data, double widthHeightRatio){
 		// get rid of those pesky spaces
 		data = trimSpaces(data);
+		String hash;
 		
 		try {
 			hash = computeHash(data);
@@ -187,5 +190,20 @@ public class AestheteEncoder implements ImageEncoder{
 	    ArrayList<Integer> dataOctal = getOctalArray(hash + data);//checksum + data);
 	    
 	    return encodeToBitmap(dataOctal, headerOctal, widthHeightRatio);
+	}
+	
+	/** The singleton private constructor */
+	private AestheteEncoder(){
+		
+	}
+	
+	public static AestheteEncoder getEncoder(){
+		if (self == null)
+			self = new AestheteEncoder();
+		return self;
+	}	
+	
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
 	}
 }

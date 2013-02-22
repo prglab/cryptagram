@@ -6,6 +6,9 @@ import android.util.Base64;
 
 /** Skeleton for AestheteDecoder */
 public class AestheteDecoder implements ImageDecoder {
+	/** The singleton instance of the object */
+	private static AestheteDecoder self;
+	
 	/** Data block width in pixels */
 	private final static int BLOCK_HEIGHT = 2;
 	/** Data block height in pixels */
@@ -89,28 +92,28 @@ public class AestheteDecoder implements ImageDecoder {
 	 * Try decoding the given bitmap with the given password using the
 	 * Cryptagram decoding scheme
 	 * 
-	 * @param encryptedImage the Bitmap of the image to decode
+	 * @param encodedImage the Bitmap of the image to decode
 	 * @param password the password protecting the image
 	 * @return the base64-encoded data in the image
 	 */
-	public String decodeBitmap(Bitmap encryptedImage, String password){
+	public String decodeBitmap(Bitmap encodedImage){
 		StringBuilder imageData = new StringBuilder();
 		
-		String header = getHeader(encryptedImage);
+		String header = getHeader(encodedImage);
 		if (!header.equals(PROTOCOL_NAME)){
 			return null;
 		}
 
-		for (int y = 0; y < encryptedImage.getHeight(); y += BLOCK_HEIGHT){
-			for (int x = 0; x < encryptedImage.getWidth(); x += BLOCK_WIDTH * 2){
+		for (int y = 0; y < encodedImage.getHeight(); y += BLOCK_HEIGHT){
+			for (int x = 0; x < encodedImage.getWidth(); x += BLOCK_WIDTH * 2){
 				
 				// Skip the header block
 				if (y < HEADER_HEIGHT && x < HEADER_WIDTH){
 					continue;
 				}
 				
-				int upperBase8 = getBase8(encryptedImage, x, y);
-				int lowerBase8 = getBase8(encryptedImage, x + HEADER_WIDTH, y);
+				int upperBase8 = getBase8(encodedImage, x, y);
+				int lowerBase8 = getBase8(encodedImage, x + HEADER_WIDTH, y);
 				
 				int base64num = 8*upperBase8 +lowerBase8;
 				
@@ -124,6 +127,21 @@ public class AestheteDecoder implements ImageDecoder {
 		
 		return imageData.toString();
 
+	}
+	
+	/** The singleton private constructor */
+	private AestheteDecoder(){
+		
+	}
+	
+	public static AestheteDecoder getDecoder(){
+		if (self == null)
+			self = new AestheteDecoder();
+		return self;
+	}	
+	
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
 	}
 
 }
