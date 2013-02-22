@@ -15,6 +15,9 @@ import android.graphics.Color;
  *
  */
 public class BacchantEncoder implements ImageEncoder {
+	/** The singleton instance of the object */
+	private static BacchantEncoder self;
+	
 	/** The protocol header name (base64) */
 	private final static String HEADER = "bacchant";
 	
@@ -171,9 +174,11 @@ public class BacchantEncoder implements ImageEncoder {
 	 * @param widthHeightRatio the desired shape of the resulting image
 	 * @return the encoded Cryptagram Bacchant image
 	 */
-	public Bitmap encodeToBitmap(String data, String hash, double widthHeightRatio){
+	public Bitmap encodeToBitmap(String data, double widthHeightRatio){
 		// get rid of those pesky spaces
 		data = trimSpaces(data);
+		
+		String hash;
 		
 		try {
 			hash = computeHash(data);
@@ -188,5 +193,20 @@ public class BacchantEncoder implements ImageEncoder {
 	    ArrayList<Integer> dataOctal = getOctalArray(hash + data);//checksum + data);
 	    
 	    return encodeToBitmap(dataOctal, headerOctal, widthHeightRatio);
+	}
+	
+	/** The singleton private constructor */
+	private BacchantEncoder(){
+		
+	}
+	
+	public static BacchantEncoder getEncoder(){
+		if (self == null)
+			self = new BacchantEncoder();
+		return self;
+	}	
+	
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
 	}
 }
