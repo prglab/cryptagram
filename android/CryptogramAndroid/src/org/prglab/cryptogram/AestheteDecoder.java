@@ -2,6 +2,7 @@ package org.prglab.cryptogram;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Base64;
 
 /** Skeleton for AestheteDecoder */
 public class AestheteDecoder implements ImageDecoder {

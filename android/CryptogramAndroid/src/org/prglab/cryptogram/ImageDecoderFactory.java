@@ -1,10 +1,12 @@
 package org.prglab.cryptogram;
 
+import android.graphics.Bitmap;
+
 /** Factory class to find the right decoder for a given image. */
 public class ImageDecoderFactory {
 	// Cache decoder classes for efficiency
-	private AestheteDecoder aestheteDecoder = new AestheteDecoder();
-	private BacchantDecoder bacchantDecoder = new BacchantDecoder();
+	private static AestheteDecoder aestheteDecoder = new AestheteDecoder();
+	private static BacchantDecoder bacchantDecoder = new BacchantDecoder();
 	
 	/**
 	 * Get an ImageDecoder to handle the argument image.
