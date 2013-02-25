@@ -239,9 +239,10 @@ cryptagram.demo.prototype.showEncodeDialog = function () {
   
   var quality = goog.dom.getElement('quality');
   var warning = goog.dom.getElement('warning');
+  var tips = ['Sharper image but smaller width and height', '',
+              'Fuzzier image allows for bigger width and height'];
   quality.onchange = function() {
-      var option = quality.options[quality.selectedIndex];
-      warning.innerHTML = option.innerText;
+      warning.innerHTML = tips[quality.selectedIndex];
   }
   
   goog.dom.getElement('password').focus();
@@ -299,18 +300,7 @@ cryptagram.demo.prototype.showProgress = function () {
     self.images.file(event.image.file,
                      bin,
                      { base64: false, binary: true });
-                     
-    
-    
-    // Hack for filesize experiments. Export the cleartext image.     
-    var idx2 = event.image.original.src.indexOf(',');
-    var dat2 = event.image.original.src.substring(idx + 1);
-    var bin2 = window.atob(dat2);
-    self.images.file(event.image.file + "_original.jpg",
-                     bin2,
-                     { base64: false, binary: true });
-
-    
+                         
     self.remaining = event.remaining;
     if (event.remaining.length == 0) {
       goog.events.removeAll(self.encoder);
@@ -400,7 +390,7 @@ cryptagram.demo.prototype.runDecrypt = function (images, password) {
     var image = images[i];
     var container = new cryptagram.container(image);
     var decoder = new cryptagram.decoder(container, {password: password});
-    decoder.decodeData(image.src, null, function (result) {
+    decoder.decodeData(image.src, null, function (result) {    
       this.container.setSrc(result);
       this.container.img.parentElement.href = result;
       this.container.img.parentElement.download = this.container.img.file;
