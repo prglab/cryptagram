@@ -168,6 +168,7 @@ cryptagram.demo.prototype.demoDecrypt = function (container, button, password) {
  * @private
  */
 cryptagram.demo.prototype.decryptFiles = function (files) {
+  this.files = files;
   this.decoder = new cryptagram.decoder();
   this.showDecryptDialog();
   this.decoder.queueFiles(files);
@@ -182,6 +183,7 @@ cryptagram.demo.prototype.encryptFiles = function (files) {
   this.encoder = new cryptagram.encoder();
   this.showEncodeDialog();
   this.encoder.queueFiles(files);
+  this.files = files;
 };
 
 cryptagram.demo.prototype.showEncodeDialog = function () {
@@ -226,6 +228,14 @@ cryptagram.demo.prototype.showEncodeDialog = function () {
 
   dialog.setVisible(true);
   dialog.getButtonSet().setAllButtonsEnabled(false);
+  
+  dialog.getButtonElement().innerHTML += "<input type=button value='Switch to Decoder' id='switchButton' style='float: right'>";
+  var switchButton = document.getElementById("switchButton");
+  goog.events.listenOnce(switchButton, goog.events.EventType.CLICK, function(e) {
+    dialog.exitDocument();
+    self.decryptFiles(self.files);
+  });
+
   
   var quality = goog.dom.getElement('quality');
   var warning = goog.dom.getElement('warning');
@@ -384,15 +394,20 @@ cryptagram.demo.prototype.showConsentDialog = function () {
 
 
 cryptagram.demo.prototype.runDecrypt = function (images, password) {
+
+  var self = this;
   for (var i = 0; i < images.length; i++) {
     var image = images[i];
     var container = new cryptagram.container(image);
     var decoder = new cryptagram.decoder(container, {password: password});
     decoder.decodeData(image.src, null, function (result) {
-      container.setSrc(result);
+      this.container.setSrc(result);
+      this.container.img.parentElement.href = result;
+      this.container.img.parentElement.download = this.container.img.file;
     });
   }
 };
+
 
 cryptagram.demo.prototype.showDecryptDialog = function () {
   var self = this;
@@ -405,7 +420,7 @@ cryptagram.demo.prototype.showDecryptDialog = function () {
   dialog.setDisposeOnHide(true);
   self.dialog = dialog;
   goog.events.listen(this.decoder, 'IMAGE_LOADED', function (event) {
-    var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
+    var frame = goog.dom.createDom('a', {'class': goog.getCssName('frame'), 'target': '_blank'});
     frame.appendChild(event.image);
     goog.dom.getElement('medium').appendChild(frame);
     self.images.push(event.image);
@@ -429,6 +444,15 @@ cryptagram.demo.prototype.showDecryptDialog = function () {
   }, false, this);
 
   dialog.setVisible(true);
+  
+  dialog.getButtonElement().innerHTML += "<input type=button value='Switch to Encoder' id='switchButton' style='float: right'>";
+  var switchButton = document.getElementById("switchButton");
+  goog.events.listenOnce(switchButton, goog.events.EventType.CLICK, function(e) {
+    dialog.exitDocument();
+    self.encryptFiles(self.files);
+  });
+  
+
   dialog.getButtonSet().setAllButtonsEnabled(false);
   goog.dom.getElement('password').focus();
 };
