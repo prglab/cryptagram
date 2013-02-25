@@ -30,7 +30,7 @@ cryptagram.container.prototype.createStatus = function() {
   this.div.style.position = "absolute";
   this.div.style.width = "50px";
   this.div.style.top = "0px";
-  this.div.style.marginLeft = "-25px";
+  this.div.style.marginLeft = "-30px";
   this.div.style.marginTop = "5px";
   this.div.style.padding = "5px";
   this.div.style.color = "black";
@@ -59,7 +59,6 @@ cryptagram.container.prototype.getSrc = function() {
 
 
 cryptagram.container.prototype.setSrc = function(src) {
-console.dir(this);
   if (this.img) {
     this.previousSrc = this.img.src;
     this.img.src = src;
