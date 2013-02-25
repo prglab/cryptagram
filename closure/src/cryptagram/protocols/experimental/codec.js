@@ -9,7 +9,7 @@ goog.require('goog.debug.Logger');
  * @constructor
  * @extends {cryptagram.codec}
  */
-cryptagram.codec.experimental = function(blockSize, quality, numberSymbols) {
+cryptagram.codec.experimental = function(quality, blockSize, numberSymbols) {
 
   this.quality = quality;
   this.blockSize = blockSize;
