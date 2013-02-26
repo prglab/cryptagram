@@ -1,5 +1,9 @@
 package org.prglab.cryptagram;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Base64;
@@ -68,6 +72,24 @@ public class AestheteDecoder implements ImageDecoder {
 		return 8 - bin;
 	}
 	
+	public static String computeHash(String input) throws NoSuchAlgorithmException{
+	    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+	    digest.reset();
+	    try{
+	      digest.update(input.getBytes("UTF-8"));
+	    } catch (UnsupportedEncodingException e){
+	      e.printStackTrace();
+	    }
+
+	    byte[] byteData = digest.digest();
+	    StringBuffer sb = new StringBuffer();
+
+	    for (int i = 0; i < byteData.length; i++){
+	      sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+	    }
+	    return sb.toString();
+	}
+	
 	private static String getHeader(Bitmap encryptedImage){
 		
 		StringBuilder base64Sb= new StringBuilder();
@@ -96,13 +118,16 @@ public class AestheteDecoder implements ImageDecoder {
 	 * @param password the password protecting the image
 	 * @return the base64-encoded data in the image
 	 */
-	public String decodeBitmap(Bitmap encodedImage){
+	public String decodeBitmap(Bitmap encodedImage) throws ImageDecoder.HashCheckFailedException{
 		StringBuilder imageData = new StringBuilder();
+		StringBuilder hash = new StringBuilder();
 		
 		String header = getHeader(encodedImage);
 		if (!header.equals(PROTOCOL_NAME)){
 			return null;
 		}
+		
+		int readCount = 0;
 
 		for (int y = 0; y < encodedImage.getHeight(); y += BLOCK_HEIGHT){
 			for (int x = 0; x < encodedImage.getWidth(); x += BLOCK_WIDTH * 2){
@@ -113,19 +138,35 @@ public class AestheteDecoder implements ImageDecoder {
 				}
 				
 				int upperBase8 = getBase8(encodedImage, x, y);
-				int lowerBase8 = getBase8(encodedImage, x + HEADER_WIDTH, y);
+				int lowerBase8 = getBase8(encodedImage, x + BLOCK_WIDTH, y);
 				
 				int base64num = 8*upperBase8 +lowerBase8;
 				
 				if (base64num > 0){
 					char base64char = base64Symbols.charAt(base64num);
-					imageData.append(base64char);
-				}
-				
+					if (readCount < 256){
+						hash.append(base64char);					
+					}
+					else{
+						imageData.append(base64char);
+					}
+				}	
 			}
 		}
 		
-		return imageData.toString();
+		String imageDataStr = imageData.toString();
+		try{
+			String hashStr = computeHash(imageDataStr);
+		
+			if (!hashStr.equals(hash.toString())){
+				throw new Exception();
+			}
+		}
+		catch (Exception e){
+			throw new ImageDecoder.HashCheckFailedException();
+		}
+		
+		return imageDataStr;
 
 	}
 	
