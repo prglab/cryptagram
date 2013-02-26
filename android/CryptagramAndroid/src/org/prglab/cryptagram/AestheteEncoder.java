@@ -74,7 +74,7 @@ public class AestheteEncoder implements ImageEncoder{
 	
 	public static int getValueOfSymbol(char symbol){
 		if (base64Symbols.indexOf(symbol) == -1){
-			throw new RuntimeException("Invalid base64 symbol " + Character.toString(symbol));
+			throw new RuntimeException("Invalid base64 symbol |" + Character.toString(symbol) + "|");
 		}
 		return base64Symbols.indexOf(symbol);
 	}
@@ -90,8 +90,11 @@ public class AestheteEncoder implements ImageEncoder{
 		
 		// Make width a multiple of block width * 2 so that all octal pairs are contained in the same line
 		width = (int)Math.ceil((double)width / (2*BLOCK_WIDTH)) * 2 * BLOCK_WIDTH;
-					
-		int[] imageData = new int[(int)(width*height)];
+		
+		int iWidth = (int)width;
+		int iHeight = (int)height;
+		
+		int[] imageData = new int[iWidth*iHeight];
 		
 		// Write header
 		for (int y = 0; y < HEADER_HEIGHT; y += BLOCK_HEIGHT){
@@ -142,8 +145,8 @@ public class AestheteEncoder implements ImageEncoder{
 			imageData[((y+1)*width + x + 1)] = pixel;
 		}
 		
-		Bitmap encodedBitmap = Bitmap.createBitmap(imageData, (int)width, (int)height, Bitmap.Config.ARGB_8888);
-		
+
+		Bitmap encodedBitmap = Bitmap.createBitmap(imageData, iWidth, iHeight, Bitmap.Config.ARGB_8888);
 		
 		return encodedBitmap;
 	}
