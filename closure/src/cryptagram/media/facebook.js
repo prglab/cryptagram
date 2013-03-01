@@ -247,15 +247,28 @@ cryptagram.media.facebook.prototype.getAlbumName = function(URL) {
   var albumIDParts = browserURL.match(/set=a.([0-9a.]*)/);
 
   if (!albumIDParts) {
-    var info = document.getElementById('fbPhotoPageMediaInfo');
-    if (info) {
-      var URL = info.children[0].children[1].children[1].href;
+    var URL;
+    
+    if (this.state == cryptagram.media.facebook.state.SPOTLIGHT) {
+      var info = document.getElementsByClassName('fbPhotoSnowliftAlbumLink')[0];
+      if (info) {
+        URL = info.href;
+      }
+    } else {
+      var info = document.getElementById('fbPhotoPageMediaInfo');
+      if (info) {
+        URL = info.children[0].children[1].children[1].href;
+      }
+    }
+    
+    if (URL) {
       albumIDParts = URL.match(/set=a.([0-9a.]*)/);
-       this.logger.info('Extracted album name from album link.');
+      this.logger.info('Extracted album name from album link.');
     } else {
       return null;
     }
   }
+  
   var albumID = albumIDParts[1];
   var albumParts = albumID.split(".");
   return "fb_album://" + albumParts[0] + "." + albumParts[1];

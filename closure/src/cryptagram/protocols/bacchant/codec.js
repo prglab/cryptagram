@@ -9,9 +9,9 @@ goog.require('goog.debug.Logger');
  * @constructor
  * @extends {cryptagram.codec}
  */
-cryptagram.codec.bacchant = function() {
+cryptagram.codec.bacchant = function(quality) {
   this.blockSize = 2;
-  this.quality = .85;
+  this.quality = quality;
   this.symbol_thresholds = [0, 36, 72, 109, 145, 182, 218, 255];
   this.cipher = new cryptagram.cipher.bacchant();
 };
