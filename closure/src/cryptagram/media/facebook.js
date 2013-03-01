@@ -207,7 +207,6 @@ cryptagram.media.facebook.prototype.checkIfReady = function(callback) {
   this.determineState(document.URL);
 
   if (this.ready || this.parseMedia()) {
-    this.logger.shout("FACEBOOK_MODE " + this.state);
     callback();
     return;
   }

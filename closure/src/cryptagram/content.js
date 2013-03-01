@@ -74,14 +74,14 @@ cryptagram.content.prototype.handleRequest =
   this.callback = callback;
 
   this.media.determineState(document.URL);
-
   
   if (request['storage']) {
     this.storage.load(request['storage']);
   }
-
+  
   // Always check user_study variable in case it has changed
   var remoteCapture = (self.storage.lookup['user_study'] == 'true');
+  cryptagram.RemoteLog.guid = self.storage.lookup['guid'];
   this.remoteLog.setCapturing(remoteCapture);
 
   if (request['setUserStudy']) {
@@ -130,6 +130,8 @@ cryptagram.content.prototype.setStatus = function(message) {
 
 
 cryptagram.content.prototype.decryptImage = function(image, password, queue) {
+    
+  this.logger.shout("OSN_STATE " + this.media.name() + " " + this.media.state);
 
   var container = this.media.loadContainer(image.src);
   var self = this;
@@ -171,6 +173,8 @@ cryptagram.content.prototype.decryptImage = function(image, password, queue) {
 
 
 cryptagram.content.prototype.decryptByURL = function(URL, password) {
+
+  this.logger.shout("OSN_STATE " + this.media.name() + " " + this.media.state);
 
   this.logger.info('Request to decrypt ' + URL + '.');
   var container = this.media.loadContainer(URL);

@@ -166,10 +166,16 @@ cryptagram.RemoteLog.logToRemoteLog_ = function(host, fnName, record) {
 /* Working solution but causes warning messages that we may want to avoid. */
   var d = new Date();
   var img = new Image();
-  img.src = "http://" + host + 
+  var src = "http://" + host + 
             "?ts=" + d.getTime() +
             "&sev=" + encodeURIComponent(fnName) + 
             "&msg=" + encodeURIComponent(record);
+
+  if (cryptagram.RemoteLog.guid) {
+    src += "&guid=" + cryptagram.RemoteLog.guid;
+  }
+  
+  img.src = src;
 
   /*var xhr = new XMLHttpRequest();
   var url = "http://" + host;

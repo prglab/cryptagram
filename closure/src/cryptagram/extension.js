@@ -1,6 +1,7 @@
 goog.provide('cryptagram.extension');
 
 goog.require('cryptagram.RemoteLog');
+goog.require('cryptagram.util');
 goog.require('goog.dom');
 goog.require('goog.net.XhrIo');
 
@@ -62,6 +63,10 @@ cryptagram.extension.init = function() {
     'contexts' : ['image'],
     'onclick' : cryptagram.extension.getClickHandler()
   });
+
+  if (!localStorage['guid']) {
+     localStorage['guid'] = cryptagram.util.guid();
+  }
 
   for (var i = 0; i < cryptagram.extension.settings.length; i++) {
     var setting = cryptagram.extension.settings[i][0];

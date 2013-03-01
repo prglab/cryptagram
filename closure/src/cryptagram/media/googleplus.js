@@ -108,7 +108,6 @@ cryptagram.media.googleplus.prototype.checkIfReady = function(callback) {
   this.determineState(document.URL);
 
   if (this.parseMedia()) {
-    this.logger.shout("GPLUS_MODE " + this.state);
     callback();
     return;
   }
