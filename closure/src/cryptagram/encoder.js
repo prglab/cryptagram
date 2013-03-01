@@ -247,12 +247,14 @@ cryptagram.encoder.prototype.encodeImage = function (image) {
   var ratio = image.width / image.height;
   var dataToEncode = image.src;
   this.logger.info("Encoding this size: " + dataToEncode.length);
-  //var codec = new this.codec();
-  var codec = new cryptagram.codec.experimental(1, .85, 8);    
+  var codec = new this.codec();
 
   var encryptedData = codec.encrypt(dataToEncode, this.password);
   this.logger.info("Encoding this: " + encryptedData.length);
   var encodedImage = codec.encode(encryptedData, ratio);
+  
+  this.blocksWritten = codec.lastOctal.length;
+  
   encodedImage.file = image.file;
   encodedImage.onload = function (e) {
     self.encodedOnload(e);
