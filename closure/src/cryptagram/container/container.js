@@ -59,7 +59,7 @@ cryptagram.container.prototype.getSrc = function() {
 
 
 cryptagram.container.prototype.setSrc = function(src) {
-console.dir(this);
+
   if (this.img) {
     this.previousSrc = this.img.src;
     this.img.src = src;

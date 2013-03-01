@@ -9,7 +9,7 @@ cryptagram.extension.settings = [['save_passwords','true'],
                                  ['hide_passwords','true'],
                                  ['auto_decrypt','true'],
                                  ['album_passwords','true'],
-                                 ['user_study','false']];
+                                 ['user_study','unknown']];
 
 cryptagram.extension.encoderURL = 'http://cryptagr.am';
 //cryptagram.extension.encoderURL = 'http://localhost:8888';
@@ -27,8 +27,9 @@ cryptagram.extension.onInstall =  function() {
 cryptagram.extension.onUpdate = function() {
   // Only ask for consent if not already asked (if someone has said no, then
   // obey request).
-  if (localStorage['user_study'] != 'false' &&
-      localStorage['user_study'] != 'true') {
+  
+  // For this version, re-ask in case of user_study == false
+  if (localStorage['user_study'] != 'true') {
     cryptagram.RemoteLog.simpleLog('UPDATE_CONSENT');
     chrome.tabs.create({
       url: 'welcome.html'
