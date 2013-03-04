@@ -59,16 +59,16 @@
 {/template}
 
 
+
 /**
  */
 {template .encodeDialog}
 <div class="{css fixedWidth}">
 <div id="left">
-Settings<br>
+Configuration
 <p>Password<br>
 <input type=text id=password size=20>
 </p>
-
 <p>Maximum Output Size<br>
 <select id="maxSize">
   <option value="2048">2048x2048</option>
@@ -78,13 +78,12 @@ Settings<br>
 </p>
 <p>Embedded JPEG Quality<br>
 <select id="quality">
-  <option value=".9" label="High">Sharper image but smaller width and height</option>
-  <option value=".7" label="Medium" selected></option>
-  <option value=".5" label="Low">Fuzzier image allows for bigger width and height</option>
+  <option value=".9" label="High">High</option>
+  <option value=".7" label="Medium" selected>Medium</option>
+  <option value=".5" label="Low">Low</option>
 </select>
 <br><span id=warning></span>
 </p>
-
 </div>
 <div id="right">
 <div id="status">Images</div>
@@ -100,7 +99,6 @@ Settings<br>
 {template .decryptDialog}
 <div class="{css fixedWidth}">
 <div id="medium"></div>
-<br><br>
 <p>Password<br>
 <input type=text id=password size=20>
 </p>

@@ -12,6 +12,7 @@ goog.require('goog.events.EventTarget');
  */
 cryptagram.decoder = function(container, options) {
   this.container = container;
+  
   if (options && options.password) {
     this.password = options.password;
   }
@@ -20,6 +21,7 @@ cryptagram.decoder = function(container, options) {
 goog.inherits(cryptagram.decoder, goog.events.EventTarget);
 
 cryptagram.decoder.prototype.logger = goog.debug.Logger.getLogger('cryptagram.decoder');
+
 
 
 /**
@@ -35,10 +37,8 @@ cryptagram.decoder.prototype.decodeData = function(data, codec, callback) {
   var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
   var img = new Image();
-  var blockSize = 2;
 
   img.onload = function(){
-
     canvas.width = img.width;
     canvas.height = img.height;
     ctx.drawImage(img,0,0);
@@ -49,7 +49,7 @@ cryptagram.decoder.prototype.decodeData = function(data, codec, callback) {
     } else {
       self.codec = codec;
     }
-
+  
     if (!self.codec) {
       self.container.setStatus();
     } else {
@@ -60,6 +60,51 @@ cryptagram.decoder.prototype.decodeData = function(data, codec, callback) {
     }
   };
 
+  img.src = data;
+}
+
+
+/**
+ * Decodes the data and applies JPEG again for requality experiments
+ */
+cryptagram.decoder.prototype.decodeDataWithQuality = function(data, codec, callback) {
+
+  var self = this;
+  self.callback = callback;
+  var canvas = document.createElement('canvas');
+  var ctx = canvas.getContext('2d');
+  var img = new Image();
+  
+  img.onload = function(){
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img,0,0);
+    var img2 = new Image();
+    img2.onload = function(){
+      var canvas2 = document.createElement('canvas');
+      var ctx2 = canvas.getContext('2d');
+      canvas2.width = img.width;
+      canvas2.height = img.height;
+      ctx2.drawImage(img2,0,0);
+      var imageData = ctx2.getImageData(0, 0, canvas.width, canvas.height).data;
+
+      if (!codec) {
+        self.codec = self.getCodec(img, imageData);
+      } else {
+        self.codec = codec;
+      }
+  
+      if (!self.codec) {
+        self.container.setStatus();
+      } else {
+        self.data = "";
+        self.codec.setDecodeParams(img, imageData);
+        self.timeA = new Date().getTime();
+        self.processImage();
+      }
+    }
+    img2.src = canvas.toDataURL('image/jpeg', self.quality);
+  };
   img.src = data;
 }
 
@@ -100,7 +145,7 @@ cryptagram.decoder.prototype.processImage = function() {
     this.logger.shout("DECODE_LEN_ELAPSED_MS " +
                       this.codec.decodeData.length + " " +
                       this.elapsed);
-    this.container.setStatus();
+    this.container.setStatus();    
     this.logger.shout("PROCESS_IMAGE_DECRYPT_START " + this.codec.decodeData.length);
     var decrypted = this.codec.decrypt(this.password);
     this.logger.shout("PROCESS_IMAGE_DECRYPT_FINISH " + this.codec.decodeData.length);

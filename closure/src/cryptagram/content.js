@@ -90,7 +90,8 @@ cryptagram.content.prototype.handleRequest =
   
   if (request['autoDecrypt']) {
     if (this.media.supportsAutodecrypt) {
-      if (request['autoDecrypt'] == this.lastAutoDecrypt) {
+      if (request['autoDecrypt'] == this.lastAutoDecrypt &&
+          !request['forceDecrypt']) {
         this.logger.info('Ignoring redundant autodecrypt request.');
         return;
       }
@@ -276,16 +277,26 @@ cryptagram.content.prototype.showProgressDialog = function() {
   var dialog = new goog.ui.Dialog(null, false);
   this.progressDialog = dialog;
   dialog.setContent(cryptagram.templates.progress());
+  
   dialog.setTitle('Decrypting');
   dialog.setDisposeOnHide(true);
   dialog.setModal(false);
   dialog.setButtonSet(null);
   dialog.setVisible(true);
+  
+  dialog.getBackgroundElement().addEventListener('click', function(e) {
+    e.stopPropagation();
+  }, false);
+  
+  dialog.getDialogElement().addEventListener('click', function(e) {
+    e.stopPropagation();
+  }, false); 
 
   this.pb = new goog.ui.ProgressBar;
   this.pb.decorate(goog.dom.getElement('progress'));
-  goog.style.setPosition(dialog.getDialogElement(), 20, 20);
-        
+  
+  goog.style.setPosition(dialog.getDialogElement(), document.width - 200, 10);
+
   this.pb.addEventListener(goog.ui.Component.EventType.CHANGE, function() {
     var out = goog.dom.getElement('out');
     if (out) {
@@ -314,6 +325,12 @@ cryptagram.content.prototype.autoDecrypt = function() {
     
   var needsQueue = true;
   if (images.length < 4) needsQueue = false;
+
+  if (needsQueue && this.loaders.length > 0) {
+    this.logger.info('Ignoring autodecrypt request. Queue is in use.');
+    return;
+  }
+
 
   for (var i = 0; i < images.length; i++) {
     var password = this.storage.getPasswordForURL(images[i].src);

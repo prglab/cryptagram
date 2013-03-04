@@ -1,3 +1,3 @@
-cp -r $1 $1_$2
+cp -r $1 $1_s$2
 
-mogrify -resize $2% -quality 70 $1_$2/*
+mogrify -resize $2 -quality 90 $1_s$2/*jpg
