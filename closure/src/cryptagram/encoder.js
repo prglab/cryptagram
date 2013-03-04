@@ -15,6 +15,8 @@ goog.require('goog.events.EventTarget');
 
 goog.require('cryptagram.container');
 goog.require('cryptagram.codec.aesthete');
+goog.require('cryptagram.codec.experimental');
+
 goog.require('cryptagram.loader');
 goog.require('cryptagram.RemoteLog');
 
@@ -203,6 +205,7 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
                                       event.image.src.length);
       this.logger.info("Image est:" + est.width + " " + est.height);
       self.encodeImage(event.image);
+      self.images[0].original = event.image;
     },
     true,
     this);
@@ -249,6 +252,9 @@ cryptagram.encoder.prototype.encodeImage = function (image) {
   var encryptedData = codec.encrypt(dataToEncode, this.password);
   this.logger.info("Encoding this: " + encryptedData.length);
   var encodedImage = codec.encode(encryptedData, ratio);
+  
+  this.blocksWritten = codec.lastOctal.length;
+  
   encodedImage.file = image.file;
   encodedImage.onload = function (e) {
     self.encodedOnload(e);
@@ -258,8 +264,13 @@ cryptagram.encoder.prototype.encodeImage = function (image) {
 // Splices images.
 cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
   var self = this;
-  self.images.splice(0,1);
   var encodedImage = loadEvent.target;
+  
+  // Assign image to .original for filesize experiment
+  encodedImage.original = self.images[0].original;
+  
+  self.images.splice(0,1);
+
   var str = encodedImage.src;
   var idx = str.indexOf(',');
   var dat = str.substring(idx+1);

@@ -64,16 +64,28 @@ a.title {
   overflow: hidden;
 }
 
+.images .frame {
+  margin: 5px;
+  float: left;
+  border: 1px solid gray;
+   width: 100px;
+  height: 100px;
+  overflow: hidden;
+}
+
+.images .frame img {
+ }
+
+
 #right {
   width: 170px;
-  position: absolute;
-  left: 190px;
-  top: 44px;
+  float: left;
 }
 
 #left {
-  width: 150px;
+  width: 160px;
   min-height: 150px;
+  float: left;
 }
 
 #left p {
@@ -81,8 +93,8 @@ a.title {
 }
 
 #thumbs {
-  max-height: 170px;
-  width: 168px;
+  max-height: 125px;
+  width: 184px;
   overflow-y: auto;
   margin-bottom: 5px;
 }
@@ -107,12 +119,13 @@ a.title {
 
 #medium {
   min-height: 100px;
-  margin-bottom: 20px;
+  max-height: 240px;
+  overflow-y: auto;  
 }
 
 #medium .frame {
-  width: 60px;
-  height: 60px;
+  width: 65px;
+  height: 65px;
   border: 1px solid gray;
   padding: 2px;
   margin: 5px;
@@ -124,8 +137,8 @@ a.title {
 }
 
 #medium img {
-  max-width: 60px;
-  max-height: 60px;
+  max-width: 65px;
+  max-height: 65px;
   vertical-align: middle;
 }
 

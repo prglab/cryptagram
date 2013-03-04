@@ -7,15 +7,14 @@
   </head>
   <body>
   <div id=title>
-    <a href="http://cryptagr.am" id="prglab" target="_new">Cryptagram</a>
+    <a tabindex="-1" href="http://cryptagr.am" target="_new">Cryptagram</a>
   </div>
   <div id=controls>
 
-  <form method=POST target=_new action="http://cryptagr.am/encoder">
-  <input type=submit id=button_encryptor value="Encode Photos"></form>
-  
+  <input type=submit id=button_decryptor value="Decode Photos"></form>
+   
   <input type=checkbox id=checkbox_auto_decrypt autofocus>
-  <label for=checkbox_auto_decrypt>Auto decrypt</label><br>
+  <label for=checkbox_auto_decrypt>Auto decode</label><br>
   
   <input type=checkbox id=checkbox_hide_passwords>
   <label for=checkbox_hide_passwords>Hide passwords</label><br>
@@ -28,7 +27,10 @@
 
   <input type=checkbox id=checkbox_user_study>
   <label for=checkbox_user_study>User study</label><br>
-
+  
+  <form method=POST target=_new action="http://cryptagr.am/encoder">
+  <input type=submit id=button_encryptor value="Encoder"></form>
+ 
   </div>
   </body>
 

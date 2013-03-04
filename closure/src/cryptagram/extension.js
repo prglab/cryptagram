@@ -109,6 +109,16 @@ cryptagram.extension.init = function() {
 //});
 };
 
+cryptagram.extension.decode = function() {
+  chrome.tabs.getSelected(null, function(tab) {
+    chrome.tabs.sendMessage(
+            tab.id,
+            { 'autoDecrypt': tab.url, 
+              'storage': localStorage, 
+              'forceDecrypt':'1'}, null);
+      });
+}
+
 cryptagram.extension.showEncoder = function() {
 
 

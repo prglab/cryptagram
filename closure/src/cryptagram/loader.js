@@ -36,7 +36,7 @@ cryptagram.loader.state = {
 cryptagram.loader.prototype.updateProgress = function(e) {
   if (e.lengthComputable) {
     var percentComplete = Math.ceil(100.0 * (e.loaded / e.total));
-    this.container.setStatus("Download<br>" + percentComplete + "%");
+    this.setStatus("Download<br>" + percentComplete + "%");
   }
 }
 
@@ -60,7 +60,7 @@ cryptagram.loader.prototype.createRequest = function() {
 cryptagram.loader.prototype.cancel = function() {
   if (this.state != cryptagram.loader.state.DONE) {
     this.state = cryptagram.loader.state.CANCELED;
-    this.container.setStatus();
+    this.setStatus();
   }
 }
 
@@ -117,6 +117,13 @@ cryptagram.loader.prototype.bytesToBase64 = function() {
   this.base64 = "data:image/jpeg;base64," + base64;
 }
 
+
+cryptagram.loader.prototype.setStatus = function(string) {
+  if (this.container) {
+    this.container.setStatus(string);
+  }
+}
+
 /**
  * Retrieves image data from a URL and applies the callback.
  * @param src The URL of the image
@@ -126,7 +133,7 @@ cryptagram.loader.prototype.queue = function(src, callback) {
 
   this.logger.info("Queued " + src);
   this.src = src;
-  this.container.setStatus("Waiting");
+  this.setStatus("Waiting");
 
   this.createRequest();
   var self = this;
@@ -185,7 +192,7 @@ cryptagram.loader.prototype.getImageData = function(src, callback) {
 
   this.logger.info("Downloading " + src);
 
-  this.container.setStatus("Download<br>...");
+  this.setStatus("Download<br>...");
 
   this.createRequest();
   var self = this;

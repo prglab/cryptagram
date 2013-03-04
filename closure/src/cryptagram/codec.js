@@ -54,3 +54,8 @@ cryptagram.codec.prototype.set_block = function(x_start, y_start, level) {
     }
   }
 };
+
+cryptagram.codec.prototype.getErrorCount = function() {
+  return 'unknown';
+}
+

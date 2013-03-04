@@ -88,14 +88,16 @@ cryptagram.media.googleplus.prototype.onReady = function(callback) {
 cryptagram.media.googleplus.prototype.loadContainer = function(URL) {
   var images = this.getImages(URL);
   
-  if (this.state == cryptagram.media.googleplus.state.PHOTO) {
+  
+  if (this.state == cryptagram.media.googleplus.state.PHOTO 
+   || this.state == cryptagram.media.googleplus.state.OTHER) {
     for (var i = 0; i < images.length; i++) {
       if (images[i].parentElement && images[i].parentElement.style.opacity == "1") {
         return new cryptagram.container.img(images[i]);
       }
     }
-    return null;
   }
+    
   return new cryptagram.container.img(images[0]);
 };
 

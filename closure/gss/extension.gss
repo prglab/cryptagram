@@ -110,7 +110,6 @@
   font-weight: bold;
 }
 
-
 .progress-bar-dialog {
   display: inline-block;
 }
