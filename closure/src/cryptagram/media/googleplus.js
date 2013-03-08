@@ -78,8 +78,8 @@ cryptagram.media.googleplus.prototype.parseMedia = function() {
 /** @inheritDoc */
 cryptagram.media.googleplus.prototype.onReady = function(callback) {
   this.tries = 0;
-  this.maxTries = 5;
-  this.delay = 250;
+  this.maxTries = 6;
+  this.delay = 400;
   this.checkIfReady(callback);
 }
 
@@ -126,7 +126,9 @@ cryptagram.media.googleplus.prototype.checkIfReady = function(callback) {
 cryptagram.media.googleplus.prototype.getImages = function(opt_URL) {
   var images = document.getElementsByTagName('img');
   var valid = [];
-  var albumRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/w[0-9]*\-h[0-9]*\-[np]\-k\/[_\-A-z0-9\.]*/);
+  var albumRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/w[0-9]*\-h[0-9]*\-[nop\-]*\-k\/[_\-A-z0-9\.]*/);
+  var photoRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/s[0-9]*\/[_\-A-z0-9\.]*/);
+  
 
   for (i = 0; i < images.length; i++) {
     if (opt_URL) {
@@ -139,6 +141,12 @@ cryptagram.media.googleplus.prototype.getImages = function(opt_URL) {
         if (albumRegex.test(images[i].src)) {        
           valid.push(images[i]);
         }
+        
+      } else if (this.state == cryptagram.media.googleplus.state.PHOTO && 
+         images[i].parentElement && images[i].parentElement.style.opacity == "1") {
+         if (photoRegex.test(images[i].src)) {        
+          valid.push(images[i]);
+        }
       } else {
         // Google+ puts the image in multiple img elements, possibly to speed up load times.
         // Only the one with a parent div opacity=1 is visible.
@@ -147,7 +155,7 @@ cryptagram.media.googleplus.prototype.getImages = function(opt_URL) {
         }
       }
     }
-  }
+  }  
   return valid;
 };
 
