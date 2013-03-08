@@ -70,8 +70,6 @@ cryptagram.storage.prototype.demoAlbums = { "fb_album://10100510996964783.246271
                                             "g+_album://5842300427612841233":"cat",
                                             "g+_album://5842299216653911073":"cryptagram"};
 
-
-
 cryptagram.storage.prototype.demoPhotos = { "http://cryptagr.am/encoded_1.jpg":"cryptagram",
                                             "http://cryptagr.am/encoded_2.jpg":"cryptagram"};
 
