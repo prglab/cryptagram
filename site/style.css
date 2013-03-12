@@ -190,14 +190,20 @@ hr {
   text-align: center;
   display: block;
   width: 460px;
-  position: relative;
-  left: 50%;
-  margin-left: -230px;
+  padding-left: 115px;
+  padding-right: 125px;
+  left: 0px;
+}
+
+#diagram .arrow {
+  max-height: 100px;
+  float: left;
+  margin-right: 20px;
+  margin-left: 20px;
 }
 
 #diagram img {
   max-height: 100px;
-  float: left;
   margin-right: 20px;
   margin-left: 20px;
 }
@@ -209,13 +215,32 @@ hr {
 
 #animation img {
   border: 1px solid black;
--moz-box-shadow: 0px 0px 10px #888;
--webkit-box-shadow: 0px 0px 10px #888;
-box-shadow: 0px 0px 10px #888;
-margin-top: 20px;
+  -moz-box-shadow: 0px 0px 10px #888;
+  -webkit-box-shadow: 0px 0px 10px #888;
+  box-shadow: 0px 0px 10px #888;
+  margin-top: 20px;
 }
 
+#diagram .play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -30px;
+  margin-top: -30px;
+  width: 60px;
+  height: 60px;
+  opacity: .5;
+  display: block;
+  
+  transition: opacity .25s ease-in-out;
+   -moz-transition: opacity .25s ease-in-out;
+   -webkit-transition: opacity .25s ease-in-out;
+  
+}
 
+#diagram .play:hover {
+  opacity: .9;  
+}
 
 .info {
   text-align: left;

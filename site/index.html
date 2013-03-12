@@ -25,23 +25,27 @@ var lastDemo = -1;
 
 function showDemo(demoNumber) {
   var animation = document.getElementById('animation');
+  animation.innerHTML = "";
   
   if (lastDemo == demoNumber) {
-    animation.innerHTML = "";
     lastDemo = -1;
   } else {
     
-    animation.innerHTML = "";
     if (demoNumber == 0) {
       animation.innerHTML = "<hr><img src=decode.gif>";
     } else if (demoNumber == 1) {
       animation.innerHTML = "<hr><img src=encode.gif>";
     }
-    
     lastDemo = demoNumber;
   }
 }
 
+function setPlayOpacity(o) {
+  var plays = document.getElementsByClassName('play');
+  for (var p = 0; p < plays.length; p++) {
+    plays[p].style.opacity = o; 
+  }
+}
 
 </script>
 </head>
@@ -49,28 +53,34 @@ function showDemo(demoNumber) {
   <div id=main>
     <br>
     <div id=header>
-        <a href="http://blogs.law.nyu.edu/privacyresearchgroup/" target="_new"><img src=prg.jpg style="left: 25px;"></a>
-        <span class=title>Cryptagram</span> <br>photo privacy for social media
+        <a href="http://blogs.law.nyu.edu/privacyresearchgroup/" target="_new">
+          <img src=prg.jpg style="left: 25px;">
+        </a>
+        <span class=title>Cryptagram</span><br>photo privacy for social media
         <a href="http://www.nyu.edu" target="_new"><img src=nyu.jpg style="right: 25px;"></a>
     </div>
 
      <a name="demo"></a>
     <hr>
 
-    <div id=diagram>
+    <div id=diagram onmouseover="setPlayOpacity('')" onmouseout="setPlayOpacity('0')">
       <a href="#demo" onclick="showDemo(0)">Decode<br>
-      <div class=frame><img src=encoded_1.jpg class=pixels></div>
+      <div class=frame>
+        <img src="play.png" class="play">
+        <img src=encoded_1.jpg class=pixels>
+      </div>
       </a>
       <img src=arrow.png class=arrow>
       <a href="#demo" onclick="showDemo(1)">
-      <img src=pup.jpg class=pixels>
-      Encode
+        <div class=frame>
+          <img src="play.png" class="play">
+          <img src=pup.jpg class=pixels>
+        </div>
+        Encode
       </a>
- 
     </div>
-    <div id=animation>
-     
-    </div>
+    
+    <div id=animation></div>
     <hr>
     
     <div id=install>
