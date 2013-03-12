@@ -88,10 +88,10 @@ hr {
   letter-spacing: 7px;
 }
 
-
-
-
-
+#header .title a {
+  text-decoration: none;
+  color: black;
+}
 
 #install {
   text-align: left;
