@@ -25,8 +25,8 @@ hr {
   border: none;
   height: 1px;
   border-bottom: 1px solid #EEEEEE;
-  margin-top: 40px;
-  margin-bottom: 40px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 
@@ -202,9 +202,18 @@ hr {
   margin-left: 20px;
 }
 
+#diagram a {
+  text-decoration: none;
+  color: black;
+}
 
-
-
+#animation img {
+  border: 1px solid black;
+-moz-box-shadow: 0px 0px 10px #888;
+-webkit-box-shadow: 0px 0px 10px #888;
+box-shadow: 0px 0px 10px #888;
+margin-top: 20px;
+}
 
 
 
