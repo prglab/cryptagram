@@ -208,6 +208,10 @@ hr {
   margin-left: 20px;
 }
 
+.anchor {
+  float: left;
+}
+
 #diagram a {
   text-decoration: none;
   color: black;
