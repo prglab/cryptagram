@@ -47,9 +47,18 @@ function setPlayOpacity(o) {
   }
 }
 
+function init() {
+  var hash = window.location.hash;
+  if (hash == "#decode") {
+    showDemo(0);
+  } else if (hash == "#encode") {
+    showDemo(1);
+  }
+}
+
 </script>
 </head>
-<body>
+<body onload="init()">
   <div id=main>
     <br>
     <div id=header>
@@ -60,18 +69,19 @@ function setPlayOpacity(o) {
         <a href="http://www.nyu.edu" target="_new"><img src=nyu.jpg style="right: 25px;"></a>
     </div>
 
-     <a name="demo"></a>
+    <a class=anchor name="decode"></a><a class=anchor name="encode"></a>
+    
     <hr>
 
     <div id=diagram onmouseover="setPlayOpacity('')" onmouseout="setPlayOpacity('0')">
-      <a href="#demo" onclick="showDemo(0)">Decode<br>
+      <a href="#decode" onclick="showDemo(0)">Decode<br>
       <div class=frame>
         <img src="play.png" class="play">
         <img src=encoded_1.jpg class=pixels>
       </div>
       </a>
       <img src=arrow.png class=arrow>
-      <a href="#demo" onclick="showDemo(1)">
+      <a href="#encode" onclick="showDemo(1)">
         <div class=frame>
           <img src="play.png" class="play">
           <img src=pup.jpg class=pixels>
