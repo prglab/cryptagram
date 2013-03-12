@@ -20,6 +20,29 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
+
+var lastDemo = -1;
+
+function showDemo(demoNumber) {
+  var animation = document.getElementById('animation');
+  
+  if (lastDemo == demoNumber) {
+    animation.innerHTML = "";
+    lastDemo = -1;
+  } else {
+    
+    animation.innerHTML = "";
+    if (demoNumber == 0) {
+      animation.innerHTML = "<hr><img src=decode.gif>";
+    } else if (demoNumber == 1) {
+      animation.innerHTML = "<hr><img src=encode.gif>";
+    }
+    
+    lastDemo = demoNumber;
+  }
+}
+
+
 </script>
 </head>
 <body>
@@ -31,18 +54,25 @@
         <a href="http://www.nyu.edu" target="_new"><img src=nyu.jpg style="right: 25px;"></a>
     </div>
 
+     <a name="demo"></a>
     <hr>
 
     <div id=diagram>
-      Decode<br>
+      <a href="#demo" onclick="showDemo(0)">Decode<br>
       <div class=frame><img src=encoded_1.jpg class=pixels></div>
+      </a>
       <img src=arrow.png class=arrow>
+      <a href="#demo" onclick="showDemo(1)">
       <img src=pup.jpg class=pixels>
       Encode
+      </a>
+ 
     </div>
-
+    <div id=animation>
+     
+    </div>
     <hr>
-
+    
     <div id=install>
       <a class=button href="https://chrome.google.com/webstore/detail/adabfepaidfgaecmkcekhefdgjaihahc">
       <font size=3>+</font> Add to Chrome</a>
