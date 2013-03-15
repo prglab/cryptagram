@@ -44,7 +44,8 @@ hr {
   left: 50%;
   width: 800px;
   margin-left: -400px;
-  margin-top: 50px;
+  margin-top: 75px;
+  margin-bottom: 75px;
   text-align: center;
 }
 
@@ -83,8 +84,8 @@ hr {
 }
 
 #header .logo {
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   border: 1px solid black;
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
@@ -93,7 +94,7 @@ hr {
 
 #header .title {
   display: inline-block;
-  font-size: 15px;
+  font-size: 18px;
   margin-left: 5px;
   text-shadow: 0 0 1px gray;
 }
@@ -101,7 +102,7 @@ hr {
 #header .title a {
   text-decoration: none;
   text-transform: lowercase;
-  font-size: 32px;
+  font-size: 38px;
   font-weight: bold;
   letter-spacing: 5px;
   display: inline;
@@ -208,9 +209,15 @@ hr {
 
 
 #menu1 {
-  display: inline-block;
-  float: right;
+  color: gray;
   margin-top: 5px;
+  position: absolute;
+  left: 50%;
+  top: 0px;
+  width: 400px;
+  margin-left: -400px;
+
+  
 }
 
 #menu1 a {
@@ -219,13 +226,14 @@ hr {
   background: #EEEEEE;
   padding: 2px;
   margin: 0px;
-  color: black;
+  color: gray;
   text-align: center;
   width: 60px;
 }
 
 #menu1 a:hover {
   background: #CCCCCC;
+  color: black;
 }
 
 
@@ -248,7 +256,10 @@ hr {
   border: none;
 }
 
-
+.diagram {
+  float: left;
+  margin-right: 20px;
+}
 
 
 #animation {
