@@ -1,161 +1,139 @@
 <!doctype html>
 <head>
 	<meta charset="utf-8">
-  	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<title>Cryptagram</title>
 	<link rel="stylesheet" href="style.css">
-<!-- <script type="text/javascript">var _gaq = _gaq || [];_gaq.push(["_setAccount", "UA-31876253-1"]);_gaq.push(["_setDomainName", ".prglab.org"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();</script> -->
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-31876253-2'],
-            ['_trackPageview'],
-            ['b._setAccount', 'UA-31876253-1'],
-            ['b._setDomainName', '.prglab.org'],
-            ['b._trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-
-var lastDemo = -1;
-
-function showDemo(demoNumber) {
-  var animation = document.getElementById('animation');
-  animation.innerHTML = "";
-  
-  if (lastDemo == demoNumber) {
-    lastDemo = -1;
-  } else {
-    
-    if (demoNumber == 0) {
-      animation.innerHTML = "<hr><img src=decode.gif>";
-    } else if (demoNumber == 1) {
-      animation.innerHTML = "<hr><img src=encode.gif>";
-    }
-    lastDemo = demoNumber;
-  }
-}
-
-function setPlayOpacity(o) {
-  var plays = document.getElementsByClassName('play');
-  for (var p = 0; p < plays.length; p++) {
-    plays[p].style.opacity = o; 
-  }
-}
-
-function init() {
-  var hash = window.location.hash;
-  if (hash == "#decode") {
-    showDemo(0);
-  } else if (hash == "#encode") {
-    showDemo(1);
-  }
-}
-
-</script>
+  <script type="text/javascript" src="code.js"></script>
 </head>
+
 <body onload="init()">
+
+  <div id=socialmedia>
+    <iframe allowtransparency="true" frameborder="0" scrolling="no"
+        src="https://platform.twitter.com/widgets/tweet_button.html?url=http%3A%2F%2Fcryptagr.am"
+        style="width:85px; height:20px;"></iframe>
+    <iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fcryptagr.am&amp;send=false&amp;layout=button_count&amp;width=80&amp;show_faces=false&amp;font&amp;colorscheme=light&amp;action=like&amp;height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:80px; height:21px;" allowTransparency="true"></iframe>    
+    <div class="g-plusone" data-size="medium"></div>
+  </div>
+
+  <script type="text/javascript">
+    (function() {
+      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+      po.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+    })();
+  </script>
+ 
+   <div id="menu1">
+        Jump to:
+        <a href="http://cryptagr.am/decoder">Decoder</a>
+        <a href="http://cryptagr.am/encoder">Encoder</a>
+  </div>
+ 
   <div id=main>
-    <br>
-    <div id=header>
-        <a href="http://blogs.law.nyu.edu/privacyresearchgroup/" target="_new">
-          <img src=prg.jpg style="left: 25px;">
-        </a>
-        <span class=title><a href="http://cryptagr.am">Cryptagram</a></span><br>photo privacy for social media
-        <a href="http://www.nyu.edu" target="_new"><img src=nyu.jpg style="right: 25px;"></a>
-    </div>
-
-    <a class=anchor name="decode"></a><a class=anchor name="encode"></a>
-    
-    <hr>
-
-    <div id=diagram onmouseover="setPlayOpacity('')" onmouseout="setPlayOpacity('0')">
-      <a href="#decode" onclick="showDemo(0)">Decode<br>
-      <div class=frame>
-        <img src="play.png" class="play">
-        <img src=encoded_1.jpg class=pixels>
+   
+    <div id=header>  
+      <img src="block.png" class="logo">
+      
+      <span class="title">
+        <a href="http://cryptagr.am">Cryptagram</a>
+        <br>photo privacy for social media
+      </span>
+       
+                 
+      <div id="menu2">
+        <a href="#what" class="first">What is Cryptagram?</a>
+        <a href="#demo">Demo</a>
+        <a href="#why">Why</a>
+        <a href="#technical">Technical</a>
+        <a href="#about">About</a>
       </div>
-      </a>
-      <img src=arrow.png class=arrow>
-      <a href="#encode" onclick="showDemo(1)">
-        <div class=frame>
-          <img src="play.png" class="play">
-          <img src=pup.jpg class=pixels>
-        </div>
-        Encode
-      </a>
     </div>
     
-    <div id=animation></div>
     <hr>
+    <h1>
+      Password protect <br>your photos online.
+    </h1>
+    
+    <div class=bullets>
+      Upload protected photos to existing social media.<br>
+      Use the Chrome extension to reveal images in place.<br>
+    </div>
     
     <div id=install>
       <a class=button href="https://chrome.google.com/webstore/detail/adabfepaidfgaecmkcekhefdgjaihahc">
-      <font size=3>+</font> Add to Chrome</a>
-      Chrome extension decodes<br>
-      <br>
-      <a class=button id=download href="http://cryptagr.am/encoder">
-      <font size=2>&#9664;</font> Image Encoder</a>
-      Web application encodes
+      <font size=3>+</font> Install Chrome Extension</a>
     </div>
+    
+    <div id=animation>
+      <div>Decoder Extension<br><img src="decode.gif"></div>
+      <div>Drag & Drop Encoder<br><img src="encode.gif"></div>
+    </div>
+    
+    <a name=what></a>
     <hr>
     <div class=info>
-      <h2>About</h2> Cryptagram empowers users to protect their privacy when
-      sharing photos online. By password-protecting photos with Cryptagram,
-      users have better control over who can see photo content.  Cryptagram
-      takes regular JPEG images as input and produces images that look like
-      random noise.  With the correct password, the original images can be
-      restored.  The encoding format is designed to be robust to the levels of
-      JPEG compression seen on social networking websites (e.g., Facebook and
-      Google Plus).  This means you can upload Cryptagram'd images to the web
-      and the original image can be decoded using the Cryptagram browser
-      extension and right password.
+      <h2>What is Cryptagram?</h2> 
+      
+      <img src="jpeg_lock.png" class="diagram">
+      Cryptagram enhances online photo privacy
+      by adding password protection to JPEG images. Cryptagram
+      takes regular images as input and outputs JPEG images that look like
+      random noise. With a browser extension and the correct password, the original images are
+      revealed. Images are decoded in-place to maintain the user experience of social media but these cleartext
+      images reside temporarily in the browser, not on a remote server. The protocol is designed to be robust to the
+      levels of JPEG compression on social networks so images will not be corrupted upon upload. 
+      Cryptagram is an <a href="http://en.wikipedia.org/wiki/End-to-end_encryption" target="_new">end-to-end</a> solution.
+      No third-party site ever sees your original image or the password.
     </div>
-
+    
+     <a name=demo></a>
+    <hr>
     <div class=info>
-      <h2>Why</h2> What happens when users upload images to social media sites
-      without a full understanding of the privacy settings? Images may be shared
-      inappropriately with friends, acquaintances, or strangers. This project
-      provides a way for people to take increased control over the privacy of
-      personal images.  Cryptagram offers password-level security inside JPEG
-      itself. Encrypted images can be used in a variety of scenarios, including
-      websites, social media, or e-mail. But in all cases, password protection
-      is obtained that does not rely on the privacy settings or implementation
-      of any particular service provider.
-    </div>
+      <h2>Demo</h2>
+      <img src=encoded_1.jpg style="float: right; margin-left: 20px; height: 139px; border: 1px solid black;">
 
-    <div class=info>
-      <h2>Try It</h2>
-      <img src=encoded_2.jpg style="float: right; margin-left: 20px; height: 150px; border: 1px solid black;">
+      <p>Can you find the secret puppy?</p>
 
-      We encourage anyone to try out the current release of Cryptagram.
-      <p>1) Install
-      the <a href="https://chrome.google.com/webstore/detail/adabfepaidfgaecmkcekhefdgjaihahc">Chrome
-      Extension.</a></p>
+      <p>&nbsp;&nbsp;1) Install
+      the <a href="https://chrome.google.com/webstore/detail/adabfepaidfgaecmkcekhefdgjaihahc" target="_new">Chrome
+      Extension</a> then reload this tab.
+      <br>&nbsp;&nbsp;2) Right-click this image and select <i>Decrypt Image.</i>
+      <br>&nbsp;&nbsp;3) When asked for a password enter:&nbsp; <code>cryptagram</code></p>
+        
+        More demo images:
 
-      <p>2) Right-click this image and select <i>Decrypt Image.</i></p>
-
-      <p>3) When asked for a password enter:&nbsp; <code>cryptagram</code></p>
+         <p>&nbsp;&nbsp;<a target="_new" href="https://www.facebook.com/photo.php?fbid=10100510997134443&set=a.10100510996964783.2462710.203840&type=3&permPage=1">Facebook #1</a> <a target="_new" href="https://plus.google.com/photos/108410756110459290738/albums/5842300427612841233/5842300461240481378">Google+ #1</a> - password: cat
+      <br>&nbsp;&nbsp;<a target="_new" href="https://www.facebook.com/photo.php?fbid=10100511602336613&set=a.10100511600280733.2462712.203840&type=3&theater">Facebook #2</a> <a target="_new" href="https://plus.google.com/photos/108410756110459290738/albums/5842299216653911073/5842299245159093090">Google+ #2</a> - password: cryptagram</p>
 
       <p><img src=icon19.png style="float: left; margin-right: 10px; margin-top:
         5px"> After installation, you should see the Cryptagram icon on the
-        right of your Chrome address bar. Click the icon to access settings.
+        right of your Chrome address bar. Here you can access settings or jump to the encoder.
       </p>
     </div>
-
+    
+    <a name=why></a>
+    <hr>
     <div class=info>
-      <h2>Demo Albums</h2>
-      <p><a target="_new" href="https://www.facebook.com/photo.php?fbid=10100510997134443&set=a.10100510996964783.2462710.203840&type=3&permPage=1">Facebook #1</a> <a target="_new" href="https://plus.google.com/photos/108410756110459290738/albums/5842300427612841233/5842300461240481378">Google+ #1</a> password: cat</p>
-      <p><a target="_new" href="https://www.facebook.com/photo.php?fbid=10100511602336613&set=a.10100511600280733.2462712.203840&type=3&theater">Facebook #2</a> <a target="_new" href="https://plus.google.com/photos/108410756110459290738/albums/5842299216653911073/5842299245159093090">Google+ #2</a> password: cryptagram</p>
+      <h2>Why</h2> 
+      <img src="flow.png" class="diagram">
 
-</div>
+      What happens when users upload images to social media sites
+      without a full understanding of the privacy settings? Images may be shared
+      inappropriately with friends, acquaintances, or strangers. A 
+      social network may even 
+      <a href="http://www.dailymail.co.uk/news/article-2070749/Facebook-security-glitch-reveals-Mark-Zuckerbergs-private-photos.html" target="_new">fail to correctly implement</a> its stated privacy policies.
+      Cryptagram
+      provides a direct way for people to take additional precautions with private photo collections.
+      We hope this project will promote dialog between users and social media providers about the ownership of data.
+      
+    </div>
 
+    <a name=technical></a>
+    <hr>
     <div class=info>
-      <h2>Technical</h2>
+      <h2>How does it work?</h2>
 
         <p>Image data is converted into base-64 which is then encrypted using
           AES block cipher, as implemented
@@ -165,19 +143,16 @@ function init() {
           octal (base-8) number. Octal values are represented as shades in the
           luminance (Y) channel of the YCbCr colorspace. Cryptagram images can
           withstand JPEG compression down to approximately 72% quality (using
-          standard libjpeg/libjpeg-turbo codecs) before the decoder fail. As
+          standard libjpeg/libjpeg-turbo codecs) before the decoder fails. As
           JPEG quality decreases, eventually some base-8 values will become
-          corrupted making decryption impossible without built-in error
+          corrupted making decryption impossible without error
           correction.</p>
-
-        <p>The code is open source and available
-         on <a href="https://github.com/prglab/cryptogram"
-        target=_new>GitHub</a>.</p>
     </div>
 
+    <hr>
+    <a name=about></a>
     <div class=info>
-      <h2>People</h2>
-
+      <h2>About</h2>
       <p>Cryptagram was conceived of and created by
         <a href="http://cs.nyu.edu/~spiro/" target="_new">Ian Spiro</a> and
         <a href="http://cs.nyu.edu/~tierney/" target="_new">Matt Tierney</a>, inspired by discussions with
@@ -189,9 +164,23 @@ function init() {
         <a href="http://www.rubinsteyn.com/" target="_new">Alex Rubinsteyn</a>, and
         <a href="https://github.com/davidmi" target="_new">David Iserovich</a>.
       </p>
-
-      <p>If you have any questions or suggestions about the project, please <a href="mailto:cryptagram@prglab.org">send us email</a>.</p>
+      
+      <p>The code is open source and available
+         on <a href="https://github.com/prglab/cryptogram"
+        target=_new>GitHub</a>.</p>
+      <p>If you have any questions or suggestions about the project, please <a href="mailto:cryptagram@prglab.org">send us email</a>.</p>  
+    
     </div>
+       
+    <hr>
+    <div id=footer>
+     <a href="http://blogs.law.nyu.edu/privacyresearchgroup/" target="_new">
+      <img src=prg.jpg>
+     </a>
+     <a href="http://www.nyu.edu" target="_new"><img src=nyu.jpg></a>
+     <a href="http://www.github.com/prglab/cryptogram" target="_new"><img src=github.jpg></a>
+    </div>
+    
   </div>
 </body>
 </html>
