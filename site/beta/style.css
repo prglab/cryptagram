@@ -80,6 +80,10 @@ hr {
   width: 960px;
 }
 
+#video {
+  background: black;
+}
+
 
 #main {
   position: relative;
@@ -165,14 +169,19 @@ hr {
 
 #footer img {
   margin: 10px;
-  opacity: .75;
-  -webkit-filter: grayscale(100%);
+  opacity: .75; 
   height: 50px;
+  
+  
+  filter: url(filters.svg#grayscale);
+  filter: gray; /* IE6-9 */
+  -webkit-filter: grayscale(1);
 }
 
 #footer img:hover {
-  -webkit-filter: grayscale(0%);
-    opacity: .5;
+  opacity: .5;
+  filter: none;
+  -webkit-filter: grayscale(0);
 }
 
 
