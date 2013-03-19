@@ -7,7 +7,19 @@
   <script type="text/javascript" src="code.js"></script>
 </head>
 
-<body onload="init()">
+<body>
+
+  <div id="modal">
+  <div class="background" onclick="showPlay(false)"></div>
+  <div class="dialog">
+    <div class="x"><a href="#" onclick="showPlay(false)">X</a></div>
+    <video id="video" width=960 height=540 controls preload="no">
+      <source src="https://s3.amazonaws.com/cryptagram/Cryptagram.mp4" type="video/mp4">
+      <source src="https://s3.amazonaws.com/cryptagram/Cryptagram.webm" type="video/webm">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+  </div>
 
   <div id=socialmedia>
     <iframe allowtransparency="true" frameborder="0" scrolling="no"
@@ -67,8 +79,9 @@
     </div>
     
     <div id=animation>
-      <div>Decoder Extension<br><img src="decode.gif"></div>
-      <div>Drag & Drop Encoder<br><img src="encode.gif"></div>
+      <a id="play" href="#" onclick="showPlay(true)"><img src="play.png"></a>
+      <img src="before.png">
+      <img src="after.png">    
     </div>
     
     <a name=what></a>
