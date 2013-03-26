@@ -13,39 +13,18 @@ var _gaq = _gaq || [];
   
   
 
-var lastDemo = -1;
+function showPlay(show) {
 
-function showDemo(demoNumber) {
-
-  var animation = document.getElementById('animation');
-  animation.innerHTML = "";
+  var modal = document.getElementById("modal");
+  var video = document.getElementById("video");
   
-  if (lastDemo == demoNumber) {
-    lastDemo = -1;
+  if (show) {
+    modal.style.display = "block";  
+    video.play();
   } else {
-    
-    if (demoNumber == 0) {
-      animation.innerHTML = "<hr><img src=decode.gif>";
-    } else if (demoNumber == 1) {
-      animation.innerHTML = "<hr><img src=encode.gif>";
-    }
-    lastDemo = demoNumber;
+    modal.style.display = "none";
+    video.pause();
+    video.currentTime = 0;
   }
+  
 }
-
-function setPlayOpacity(o) {
-  var plays = document.getElementsByClassName('play');
-  for (var p = 0; p < plays.length; p++) {
-    plays[p].style.opacity = o; 
-  }
-}
-
-function init() {
-  var hash = window.location.hash;
-  if (hash == "#decode") {
-    showDemo(0);
-  } else if (hash == "#encode") {
-    showDemo(1);
-  }
-}
-
