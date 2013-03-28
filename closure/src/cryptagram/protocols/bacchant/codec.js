@@ -307,12 +307,7 @@ cryptagram.codec.bacchant.prototype.getBase8Value = function(img, imgData, x, y)
       var g = imgData[4*base + 1];
       var b = imgData[4*base + 2];
       var lum = 0.299 * r + 0.587 * g + 0.114 * b;
-      
-      if (x < 8 && y < 8) {
-        this.logger.info("Header Luminance: (" + (x+i) + "," + (y+j) + ") " + lum);
-      }
-      
-      
+            
       vt += lum;
       count++;
     }
@@ -384,7 +379,7 @@ cryptagram.codec.bacchant.prototype.getChunk = function() {
           this.count++;
 
           if (this.length == null) {
-            this.length = parseInt(this.lengthString);
+            this.length = parseInt(this.lengthString, 10);
           }
         }
 
