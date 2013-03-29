@@ -32,6 +32,8 @@ cryptagram.codec.chrominance = function(quality, blockSize, numberSymbols, chrom
     this.symbol_thresholds.push(Math.round(level));
   }  
   
+  console.log(this.symbol_thresholds);
+  
   var bInc = this.chromaDelta / (this.numberChromaB-1);
   
   for (var i = 0; i < numberChromaB; i++) {
@@ -50,7 +52,7 @@ cryptagram.codec.chrominance = function(quality, blockSize, numberSymbols, chrom
     this.chromaBthresholds = [128 - this.chromaDelta / 2, 128 + this.chromaDelta / 2];
   }
   
-  if (numberChromaR == 2) {
+  if (numberChromaR == 2 || numberChromaR == 0) {
     this.chromaRthresholds = [128 - this.chromaDelta / 2, 128 + this.chromaDelta / 2];
   }
 
@@ -68,10 +70,11 @@ cryptagram.codec.chrominance.prototype.set_pixel = function(x, y, lum) {
   var cb = cbcr[0];
   var cr = cbcr[1];
   
-  /*var buffer = 72;
+  var buffer = 10;
   if (lum > (255-buffer) || lum < buffer) {
     cb = cr = 128;
-  }*/
+  }  
+  //lum = 128;
   
   var r = lum + 1.402 * (cr - 128);
   var b = lum + 1.772 * (cb - 128);
@@ -148,8 +151,12 @@ cryptagram.codec.chrominance.prototype.getRandom = function(xx,yy,set) {
     this.pattern[x] = [];
   }
   
-  //pr = 0;
-  //if (pb == 0) pr = 1;
+  if (this.numberChromaR == 0) {
+    pr = 0;
+   // if (pb == 0) pr = 1;
+    pr = pb;
+  }
+  
   var randomBits = [pb,pr];
   this.pattern[x][y] = randomBits;
   
@@ -179,18 +186,20 @@ cryptagram.codec.chrominance.prototype.checkChrominancePattern = function() {
       var yy = y * this.chromaSize;
       var cbcr = this.getAverageChrominance(this.img, this.imageData, xx, yy);
       var pbpr = this.getChromaValue(cbcr);
-      
-      //var avg = (cbcr[0] + cbcr[1]) / 2.0;
-      //pbpr =  this.getChromaValue([avg, avg];
-      
       var pbprOriginal = this.getRandom(xx,yy,false);
       totalCount++;
-      
-      if (pbpr[0] != pbprOriginal[0] || pbpr[1] != pbprOriginal[1]) {
+
+      if (pbpr[0] != pbprOriginal[0]) {
         errorCount++;
       }
+
+      if (this.numberChromaR != 0) {
+        totalCount++;
+        if (pbpr[1] != pbprOriginal[1]) {
+        errorCount++;
+        }
       
-      
+      }       
     }
   }
   this.percentChrominanceError = errorCount / totalCount; 
