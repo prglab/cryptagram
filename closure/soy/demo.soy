@@ -137,6 +137,9 @@ If you do not consent, you can still use the software. Thank you!
  */
 {template .downloadDialog}
 <div class={css downloadify} id="downloadify{$id}"></div>
+{if length($images) == 1}
+{$images[0]}
+{else}
 <div class={css inline}>
 <div class={css files}>
 Saved <b>{length($images)}</b> images in ZIP file.<br>
@@ -147,6 +150,7 @@ Saved <b>{length($images)}</b> images in ZIP file.<br>
 {/foreach}
 </textarea>
 </div>
+{/if}
 {if length($skipped) > 0}
 <div class={css files}>
 Skipped <b>{length($skipped)}</b> images.<br>

@@ -256,6 +256,7 @@ cryptagram.encoder.prototype.encodeImage = function (image) {
   this.blocksWritten = codec.lastOctal.length;
   
   encodedImage.file = image.file;
+  encodedImage.newfile = self.newFilename(image.file);
   encodedImage.onload = function (e) {
     self.encodedOnload(e);
   }
@@ -284,6 +285,12 @@ cryptagram.encoder.prototype.encodedOnload = function (loadEvent) {
                       remaining: remaining});
 };
 
+// Adds .cryptagram.jpg as filename suffix
+cryptagram.encoder.prototype.newFilename = function (name) {
+  var parts = name.split('.');
+  parts[parts.length - 1] = 'cryptagram.jpg';
+  return parts.join('.');
+};
 
 cryptagram.encoder.show_error = function (msg, url, linenumber) {
   console.log('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);

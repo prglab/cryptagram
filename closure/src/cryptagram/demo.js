@@ -258,7 +258,8 @@ cryptagram.demo.prototype.showProgress = function () {
   self.imageCount = 0;
   self.imageList = [];
   self.remaining = [];
-
+  self.lastData = null;
+  
   goog.dom.getElement('left').innerHTML = cryptagram.templates.progress();
 
   var previousImage;
@@ -278,6 +279,8 @@ cryptagram.demo.prototype.showProgress = function () {
     var idx = event.image.src.indexOf(',');
     var dat = event.image.src.substring(idx + 1);
     var bin = window.atob(dat);
+    
+    self.lastData = dat;
   
     if (self.zipSize + bin.length > self.maxZipSize) {
       self.logger.info("Exceeded max zip size.");
@@ -290,14 +293,14 @@ cryptagram.demo.prototype.showProgress = function () {
 
     self.zipSize += bin.length;
     self.imageCount++;
-    self.imageList.push(event.image.file);
+    self.imageList.push(event.image.newfile);
     var frame = self.frames[event.image.file];
     if (frame.firstChild) {
       frame.removeChild(frame.firstChild);
     }
     frame.appendChild(event.image);
     
-    self.images.file(event.image.file,
+    self.images.file(event.image.newfile,
                      bin,
                      { base64: false, binary: true });
                          
@@ -324,10 +327,21 @@ cryptagram.demo.prototype.showDownloadDialog = function () {
   dialog.setButtonSet(null);
   dialog.setVisible(true);
 
-  var zip = self.zip.generate();
+  var data;
+  var filename;
+  
+  // For a single image, don't create a ZIP file
+  if (self.imageCount == 1) {
+    data = self.lastData;
+    filename = self.imageList[0];  
+  } else {
+    data = self.zip.generate();
+    filename = "encrypted.zip";
+  }
+  
   this.downloadify = Downloadify.create('downloadify' + self.downloadifyId, {
-    filename: "encrypted.zip",
-    data: zip,
+    filename: filename,
+    data: data,
     onError: function (){
       alert('Nothing to save.');
     },
@@ -342,7 +356,8 @@ cryptagram.demo.prototype.showDownloadDialog = function () {
     transparent: false,
     append: false,
     enabled: true
-  });
+  }); 
+
   self.downloadifyId++;
 };
 
