@@ -29,6 +29,8 @@ cryptagram.demo = function () {
 
   this.remoteLog = new cryptagram.RemoteLog();
   
+  this.checkFilename = true;
+  
   // Max Zip Size = 10 MB
   this.maxZipSize = 10000000;
 };
@@ -180,6 +182,17 @@ cryptagram.demo.prototype.decryptFiles = function (files) {
  * @private
  */
 cryptagram.demo.prototype.encryptFiles = function (files) {
+
+  if (this.checkFilename) {
+    this.checkFilename = false;
+    // If first file ends in cryptgram.jpg, switch to decoder
+    if (files[0].name.indexOf('cryptagram.jpg') != -1) {
+      this.showDecrypt();
+      this.decryptFiles(files);
+      return;
+    }
+  }
+
   this.encoder = new cryptagram.encoder();
   this.showEncodeDialog();
   this.encoder.queueFiles(files);
@@ -233,10 +246,10 @@ cryptagram.demo.prototype.showEncodeDialog = function () {
   var switchButton = document.getElementById("switchButton");
   goog.events.listenOnce(switchButton, goog.events.EventType.CLICK, function(e) {
     dialog.exitDocument();
+    self.showDecrypt();
     self.decryptFiles(self.files);
   });
 
-  
   var quality = goog.dom.getElement('quality');
   var warning = goog.dom.getElement('warning');
   var tips = ['Sharper image but smaller width and height', '',
@@ -454,6 +467,7 @@ cryptagram.demo.prototype.showDecryptDialog = function () {
   var switchButton = document.getElementById("switchButton");
   goog.events.listenOnce(switchButton, goog.events.EventType.CLICK, function(e) {
     dialog.exitDocument();
+    self.showEncrypt();
     self.encryptFiles(self.files);
   });
   
