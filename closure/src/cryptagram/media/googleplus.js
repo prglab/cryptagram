@@ -93,7 +93,13 @@ cryptagram.media.googleplus.prototype.loadContainer = function(URL) {
    || this.state == cryptagram.media.googleplus.state.OTHER) {
     for (var i = 0; i < images.length; i++) {
       if (images[i].parentElement && images[i].parentElement.style.opacity == "1") {
-        return new cryptagram.container.img(images[i]);
+      
+        var container = new cryptagram.container.img(images[i]);
+        if (this.state == cryptagram.media.googleplus.state.PHOTO) {
+          container.img.style.width = "100%";
+        }
+        
+        return container;
       }
     }
   }
