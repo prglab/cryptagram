@@ -23,6 +23,8 @@ cryptagram.codec.prototype.setImage = function(img) {};
 
 cryptagram.codec.prototype.test = function(img, imageData) {
   var header = this.getHeader(img, imageData);
+  this.logger.info("Header string: " + header);
+
   return (header == this.name());
 };
 
