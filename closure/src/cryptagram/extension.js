@@ -29,8 +29,8 @@ cryptagram.extension.onUpdate = function() {
   // Only ask for consent if not already asked (if someone has said no, then
   // obey request).
   
-  // For this version, re-ask in case of user_study == false
-  if (localStorage['user_study'] != 'true') {
+  if (localStorage['user_study'] != 'true' && 
+      localStorage['user_study'] != 'false') {
     cryptagram.RemoteLog.simpleLog('UPDATE_CONSENT');
     chrome.tabs.create({
       url: 'welcome.html'
