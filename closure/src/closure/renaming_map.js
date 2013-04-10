@@ -1,0 +1,21 @@
+goog.setCssNameMapping({
+  "goog": "a",
+  "inline": "b",
+  "block": "c",
+  "progress": "d",
+  "dialog": "e",
+  "modal": "f",
+  "bg": "g",
+  "title": "h",
+  "close": "i",
+  "buttons": "j",
+  "content": "k",
+  "default": "m",
+  "buttonset": "l",
+  "bar": "n",
+  "password": "o",
+  "vertical": "p",
+  "horizontal": "q",
+  "info": "r",
+  "thumb": "s"
+});

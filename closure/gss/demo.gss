@@ -76,15 +76,27 @@ a.title {
 .images .frame {
   margin: 5px;
   float: left;
-  border: 1px solid gray;
-   width: 100px;
-  height: 100px;
-  overflow: hidden;
+  border: 1px solid black;
+  height: 200px;
+  overflow: hidden;  
+}
+
+.images .frame img:hover {
+  image-rendering: -webkit-optimize-contrast;
+  -webkit-transform: scale(16,16);
 }
 
 .images .frame img {
- }
+  -webkit-transform: none;
+}
 
+.pieces {
+  position: relative;
+}
+
+.pieces img {
+  border: 1px solid red;
+}
 
 #right {
   width: 170px;
@@ -217,7 +229,7 @@ a.title {
 .files textarea {
   
   height: 100px;
-  width: 140px;
+  width: 100%;
   margin-top: 5px;
 }
 
