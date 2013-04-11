@@ -95,9 +95,9 @@ cryptagram.media.googleplus.prototype.loadContainer = function(URL) {
       if (images[i].parentElement && images[i].parentElement.style.opacity == "1") {
       
         var container = new cryptagram.container.img(images[i]);
-        if (this.state == cryptagram.media.googleplus.state.PHOTO) {
+        //if (this.state == cryptagram.media.googleplus.state.PHOTO) {
           container.img.style.width = "100%";
-        }
+        //}
         
         return container;
       }
@@ -132,8 +132,8 @@ cryptagram.media.googleplus.prototype.checkIfReady = function(callback) {
 cryptagram.media.googleplus.prototype.getImages = function(opt_URL) {
   var images = document.getElementsByTagName('img');
   var valid = [];
-  var albumRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/w[0-9]*\-h[0-9]*\-[nop\-]*\-k\/[_\-A-z0-9\.]*/);
-  var photoRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/s[0-9]*\/[_\-A-z0-9\.]*/);
+  var albumRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/(w[0-9]*\-h[0-9]*)|(s[0-9]*)\-[nopk\-]*\/.*/);
+  var photoRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/s[0-9]*\/.*/);
   
 
   for (i = 0; i < images.length; i++) {
@@ -144,7 +144,8 @@ cryptagram.media.googleplus.prototype.getImages = function(opt_URL) {
     } else {
 
       if (this.state == cryptagram.media.googleplus.state.ALBUM) {
-        if (albumRegex.test(images[i].src)) {        
+        if (albumRegex.test(images[i].src) &&
+            images[i].parentNode.tagName != "A") {        
           valid.push(images[i]);
         }
         

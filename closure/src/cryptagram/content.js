@@ -49,13 +49,24 @@ cryptagram.content = function() {
       break;
     }
   }
-
+  
+  var self = this;
+  
+/*
+  this.clickTarget = null;
+  document.addEventListener( 'contextmenu', function(e) {
+    self.clickTarget = e.target;    
+    e.target.addEventListener('mousedown', function(f) {
+      if (self.clickTarget) f.stopPropagation();
+    }, true);
+  }, true );
+*/
+  
   this.logger.info('Found media: ' + this.media.name());
   
   this.loaders = [];
   this.lastAutoDecrypt = '';
   this.storage = new cryptagram.storage(this.media);
-  var self = this;
   
   chrome.extension.onMessage.addListener(function(request, sender, callback) {
     self.handleRequest(request, sender, callback);
@@ -177,7 +188,10 @@ cryptagram.content.prototype.decryptByURL = function(URL, password) {
   this.logger.shout("OSN_STATE " + this.media.name() + " " + this.media.state);
 
   this.logger.info('Request to decrypt ' + URL + '.');
+
+
   var container = this.media.loadContainer(URL);
+  //var container = new cryptagram.container.img(this.clickTarget);
 
   var loader = new cryptagram.loader(container);
   var fullURL = this.media.fixURL(URL);
