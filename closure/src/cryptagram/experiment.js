@@ -10,6 +10,7 @@ goog.require('cryptagram.container');
 goog.require('cryptagram.decoder');
 goog.require('cryptagram.cipher');
 goog.require('cryptagram.codec.bacchant');
+goog.require('cryptagram.codec.chequer');
 goog.require('cryptagram.codec.experimental');
 goog.require('cryptagram.codec.chrominance');
 goog.require('cryptagram.loader');
@@ -108,11 +109,10 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
   
   for (var q = 70; q < 92; q += 2) {
     var quality = q / 100.0;
-    codices.push(new cryptagram.codec.chrominance(quality, 1, 8, 2, 32, 2, 2));    
   }
   
   
-  //codices = new Array(new cryptagram.codec.chrominance(quality, 1, 8, 4, 16, 2, 2));    
+  codices = new Array(new cryptagram.codec.chequer(quality));    
 
     
   var results = goog.dom.getElement('results');
@@ -125,20 +125,20 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
   for (var c = 0; c < codices.length; c++) {
     var codec = codices[c];
     var originalData = image.src;
-    var encryptedData = codec.encrypt(originalData, password);
-    var encodedImage = codec.encode(encryptedData, ratio);
-    self.logger.info("Encoded in: " + codec.elapsed + " ms");  
+    
+    
+    codec.encode({image:image, password:password}, function(encodedImage) {
+      
+      self.logger.info("Encoded in: " + codec.elapsed + " ms");  
           
-    var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
-    frame.appendChild(encodedImage);
-    document.getElementById('decoded_image').appendChild(frame);
+      var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
+      frame.appendChild(encodedImage);
+      document.getElementById('decoded_image').appendChild(frame);
           
-    var str = encodedImage.src;
-  
-    var idx = str.indexOf(",");
-    var dat = str.substring(idx+1);
+    });
           
     // Decode image to make sure it worked
+/*
     var decodedImage = new Image();
     var container = new cryptagram.container(decodedImage);
     var decoder = new cryptagram.decoder(container, {password: password});
@@ -157,6 +157,7 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
           errorCount + "\t" + codec.lastOctal.length + "\t" + percent + "\t" + codec.percentChrominanceError + "\n";
       results.value += report;
     });     
+*/
   }
 };
 
