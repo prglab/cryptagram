@@ -127,7 +127,7 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
     var originalData = image.src;
     
     
-    codec.encode({image:image, password:password}, function(encodedImage) {
+    codec.encode({src:originalData, password:password}, function(encodedImage) {
       
       self.logger.info("Encoded in: " + codec.elapsed + " ms");  
           

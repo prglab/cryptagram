@@ -13,7 +13,7 @@ cryptagram.codec.chequer = function(quality) {
   
   this.imageType = 'image/jpeg';
   
-  this.imageHeader = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAgACADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAP";
+  this.imageHeader = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAAgACADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAP";
   this.imageHeaderLength = this.imageHeader.length;
     
   this.tileSize = 32;
@@ -44,7 +44,7 @@ cryptagram.codec.chequer.prototype.name = function() {
 
 cryptagram.codec.chequer.prototype.encode = function(options, callback) {
 
-  var image = options.image;
+  var src = options.src;
   var password = options.password;
   var self = this;
   
@@ -60,7 +60,7 @@ cryptagram.codec.chequer.prototype.encode = function(options, callback) {
       callback(newImage);
     });
   };
-  img.src = image.src;
+  img.src = src;
 }
 
 cryptagram.codec.chequer.prototype.imageToData = function(img, password, callback) {
@@ -75,69 +75,69 @@ cryptagram.codec.chequer.prototype.imageToData = function(img, password, callbac
   var lastHeader = this.imageHeader;
   var totalData = 0;
   var result = self.name();
-  
-//  var img = new Image();
-//  img.onload = function(){
-  
-    result += "/" + img.width + "/" + img.height;
-  
-    var numRows = Math.ceil(img.height / self.tileSize);
-    var numCols = Math.ceil(img.width / self.tileSize);
-          
-    for (var r = 0; r < numRows; r++) {
-      for (var c = 0; c < numCols; c++) {
-        
-        var startX = c * self.tileSize;
-        var startY = r * self.tileSize;
+    
+  result += "/" + img.width + "/" + img.height;
 
-        var tileW = self.tileSize;
-        var tileH = self.tileSize;
+  var numRows = Math.ceil(img.height / self.tileSize);
+  var numCols = Math.ceil(img.width / self.tileSize);
         
-        if (startX + tileW > img.width) {
-          tileW = img.width - startX;        
-        }
-        
-        if (startY + tileH > img.height) {
-          tileH = img.height - startY;        
-        }
-        
-        ctx.clearRect(0, 0, self.tileSize, self.tileSize);
-        ctx.drawImage(img, startX, startY, tileW, tileH, 0, 0, tileW, tileH);
-        var dat = canvas.toDataURL(self.imageType, self.quality);
-        var header = dat.substring(0, self.imageHeaderLength);
-        var body = dat.substring(self.imageHeaderLength, dat.length)
-        if (header != lastHeader) {
-          console.log("Header changed " + r + "," + c);
-          self.imageHeader = header;
-        }
+  for (var r = 0; r < numRows; r++) {
+    for (var c = 0; c < numCols; c++) {
+      
+      var startX = c * self.tileSize;
+      var startY = r * self.tileSize;
 
-        lastHeader = header;
-        
-        result += self.delimiter;
-        result += c + "/" + r + "/";
-        result += self.encrypt(body, password);        
-        
-        totalData +=  body.length;
+      var tileW = self.tileSize;
+      var tileH = self.tileSize;
+      
+      if (startX + tileW > img.width) {
+        tileW = img.width - startX;        
       }
+      
+      if (startY + tileH > img.height) {
+        tileH = img.height - startY;        
+      }
+      
+      ctx.clearRect(0, 0, self.tileSize, self.tileSize);
+      ctx.drawImage(img, startX, startY, tileW, tileH, 0, 0, tileW, tileH);
+      var dat = canvas.toDataURL(self.imageType, self.quality);
+      var header = dat.substring(0, self.imageHeaderLength);
+      var body = dat.substring(self.imageHeaderLength, dat.length)
+      if (header != lastHeader) {
+        console.log("Header changed " + r + "," + c);
+        self.imageHeader = header;
+        alert(header);
+      }
+
+      lastHeader = header;
+      
+      result += self.delimiter;
+      result += c + "/" + r + "/";
+      result += self.encrypt(body, password);        
+      
+      totalData +=  body.length;
     }
-    result += self.delimiter + self.delimiter;
-    callback(result);
- // };
- // img.src = image.src;
+  }
+  result += self.delimiter + self.delimiter;
+  callback(result);
 
 };
   
+
+
 
 cryptagram.codec.chequer.prototype.dataToImage = function(data, aspect) {
 
   var timeA = new Date().getTime();
 
-  aspect = typeof aspect !== 'undefined' ? aspect : 1.0;
+  var aspect = typeof aspect !== 'undefined' ? aspect : 1.0;
+ 
   var blockWidth = this.blockSize;
   var blockHeight = this.blockSize;
+
   var self = this;
-    
-  // Converts base64 to 3 base4 values
+
+   // Converts base64 to 3 base4 values
   function add_char(ch, values) {
     var value = self.base64Values.indexOf(ch);
     
@@ -157,58 +157,72 @@ cryptagram.codec.chequer.prototype.dataToImage = function(data, aspect) {
     add_char(data[i], values);
   }
 
-  this.lastOctal = values;
-  
+  // how many octal values do we have from our actual image data?
   var nValues = values.length;
   var blockSize = blockWidth * blockHeight;
   var nPixels = blockSize * nValues;
   var height = Math.sqrt(nPixels / aspect);
   var width = Math.ceil(aspect * height);
+
   // make output height a multiple of block height
   height = Math.ceil(Math.ceil(height) / blockHeight) * blockHeight;
 
+  // make output width a multiple of three block width, so that three octal values
+  // always encode on same line
+  width = Math.ceil(width / (3* blockWidth)) * 3 *  blockWidth;
   var c = document.createElement('canvas');
-  c.style.border = "1px solid red";
-  document.body.appendChild(c);
-  
   c.width = width;
   c.height = height;
-  
   var cxt = c.getContext('2d');
   var imageData = cxt.createImageData(width, height);
-  
-  this.data = imageData;
+
+  this.data = imageData.data;
   this.width = width;
   this.height = height;
-  
-  symbolsInRow = width / blockWidth;
-  var xCoord, yCoord, x, y, i2;
-  
-  var quad;
+
   var level;
-    
+
+  var symbolsInRow = width / blockWidth;
+  var x, y;
+
   for (var i = 0; i < nValues; i++) {
-    quad = values[i];
+    var quad = values[i];
     level = this.symbolThresholds[quad];
-    
-    yCoord = Math.floor(i / symbolsInRow);
-    xCoord = (i - (yCoord * symbolsInRow));
-    x = xCoord * blockWidth;
-    y = yCoord * blockHeight;
-    this.set_block(x,y,level);
+    y = Math.floor(i / symbolsInRow);
+    x = i - (y * symbolsInRow);
+    this.set_block( x * blockWidth, y * blockHeight, level);
   }
+  
+  var fillWidth = width / blockWidth;
+  var fillHeight = height / blockHeight;
+  var randQuad;
+  
+  // Fill end of image with random blocks.
+  while(1) {
+    x++;
+    if (x >= fillWidth) {
+      x = 0;
+      y++;
+    }
     
+    if (y >= fillHeight) {
+      break;
+    }
+    randQuad = Math.floor(Math.random() * 4);
+    level = this.symbolThresholds[randQuad];
+    this.set_block(x * blockWidth, y * blockHeight, level);
+  }
+ 
   cxt.putImageData(imageData, 0, 0);
   var img = new Image();
-  
+
   this.logger.info("JPEG quality " + this.quality);
+
   img.src = c.toDataURL('image/jpeg', this.quality);
-  
+
   var timeB = new Date().getTime();
-  this.elapsed = timeB - timeA;
-
-  this.logger.info("Encoded in: " + this.elapsed + " ms");  
-
+  var elapsed = timeB - timeA;
+  this.logger.info("Encoded in: " + elapsed + " ms");
   return img;
 };
 
