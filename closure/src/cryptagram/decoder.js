@@ -147,9 +147,9 @@ cryptagram.decoder.prototype.processImage = function() {
                       this.elapsed);
     this.container.setStatus();    
     this.logger.shout("PROCESS_IMAGE_DECRYPT_START " + this.codec.decodeData.length);
-    var decrypted = this.codec.decrypt(this.password);
+    var decrypted = this.codec.decrypt(this.password, this.callback);
     this.logger.shout("PROCESS_IMAGE_DECRYPT_FINISH " + this.codec.decodeData.length);
-    this.callback(decrypted);
+    //this.callback(decrypted);
  }
 }
 

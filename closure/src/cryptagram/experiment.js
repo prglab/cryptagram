@@ -97,44 +97,41 @@ cryptagram.experiment.prototype.handleFiles = function(files) {
 }
 
 
-/**
- * @param{Array} files
- * @private
- */
+
 cryptagram.experiment.prototype.imageExperiment = function(image) {
   
   var output = [];
   var self = this;
   var codices = [];
-  
-  for (var q = 70; q < 92; q += 2) {
-    var quality = q / 100.0;
-  }
-  
-  
+  var quality = .76;
   codices = new Array(new cryptagram.codec.chequer(quality));    
 
-    
+
   var results = goog.dom.getElement('results');
   results.value = "";
-  var ratio = 1.0;
-  ratio = image.width / image.height;
       
  	var password = 'cryptagram';       
         
   for (var c = 0; c < codices.length; c++) {
+  
     var codec = codices[c];
     var originalData = image.src;
     
-    
     codec.encode({src:originalData, password:password}, function(encodedImage) {
-      
-      self.logger.info("Encoded in: " + codec.elapsed + " ms");  
-          
+                
       var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
       frame.appendChild(encodedImage);
       document.getElementById('decoded_image').appendChild(frame);
-          
+
+      var decodedImage = new Image();
+      var container = new cryptagram.container(decodedImage);
+      var decoder = new cryptagram.decoder(container, {password: password});
+      
+      decoder.decodeData(encodedImage.src, codec, function(result) {
+        decodedImage.src = result;
+        document.body.appendChild(decodedImage);
+      });
+
     });
           
     // Decode image to make sure it worked

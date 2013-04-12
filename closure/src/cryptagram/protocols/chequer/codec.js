@@ -13,17 +13,18 @@ cryptagram.codec.chequer = function(quality) {
   
   this.imageType = 'image/jpeg';
   
-  this.imageHeader = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAAgACADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAP";
+  this.imageHeader = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAgACADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAP";
   this.imageHeaderLength = this.imageHeader.length;
     
   this.tileSize = 32;
   this.delimiter = "abcd";
   this.blockSize = 1;
-  this.base = 4;
-  
   this.quality = quality;
-  this.symbolThresholds = [];
+  
   this.cipher = new cryptagram.cipher.chequer();
+
+  this.symbolThresholds = [];
+  this.base = 4;
 
   for (var i = 0; i < this.base; i++) {
     var level = (i / (this.base - 1)) * 255;
@@ -50,77 +51,96 @@ cryptagram.codec.chequer.prototype.encode = function(options, callback) {
   
   var img = new Image();
     img.onload = function(){
+    
+    var tiles = self.tileImage(img);
+    var tileData = self.encodeTiles(tiles, password);
 
+    var header = self.name() + "/" + img.width + "/" + img.height + "/" + self.delimiter;
+    var data = header + tileData;    
     var aspect = img.width / img.height;
 
-    self.imageToData(img, password, function(result) {
-
-      var newImage = self.dataToImage(result, aspect);
-      
-      callback(newImage);
-    });
+    var newImage = self.dataToImage(data, aspect);
+    callback(newImage);
   };
   img.src = src;
-}
+};
 
-cryptagram.codec.chequer.prototype.imageToData = function(img, password, callback) {
 
+// Read tiles
+// Returns array of tile images as data URIs
+cryptagram.codec.chequer.prototype.tileImage = function(img) {
+  
+  var tiles = new Array();
   var self = this;
+  
   var canvas = document.createElement('canvas');
   canvas.width = this.tileSize;
   canvas.height = this.tileSize;
-
   var ctx = canvas.getContext('2d');
-
+  
   var lastHeader = this.imageHeader;
-  var totalData = 0;
   var result = self.name();
     
   result += "/" + img.width + "/" + img.height;
 
   var numRows = Math.ceil(img.height / self.tileSize);
   var numCols = Math.ceil(img.width / self.tileSize);
-        
+  
   for (var r = 0; r < numRows; r++) {
     for (var c = 0; c < numCols; c++) {
       
       var startX = c * self.tileSize;
       var startY = r * self.tileSize;
-
       var tileW = self.tileSize;
       var tileH = self.tileSize;
       
       if (startX + tileW > img.width) {
         tileW = img.width - startX;        
       }
-      
       if (startY + tileH > img.height) {
         tileH = img.height - startY;        
       }
       
       ctx.clearRect(0, 0, self.tileSize, self.tileSize);
       ctx.drawImage(img, startX, startY, tileW, tileH, 0, 0, tileW, tileH);
-      var dat = canvas.toDataURL(self.imageType, self.quality);
-      var header = dat.substring(0, self.imageHeaderLength);
-      var body = dat.substring(self.imageHeaderLength, dat.length)
-      if (header != lastHeader) {
-        console.log("Header changed " + r + "," + c);
-        self.imageHeader = header;
-        alert(header);
-      }
-
-      lastHeader = header;
       
-      result += self.delimiter;
-      result += c + "/" + r + "/";
-      result += self.encrypt(body, password);        
-      
-      totalData +=  body.length;
+      var data = canvas.toDataURL(self.imageType, self.quality);
+      var tile = {src: data, x: c, y: r};
+      tiles.push(tile);
     }
   }
-  result += self.delimiter + self.delimiter;
-  callback(result);
+  return tiles;
+}
 
+
+
+//cryptagram.codec.chequer.prototype.imageToData = function(img, password, callback) {
+cryptagram.codec.chequer.prototype.encodeTiles = function(tiles, password) {
+  var self = this;
+  var result = "";
+  var header;
+  var lastHeader = self.imageHeader;
+  
+  for (var t = 0; t < tiles.length; t++) {
+    var data = tiles[t].src;
+    var header = data.substring(0, self.imageHeaderLength);
+    var body = data.substring(self.imageHeaderLength, data.length);
+    var rowId = tiles[t].x;
+    var colId = tiles[t].y;
+    
+    if (header != lastHeader) {
+      self.logger.severe("Header changed " + rowId + "," + colId);
+      self.imageHeader = header;
+    }
+    lastHeader = header;
+
+    var cleartext = rowId + "/" + colId + "/" + body;
+    
+    result += self.encrypt(cleartext, password);      
+    result += self.delimiter;
+  }
+  result += self.delimiter;
+  return result;
 };
   
 
@@ -387,14 +407,6 @@ cryptagram.codec.chequer.prototype.decrypt = function(password, callback) {
     newBase64 += base64;
   }
   
-  var errorCount = 0;
-  for (var i = 0; i < this.lastOctal.length; i++) {
-    if (this.decodeData[i] != this.lastOctal[i]) {
-      errorCount++;
-    }
-  }
-  
-  console.log("Errors " + errorCount + "/" + this.lastOctal.length);
   
   var parts = newBase64.split(this.delimiter);
   
@@ -414,20 +426,18 @@ cryptagram.codec.chequer.prototype.decrypt = function(password, callback) {
   
   for (var p = 1; p < parts.length; p++) {
     
-    var part = parts[p];
-        
-    if (part.length == 0) break;
+    var encryptedTile = parts[p];
+    if (encryptedTile.length == 0) break;
 
-    var xy = part.split("/",2);
+    var tileString = this.cipher.decrypt(parts[p], password);
+    if (!tileString) continue;    
+    numberTiles++;
+    
+    var xy = tileString.split("/",2);
     var ctStart = xy[0].length + xy[1].length + 2;
-    var encrypted = part.substring(ctStart, part.length);
+    var decrypt = tileString.substring(ctStart, tileString.length);
     var xIdx = parseInt(xy[0]);
     var yIdx = parseInt(xy[1]);
-    console.log("Decoding part " + p + " @ " + xIdx + "," + yIdx);
-    var decrypt = this.cipher.decrypt(encrypted, password);
-    if (decrypt) {
-      numberTiles++;
-    }
     
     var img = new Image();
     img.startX = xIdx * self.tileSize;
@@ -435,9 +445,7 @@ cryptagram.codec.chequer.prototype.decrypt = function(password, callback) {
 
     img.onload = function(){
       tileCount++;
-      console.log("Drawing # " + tileCount + " @ " + this.startX + "," + this.startY);
       ctx.drawImage(this, 0, 0, self.tileSize, self.tileSize, this.startX, this.startY, self.tileSize, self.tileSize);
-      
       
       if (tileCount == numberTiles) {
         var dat = canvas.toDataURL('image/jpeg', 1);
