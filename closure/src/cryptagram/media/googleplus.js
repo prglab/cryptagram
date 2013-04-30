@@ -133,8 +133,9 @@ cryptagram.media.googleplus.prototype.getImages = function(opt_URL) {
   var images = document.getElementsByTagName('img');
   var valid = [];
   var albumRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/(w[0-9]*\-h[0-9]*)|(s[0-9]*)\-[nopk\-]*\/.*/);
-  var photoRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/s[0-9]*\/.*/);
   
+  //As of April 2013, Photo page images have the same URL structure as Album images.
+  //var photoRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/s[0-9]*\/.*/);  
 
   for (i = 0; i < images.length; i++) {
     if (opt_URL) {
@@ -151,7 +152,7 @@ cryptagram.media.googleplus.prototype.getImages = function(opt_URL) {
         
       } else if (this.state == cryptagram.media.googleplus.state.PHOTO && 
          images[i].parentElement && images[i].parentElement.style.opacity == "1") {
-         if (photoRegex.test(images[i].src)) {        
+         if (albumRegex.test(images[i].src)) {        
           valid.push(images[i]);
         }
       } else {
