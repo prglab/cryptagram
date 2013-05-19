@@ -189,7 +189,6 @@ cryptagram.content.prototype.decryptByURL = function(URL, password) {
 
   this.logger.info('Request to decrypt ' + URL + '.');
 
-
   var container = this.media.loadContainer(URL);
   //var container = new cryptagram.container.img(this.clickTarget);
 
@@ -236,7 +235,7 @@ cryptagram.content.prototype.checkQueue = function() {
 
   if (this.loaders.length == 0) return;
 
-  var maxLoading = 1;
+  var maxLoading = 3;
   var loadingCount = 0;
   var doneCount = 0;
   var waitingCount = 0;
