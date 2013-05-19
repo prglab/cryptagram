@@ -50,7 +50,8 @@ cryptagram.media.facebook.prototype.matchesURL = function(URL) {
 };
 
 cryptagram.media.facebook.prototype.determineState = function(URL) {
-  var albumRegex=new RegExp(/^https?:\/\/www.facebook.com\/[\.A-z0-9]*\/photos\?collection_token=[A-Z0-9%]*&set=[a-z0-9\.&=]*/)  
+
+  var albumRegex=new RegExp(/^https?:\/\/www.facebook.com\/media\/set\/\?set=[A-z0-9&\.]*/);  
   var photoRegex=new RegExp(/^https?:\/\/www.facebook.com\/photo.php/);
  
   this.state = cryptagram.media.facebook.state.OTHER;
