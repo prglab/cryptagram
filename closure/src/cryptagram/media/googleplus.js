@@ -88,22 +88,17 @@ cryptagram.media.googleplus.prototype.onReady = function(callback) {
 cryptagram.media.googleplus.prototype.loadContainer = function(URL) {
   var images = this.getImages(URL);
   
-  
   if (this.state == cryptagram.media.googleplus.state.PHOTO 
    || this.state == cryptagram.media.googleplus.state.OTHER) {
     for (var i = 0; i < images.length; i++) {
       if (images[i].parentElement && images[i].parentElement.style.opacity == "1") {
       
         var container = new cryptagram.container.img(images[i]);
-        //if (this.state == cryptagram.media.googleplus.state.PHOTO) {
-          container.img.style.width = "100%";
-        //}
-        
+        container.img.style.width = "100%";        
         return container;
       }
     }
   }
-    
   return new cryptagram.container.img(images[0]);
 };
 
@@ -132,11 +127,9 @@ cryptagram.media.googleplus.prototype.checkIfReady = function(callback) {
 cryptagram.media.googleplus.prototype.getImages = function(opt_URL) {
   var images = document.getElementsByTagName('img');
   var valid = [];
-  var albumRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/(w[0-9]*\-h[0-9]*)|(s[0-9]*)\-[nopk\-]*\/.*/);
+  var photoRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/(w[0-9]*\-h[0-9]*)|(s[0-9]*)\-[nopk\-]*\/.*/);
+  var albumRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[A-z0-9_\-]*=[whpo0-9\-]*/);
   
-  //As of April 2013, Photo page images have the same URL structure as Album images.
-  //var photoRegex = new RegExp(/^https:\/\/.*.googleusercontent.com\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/[_\-A-z0-9]*\/s[0-9]*\/.*/);  
-
   for (i = 0; i < images.length; i++) {
     if (opt_URL) {
       if (images[i].src == opt_URL) {
@@ -152,7 +145,7 @@ cryptagram.media.googleplus.prototype.getImages = function(opt_URL) {
         
       } else if (this.state == cryptagram.media.googleplus.state.PHOTO && 
          images[i].parentElement && images[i].parentElement.style.opacity == "1") {
-         if (albumRegex.test(images[i].src)) {        
+         if (photoRegex.test(images[i].src)) {        
           valid.push(images[i]);
         }
       } else {
@@ -186,6 +179,13 @@ cryptagram.media.googleplus.prototype.getAlbumName = function(URL) {
 
 /** @inheritDoc */
 cryptagram.media.googleplus.prototype.fixURL = function(URL) {
+
+  if (this.state == cryptagram.media.googleplus.state.ALBUM) {
+    var parts = URL.split("=");
+    parts[1] = "s0";
+    return parts.join("=");
+  }
+
   var parts = URL.split("/");
   parts[7] = "s0";
   return parts.join("/");
