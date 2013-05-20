@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Class that serves as the entry-point for the JS injection.
+ */
+
 goog.provide('cryptagram.content');
 
 goog.require('cryptagram.container');
@@ -26,6 +30,8 @@ var content_;
 
 /**
  * @constructor
+ * When content is instantiated, it lives inside the page's JS environment so
+ * it can access the current DOM.
  */
 cryptagram.content = function() {
 
@@ -52,16 +58,6 @@ cryptagram.content = function() {
   
   var self = this;
   
-/*
-  this.clickTarget = null;
-  document.addEventListener( 'contextmenu', function(e) {
-    self.clickTarget = e.target;    
-    e.target.addEventListener('mousedown', function(f) {
-      if (self.clickTarget) f.stopPropagation();
-    }, true);
-  }, true );
-*/
-  
   this.logger.info('Found media: ' + this.media.name());
   
   this.loaders = [];
@@ -77,7 +73,22 @@ cryptagram.content = function() {
 cryptagram.content.prototype.logger =
     goog.debug.Logger.getLogger('cryptagram.content');
 
-
+/**
+ * Method for responding to sendMessage calls from the extension class.
+ * @param {Object} request An object for communicating. Includes:
+ *    -storage: a copy of the extension's localStorage for cached passwords/vars
+ *    -setUserStudy: a special-case flag for signaling to the encoder page
+ *    -autoDecrypt: a flag to initiate decryption of the current page if
+ *                 any of the images match stored passwords in storage
+ *    -decryptURL: a URL to decrypt in the current page. The Chrome API does not
+ *                say which DOM IMG element was right-clicked, only the URL of
+ *                IMG. So we pass this parameter and use it to search over all
+ *                possible relevant images. If the URL matches, we attempt to 
+ *                decode that IMG.
+ * @param {Object} sender The sender should always be the Chrome extension.
+ * @param {function(Object)} callback For communication back to the extension,
+ * for example, when we want to store an image or album password.
+ */
 cryptagram.content.prototype.handleRequest =
     function(request, sender, callback) {
   var self = this;
@@ -123,7 +134,7 @@ cryptagram.content.prototype.handleRequest =
       var container = this.media.getContainer(URL);
       if (container) {
         container.revertSrc();
-        this.logger.info("Reverted to " + container.img.src);
+        this.logger.info('Reverted to ' + container.img.src);
       }
       return;
     }
@@ -142,7 +153,7 @@ cryptagram.content.prototype.setStatus = function(message) {
 
 cryptagram.content.prototype.decryptImage = function(image, password, queue) {
     
-  this.logger.shout("OSN_STATE " + this.media.name() + " " + this.media.state);
+  this.logger.shout('OSN_STATE ' + this.media.name() + ' ' + this.media.state);
 
   var container = this.media.loadContainer(image.src);
   var self = this;
@@ -185,10 +196,9 @@ cryptagram.content.prototype.decryptImage = function(image, password, queue) {
 
 cryptagram.content.prototype.decryptByURL = function(URL, password) {
 
-  this.logger.shout("OSN_STATE " + this.media.name() + " " + this.media.state);
+  this.logger.shout('OSN_STATE ' + this.media.name() + ' ' + this.media.state);
 
   this.logger.info('Request to decrypt ' + URL + '.');
-
   var container = this.media.loadContainer(URL);
   //var container = new cryptagram.container.img(this.clickTarget);
 
@@ -216,10 +226,10 @@ cryptagram.content.prototype.decryptByURL = function(URL, password) {
         }
 
         if (savePassword) {
-          self.logger.info("Saving image password for " + photoName);
+          self.logger.info('Saving image password for ' + photoName);
           var obj = {'outcome': 'success', 'id' : photoName, 'password' : password};
           if (albumPassword && albumName) {
-            self.logger.info("Saving album password for " + albumName);
+            self.logger.info('Saving album password for ' + albumName);
             obj['album'] = albumName;
           }
           self.callback(obj);
@@ -228,7 +238,6 @@ cryptagram.content.prototype.decryptByURL = function(URL, password) {
     });
   });
 };
-
 
 
 cryptagram.content.prototype.checkQueue = function() {
@@ -246,30 +255,25 @@ cryptagram.content.prototype.checkQueue = function() {
         loadingCount++;
       }
       if (this.loaders[i].state == cryptagram.loader.state.DONE) {
-        //var pop = this.loaders.splice(i,1);
-        //delete pop;
         doneCount++;
       }
       
       if (this.loaders[i].state == cryptagram.loader.state.WAITING) {
-        //var pop = this.loaders.splice(i,1);
-        //delete pop;
         waitingCount++;
       }
-      
   }
 
-  if (this.pb) {
+  if (this.progressBar) {
     var totalCount = waitingCount + loadingCount + doneCount;
     var percent = 100;
     if (totalCount != 0) {
       percent = 100 * doneCount / totalCount;
     }
-    this.pb.setValue(percent);
+    this.progressBar.setValue(percent);
     if (percent == 100) {
       this.progressDialog.exitDocument();
       this.loaders = [];  
-      this.pb = null;       
+      this.progressBar = null;       
     }
   }
   
@@ -287,7 +291,7 @@ cryptagram.content.prototype.checkQueue = function() {
 
 
 cryptagram.content.prototype.showProgressDialog = function() {
-  if (this.pb) {
+  if (this.progressBar) {
     return;
   }
   var self = this;
@@ -309,15 +313,15 @@ cryptagram.content.prototype.showProgressDialog = function() {
     e.stopPropagation();
   }, false); 
 
-  this.pb = new goog.ui.ProgressBar;
-  this.pb.decorate(goog.dom.getElement('progress'));
+  this.progressBar = new goog.ui.ProgressBar;
+  this.progressBar.decorate(goog.dom.getElement('progress'));
   
   goog.style.setPosition(dialog.getDialogElement(), document.width - 200, 10);
 
-  this.pb.addEventListener(goog.ui.Component.EventType.CHANGE, function() {
+  this.progressBar.addEventListener(goog.ui.Component.EventType.CHANGE, function() {
     var out = goog.dom.getElement('out');
     if (out) {
-      out.innerHTML = this.getValue() + "%";
+      out.innerHTML = this.getValue() + '%';
     }
   });
     
@@ -391,7 +395,7 @@ cryptagram.content.prototype.getPassword = function(URL) {
   dialog.setDisposeOnHide(true);
   dialog.setModal(true);
   goog.events.listen(dialog, goog.ui.Dialog.EventType.SELECT, function(e) {
-    if (e.key == "ok") {
+    if (e.key == 'ok') {
       var password = document.getElementById('password').value;
       if (password.length > 0) {
         self.decryptByURL(URL, password);
