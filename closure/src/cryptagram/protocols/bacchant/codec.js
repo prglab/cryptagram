@@ -23,7 +23,7 @@ cryptagram.codec.bacchant.prototype.logger =
 
 /** @inheritDoc */
 cryptagram.codec.bacchant.prototype.name = function() {
-  return "bacchant";
+  return 'bacchant';
 };
 
 
@@ -69,13 +69,13 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
     add_char(data[i], values1);
   }
   this.lastOctal = values1;
-  this.lastOctalString = values1.join("");
+  this.lastOctalString = values1.join('');
 
   var payloadLength = data.length;
-  var lengthString = "" + payloadLength;
+  var lengthString = '' + payloadLength;
 
   while (lengthString.length < 8) {
-    lengthString = "0" + lengthString;
+    lengthString = '0' + lengthString;
   }
 
   data = lengthString + data;
@@ -186,13 +186,13 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
   cxt.putImageData(imageData, 0, 0);
   var img = new Image();
 
-  this.logger.info("JPEG quality " + this.quality);
+  this.logger.info('JPEG quality ' + this.quality);
 
   img.src = c.toDataURL('image/jpeg', this.quality);
 
   var timeB = new Date().getTime();
   var elapsed = timeB - timeA;
-  this.logger.info("Encoded in: " + elapsed + " ms");
+  this.logger.info('Encoded in: ' + elapsed + ' ms');
   return img;
 };
 
@@ -214,14 +214,14 @@ cryptagram.codec.bacchant.maxBase64Values = function (width_to_height_ratio,
  */
 cryptagram.codec.bacchant.dimensions = function (width_to_height_ratio,
                                                  n_base64_values) {
-  if ((typeof width_to_height_ratio !== "number") ||
-      (typeof n_base64_values !== "number")) {
+  if ((typeof width_to_height_ratio !== 'number') ||
+      (typeof n_base64_values !== 'number')) {
     return undefined;
   }
 
   var width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
 		width_to_height_ratio : 1.0;
-  var header_string = "bacchant";
+  var header_string = 'bacchant';
   var block_width = typeof block_width !== 'undefined' ? block_width : 2;
   var block_height = typeof block_height !== 'undefined' ? block_height : 2;
 
@@ -267,7 +267,7 @@ cryptagram.codec.bacchant.dimensions = function (width_to_height_ratio,
  */
 cryptagram.codec.bacchant.prototype.getHeader = function(img, imageData) {
 
-    var newBase64 = "";
+    var newBase64 = '';
     var headerSize = this.blockSize * 4;
     for (var y = 0; y < headerSize; y+= this.blockSize) {
       for (var x = 0; x < headerSize; x+= 2*this.blockSize) {
@@ -331,14 +331,14 @@ cryptagram.codec.bacchant.prototype.setDecodeParams = function(img, imageData) {
   this.y = 0;
   this.img = img;
   this.imageData = imageData;
-  this.lengthString = "";
+  this.lengthString = '';
   this.errorCount = 0;
   this.decodeData = '';
 };
 
 cryptagram.codec.bacchant.prototype.getChunk = function() {
 
-  var newBase64 = "";
+  var newBase64 = '';
 
   if (this.count >= this.length) {
     return false;

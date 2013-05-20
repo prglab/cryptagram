@@ -53,7 +53,7 @@ cryptagram.decoder.prototype.decodeData = function(data, codec, callback) {
     if (!self.codec) {
       self.container.setStatus();
     } else {
-      self.data = "";
+      self.data = '';
       self.codec.setDecodeParams(img, imageData);
       self.timeA = new Date().getTime();
       self.processImage();
@@ -97,7 +97,7 @@ cryptagram.decoder.prototype.decodeDataWithQuality = function(data, codec, callb
       if (!self.codec) {
         self.container.setStatus();
       } else {
-        self.data = "";
+        self.data = '';
         self.codec.setDecodeParams(img, imageData);
         self.timeA = new Date().getTime();
         self.processImage();
@@ -116,11 +116,11 @@ cryptagram.decoder.prototype.getCodec = function(img, imageData) {
   for (var i = 0; i < knownCodecs.length; i++) {
     testCodec = new knownCodecs[i]();
     if (testCodec.test(img, imageData)) {
-      this.logger.shout("CODEC " + testCodec.name());
+      this.logger.shout('CODEC ' + testCodec.name());
       return testCodec;
     }
   }
-  this.logger.severe("UNKNOWN_CODEC");
+  this.logger.severe('UNKNOWN_CODEC');
   return null;
 }
 
@@ -134,7 +134,7 @@ cryptagram.decoder.prototype.processImage = function() {
 
   if (more) {
     var percent = Math.round(100 * this.codec.decodeProgress(), 2);
-    this.container.setStatus("Decode<br>" + percent + "%");
+    this.container.setStatus('Decode<br>' + percent + '%');
     var self = this;
     setTimeout(function () { self.processImage() }, 1);
 
@@ -142,13 +142,13 @@ cryptagram.decoder.prototype.processImage = function() {
   } else {
     var timeB = new Date().getTime();
     this.elapsed = timeB - this.timeA;
-    this.logger.shout("DECODE_LEN_ELAPSED_MS " +
-                      this.codec.decodeData.length + " " +
+    this.logger.shout('DECODE_LEN_ELAPSED_MS ' +
+                      this.codec.decodeData.length + ' ' +
                       this.elapsed);
     this.container.setStatus();    
-    this.logger.shout("PROCESS_IMAGE_DECRYPT_START " + this.codec.decodeData.length);
+    this.logger.shout('PROCESS_IMAGE_DECRYPT_START ' + this.codec.decodeData.length);
     var decrypted = this.codec.decrypt(this.password, this.callback);
-    this.logger.shout("PROCESS_IMAGE_DECRYPT_FINISH " + this.codec.decodeData.length);
+    this.logger.shout('PROCESS_IMAGE_DECRYPT_FINISH ' + this.codec.decodeData.length);
     this.callback(decrypted);
  }
 }
@@ -179,7 +179,7 @@ cryptagram.decoder.prototype.queueFiles = function (files) {
   self.files = [];
   self.images = [];
   for (var f in files) {
-    var type = "" + files[f].type;
+    var type = '' + files[f].type;
     if (type.indexOf('image/') == 0) {
       self.files.push(files[f]);
     }

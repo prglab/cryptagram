@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Class for interfacing with the Chrome API. The extension is
+ * global to all Chrome tabs so we use static methods.
+ * It adds the contextual menu item and establishes communication between the
+ * extension and individual tabs where Cryptagram content has been injected.
+ */
+
 goog.provide('cryptagram.extension');
 
 goog.require('cryptagram.RemoteLog');
@@ -13,7 +20,6 @@ cryptagram.extension.settings = [['save_passwords','true'],
                                  ['user_study','unknown']];
 
 cryptagram.extension.encoderURL = 'http://cryptagr.am';
-//cryptagram.extension.encoderURL = 'http://localhost:8888';
 
 cryptagram.extension.lastCheck = '';
 
@@ -22,7 +28,7 @@ cryptagram.extension.onInstall =  function() {
   chrome.tabs.create({
     url: 'welcome.html'
   });
-  console.log("Extension Installed");
+  console.log('Extension Installed');
 }
 
 cryptagram.extension.onUpdate = function() {
@@ -36,13 +42,13 @@ cryptagram.extension.onUpdate = function() {
       url: 'welcome.html'
     });
   }
-  console.log("Extension Updated");
+  console.log('Extension Updated');
 }
 
 cryptagram.extension.getVersion = function() {
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", chrome.extension.getURL("manifest.json"), false);
-  var resp = "";
+  xhr.open('GET', chrome.extension.getURL('manifest.json'), false);
+  var resp = '';
   xhr.send();
   resp = JSON.parse(xhr.responseText);
   return resp['version'];
@@ -94,7 +100,7 @@ cryptagram.extension.init = function() {
     }
   });
 
-  chrome.browserAction.setPopup({'popup':"popup.html"});
+  chrome.browserAction.setPopup({'popup':'popup.html'});
 
   // Check if the version has changed (installed or updated extension) and react
   // appropriately.
@@ -109,10 +115,6 @@ cryptagram.extension.init = function() {
     }
     window.localStorage.setItem('version', currVersion);
   }
-
-//chrome.browserAction.onClicked.addListener(function(tab) {
-//  chrome.tabs.create({url:chrome.extension.getURL("encoder.html")});
-//});
 };
 
 cryptagram.extension.decode = function() {
@@ -123,7 +125,7 @@ cryptagram.extension.decode = function() {
               'storage': localStorage, 
               'forceDecrypt':'1'}, null);
       });
-}
+};
 
 cryptagram.extension.showEncoder = function() {
 
@@ -139,7 +141,8 @@ cryptagram.extension.getClickHandler = function() {
 
   return function(info, tab) {
     chrome.tabs.getSelected(null, function(tab) {
-      chrome.tabs.sendMessage(tab.id, {'decryptURL':info['srcUrl'], 'storage': localStorage}, function(response) {
+      chrome.tabs.sendMessage(tab.id, {'decryptURL':info['srcUrl'], 
+            'storage': localStorage}, function(response) {
         if (response['outcome'] == 'success') {
           localStorage[response.id] = response['password'];
           if(response['album'] != null) {
@@ -164,7 +167,8 @@ cryptagram.extension.sendDebugReport = function() {
  *     JSON.
  */
 cryptagram.extension.proxyContentScript = function(sendResponse) {
-  var url = 'http://localhost:2012/compile?id=cryptagram&mode=SIMPLE&pretty-print=true';
+  var url = 
+    'http://localhost:2012/compile?id=cryptagram&mode=SIMPLE&pretty-print=true';
   goog.net.XhrIo.send(url, function(e) {
     var xhr = /** @type {goog.net.XhrIo} */ (e.target);
     sendResponse(xhr.getResponseText());
@@ -188,9 +192,9 @@ cryptagram.extension.onRequest = function(request, sender, sendResponse) {
 
 chrome.extension.onRequest.addListener(cryptagram.extension.onRequest);
 
-
-goog.exportSymbol('cryptagram.extension.settings', cryptagram.extension.settings);
-goog.exportSymbol('cryptagram.extension.showEncoder', cryptagram.extension.showEncoder);
-
+goog.exportSymbol('cryptagram.extension.settings',
+                  cryptagram.extension.settings);
+goog.exportSymbol('cryptagram.extension.showEncoder', 
+                  cryptagram.extension.showEncoder);
 
 cryptagram.extension.init();

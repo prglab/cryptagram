@@ -15,7 +15,8 @@ cryptagram.codec.dimensions = goog.abstractMethod;
 
 cryptagram.codec.maxBase64Values = goog.abstractMethod;
 
-cryptagram.codec.prototype.base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+cryptagram.codec.prototype.base64Values = 
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 cryptagram.codec.prototype.quality = .74;
 
@@ -23,13 +24,13 @@ cryptagram.codec.prototype.setImage = function(img) {};
 
 cryptagram.codec.prototype.test = function(img, imageData) {
   var header = this.getHeader(img, imageData);
-  this.logger.info("Header string: " + header);
+  this.logger.info('Header string: ' + header);
 
   return (header == this.name());
 };
 
 cryptagram.codec.prototype.decodeProgress = function() {
-  return "Unknown";
+  return 'Unknown';
 };
 
 cryptagram.codec.prototype.decrypt = function(password) {

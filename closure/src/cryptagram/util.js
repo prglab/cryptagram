@@ -12,7 +12,7 @@ cryptagram.util.SHA1 = function(msg) {
 	};
  
 	function lsb_hex(val) {
-		var str="";
+		var str='';
 		var i;
 		var vh;
 		var vl;
@@ -26,7 +26,7 @@ cryptagram.util.SHA1 = function(msg) {
 	};
  
 	function cvt_hex(val) {
-		var str="";
+		var str='';
 		var i;
 		var v;
  
@@ -39,8 +39,8 @@ cryptagram.util.SHA1 = function(msg) {
  
  
 	function Utf8Encode(string) {
-		string = string.replace(/\r\n/g,"\n");
-		var utftext = "";
+		string = string.replace(/\r\n/g,'\n');
+		var utftext = '';
  
 		for (var n = 0; n < string.length; n++) {
  

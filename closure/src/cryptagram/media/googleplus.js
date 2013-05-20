@@ -58,7 +58,7 @@ cryptagram.media.googleplus.prototype.determineState = function(URL) {
 
 /** @inheritDoc */
 cryptagram.media.googleplus.prototype.name = function() {
-  return "Google Plus";
+  return 'Google Plus';
 };
 
 
@@ -91,10 +91,10 @@ cryptagram.media.googleplus.prototype.loadContainer = function(URL) {
   if (this.state == cryptagram.media.googleplus.state.PHOTO 
    || this.state == cryptagram.media.googleplus.state.OTHER) {
     for (var i = 0; i < images.length; i++) {
-      if (images[i].parentElement && images[i].parentElement.style.opacity == "1") {
+      if (images[i].parentElement && images[i].parentElement.style.opacity == '1') {
       
         var container = new cryptagram.container.img(images[i]);
-        container.img.style.width = "100%";        
+        container.img.style.width = '100%';        
         return container;
       }
     }
@@ -116,10 +116,10 @@ cryptagram.media.googleplus.prototype.checkIfReady = function(callback) {
   var self = this;
   this.tries++;
   if (this.tries < this.maxTries) {
-    this.logger.info("Google+ not ready. Trying again. #" + this.tries);
+    this.logger.info('Google+ not ready. Trying again. #' + this.tries);
     setTimeout(function() { self.checkIfReady(callback); }, self.delay);
   }  else {
-    this.logger.info("Google+ failed.");
+    this.logger.info('Google+ failed.');
   }
 };
 
@@ -139,19 +139,19 @@ cryptagram.media.googleplus.prototype.getImages = function(opt_URL) {
 
       if (this.state == cryptagram.media.googleplus.state.ALBUM) {
         if (albumRegex.test(images[i].src) &&
-            images[i].parentNode.tagName != "A") {        
+            images[i].parentNode.tagName != 'A') {        
           valid.push(images[i]);
         }
         
       } else if (this.state == cryptagram.media.googleplus.state.PHOTO && 
-         images[i].parentElement && images[i].parentElement.style.opacity == "1") {
+         images[i].parentElement && images[i].parentElement.style.opacity == '1') {
          if (photoRegex.test(images[i].src)) {        
           valid.push(images[i]);
         }
       } else {
         // Google+ puts the image in multiple img elements, possibly to speed up load times.
         // Only the one with a parent div opacity=1 is visible.
-        if (images[i].parentElement && images[i].parentElement.style.opacity == "1") {
+        if (images[i].parentElement && images[i].parentElement.style.opacity == '1') {
           valid.push(images[i]);
         }
       }
@@ -163,8 +163,8 @@ cryptagram.media.googleplus.prototype.getImages = function(opt_URL) {
 
 /** @inheritDoc */
 cryptagram.media.googleplus.prototype.getPhotoName = function(URL) {
-  var URLParts = URL.split("/");
-  return "g+_photo://" + URLParts[4];
+  var URLParts = URL.split('/');
+  return 'g+_photo://' + URLParts[4];
 };
 
 
@@ -172,7 +172,7 @@ cryptagram.media.googleplus.prototype.getPhotoName = function(URL) {
 cryptagram.media.googleplus.prototype.getAlbumName = function(URL) {
   var browserURL = document.URL;
   var albumIDs = browserURL.match(/\/albums\/([0-9]*)\/?([0-9]*)/);
-  if (albumIDs) return "g+_album://" + albumIDs[1];
+  if (albumIDs) return 'g+_album://' + albumIDs[1];
   return null;
 };
 
@@ -181,12 +181,12 @@ cryptagram.media.googleplus.prototype.getAlbumName = function(URL) {
 cryptagram.media.googleplus.prototype.fixURL = function(URL) {
 
   if (this.state == cryptagram.media.googleplus.state.ALBUM) {
-    var parts = URL.split("=");
-    parts[1] = "s0";
-    return parts.join("=");
+    var parts = URL.split('=');
+    parts[1] = 's0';
+    return parts.join('=');
   }
 
-  var parts = URL.split("/");
-  parts[7] = "s0";
-  return parts.join("/");
+  var parts = URL.split('/');
+  parts[7] = 's0';
+  return parts.join('/');
 };

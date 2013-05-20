@@ -15,7 +15,7 @@ cryptagram.codec.aesthete = function() {
   this.cipher = new cryptagram.cipher.aesthete();
 };
 
-//cryptagram.codec.aesthete.base64Values = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+//cryptagram.codec.aesthete.base64Values = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 //cryptagram.codec.aesthete.octal_symbol_thresholds = [238, 210, 182, 154, 126, 98, 70, 42, 14];
 
 goog.inherits(cryptagram.codec.aesthete, cryptagram.codec);
@@ -25,7 +25,7 @@ cryptagram.codec.aesthete.prototype.logger = goog.debug.Logger.getLogger('crypta
 
 /** @inheritDoc */
 cryptagram.codec.aesthete.prototype.name = function() {
-  return "aesthete";
+  return 'aesthete';
 };
 
 
@@ -67,8 +67,8 @@ cryptagram.codec.aesthete.maxBase64Values = function (width_to_height_ratio,
  */
 cryptagram.codec.aesthete.dimensions = function (width_to_height_ratio,
                                                  n_base64_values) {
-  if ((typeof width_to_height_ratio !== "number") ||
-      (typeof n_base64_values !== "number")) {
+  if ((typeof width_to_height_ratio !== 'number') ||
+      (typeof n_base64_values !== 'number')) {
     return undefined;
   }
 
@@ -230,7 +230,7 @@ cryptagram.codec.aesthete.prototype.encode = function(data,
  */
 cryptagram.codec.aesthete.prototype.getHeader = function(img, imageData) {
 
-    var newBase64 = "";
+    var newBase64 = '';
 
     for (y = 0; y < 8; y+= this.blockSize) {
       for (x = 0; x < 8; x+= 2*this.blockSize) {
@@ -301,7 +301,7 @@ cryptagram.codec.aesthete.prototype.setDecodeParams = function(img, imageData) {
 
 cryptagram.codec.aesthete.prototype.getChunk = function() {
 
-  var newBase64 = "";
+  var newBase64 = '';
 
   if (this.y >= this.img.height) {
     return false;

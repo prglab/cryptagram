@@ -20,7 +20,7 @@ cryptagram.media.web.prototype.logger = goog.debug.Logger.getLogger('cryptagram.
 
 /** @inheritDoc */
 cryptagram.media.web.prototype.name = function() {
-  return "Webpage";
+  return 'Webpage';
 };
 
 

@@ -28,7 +28,7 @@ goog.require('cryptagram.Thumbnailer.Event');
 
 // Resizing constructor. Listen for these events as follows:
 // var requal = new cryptagram.Resizing();
-// goog.events.listen(requal, "requalityDone", function (e) {...}, true, this);
+// goog.events.listen(requal, 'requalityDone', function (e) {...}, true, this);
 cryptagram.Resizing = function () {
   goog.events.EventTarget.call(this);
 };
@@ -65,36 +65,36 @@ cryptagram.Resizing.prototype.setStatus = function (message) {
 // Reduces the size of the image.
 cryptagram.Resizing.prototype.start = function (image, iter_n) {
   var self = this;
-  var canvas = document.createElement("canvas");
+  var canvas = document.createElement('canvas');
 
   // TODO(tierney): We can come up with a more sophisticated model but this is
   // what we currently do for resizing images.
   var scaled_width = Math.round((1.0 - ((1 + iter_n) * 0.1)) * image.width);
-  console.log("scaled_width: " + scaled_width);
+  console.log('scaled_width: ' + scaled_width);
 
   // This produces lanczos3 but feel free to raise it up to 8. Your client will
   // appreciate that the program makes full use of his machine.
   var thumbnailer = new cryptagram.Thumbnailer(canvas, image, scaled_width, 3);
   goog.events.listen(
-    thumbnailer, "THUMBNAILER_DONE",
+    thumbnailer, 'THUMBNAILER_DONE',
     function (event) {
 
       var resizeValidator = new cryptagram.ResizeValidator();
       goog.events.listen(
         resizeValidator,
-        "RESIZE_VALIDATION",
+        'RESIZE_VALIDATION',
         function (validationEvent) {
           if (validationEvent.valid) {
-            console.log("Validated image.");
-            this.dispatchEvent({type:"RESIZING_DONE", image:event.image});
+            console.log('Validated image.');
+            this.dispatchEvent({type:'RESIZING_DONE', image:event.image});
           } else {
-            console.log("Need to go again");
+            console.log('Need to go again');
             this.start(image, iter_n + 1);
           }
         },
         true,
         this);
-      console.log("Thumbnailing done.");
+      console.log('Thumbnailing done.');
 
       // Check if the image is small enough or if we necessarily must make the
       // image smaller.
@@ -109,6 +109,6 @@ cryptagram.Resizing.prototype.start = function (image, iter_n) {
 	//   img.src = image;
   // } else {
   //   this.logger.info('No need for requality.');
-  //   this.dispatchEvent({type:"REQUALITY_DONE", image:image});
+  //   this.dispatchEvent({type:'REQUALITY_DONE', image:image});
   // }
 };

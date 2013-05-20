@@ -15,8 +15,8 @@ cryptagram.Thumbnailer = function (elem, img, sx, lobes) {
   this.canvas = elem;
   elem.width = img.width;
   elem.height = img.height;
-  elem.style.display = "none";
-  this.ctx = elem.getContext("2d");
+  elem.style.display = 'none';
+  this.ctx = elem.getContext('2d');
   this.ctx.drawImage(img, 0, 0);
   this.img = img;
   this.src = this.ctx.getImageData(0, 0, img.width, img.height);
@@ -136,7 +136,7 @@ cryptagram.Thumbnailer.prototype.process2 = function (self) {
     }
   }
   self.ctx.putImageData(self.src, 0, 0);
-  self.canvas.style.display = "block";
+  self.canvas.style.display = 'block';
   self.dispatchEvent({type:'THUMBNAILER_DONE',
                       image:self.canvas.toDataURL('image/jpeg', 1.0)});
 };

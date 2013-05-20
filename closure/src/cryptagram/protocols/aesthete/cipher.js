@@ -27,15 +27,15 @@ cryptagram.cipher.aesthete.prototype.decrypt = function(newBase64, password) {
   var bits = sjcl.hash.sha256.hash(full);
   var hexHash = sjcl.codec.hex.fromBits(bits);
 
-  this.logger.info("Decrypting Image");
+  this.logger.info('Decrypting Image');
 
-  this.logger.shout("DECRYPT_HASH_EMBED " + check);
+  this.logger.shout('DECRYPT_HASH_EMBED ' + check);
 
   if (hexHash != check) {
-    this.logger.severe("DECRYPT_FAILED_HASH_CALC " + hexHash);
+    this.logger.severe('DECRYPT_FAILED_HASH_CALC ' + hexHash);
     return;
   } else {
-    this.logger.info("Checksum passed.");
+    this.logger.info('Checksum passed.');
   }
 
   var obj = new Object();
@@ -48,11 +48,11 @@ cryptagram.cipher.aesthete.prototype.decrypt = function(newBase64, password) {
   try {
     decrypted = sjcl.decrypt(password, base64Decode);
   } catch(err) {
-    this.logger.severe("DECRYPT_FAILED " + hexHash + " " + err.toString());
+    this.logger.severe('DECRYPT_FAILED ' + hexHash + ' ' + err.toString());
     return null;
   }
 
-  this.logger.shout("DECRYPT_OUT_LEN " + decrypted.length);
+  this.logger.shout('DECRYPT_OUT_LEN ' + decrypted.length);
 
   var payload = this.URIHeader + decrypted;
   return payload;
@@ -61,26 +61,26 @@ cryptagram.cipher.aesthete.prototype.decrypt = function(newBase64, password) {
 cryptagram.cipher.aesthete.prototype.encrypt = function(data, password) {
   // Get rid of data type information (for now assuming always JPEG.
   var withoutMimeHeader = data.split('base64,')[1];
-	this.logger.info("Start");
+	this.logger.info('Start');
 	var unparsed_encrypted = sjcl.encrypt(password, withoutMimeHeader);
   var encrypted_data = JSON.parse(unparsed_encrypted);
-	this.logger.info("Stop");
+	this.logger.info('Stop');
 
-	this.logger.info("iv");
+	this.logger.info('iv');
   var iv = encrypted_data['iv'];
-	this.logger.info("salt");
+	this.logger.info('salt');
   var salt = encrypted_data['salt'];
-	this.logger.info("ct");
+	this.logger.info('ct');
   var ct = encrypted_data['ct'];
-	this.logger.info("to_hash");
+	this.logger.info('to_hash');
   var to_hash = iv + salt + ct;
 
-	this.logger.info("Hashing");
+	this.logger.info('Hashing');
 	var bits = sjcl.hash.sha256.hash(to_hash);
-	this.logger.info("fromBits");
+	this.logger.info('fromBits');
   var integrity_check_value = sjcl.codec.hex.fromBits(bits);
 
-  this.logger.shout("ENCRYPTED_HASH " + integrity_check_value);
+  this.logger.shout('ENCRYPTED_HASH ' + integrity_check_value);
 
   return integrity_check_value + to_hash;
 };

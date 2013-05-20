@@ -56,7 +56,7 @@ cryptagram.SizeReducer.prototype.startWithImage = function (options) {
     }
     this.startWithImageFracQual(options, fraction, limit);
   } else {
-    this.dispatchEvent({type:"SIZE_REDUCER_DONE", image:image});
+    this.dispatchEvent({type:'SIZE_REDUCER_DONE', image:image});
   }
 };
 
@@ -77,7 +77,7 @@ cryptagram.SizeReducer.prototype.startWithImageFracQual = function (options,
 
     // Load image into canvas for resize.
     var canvas = document.createElement('canvas');
-    var context = canvas.getContext("2d");
+    var context = canvas.getContext('2d');
 
     var newWidth = Math.floor(fraction * img.width);
     var newHeight = Math.floor(fraction * img.height);
@@ -90,17 +90,17 @@ cryptagram.SizeReducer.prototype.startWithImageFracQual = function (options,
 
     // Check that the image is small enough. If not, go around with 10% less in
     // the fraction allowed.
-    self.logger.info("New Data len: " + newImageDataUrl.length);
-    self.logger.info("Limit: " + limit);
+    self.logger.info('New Data len: ' + newImageDataUrl.length);
+    self.logger.info('Limit: ' + limit);
 
     var est = options.codec.dimensions(newWidth / newHeight,
                                        newImageDataUrl.length);
-    self.logger.info("Est Width: " + est.width);
-    self.logger.info("Est Height: " + est.height);
+    self.logger.info('Est Width: ' + est.width);
+    self.logger.info('Est Height: ' + est.height);
     if (newImageDataUrl.length >= limit ||
         est.width > options.maxSize ||
         est.height > options.maxSize) {
-      self.logger.info("Going around.");
+      self.logger.info('Going around.');
       self.startWithImageFracQual(options, fraction - 0.05, limit);
     } else {
       // Convert the image data URL to an image and pass that up once it's loaded.
@@ -108,8 +108,8 @@ cryptagram.SizeReducer.prototype.startWithImageFracQual = function (options,
       newImage.onload = function (event) {
         // Send the event.
         newImage.file = imageName;
-        self.logger.info("New Data len: " + newImage.src.length);
-        self.dispatchEvent({type:"SIZE_REDUCER_DONE", image:newImage});
+        self.logger.info('New Data len: ' + newImage.src.length);
+        self.dispatchEvent({type:'SIZE_REDUCER_DONE', image:newImage});
       };
       newImage.src = newImageDataUrl;
     }

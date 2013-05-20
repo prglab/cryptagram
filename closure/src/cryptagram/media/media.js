@@ -38,7 +38,7 @@ cryptagram.media.prototype.onReady = function(callback) {
 };
 
 cryptagram.media.prototype.getImages = function(opt_URL) {
-  var images = document.getElementsByTagName("img");
+  var images = document.getElementsByTagName('img');
   if (!opt_URL) {
     return images;
   } else {

@@ -19,12 +19,12 @@ cryptagram.media.social.prototype.logger = goog.debug.Logger.getLogger('cryptagr
 
 /** @inheritDoc */
 cryptagram.media.social.prototype.getAlbumName = function() {
-  return "untitled album";
+  return 'untitled album';
 };
 
 /** @inheritDoc */
 cryptagram.media.social.prototype.getPhotoName = function() {
-  return "untitled image";
+  return 'untitled image';
 };
 
 

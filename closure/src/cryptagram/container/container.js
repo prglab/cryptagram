@@ -12,7 +12,7 @@ cryptagram.container = function(img, node) {
 
   if (!img) {
     // TODO(tierney): @ispiro, should this message be logged remotely?
-    console.log("Bad Container");
+    console.log('Bad Container');
     return;
   }
   if (node == null) {
@@ -27,19 +27,19 @@ cryptagram.container = function(img, node) {
 cryptagram.container.prototype.createStatus = function() {
   this.div = goog.dom.createDom('div', { 'class': goog.getCssName('status')});
   this.div.style.display = 'none';
-  this.div.style.position = "absolute";
-  this.div.style.width = "50px";
-  this.div.style.top = "0px";
-  this.div.style.marginLeft = "-30px";
-  this.div.style.marginTop = "5px";
-  this.div.style.padding = "5px";
-  this.div.style.color = "black";
-  this.div.style.left = "50%";
-  this.div.style.background = "white";
-  this.div.style.opacity = "0.8";
-  this.div.style.font = "10px arial";
-  this.div.style.textAlign = "center";
-  this.div.style.borderRadius = "3px";
+  this.div.style.position = 'absolute';
+  this.div.style.width = '50px';
+  this.div.style.top = '0px';
+  this.div.style.marginLeft = '-30px';
+  this.div.style.marginTop = '5px';
+  this.div.style.padding = '5px';
+  this.div.style.color = 'black';
+  this.div.style.left = '50%';
+  this.div.style.background = 'white';
+  this.div.style.opacity = '0.8';
+  this.div.style.font = '10px arial';
+  this.div.style.textAlign = 'center';
+  this.div.style.borderRadius = '3px';
   this.div.style.zIndex = 100;
 };
 
@@ -84,7 +84,7 @@ cryptagram.container.prototype.setStatus = function(status) {
     if (this.displayWidth) {
       width = this.displayWidth;
     }
-    //this.div.style.left = (width / 2) + "px";
+
     this.div.style.display = 'inline-block';
     this.div.innerHTML = status;
     }

@@ -44,32 +44,32 @@ cryptagram.Rotator.prototype.rotateBinary = function (binary, orientation) {
   var jpegImg = new Image();
   
   jpegImg.onload = function(event) {
-    var canvas = document.createElement("canvas");
+    var canvas = document.createElement('canvas');
     
     canvas.width = jpegImg.naturalWidth;
     canvas.height =  jpegImg.naturalHeight;
     var offsetX = 0;
     var offsetY = 0;
     var rotate = 0;
-    self.logger.info("Found orientation flag " + orientation);
+    self.logger.info('Found orientation flag ' + orientation);
 
     if (orientation == 6) {
       canvas.width = jpegImg.naturalHeight;
       canvas.height =  jpegImg.naturalWidth;
       offsetY = -jpegImg.naturalHeight;
       rotate = Math.PI / 2.0;
-      self.logger.info("Rotating 90 degrees clockwise");
+      self.logger.info('Rotating 90 degrees clockwise');
     } else if (orientation == 8) {
       canvas.width = jpegImg.naturalHeight;
       canvas.height =  jpegImg.naturalWidth;
       offsetY = jpegImg.naturalHeight;
       rotate = -Math.PI / 2.0;
-      self.logger.info("Rotating 90 degrees counterclockwise");
+      self.logger.info('Rotating 90 degrees counterclockwise');
     } else if (orientation == 3) {
       rotate = Math.PI;
       offsetY = -jpegImg.naturalHeight;
       offsetX = -jpegImg.naturalWidth;
-      self.logger.info("Rotating 180 degrees");
+      self.logger.info('Rotating 180 degrees');
     }
     var context = canvas.getContext('2d');
     context.rotate(rotate);
@@ -84,6 +84,6 @@ cryptagram.Rotator.prototype.rotateBinary = function (binary, orientation) {
     rotatedImg.src = canvas.toDataURL('image/jpeg', 0.90);
   }
   
-  var data = "data:image/jpeg;base64," + window.btoa(binary);
+  var data = 'data:image/jpeg;base64,' + window.btoa(binary);
   jpegImg.src = data;
 };

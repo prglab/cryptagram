@@ -18,7 +18,7 @@ cryptagram.media.image.prototype.logger = goog.debug.Logger.getLogger('cryptagra
 
 /** @inheritDoc */
 cryptagram.media.image.prototype.name = function() {
-  return "JPEG Image";
+  return 'JPEG Image';
 };
 
 
@@ -31,7 +31,7 @@ cryptagram.media.image.prototype.matchesURL = function(URL) {
 
 /** @inheritDoc */
 cryptagram.media.image.prototype.getImages = function(opt_URL) {
-  return document.getElementsByTagName("img");
+  return document.getElementsByTagName('img');
 };
 
 
