@@ -33,7 +33,7 @@ cryptagram.experiment = function() {
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
   
-  var sampleImage = document.getElementById("sampleImage");
+  var sampleImage = document.getElementById('sampleImage');
   if (sampleImage) {
   
     var loader = new cryptagram.loader();
@@ -108,7 +108,7 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
 
 
   var results = goog.dom.getElement('results');
-  results.value = "";
+  results.value = '';
       
  	var password = 'cryptagram';       
         
@@ -147,11 +147,11 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
       var errorCount = codec.getErrorCount();
       var percent = errorCount / codec.lastOctal.length;
               
-      self.logger.info("Octal decoding errors: " + errorCount + "/" +
-                                codec.lastOctal.length + " = " + percent);
+      self.logger.info('Octal decoding errors: ' + errorCount + '/' +
+                                codec.lastOctal.length + ' = ' + percent);
                           
-      var report = codec.quality.toPrecision(2) + "\t" + codec.blockSize + "\t" +
-          errorCount + "\t" + codec.lastOctal.length + "\t" + percent + "\t" + codec.percentChrominanceError + "\n";
+      var report = codec.quality.toPrecision(2) + '\t' + codec.blockSize + '\t' +
+          errorCount + '\t' + codec.lastOctal.length + '\t' + percent + '\t' + codec.percentChrominanceError + '\n';
       results.value += report;
     });     
 */

@@ -203,8 +203,8 @@ cryptagram.codec.chrominance.prototype.checkChrominancePattern = function() {
     }
   }
   this.percentChrominanceError = errorCount / totalCount; 
-  this.logger.info("Chroma decoding errors: " + errorCount + "/" +
-                              totalCount + " = " + this.percentChrominanceError);
+  this.logger.info('Chroma decoding errors: ' + errorCount + '/' +
+                              totalCount + ' = ' + this.percentChrominanceError);
 }
 
 
@@ -281,5 +281,5 @@ cryptagram.codec.experimental.prototype.getChromaValue = function(cbcr) {
 
 /** @inheritDoc */
 cryptagram.codec.chrominance.prototype.name = function() {
-  return "chromina";
+  return 'chromina';
 };

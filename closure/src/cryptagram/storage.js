@@ -23,7 +23,7 @@ cryptagram.storage.prototype.getPasswordForURL = function(URL) {
     var photoId = this.media.getPhotoName(URL);
     var albumId = this.media.getAlbumName(URL);
     
-    this.logger.info('Looking up password for photo: ' + photoId + " (" + albumId +")");        
+    this.logger.info('Looking up password for photo: ' + photoId + ' (' + albumId +')');        
 
     var password = null;
     var albumPassword = null;
@@ -64,15 +64,15 @@ cryptagram.storage.prototype.autoDecrypt = function() {
   }
 };
 
-cryptagram.storage.prototype.demoAlbums = { "fb_album://10100510996964783.2462710":"cat",
-                                            "fb_album://10100511600280733.2462712":"cryptagram",
-                                            "fb_album://10100516285860793.2462807":"cryptagram",
-                                            "g+_album://5842300427612841233":"cat",
-                                            "g+_album://5842299216653911073":"cryptagram",
-                                            "g+_album://5856782804715437921":"cryptagram"};
+cryptagram.storage.prototype.demoAlbums = { 'fb_album://10100510996964783.2462710':'cat',
+                                            'fb_album://10100511600280733.2462712':'cryptagram',
+                                            'fb_album://10100516285860793.2462807':'cryptagram',
+                                            'g+_album://5842300427612841233':'cat',
+                                            'g+_album://5842299216653911073':'cryptagram',
+                                            'g+_album://5856782804715437921':'cryptagram'};
 
-cryptagram.storage.prototype.demoPhotos = { "http://cryptagr.am/encoded_1.jpg":"cryptagram",
-                                            "http://cryptagr.am/encoded_2.jpg":"cryptagram"};
+cryptagram.storage.prototype.demoPhotos = { 'http://cryptagr.am/encoded_1.jpg':'cryptagram',
+                                            'http://cryptagr.am/encoded_2.jpg':'cryptagram'};
 
 
 cryptagram.storage.prototype.getDemoPasswordForURL = function(URL) {    

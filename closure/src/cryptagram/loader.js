@@ -36,7 +36,7 @@ cryptagram.loader.state = {
 cryptagram.loader.prototype.updateProgress = function(e) {
   if (e.lengthComputable) {
     var percentComplete = Math.ceil(100.0 * (e.loaded / e.total));
-    this.setStatus("Download<br>" + percentComplete + "%");
+    this.setStatus('Download<br>' + percentComplete + '%');
   }
 }
 
@@ -49,10 +49,10 @@ cryptagram.loader.prototype.createRequest = function() {
   var self = this;
   if (window.XMLHttpRequest) {
     this.oHTTP = new XMLHttpRequest();
-    this.oHTTP.responseType = "arraybuffer";
-    this.oHTTP.addEventListener("progress", function(e){ self.updateProgress(e) }, false);
+    this.oHTTP.responseType = 'arraybuffer';
+    this.oHTTP.addEventListener('progress', function(e){ self.updateProgress(e) }, false);
   } else if (window.ActiveXObject) {
-    this.oHTTP = new ActiveXObject("Microsoft.XMLHTTP");
+    this.oHTTP = new ActiveXObject('Microsoft.XMLHTTP');
   }
 }
 
@@ -114,7 +114,7 @@ cryptagram.loader.prototype.bytesToBase64 = function() {
     base64 += encodings[a] + encodings[b] + encodings[c] + '=';
   }
 
-  this.base64 = "data:image/jpeg;base64," + base64;
+  this.base64 = 'data:image/jpeg;base64,' + base64;
 }
 
 
@@ -131,22 +131,22 @@ cryptagram.loader.prototype.setStatus = function(string) {
  */
 cryptagram.loader.prototype.queue = function(src, callback) {
 
-  this.logger.info("Queued " + src);
+  this.logger.info('Queued ' + src);
   this.src = src;
-  this.setStatus("Waiting");
+  this.setStatus('Waiting');
 
   this.createRequest();
   var self = this;
   self.oHTTP.onreadystatechange = function() {
     if (self.oHTTP.readyState == 4) {
-      if (self.oHTTP.status == "200" || self.oHTTP.status == "206") {
+      if (self.oHTTP.status == '200' || self.oHTTP.status == '206') {
         self.bytes = self.oHTTP.response;
         self.bytesToBase64();
-        self.logger.info("Downloaded " + self.base64.length + " base64 characters.");
+        self.logger.info('Downloaded ' + self.base64.length + ' base64 characters.');
         callback(self.base64);
         self.state = cryptagram.loader.state.LOADED;
       } else {
-        self.logger.severe("DOWNLOAD_FAILED " + sjcl.hash.sha256.hash(src));
+        self.logger.severe('DOWNLOAD_FAILED ' + sjcl.hash.sha256.hash(src));
       }
       //self.oHTTP = null;
     }
@@ -172,9 +172,9 @@ cryptagram.loader.prototype.start = function() {
 
   io.send(this.src);*/
 
-  this.logger.info("Downloading " + this.src);
+  this.logger.info('Downloading ' + this.src);
   this.state = cryptagram.loader.state.LOADING;
-  this.oHTTP.open("GET", this.src, true);
+  this.oHTTP.open('GET', this.src, true);
   if (this.oHTTP.overrideMimeType) this.oHTTP.overrideMimeType('text/plain; charset=x-user-defined');
   this.oHTTP.send(null);
 };
@@ -190,28 +190,28 @@ cryptagram.loader.prototype.start = function() {
  */
 cryptagram.loader.prototype.getImageData = function(src, callback) {
 
-  this.logger.info("Downloading " + src);
+  this.logger.info('Downloading ' + src);
 
-  this.setStatus("Download<br>...");
+  this.setStatus('Download<br>...');
 
   this.createRequest();
   var self = this;
   self.oHTTP.onreadystatechange = function() {
     if (self.oHTTP.readyState == 4) {
-      if (self.oHTTP.status == "200" || self.oHTTP.status == "206") {
+      if (self.oHTTP.status == '200' || self.oHTTP.status == '206') {
         //var arrayBuffer = oHTTP.response;
         self.bytes = self.oHTTP.response;
         self.bytesToBase64();
-        self.logger.info("Downloaded " + self.base64.length + " base64 characters.");
+        self.logger.info('Downloaded ' + self.base64.length + ' base64 characters.');
         callback(self.base64);
       } else {
-        self.logger.severe("DOWNLOAD_FAILED " + sjcl.hash.sha256.hash(src));
+        self.logger.severe('DOWNLOAD_FAILED ' + sjcl.hash.sha256.hash(src));
       }
       self.oHTTP = null;
     }
   };
 
-  self.oHTTP.open("GET", src, true);
+  self.oHTTP.open('GET', src, true);
   if (self.oHTTP.overrideMimeType) self.oHTTP.overrideMimeType('text/plain; charset=x-user-defined');
   self.oHTTP.send(null);
 };

@@ -50,7 +50,7 @@ cryptagram.RemoteLog.prototype.setCapturing = function(capturing) {
   if (capturing == this.isCapturing_) {
     return;
   }
-  this.logger.info("Remote Capture: " + capturing);
+  this.logger.info('Remote Capture: ' + capturing);
 
   // attach or detach handler from the root logger
   var rootLogger = goog.debug.LogManager.getRoot();
@@ -120,11 +120,11 @@ cryptagram.RemoteLog.instance = null;
  * @type {Object}
  * @private
  */
-cryptagram.RemoteLog.host_ = "cryptagr.am";
+cryptagram.RemoteLog.host_ = 'cryptagr.am';
 
 
 /**
- * Install the remote log and start capturing if "Debug=true" is in the page URL
+ * Install the remote log and start capturing if 'Debug=true' is in the page URL
  */
 cryptagram.RemoteLog.autoInstall = function() {
   if (!cryptagram.RemoteLog.instance) {
@@ -166,21 +166,21 @@ cryptagram.RemoteLog.logToRemoteLog_ = function(host, fnName, record) {
 /* Working solution but causes warning messages that we may want to avoid. */
   var d = new Date();
   var img = new Image();
-  var src = "http://" + host + 
-            "?ts=" + d.getTime() +
-            "&sev=" + encodeURIComponent(fnName) + 
-            "&msg=" + encodeURIComponent(record);
+  var src = 'http://' + host + 
+            '?ts=' + d.getTime() +
+            '&sev=' + encodeURIComponent(fnName) + 
+            '&msg=' + encodeURIComponent(record);
 
   if (cryptagram.RemoteLog.guid) {
-    src += "&guid=" + cryptagram.RemoteLog.guid;
+    src += '&guid=' + cryptagram.RemoteLog.guid;
   }
   
   img.src = src;
 
   /*var xhr = new XMLHttpRequest();
-  var url = "http://" + host;
-  var params = "sev=" + encodeURIComponent(fnName) + 
-               "&msg=" + encodeURIComponent(record);
-  xhr.open("POST", url, true);
+  var url = 'http://' + host;
+  var params = 'sev=' + encodeURIComponent(fnName) + 
+               '&msg=' + encodeURIComponent(record);
+  xhr.open('POST', url, true);
   xhr.send(params);*/
 };

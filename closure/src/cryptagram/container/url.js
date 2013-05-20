@@ -17,7 +17,7 @@ goog.inherits(cryptagram.container.url, cryptagram.container);
 cryptagram.container.url.prototype.setSrc = function(src) {    
   this.previousSrc = this.img.src;
   this.newImg.src = src;
-  this.img.style.display = "none";
+  this.img.style.display = 'none';
 };
 
 
@@ -28,7 +28,7 @@ cryptagram.container.url.prototype.revertSrc = function() {
 
   document.body.removeChild(this.newImg);
   this.newImg = null;
-  this.img.style.display = "";
+  this.img.style.display = '';
     
   this.previousSrc = null;
 };

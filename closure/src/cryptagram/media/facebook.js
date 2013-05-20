@@ -115,12 +115,12 @@ cryptagram.media.facebook.prototype.getImages = function(opt_URL) {
 
       if (ajaxNode.tagName == 'A') {
         var ajaxify = ajaxNode.getAttribute('ajaxify')
-        var ajaxParts = ajaxify.split("&");
+        var ajaxParts = ajaxify.split('&');
         var src = ajaxParts[3];
 
-        if (src.substring(0,4)=="src=") {
+        if (src.substring(0,4)=='src=') {
           var fullSrc = unescape(src.substring(4,src.length));
-          this.logger.info("Extracted src from ajaxify: " + fullSrc);
+          this.logger.info('Extracted src from ajaxify: ' + fullSrc);
           thumbs[i].src = fullSrc;
           images.push(thumbs[i]);
         }
@@ -157,7 +157,7 @@ cryptagram.media.facebook.prototype.parseMedia = function() {
 
     this.state = cryptagram.media.facebook.state.SPOTLIGHT;
 
-    var s = document.getElementById("snowliftStageActions");
+    var s = document.getElementById('snowliftStageActions');
     var child = goog.dom.findNode(s, function(n) {
       return n.className == 'uiButtonText';
     });
@@ -215,10 +215,10 @@ cryptagram.media.facebook.prototype.checkIfReady = function(callback) {
   var self = this;
   this.tries++;
   if (this.tries < this.maxTries) {
-    this.logger.info("Facebook not ready. Trying again. #" + this.tries);
+    this.logger.info('Facebook not ready. Trying again. #' + this.tries);
     setTimeout(function() { self.checkIfReady(callback); }, self.delay);
   }  else {
-    this.logger.info("Facebook failed.");
+    this.logger.info('Facebook failed.');
   }
 };
 
@@ -234,10 +234,10 @@ cryptagram.media.facebook.prototype.onReady = function(callback) {
 
 /** @inheritDoc */
 cryptagram.media.facebook.prototype.getPhotoName = function(URL) {
-  var FBURLParts = URL.split("/");
+  var FBURLParts = URL.split('/');
   var FBFilename = FBURLParts[FBURLParts.length-1];
-  var FBFilenameParts = FBFilename.split("_");
-  return "fb_photo://" + FBFilenameParts[1];
+  var FBFilenameParts = FBFilename.split('_');
+  return 'fb_photo://' + FBFilenameParts[1];
 };
 
 
@@ -270,8 +270,8 @@ cryptagram.media.facebook.prototype.getAlbumName = function(URL) {
   }
   
   var albumID = albumIDParts[1];
-  var albumParts = albumID.split(".");
-  return "fb_album://" + albumParts[0] + "." + albumParts[1];
+  var albumParts = albumID.split('.');
+  return 'fb_album://' + albumParts[0] + '.' + albumParts[1];
 };
 
 

@@ -18,7 +18,7 @@ cryptagram.container.img.prototype.setSrc = function(src) {
 
   if (this.newImg) {
     this.newImg.src = src;
-    this.img.style.display = "none";
+    this.img.style.display = 'none';
   } else {
     this.img.src = src;
   }
@@ -31,7 +31,7 @@ cryptagram.container.img.prototype.revertSrc = function() {
   if (this.newImg) {
     document.body.removeChild(this.newImg);
     this.newImg = null;
-    this.img.style.display = "";
+    this.img.style.display = '';
   } else {
     this.img.src = this.previousSrc;
   }

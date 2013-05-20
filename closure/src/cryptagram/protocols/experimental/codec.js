@@ -30,7 +30,7 @@ cryptagram.codec.experimental.prototype.logger = goog.debug.Logger.getLogger('cr
 
 /** @inheritDoc */
 cryptagram.codec.experimental.prototype.name = function() {
-  return " testing";
+  return ' testing';
 };
 
 
@@ -70,10 +70,10 @@ cryptagram.codec.experimental.prototype.encode = function(data,
   }
 
   var payloadLength = data.length * 2;
-  var lengthString = "" + payloadLength;
+  var lengthString = '' + payloadLength;
   
   while (lengthString.length < 8) {
-    lengthString = "0" + lengthString;
+    lengthString = '0' + lengthString;
   }
     
   data = lengthString + data;
@@ -163,14 +163,14 @@ cryptagram.codec.experimental.prototype.encode = function(data,
   cxt.putImageData(imageData, 0, 0);
   var img = new Image();
   
-  this.logger.info("JPEG quality " + this.quality);
+  this.logger.info('JPEG quality ' + this.quality);
   
   img.src = c.toDataURL('image/jpeg', this.quality);
   
   var timeB = new Date().getTime();
   this.elapsed = timeB - timeA;
 
-  this.logger.info("Encoded in: " + this.elapsed + " ms");  
+  this.logger.info('Encoded in: ' + this.elapsed + ' ms');  
 
   return img;
 };
@@ -181,7 +181,7 @@ cryptagram.codec.experimental.prototype.encode = function(data,
  */
 cryptagram.codec.experimental.prototype.getHeader = function(img, imageData) {
 
-    var newBase64 = "";
+    var newBase64 = '';
     var headerSize = this.blockSize * 4;
     for (y = 0; y < headerSize; y+= this.blockSize) {
       for (x = 0; x < headerSize; x+= 2*this.blockSize) {
@@ -248,9 +248,9 @@ cryptagram.codec.experimental.prototype.decode = function(img, imageData) {
   this.y = 0;
   this.img = img;
   this.imageData = imageData;
-  this.lengthString = "";
+  this.lengthString = '';
   this.errorCount = 0;
-  this.decodeData = "";
+  this.decodeData = '';
   this.newOctal = [];
 };
 
@@ -280,7 +280,7 @@ cryptagram.codec.experimental.prototype.setDecodeParams = function(img, imageDat
 
 cryptagram.codec.experimental.prototype.getChunk = function() {
 
-  var newBase64 = "";
+  var newBase64 = '';
   
   if (this.count >= this.length) {
     return false;

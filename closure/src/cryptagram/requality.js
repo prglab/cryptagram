@@ -23,7 +23,7 @@ goog.require('cryptagram.Resizing.Event');
 
 // Requality constructor. Listen for these events as follows:
 // var requal = new cryptagram.Requality();
-// goog.events.listen(requal, "requalityDone", function (e) {...}, true, this);
+// goog.events.listen(requal, 'requalityDone', function (e) {...}, true, this);
 cryptagram.Requality = function () {
   goog.events.EventTarget.call(this);
 };
@@ -72,11 +72,11 @@ cryptagram.Requality.prototype.imageOnload = function (img, quality) {
 	context.drawImage(img, 0, 0, width, height);
 
   var origQualityLength = canvas.toDataURL('image/jpeg', 1.0);
-  console.log("Image ORIG quality length: " + origQualityLength.length);
+  console.log('Image ORIG quality length: ' + origQualityLength.length);
 	var outUrl = canvas.toDataURL('image/jpeg', quality);
 
-  console.log("Image NEW quality: " + quality + " " + width + " " + height);
-  console.log("outUrl Length: " + outUrl.length);
+  console.log('Image NEW quality: ' + quality + ' ' + width + ' ' + height);
+  console.log('outUrl Length: ' + outUrl.length);
 
   // We pass the image to the resizer, regardless of the need. The reason is
   // that decision to continue resizing the image is necessarily simplified by
@@ -84,15 +84,15 @@ cryptagram.Requality.prototype.imageOnload = function (img, quality) {
   var resizer = new cryptagram.Resizing();
   goog.events.listen(
     resizer,
-    "RESIZING_DONE",
+    'RESIZING_DONE',
     function (event) {
-      console.info("Resizing done.");
-      this.dispatchEvent({type:"REQUALITY_DONE", image:event.image});
+      console.info('Resizing done.');
+      this.dispatchEvent({type:'REQUALITY_DONE', image:event.image});
     },
     true,
     this);
 
-  var newImg = document.createElement("img");
+  var newImg = document.createElement('img');
   newImg.src = outUrl;
   newImg.onload = function (event) {
     resizer.start(newImg, 0);
@@ -113,6 +113,6 @@ cryptagram.Requality.prototype.start = function (image, quality) {
 	  img.src = image;
   } else {
     this.logger.info('No need for requality.');
-    this.dispatchEvent({type:"REQUALITY_DONE", image:image});
+    this.dispatchEvent({type:'REQUALITY_DONE', image:image});
   }
 };

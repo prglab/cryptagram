@@ -26,7 +26,7 @@ cryptagram.cipher.chequer.prototype.encrypt = function(data, password) {
   var full = iv + salt + ct;
   //var hash = CryptoJS.MD5(full);
 
-  //this.logger.shout("ENCRYPT_FINISH " + hash);
+  //this.logger.shout('ENCRYPT_FINISH ' + hash);
 
   return full;
 };
@@ -49,11 +49,11 @@ cryptagram.cipher.chequer.prototype.decrypt = function(newBase64, password) {
   try {
     decrypted = sjcl.decrypt(password, base64Decode);
   } catch(err) {
-    this.logger.severe("DECRYPT_FAILED " + err.toString());
+    this.logger.severe('DECRYPT_FAILED ' + err.toString());
     return null;
   }
 
-  this.logger.shout("DECRYPT_DONE " + newBase64.length + " " +
+  this.logger.shout('DECRYPT_DONE ' + newBase64.length + ' ' +
                     decrypted.length);
 
   return decrypted;

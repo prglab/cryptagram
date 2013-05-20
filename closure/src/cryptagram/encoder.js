@@ -97,7 +97,7 @@ cryptagram.encoder.prototype.loadBinary = function (file) {
        
     // No need to rotate. Reuse the loaded binary to create JPEG data.
     } else {
-      var b64 = "data:image/jpeg;base64," + window.btoa(this.result);
+      var b64 = 'data:image/jpeg;base64,' + window.btoa(this.result);
       var image = new Image();
       image.onload = function () { 
         self.imageLoaded(image);
@@ -145,7 +145,7 @@ cryptagram.encoder.prototype.queueFiles = function (files) {
   self.files = [];
   self.images = [];
   for (var f in files) {
-    var type = "" + files[f].type;
+    var type = '' + files[f].type;
     if (type.indexOf('image/') == 0) {
       self.files.push(files[f]);
     }
@@ -200,10 +200,10 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
     sizeReducer,
     'SIZE_REDUCER_DONE',
     function (event) {
-      this.logger.info("Image len:" + event.image.src.length);
+      this.logger.info('Image len:' + event.image.src.length);
       var est = self.codec.dimensions(image.naturalWidth / image.naturalHeight,
                                       event.image.src.length);
-      this.logger.info("Image est:" + est.width + " " + est.height);
+      this.logger.info('Image est:' + est.width + ' ' + est.height);
       self.encodeImage(event.image);
       self.images[0].original = event.image;
     },
@@ -246,11 +246,11 @@ cryptagram.encoder.prototype.encodeImage = function (image) {
   var self = this;
   var ratio = image.width / image.height;
   var dataToEncode = image.src;
-  this.logger.info("Encoding this size: " + dataToEncode.length);
+  this.logger.info('Encoding this size: ' + dataToEncode.length);
   var codec = new this.codec();
 
   var encryptedData = codec.encrypt(dataToEncode, this.password);
-  this.logger.info("Encoding this: " + encryptedData.length);
+  this.logger.info('Encoding this: ' + encryptedData.length);
   var encodedImage = codec.encode(encryptedData, ratio);
   
   this.blocksWritten = codec.lastOctal.length;

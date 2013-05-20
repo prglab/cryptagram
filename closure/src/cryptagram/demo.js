@@ -22,7 +22,7 @@ goog.require('cryptagram.encoder');
  */
 cryptagram.demo = function () {
 
-  document.body.innerHTML = "<div id=main></div>";
+  document.body.innerHTML = '<div id=main></div>';
 
   var logconsole = new goog.debug.Console();
   logconsole.setCapturing(true);
@@ -242,8 +242,8 @@ cryptagram.demo.prototype.showEncodeDialog = function () {
   dialog.setVisible(true);
   dialog.getButtonSet().setAllButtonsEnabled(false);
   
-  dialog.getButtonElement().innerHTML += "<input type=button value='Switch to Decoder' id='switchButton' style='float: right'>";
-  var switchButton = document.getElementById("switchButton");
+  dialog.getButtonElement().innerHTML += '<input type=button value="Switch to Decoder" id="switchButton" style="float: right">';
+  var switchButton = document.getElementById('switchButton');
   goog.events.listenOnce(switchButton, goog.events.EventType.CLICK, function(e) {
     dialog.exitDocument();
     self.showDecrypt();
@@ -266,7 +266,7 @@ cryptagram.demo.prototype.showProgress = function () {
 
   self.zip = new JSZip();
   self.zipSize = 0;
-  self.status = "";
+  self.status = '';
   self.images = self.zip.folder('images');
   self.imageCount = 0;
   self.imageList = [];
@@ -296,7 +296,7 @@ cryptagram.demo.prototype.showProgress = function () {
     self.lastData = dat;
   
     if (self.zipSize + bin.length > self.maxZipSize) {
-      self.logger.info("Exceeded max zip size.");
+      self.logger.info('Exceeded max zip size.');
       goog.events.removeAll(self.encoder);
       self.encoder.cancel();
       self.showDownloadDialog();
@@ -349,7 +349,7 @@ cryptagram.demo.prototype.showDownloadDialog = function () {
     filename = self.imageList[0];  
   } else {
     data = self.zip.generate();
-    filename = "encrypted.zip";
+    filename = 'encrypted.zip';
   }
   
   this.downloadify = Downloadify.create('downloadify' + self.downloadifyId, {
@@ -463,8 +463,8 @@ cryptagram.demo.prototype.showDecryptDialog = function () {
 
   dialog.setVisible(true);
   
-  dialog.getButtonElement().innerHTML += "<input type=button value='Switch to Encoder' id='switchButton' style='float: right'>";
-  var switchButton = document.getElementById("switchButton");
+  dialog.getButtonElement().innerHTML += '<input type=button value="Switch to Encoder" id="switchButton" style="float: right">';
+  var switchButton = document.getElementById('switchButton');
   goog.events.listenOnce(switchButton, goog.events.EventType.CLICK, function(e) {
     dialog.exitDocument();
     self.showEncrypt();
