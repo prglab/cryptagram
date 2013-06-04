@@ -103,7 +103,7 @@ cryptagram.Requality.prototype.imageOnload = function (img, quality) {
 cryptagram.Requality.prototype.start = function (image, quality) {
   var self = this;
   this.logger.info('Started with: ' + image.length);
-	var img = new Image();
+	var img = document.createElement('img');
 	img.onload = function (event) {
     self.imageOnload(img, quality);
   }

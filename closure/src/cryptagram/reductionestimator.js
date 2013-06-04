@@ -37,7 +37,7 @@ cryptagram.ReductionEstimator.prototype.getEstimate = function (imageDataUrl,
                                                                 quality) {
   var self = this;
   // Assumes 2048 x 2048 limits in call to maxBase64Values();
-  var image = new Image();
+  var image = document.createElement('img');
 
   image.onload = function (event) {
     var img = this;

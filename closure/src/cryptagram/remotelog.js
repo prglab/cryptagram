@@ -165,7 +165,7 @@ cryptagram.RemoteLog.simpleLog = function(record) {
 cryptagram.RemoteLog.logToRemoteLog_ = function(host, fnName, record) {
 /* Working solution but causes warning messages that we may want to avoid. */
   var d = new Date();
-  var img = new Image();
+  var img = document.createElement('img');
   var src = 'http://' + host + 
             '?ts=' + d.getTime() +
             '&sev=' + encodeURIComponent(fnName) + 
