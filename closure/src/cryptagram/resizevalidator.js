@@ -36,7 +36,7 @@ cryptagram.ResizeValidator.prototype.validate = function (bound_w,
                                                           bound_h,
                                                           imageUrl) {
   var self = this;
-  var image = new Image();
+  var image = document.createElement('img');
   image.onload = function (event) {
     var loadedImage = this;
 

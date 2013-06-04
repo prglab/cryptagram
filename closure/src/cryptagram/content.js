@@ -345,7 +345,7 @@ cryptagram.content.prototype.autoDecrypt = function() {
   }
     
   var needsQueue = true;
-  if (images.length < 4) needsQueue = false;
+  if (images.length < 3) needsQueue = false;
 
   if (needsQueue && this.loaders.length > 0) {
     this.logger.info('Ignoring autodecrypt request. Queue is in use.');

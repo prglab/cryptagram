@@ -86,7 +86,7 @@ cryptagram.experiment.prototype.handleFiles = function(files) {
   var reader = new FileReader();
   reader.onload = function (loadEvent) {
       var originalData = loadEvent.target.result;
-      var originalImage = new Image();
+      var originalImage = document.createElement('img');
       originalImage.onload = function () {
         self.imageExperiment(originalImage);
       };
@@ -123,7 +123,7 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
       frame.appendChild(encodedImage);
       document.getElementById('decoded_image').appendChild(frame);
 
-      var decodedImage = new Image();
+      var decodedImage = document.createElement('img');
       var container = new cryptagram.container(decodedImage);
       var decoder = new cryptagram.decoder(container, {password: password});
       
@@ -136,7 +136,7 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
           
     // Decode image to make sure it worked
 /*
-    var decodedImage = new Image();
+    var decodedImage = document.createElement('img');
     var container = new cryptagram.container(decodedImage);
     var decoder = new cryptagram.decoder(container, {password: password});
                               

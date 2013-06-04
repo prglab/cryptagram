@@ -36,12 +36,16 @@ cryptagram.decoder.prototype.decodeData = function(data, codec, callback) {
 
   var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
-  var img = new Image();
+
+  // Using img = new Image() breaks the call to drawImage as of Chrome 27
+  var img = document.createElement('img');
 
   img.onload = function(){
     canvas.width = img.width;
     canvas.height = img.height;
+
     ctx.drawImage(img,0,0);
+    
     var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
     if (!codec) {
@@ -73,13 +77,13 @@ cryptagram.decoder.prototype.decodeDataWithQuality = function(data, codec, callb
   self.callback = callback;
   var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
-  var img = new Image();
+  var img = document.createElement('img');
   
   img.onload = function(){
     canvas.width = img.width;
     canvas.height = img.height;
     ctx.drawImage(img,0,0);
-    var img2 = new Image();
+    var img2 = document.createElement('img');
     img2.onload = function(){
       var canvas2 = document.createElement('canvas');
       var ctx2 = canvas.getContext('2d');
@@ -162,7 +166,7 @@ cryptagram.decoder.prototype.loadFile = function (file) {
   var reader = new FileReader();
   reader.onerror = cryptagram.encoder.show_error;
   reader.onload = function (e) {
-    var image = new Image();
+    var image = document.createElement('img');
     image.src = e.target.result;
     image.file = self.files[0].name;
     self.images.push(image);

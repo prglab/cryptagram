@@ -71,7 +71,7 @@ cryptagram.SizeReducer.prototype.startWithImageFracQual = function (options,
   var imageDataUrl = image.src;
   var imageName = image.file;
 
-  var resizedImage = new Image();
+  var resizedImage = document.createElement('img');
   resizedImage.onload = function (event) {
     var img = this;
 
@@ -104,7 +104,7 @@ cryptagram.SizeReducer.prototype.startWithImageFracQual = function (options,
       self.startWithImageFracQual(options, fraction - 0.05, limit);
     } else {
       // Convert the image data URL to an image and pass that up once it's loaded.
-      var newImage = new Image ();
+      var newImage = document.createElement('img');
       newImage.onload = function (event) {
         // Send the event.
         newImage.file = imageName;

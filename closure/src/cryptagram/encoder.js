@@ -98,7 +98,7 @@ cryptagram.encoder.prototype.loadBinary = function (file) {
     // No need to rotate. Reuse the loaded binary to create JPEG data.
     } else {
       var b64 = 'data:image/jpeg;base64,' + window.btoa(this.result);
-      var image = new Image();
+      var image = document.createElement('img');
       image.onload = function () { 
         self.imageLoaded(image);
       }
@@ -123,7 +123,7 @@ cryptagram.encoder.prototype.loadFile = function (file) {
   var reader = new FileReader();
   reader.onerror = cryptagram.encoder.show_error;
   reader.onload = function (e) {
-    var image = new Image();
+    var image = document.createElement('img');
 
     image.onload = function () {
       image.file = self.files[0].name;
@@ -220,7 +220,7 @@ cryptagram.encoder.prototype.createValidImage = function (image) {
 
   var imageFilename = image.file;
 
-  var jpegImg = new Image ();
+  var jpegImg = document.createElement('img');
   jpegImg.onload = function (event) {
     jpegImg.file = imageFilename;
     var reducerOptions = {

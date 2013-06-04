@@ -41,7 +41,7 @@ cryptagram.Rotator.prototype.logger =
 
 cryptagram.Rotator.prototype.rotateBinary = function (binary, orientation) {
   var self = this;
-  var jpegImg = new Image();
+  var jpegImg = document.createElement('img');
   
   jpegImg.onload = function(event) {
     var canvas = document.createElement('canvas');
@@ -76,7 +76,7 @@ cryptagram.Rotator.prototype.rotateBinary = function (binary, orientation) {
     context.translate(offsetX, offsetY);
     context.drawImage(jpegImg, 0, 0, jpegImg.naturalWidth, jpegImg.naturalHeight);
     
-    var rotatedImg = new Image();
+    var rotatedImg = document.createElement('img');
     rotatedImg.onload = function(event) {
       self.dispatchEvent({type:'ROTATE_DONE',
                          image:rotatedImg});
