@@ -27,8 +27,16 @@ cryptagram.codec.bacchant.prototype.name = function() {
 };
 
 
-cryptagram.codec.bacchant.prototype.encode = function(data,
-    width_to_height_ratio, header_string, block_width, block_height) {
+
+
+
+
+cryptagram.codec.bacchant.prototype.encode = function(options, callback) {
+  
+  var password = options.password;
+
+  var data = this.cipher.encrypt(options.src, password);
+  var width_to_height_ratio = options.aspect;
 
   var timeA = new Date().getTime();
 
@@ -184,7 +192,7 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
   }
  
   cxt.putImageData(imageData, 0, 0);
-  var img = new Image();
+  var img = document.createElement('img');
 
   this.logger.info('JPEG quality ' + this.quality);
 
@@ -193,7 +201,8 @@ cryptagram.codec.bacchant.prototype.encode = function(data,
   var timeB = new Date().getTime();
   var elapsed = timeB - timeA;
   this.logger.info('Encoded in: ' + elapsed + ' ms');
-  return img;
+  console.log(img);
+  callback(img);
 };
 
 

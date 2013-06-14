@@ -34,9 +34,12 @@ cryptagram.codec.experimental.prototype.name = function() {
 };
 
 
-cryptagram.codec.experimental.prototype.encode = function(data, 
-    width_to_height_ratio, header_string, block_width, block_height) {
 
+cryptagram.codec.experimental.prototype.encode = function(options, callback) {
+  
+  var password = options.password;
+  var data = this.cipher.encrypt(options.src, password);
+  var width_to_height_ratio = options.aspect;
   var timeA = new Date().getTime();
 
   width_to_height_ratio = typeof width_to_height_ratio !== 'undefined' ?
@@ -103,10 +106,9 @@ cryptagram.codec.experimental.prototype.encode = function(data,
   var n_pixels = block_size * n_values + n_pixels_in_header;
   var height = Math.sqrt(n_pixels / width_to_height_ratio);
   var width = Math.ceil(width_to_height_ratio * height);
-
+  
   // make output height a multiple of block height
   height = Math.ceil(Math.ceil(height) / block_height) * block_height;
-
   // make output width a multiple of twice block width, so that two octal values
   // always encoded on same line
   width = Math.ceil(width / (2* block_width)) * 2 *  block_width;
@@ -172,7 +174,7 @@ cryptagram.codec.experimental.prototype.encode = function(data,
 
   this.logger.info('Encoded in: ' + this.elapsed + ' ms');  
 
-  return img;
+  callback(img);
 };
 
 
