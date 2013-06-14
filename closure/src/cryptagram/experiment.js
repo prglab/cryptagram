@@ -104,20 +104,25 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
   var self = this;
   var codices = [];
   var quality = .76;
-  codices = new Array(new cryptagram.codec.chequer(quality));    
+  //codices = new Array(new cryptagram.codec.chequer(quality));    
+
+  for (var q = 70; q<= 96; q+=2) {
+  var quality = q / 100.0;
+   codices.push(new cryptagram.codec.experimental(quality, 1, 8));    
+  }
 
 
   var results = goog.dom.getElement('results');
   results.value = '';
-      
+
  	var password = 'cryptagram';       
         
   for (var c = 0; c < codices.length; c++) {
   
     var codec = codices[c];
     var originalData = image.src;
-    
-    codec.encode({src:originalData, password:password}, function(encodedImage) {
+    var aspect = image.width / image.height;
+    codec.encode({src:originalData, password:password, aspect: aspect}, function(encodedImage) {
                 
       var frame = goog.dom.createDom('div', {'class': goog.getCssName('frame')});
       frame.appendChild(encodedImage);
@@ -126,12 +131,26 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
       var decodedImage = document.createElement('img');
       var container = new cryptagram.container(decodedImage);
       var decoder = new cryptagram.decoder(container, {password: password});
-      
+      decoder.inputLength = encodedImage.src.length;
+
       decoder.decodeData(encodedImage.src, codec, function(result) {
         decodedImage.src = result;
         document.body.appendChild(decodedImage);
+        codec = this.codec;
+        var inputK = ((this.inputLength * (3/4)) / 1000).toPrecision(5);
+        var errorCount = codec.getErrorCount();
+        var percent = errorCount / codec.lastOctal.length;
+              
+        self.logger.info('Octal decoding errors: ' + errorCount + '/' +
+                                codec.lastOctal.length + ' = ' + percent);
+                          
+        var report = codec.quality.toPrecision(2) + '\t' + codec.blockSize + '\t' +
+          errorCount + '\t' + codec.lastOctal.length + '\t' + percent + '\t' + inputK + '\n';
+          results.value += report;
+
       });
 
+      
     });
           
     // Decode image to make sure it worked
