@@ -9,19 +9,24 @@ goog.require('goog.debug.Logger');
  * @constructor
  * @extends {cryptagram.codec}
  */
-cryptagram.codec.experimental = function(quality, blockSize, numberSymbols) {
+cryptagram.codec.experimental = function(options) {
 
-  this.quality = quality;
-  this.blockSize = blockSize;
+  this.fileType = (options.fileType === null) ? 'jpeg' : options.fileType;
+  this.blockSize = (options.blockSize === null) ? 2 : options.blockSize;
+  this.quality = (options.quality === null) ? .74 : options.quality;
+  this.numberSymbols = (options.numberSymbols === null) ? 8 : options.numberSymbols;
+  
   this.symbol_thresholds = [];
-  this.base = numberSymbols;
+  this.base = this.numberSymbols;
   this.cipher = new cryptagram.cipher.bacchant();
 
-  for (var i = 0; i < numberSymbols; i++) {
-    var level = (i / (numberSymbols - 1)) * 255;
+  for (var i = 0; i < this.numberSymbols; i++) {
+    var level = (i / (this.numberSymbols - 1)) * 255;
     this.symbol_thresholds.push(Math.round(level));
   }  
+
 };
+
 
 goog.inherits(cryptagram.codec.experimental, cryptagram.codec);
 
@@ -60,6 +65,12 @@ cryptagram.codec.experimental.prototype.encode = function(options, callback) {
     var value = self.base64Values.indexOf(ch);
     var x = Math.floor(value * (self.base / 64.0));
     var y = value % self.base;
+
+    if (self.base > 64) {
+      x = Math.floor(Math.random()*self.base);
+      y = Math.floor(Math.random()*self.base);
+    }
+
     values.push(x);
     values.push(y);
   }
@@ -167,7 +178,7 @@ cryptagram.codec.experimental.prototype.encode = function(options, callback) {
   
   this.logger.info('JPEG quality ' + this.quality);
   
-  img.src = c.toDataURL('image/jpeg', this.quality);
+  img.src = c.toDataURL('image/' + this.fileType, this.quality);
   
   var timeB = new Date().getTime();
   this.elapsed = timeB - timeA;
