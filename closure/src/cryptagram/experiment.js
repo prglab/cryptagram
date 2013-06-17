@@ -106,9 +106,12 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
   var quality = .76;
   //codices = new Array(new cryptagram.codec.chequer(quality));    
 
-  for (var q = 70; q<= 96; q+=2) {
+  for (var q = 60; q<= 96; q+=2) {
   var quality = q / 100.0;
-   codices.push(new cryptagram.codec.experimental(quality, 1, 8));    
+   codices.push(new cryptagram.codec.experimental({ quality: quality, 
+                                                    blockSize: 1, 
+                                                    numberSymbols: 256,
+                                                    fileType: 'png'}));    
   }
 
 
@@ -144,8 +147,8 @@ cryptagram.experiment.prototype.imageExperiment = function(image) {
         self.logger.info('Octal decoding errors: ' + errorCount + '/' +
                                 codec.lastOctal.length + ' = ' + percent);
                           
-        var report = codec.quality.toPrecision(2) + '\t' + codec.blockSize + '\t' +
-          errorCount + '\t' + codec.lastOctal.length + '\t' + percent + '\t' + inputK + '\n';
+        var report = codec.quality.toPrecision(2) + '\t' +
+          errorCount + '\t' + percent + '\t' + inputK + '\n';
           results.value += report;
 
       });
