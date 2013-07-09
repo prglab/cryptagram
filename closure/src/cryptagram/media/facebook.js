@@ -51,13 +51,13 @@ cryptagram.media.facebook.prototype.matchesURL = function(URL) {
 
 cryptagram.media.facebook.prototype.determineState = function(URL) {
 
-  var albumRegex=new RegExp(/^https?:\/\/www.facebook.com\/media\/set\/\?set=[A-z0-9&\.]*/);  
+  var albumRegex=new RegExp(/^https?:\/\/www.facebook.com\/[A-z0-9\.\-]*\/media_set\?set=[A-z0-9&\.]*/);  
   var photoRegex=new RegExp(/^https?:\/\/www.facebook.com\/photo.php/);
  
   this.state = cryptagram.media.facebook.state.OTHER;
   this.supportsAutodecrypt = false;
   this.ready = true;
-  
+
   if (albumRegex.test(URL)) {
       this.state = cryptagram.media.facebook.state.ALBUM;
       this.supportsAutodecrypt = true;
@@ -162,16 +162,21 @@ cryptagram.media.facebook.prototype.parseMedia = function() {
       return n.className == 'uiButtonText';
     });
 
+
     // Ultimate hack! Click the Options button to trigger the creation of Download button
-    if (child) {
+    if (child && !this.clicked) {
         child.click();
         child.click();
+        this.clicked = true;
+        return false;
     }
 
-    var menu = document.getElementsByClassName('uiMenuX');
+    var menu = document.getElementsByClassName('fbPhotosPhotoActionsMenu');
+
     if (goog.isDef(menu[0])) {
+
       var download = goog.dom.findNode(menu[menu.length-1], function(n) {
-        return n.className == 'itemLabel' && n.innerHTML == 'Download';
+        return n.innerHTML == 'Download';
       });
 
       if (download) {
@@ -228,6 +233,7 @@ cryptagram.media.facebook.prototype.onReady = function(callback) {
   this.tries = 0;
   this.maxTries = 5;
   this.delay = 250;
+  this.clicked = false;
   this.checkIfReady(callback);
 }
 
