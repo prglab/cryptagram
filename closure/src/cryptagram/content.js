@@ -58,7 +58,7 @@ cryptagram.content = function() {
   
   var self = this;
   
-  this.logger.info('Found media: ' + this.media.name());
+  this.logger.info('Found media: ' + this.media.name() + ' (' + this.media.state + ')');
   
   this.loaders = [];
   this.lastAutoDecrypt = '';

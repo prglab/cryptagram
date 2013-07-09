@@ -34,7 +34,6 @@ cryptagram.codec.bacchant.prototype.name = function() {
 cryptagram.codec.bacchant.prototype.encode = function(options, callback) {
   
   var password = options.password;
-
   var data = this.cipher.encrypt(options.src, password);
   var width_to_height_ratio = options.aspect;
 
