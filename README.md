@@ -1,32 +1,32 @@
-# README for Cryptogram #
+# Cryptagram
 
-JPEG cryptography for privacy in social networks.
+**Privacy-preserving image encryption and steganography.**
 
-## Modernization Status
+Modernized Cryptagram is a high-performance, cross-platform architecture for local-first photo privacy. It allows you to encrypt photos locally and embed them into images that survive social network transformations (JPEG recompression), revealing them in-place via a browser extension.
 
-This repository is under active archaeological modernization.
+## 🚀 Modern Architecture (Phase 2 & 3)
 
-Phase 0 audit documents:
+The project has transitioned from a legacy Closure-based implementation to a modern, monorepo-based core:
 
-- [Architecture Audit](/Users/tierney/repos/cryptagram/docs/phase0-architecture.md)
-- [Threat Model](/Users/tierney/repos/cryptagram/docs/threat-model.md)
-- [Migration Plan](/Users/tierney/repos/cryptagram/docs/migration-plan.md)
-- [Fixture Inventory](/Users/tierney/repos/cryptagram/docs/fixture-inventory.md)
+- **📦 Shared Core (`@cryptagram/core`)**: TypeScript implementation of the Bacchant and Aesthete protocols with WebCrypto (AES-GCM).
+- **🧩 Chrome Extension (MV3)**: A modern, Vite-based extension for real-time image decoding and reveal.
+- **🦀 Rust Core**: High-performance Wasm-ready core for edge and proxy integration.
+- **🧪 Testing Harness**: A rigorous Python-based suite for JPEG robustness and bit-parity verification.
 
-Fixture baseline verification:
+## 🛠 Developer Onboarding
 
-- `make test` (runs both smoke and integrity tests)
-- `make benchmark` (runs the JPEG recoverability harness)
-- See [tests/README.md](tests/README.md) for details.
+Please see [DEVELOPER.md](DEVELOPER.md) for detailed instructions on setup, building, and contributing to the modernized stack.
 
-These documents define the current modernization direction, supported baselines, and phased PR plan. They supersede the high-level notes below where the legacy layout or tooling has drifted.
+## 🧪 Quick Test
 
-### Directory Layout ###
+Ensure everything is passing with the baseline suite:
+```bash
+make test
+```
 
-* chrome-extension
-  * basic - works with apache-php server site.
-  * fb - works FB, theater mode.
-* desktop - python environment for encrypting, decrypting images and testing various encoding schemes.
-* server
-  * apache-php - server setup for apache with php
-  * tornado - copy of apache-php adapted for tornadoweb.
+## 📜 History & Vision
+
+Cryptagram was originally developed at the NYU Media Research Lab. The goal remains the same: to give users control over their visual privacy on the web without relying on trusted third-party servers.
+
+---
+© 2012-2026 Matt Tierney & Ian Spiro. BSD-3-Clause License.
