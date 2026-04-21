@@ -1,5 +1,10 @@
 use wasm_bindgen::prelude::*;
 
+pub mod constants;
+pub mod bacchant;
+
+use crate::bacchant::BacchantCodec;
+
 #[wasm_bindgen]
 pub struct CryptagramCore {
     // State if needed
@@ -12,14 +17,20 @@ impl CryptagramCore {
         CryptagramCore {}
     }
 
-    pub fn detect(&self, _image_data: &[u8]) -> Option<String> {
-        // TODO: Implement Bacchant/Aesthete detection
+    pub fn detect(&self, width: usize, height: usize, data: &[u8]) -> Option<String> {
+        let (payload, _) = BacchantCodec::decode(width, height, data);
+        if payload.is_some() {
+            return Some("bacchant".to_string());
+        }
         None
     }
 
-    pub fn decode(&self, _image_data: &[u8]) -> Result<String, JsValue> {
-        // TODO: Implement decode
-        Err(JsValue::from_str("Not implemented"))
+    pub fn decode(&self, width: usize, height: usize, data: &[u8]) -> Result<String, JsValue> {
+        let (payload, status) = BacchantCodec::decode(width, height, data);
+        match payload {
+            Some(p) => Ok(p),
+            None => Err(JsValue::from_str(&status)),
+        }
     }
 }
 

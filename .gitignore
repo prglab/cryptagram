@@ -1,5 +1,7 @@
 .project
 .pydevproject
+node_modules/
+dist/
 .DS_Store
 *.pyc
 *.pyo
@@ -71,3 +73,7 @@ fused-src
 /experimental/lib/src/.libs/jpeg_codec_unittest
 /experimental/lib/scripts/gtest-config
 /experimental/lib/configure.scan
+
+# Local experimental binaries
+/experimental/main
+/experimental/main.dSYM/

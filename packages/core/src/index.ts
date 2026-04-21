@@ -1,6 +1,9 @@
-/**
- * Cryptagram Shared Core (TypeScript)
- */
+import { BacchantCodec } from './bacchant';
+import { AestheteCodec } from './aesthete';
+
+export * from './bacchant';
+export * from './aesthete';
+export * from './constants';
 
 export interface CodecOptions {
   protocol: 'bacchant' | 'aesthete';
@@ -18,16 +21,22 @@ export interface EncryptedPayload {
 /**
  * Detects if an image contains a Cryptagram payload.
  */
-export async function detectCryptagram(image: HTMLImageElement | ImageData): Promise<string | null> {
-  // TODO: Port detect_codec logic from tests/harness/codec_util.py
+export async function detectCryptagram(imageData: ImageData): Promise<string | null> {
+  if (new BacchantCodec().decode(imageData).payload !== null) return 'bacchant';
+  if (new AestheteCodec().decode(imageData).payload !== null) return 'aesthete';
   return null;
 }
 
 /**
  * Decodes an image into an encrypted payload.
  */
-export async function decodeCryptagram(image: HTMLImageElement | ImageData): Promise<EncryptedPayload | null> {
-  // TODO: Port decode logic
+export async function decodeCryptagram(imageData: ImageData): Promise<string | null> {
+  const bacchant = new BacchantCodec().decode(imageData);
+  if (bacchant.payload !== null) return bacchant.payload;
+  
+  const aesthete = new AestheteCodec().decode(imageData);
+  if (aesthete.payload !== null) return aesthete.payload;
+  
   return null;
 }
 
