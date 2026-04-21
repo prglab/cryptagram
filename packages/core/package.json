@@ -1,0 +1,26 @@
+{
+  "name": "@cryptagram/core",
+  "version": "1.0.0",
+  "description": "Shared TypeScript core for Cryptagram",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "test": "vitest run",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "cryptagram",
+    "privacy",
+    "steganography",
+    "crypto"
+  ],
+  "author": "Matt Tierney",
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "tsup": "^8.0.0",
+    "vitest": "^1.0.0"
+  }
+}
