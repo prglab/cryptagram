@@ -1,0 +1,18 @@
+{
+  "name": "@cryptagram/extension",
+  "version": "1.0.0",
+  "description": "Modernized Cryptagram Chrome Extension (MV3)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "typescript": "^5.0.0",
+    "@types/chrome": "^0.0.260"
+  },
+  "dependencies": {
+    "@cryptagram/core": "file:../core"
+  }
+}
