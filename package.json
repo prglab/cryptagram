@@ -7,6 +7,8 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "test": "npm test --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present"
+    "lint": "npm run lint --workspaces --if-present",
+    "dev-ext": "npm run dev -w @cryptagram/extension",
+    "build-ext": "npm run build -w @cryptagram/extension"
   }
 }

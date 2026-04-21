@@ -7,8 +7,16 @@ smoke:
 	@python3 tests/smoke/decode.py
 
 integrity:
-	@echo "Running fixture integrity tests..."
+	@echo "Running integrity tests..."
 	@node tests/integrity/validate-fixtures.mjs
+
+build-core:
+	cd packages/core && npm run build
+
+build-ext: build-core
+	cd packages/extension && npm run build
+
+.PHONY: all test smoke benchmark integrity build-core build-ext
 
 harness:
 	@echo "Running JPEG recoverability harness..."
