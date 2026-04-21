@@ -1,0 +1,13 @@
+id,path,kind,role,password_hint,width,height,size_bytes,sha256,notes
+site_encoded_main,site/encoded.jpg,image,legacy_cryptagram_sample,unknown,180,262,24573,10607b8a5eb07b22e2887ee9c81de908c7fe866b8841878229eb9594f6018058,Referenced by legacy site content.
+site_encoded_demo_1,site/encoded_1.jpg,image,legacy_demo_encrypted,cryptagram,288,288,53937,d681941d10b2b9c8d691c525ed879d31f53dce2add7a8a88a4be0a08be683bc2,Used in site demo flow.
+site_encoded_demo_2,site/encoded_2.jpg,image,legacy_demo_encrypted,unknown,328,328,93890,56cb1a8d246df2f74c84236a41a889552637099b9cff62d286a34119f9b1b348,Byte-identical to site/encrypted.jpg and demo secret.jpg.
+site_encrypted_alias,site/encrypted.jpg,image,legacy_demo_encrypted_alias,unknown,328,328,93890,56cb1a8d246df2f74c84236a41a889552637099b9cff62d286a34119f9b1b348,Alias of site_encoded_demo_2.
+site_decoded_reference,site/decoded.jpg,image,legacy_decoded_reference,none,108,138,3246,20d8c8ceb9d1266550fa2ccee02db550425a78721f17eace471ad38c5d01477d,Potential visual output reference.
+site_plain_pup,site/pup.jpg,image,legacy_plain_reference,none,137,137,4289,1ff712d61a82d491f60b6d1b111c4844a08bcb425a28af788e4f85712ad89c8e,Potential cleartext comparison target.
+demo_secret,closure/static/demo/images/secret.jpg,image,demo_encrypted_fixture,unknown,328,328,93890,56cb1a8d246df2f74c84236a41a889552637099b9cff62d286a34119f9b1b348,Byte-identical to site_encoded_demo_2.
+demo_secret2,closure/static/demo/images/secret2.jpg,image,demo_encrypted_fixture,unknown,328,326,101818,bfa9974aab19b1829ddfa8643d57a7df39ee892033d7f620f87cb3c48eef14a6,Secondary encrypted demo sample.
+demo_civic_plain,closure/static/demo/images/civic.jpg,image,demo_plain_reference,none,541,272,66680,79b869e2f3c431817798329b78a5d6805d74764a79f776d9cef2a438a8a88422,Likely plain input image used by demo encoder.
+site_encoder_secret,site-encoder/images/secret.jpg,image,site_encoder_fixture,unknown,328,328,93890,56cb1a8d246df2f74c84236a41a889552637099b9cff62d286a34119f9b1b348,Duplicate of demo_secret.
+site_encoder_secret2,site-encoder/images/secret2.jpg,image,site_encoder_fixture,unknown,328,326,101818,bfa9974aab19b1829ddfa8643d57a7df39ee892033d7f620f87cb3c48eef14a6,Duplicate of demo_secret2.
+site_encoder_pup,site-encoder/images/pup.jpg,image,site_encoder_plain_reference,none,137,137,4289,1ff712d61a82d491f60b6d1b111c4844a08bcb425a28af788e4f85712ad89c8e,Duplicate of site_plain_pup.

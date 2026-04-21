@@ -24,7 +24,7 @@ build/*
 .DS_Store
 profile
 
-Makefile
+# Makefile - removed from ignore as it's now the main test entry point
 
 a.out
 *.o
@@ -55,6 +55,7 @@ fused-src
 *.jpg
 *.xcf
 *.png
+!tests/harness/*.png
 /experimental/lib/src/aesthete_thread_runner
 /experimental/lib/src/base64_unittest
 /experimental/lib/src/ecc_experiment

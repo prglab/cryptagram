@@ -1,0 +1,26 @@
+[
+  {
+    "plaintext": "Hello, Cryptagram!",
+    "password": "password123",
+    "salt": "AChkzPvP6us",
+    "iv": "vS0KXRqMy9w",
+    "ct": "f4otgSutrabUNwh6ut25qCEFbStCb6VCC9w",
+    "full_payload": "43adc1d8354d5d1419610e5854d0c847vS0KXRqMy9wAChkzPvP6usf4otgSutrabUNwh6ut25qCEFbStCb6VCC9w"
+  },
+  {
+    "plaintext": "This is a golden vector.",
+    "password": "cryptagram",
+    "salt": "D9lFWjupvRg",
+    "iv": "QS+YIrh3Ozs",
+    "ct": "1GCC+VOZVfjjFnmKxRyJU2TGZmF3t2vnijgKZNQ86WQ",
+    "full_payload": "761efe5ea3f6f4d64e6ac9bd7958e398QS+YIrh3OzsD9lFWjupvRg1GCC+VOZVfjjFnmKxRyJU2TGZmF3t2vnijgKZNQ86WQ"
+  },
+  {
+    "plaintext": "A longer payload to test block boundary behavior and ensure the encoder handles it correctly.",
+    "password": "secret",
+    "salt": "7ZT3uAnoha0",
+    "iv": "PvBSfmnaFJg",
+    "ct": "Xfw1ng9f3IhLJjiXQyqP9NiAZFVgFFosLxZylvdE7OATOZmbuPr8RV+S8AamyYWFnr+duHfS2dhRlXRp+Xxvb08VStKEQBwm6qRRQZQCaH7H2QJqr+xdviY3GMoh0ZM83zAy16w",
+    "full_payload": "8e3a7e8dcf1fbb077948910128b539f2PvBSfmnaFJg7ZT3uAnoha0Xfw1ng9f3IhLJjiXQyqP9NiAZFVgFFosLxZylvdE7OATOZmbuPr8RV+S8AamyYWFnr+duHfS2dhRlXRp+Xxvb08VStKEQBwm6qRRQZQCaH7H2QJqr+xdviY3GMoh0ZM83zAy16w"
+  }
+]

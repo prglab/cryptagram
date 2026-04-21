@@ -1,0 +1,33 @@
+[
+  {
+    "id": "encoded_1_correct_password",
+    "image_path": "site/encoded_1.jpg",
+    "password": "cryptagram",
+    "expect_success": true
+  },
+  {
+    "id": "encoded_1_wrong_password",
+    "image_path": "site/encoded_1.jpg",
+    "password": "wrong-password",
+    "expect_success": false
+  },
+  {
+    "id": "site_encoded_demo_2",
+    "image_path": "site/encoded_2.jpg",
+    "password": "cryptagram",
+    "expect_success": true
+  },
+  {
+    "id": "demo_secret2",
+    "image_path": "closure/static/demo/images/secret2.jpg",
+    "password": "cryptagram",
+    "expect_success": true
+  },
+  {
+    "id": "encoded_1_corrupted_payload",
+    "image_path": "site/encoded_1.jpg",
+    "password": "cryptagram",
+    "expect_success": false,
+    "mutate_pixel": { "x": 20, "y": 20, "dg": 255 }
+  }
+]
